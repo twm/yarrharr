@@ -1,0 +1,4 @@
+include README.rst
+include HACKING.rst
+recursive-include yarrharr/static *
+recursive-include yarrharr/templates *.html

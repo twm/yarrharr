@@ -1,0 +1,81 @@
+/*! Yarrharr feed reader | GPLv3+ license */
+body {
+    font: 16px/20px "Open Sans", sans-serif;
+    background: white;
+    color: #111;
+}
+
+/* Yarr overrides */
+
+/* Big, touchable buttons up top */
+.yarr_control {
+    padding: 2px;
+    border: none;
+}
+
+/* Float the buttons so there isn't whitespace between them */
+.yarr_control ul {
+    display: inline-block;
+}
+.yarr_control li {
+    float: left;
+}
+
+.yarr_control li a,
+.yarr_control li span,
+.yarr_control .yarr_nav a {
+    padding: 10px 20px;
+    background: linear-gradient(to bottom, #fefefe, white 10px, #eeeeee);
+    color: #555;
+    font-weight: normal;
+}
+.yarr_control li:first-child a,
+.yarr_control li:first-child span {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+.yarr_control li:last-child a,
+.yarr_control li:last-child span {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+.yarr_control li + li a,
+.yarr_control li + li span {
+    border-left: none;
+}
+.yarr_control li a:active,
+.yarr_control li span:active,
+.yarr_control li a.yarr_selected,
+.yarr_control li span.yarr_selected {
+    background: linear-gradient(to bottom, #dedede, #ddd 10px, #eeeeee);
+    color: #101010;
+}
+
+/* Big, touchable text buttons instead of the tiny up/down arrow icons */
+.yarr_previous,
+.yarr_next {
+    width: auto !important;
+}
+.yarr_previous::before {
+    content: "Prev";
+}
+.yarr_next::before {
+    content: "Next";
+}
+
+/* Lower-key feed list */
+.yarr_feed_list {
+    border-radius: 10px;
+}
+.yarr_menu_feeds li {
+}
+.yarr_feed_list li a:link,
+.yarr_feed_list li a:visited {
+    text-decoration: none;
+    color: #555;
+}
+
+/* Touchable read/saved checkbox controls */
+.yarr_entry_control label {
+    padding: 10px;
+}

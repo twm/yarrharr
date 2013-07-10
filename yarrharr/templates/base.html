@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en_US">
+    <head>
+        <title>{% block title %}{{ title }}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width">
+        {% block css %}{% endblock %}
+        <link rel=stylesheet type="text/css" href="/static/yarrharr.css">
+        {% block js %}{% endblock %}
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>
