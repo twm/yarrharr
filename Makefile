@@ -4,7 +4,10 @@
 export YARRHARR_CONF=yarrharr/tests/test_config.ini
 
 static-assets:
+	rm -rf yarrharr/static
+	mkdir -p yarrharr/static
 	tools/build-css.sh
+	tools/build-icons.sh
 
 release: static-assets
 	python setup.py sdist

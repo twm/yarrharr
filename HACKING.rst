@@ -60,7 +60,7 @@ outputs go in ``yarrharr/static``.  The build system is a simple GNU makefile.
 
 On Ubuntu 12.04, install all the dependencies with::
 
-  $ sudo apt-get install nodejs npm
+  $ sudo apt-get install inkscape icoutils python-scour optipng nodejs npm
   $ sudo npm install -g recess
 
 Then build the static assets::
