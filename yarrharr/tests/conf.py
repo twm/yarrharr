@@ -83,6 +83,7 @@ class ConfTests(unittest.TestCase):
             ),
             'LOG_ACCESS': '/var/log/yarrharr/access.log',
             'LOG_SERVER': '/var/log/yarrharr/server.log',
+            'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
             'YARR_LAYOUT_FIXED': False,
             'YARR_ITEM_EXPIRY': 60,

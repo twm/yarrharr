@@ -5,13 +5,16 @@ Yarrharr production server via Twisted Web
 import os
 import signal
 
+from yarr.models import Feed
 from django.conf import settings
 from twisted.python import log
+from twisted.internet import task
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.resource import Resource
 from twisted.python.logfile import LogFile
+from twisted.internet.threads import deferToThread
 from twisted.internet.endpoints import serverFromString
 
 from . import __version__
@@ -46,6 +49,9 @@ class FallbackResource(Resource):
 
 
 class Root(FallbackResource):
+    """
+    Root of the Yarrharr URL hierarchy.
+    """
     def __init__(self, reactor):
         wsgi = WSGIResource(reactor, reactor.getThreadPool(), application)
 
@@ -53,6 +59,49 @@ class Root(FallbackResource):
 
         # Install our static file handlers.
         self.putChild('static', File(settings.STATIC_ROOT))
+
+
+class EndlingWrapper(object):
+    def __init__(self, logfile):
+        """
+        Wrap a Twisted LogFile to apply the weird behavior of Django's
+        management command ``stdout`` attribute: it automatically appends
+        newlines if not present.
+        """
+        self.logfile = logfile
+
+    def write(self, s, ending='\n'):
+        if not s.endswith('\n'):
+            s = s + ending
+        self.logfile.write(s)
+
+
+def updateFeeds(reactor):
+    """
+    Run django-yarr's update command in a thread.
+    """
+    log.msg('Checking feeds for updates')
+    logfile = None
+    if settings.LOG_UPDATE is not None:
+        try:
+            logfile = LogFile.fromFullPath(settings.LOG_UPDATE,
+                                           maxRotatedFiles=10)
+        except IOError:
+            log.err()
+
+    start = reactor.seconds()
+
+    def logTiming(result):
+        if logfile is not None:
+            logfile.close()
+        duration = reactor.seconds() - start
+        log.msg('Checking feeds took {:.2f} sec'.format(duration))
+        return result
+
+    d = deferToThread(Feed.objects.check, logfile=EndlingWrapper(logfile))
+    d.addErrback(log.err)
+    d.addBoth(logTiming)
+    return d
 
 
 def run(sigstop=False, logPath=None):
@@ -66,16 +115,22 @@ def run(sigstop=False, logPath=None):
 
     factory = Site(Root(reactor), logPath=settings.LOG_ACCESS)
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
-
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 
+    updateLoop = task.LoopingCall(updateFeeds, reactor)
+    loopEndD = updateLoop.start(15 * 60)
+    def stopUpdateLoop():
+        updateLoop.stop()
+        return loopEndD
+    reactor.addSystemEventTrigger('before', 'shutdown', stopUpdateLoop)
+
     if sigstop:
-        def send_sigstop():
+        def sendSigstop():
             """
             Tell Upstart we've successfully started.
             """
             os.kill(os.getpid(), signal.SIGSTOP)
 
-        reactor.addSystemEventTrigger('after', 'startup', sigstop)
+        reactor.addSystemEventTrigger('after', 'startup', sendSigstop)
 
     reactor.run()
