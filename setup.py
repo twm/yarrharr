@@ -8,7 +8,7 @@ setup(
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
-        'django-yarr>=0.3.6',
+        'django-yarr>=0.3.8',
         'Twisted>=13.1.0',
         'South>=0.8.1',
     ],
