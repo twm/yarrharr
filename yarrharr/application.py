@@ -4,6 +4,7 @@ Yarrharr production server via Twisted Web
 
 import os
 import signal
+import logging
 
 from yarr.models import Feed
 from django.conf import settings
@@ -106,6 +107,8 @@ def updateFeeds(reactor):
 
 def run(sigstop=False, logPath=None):
     from twisted.internet import reactor
+
+    logging.basicConfig(level=logging.ERROR)
     if settings.LOG_SERVER is not None:
         # TODO: Reopen on SIGHUP so logrotate can handle compression.
         logfile = LogFile.fromFullPath(settings.LOG_SERVER)
