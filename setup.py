@@ -11,6 +11,7 @@ setup(
         'django-yarr>=0.3.8',
         'Twisted>=13.1.0',
         'South>=0.8.1',
+        'pytz',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
