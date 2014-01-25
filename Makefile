@@ -3,7 +3,8 @@
 
 export YARRHARR_CONF=yarrharr/tests/test_config.ini
 
-LESSC ?= node_modules/.bin/lessc
+NODEJS ?= $(shell which nodejs || which node)
+LESSC ?= $(NODEJS) node_modules/.bin/lessc
 
 yarrharr/static/yarrharr.css: assets/yarrharr.less
 	@mkdir -p $(dir $@)
