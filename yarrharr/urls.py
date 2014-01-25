@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^yarr/', include('yarr.urls')),
     url(r'^about/$', 'yarrharr.views.about', name='yarrharr-about'),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^debug/messages$', 'yarrharr.views.debug_messages', name='yarrharr:debug-messages'),
 )

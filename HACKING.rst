@@ -33,9 +33,13 @@ Non-Goals
 Development
 ===========
 
-I suggesting using ``virtualenv`` to manage Python dependencies.  Please limit
-runtime dependencies to pure Python for portability, but the build-time deps
-are pretty extensive.
+I suggesting using ``virtualenv`` to manage Python dependencies.  Runtime
+dependencies are limited to pure Python for portability, but the build-time
+deps are pretty extensive.
+
+``lessc``, installed via ``npm``, is used for building the CSS.  The goal is to
+keep to the version used in the current Ubuntu LTS release, despite how
+difficult the Node.js and npm folks make that.
 
 Building Yarrharr
 -----------------
@@ -61,7 +65,10 @@ outputs go in ``yarrharr/static``.  The build system is a simple GNU makefile.
 On Ubuntu 12.04, install all the dependencies with::
 
   $ sudo apt-get install inkscape icoutils python-scour optipng nodejs npm
-  $ sudo npm install -g recess
+
+Grab Node.js dependencies with this command in the package root::
+
+  $ npm install
 
 Then build the static assets::
 
@@ -72,6 +79,6 @@ Releases
 
  1. Bump the version number in ``setup.py`` per `semantic versioning`_.
  2. Tag the release: ``git tag "v$(python setup.py --version)"``
- 3. Type ``make release`` to generate a tarball to the ``dist`` directory.
+ 3. Type ``make release`` to output a tarball to the ``dist`` directory.
 
 .. _semantic versioning: http://semver.org/

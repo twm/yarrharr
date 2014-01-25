@@ -1,3 +1,6 @@
 [submodule "assets/normalize.css"]
 	path = assets/normalize.css
 	url = https://github.com/necolas/normalize.css.git
+[submodule "assets/gnome-icon-theme-symbolic"]
+	path = assets/gnome-icon-theme-symbolic
+	url = https://git.gnome.org/browse/gnome-icon-theme-symbolic

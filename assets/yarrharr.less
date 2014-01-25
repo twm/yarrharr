@@ -1,83 +1,650 @@
 /*! Yarrharr feed reader | GPLv3+ license */
-body {
-    font: 16px/20px "Open Sans", sans-serif;
-    background: white;
-    color: #111;
+
+@import (less) "normalize.css/normalize.css";
+
+@normal_color: #111;
+@lowkey_color: #555;
+@border_color: #ccc;
+@highlight_color: #fb6500;
+@button_radius: 7px;
+@entry_icon_width: 40px;
+@control_font_size: 12px;
+
+/* Height of the toolbar. */
+@control_height: 48px;
+@feed_list_width: 320px;
+
+/* Icon URLs */
+@unread_icon: url(text-x-generic-symbolic.svg); /* Blank page*/
+@read_icon: url(object-select-symbolic.svg); /* check mark */
+@unsaved_icon: url(non-starred-symbolic.svg); /* Empty star */
+@saved_icon: url(starred-symbolic.svg); /* Filled star */
+@error_icon: url(dialog-error-symbolic.svg);
+
+/* Mixin which causes text to be ellipsized. */
+.ellipsize () {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Yarr overrides */
+.border-box () {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.control_background () {
+    background: white; /* Old Android */
+    background: linear-gradient(to bottom, #fefefe, white 10px, #eeeeee);
+}
+.control_background (@icon_image; @icon_size: 20px; @icon_left: 10px) {
+    background: white; /* Old Android */
+    background: white @icon_image @icon_left 50% / @icon_size no-repeat;
+    background: @icon_image @icon_left 50% / @icon_size no-repeat,
+                linear-gradient(to bottom, #fefefe, white 10px, #eeeeee);
+}
+
+.control_background_active (...) {
+    box-shadow: -1.0px -1.0px 1.5px rgba(255, 255, 255, 0.3) inset,
+                 0.0px  0.0px 3.0px rgba(0, 0, 0, 0.1) inset;
+}
+.control_background_active () {
+    background: #dedede; /* Old Android */
+    background: linear-gradient(to bottom, #dedede, #ddd 10px, #eeeeee);
+}
+.control_background_active (@icon_image; @icon_size: 20px; @icon_left: 10px) {
+    background: #dedede; /* Old Android */
+    background: #dedede @icon_image @icon_left 50% / @icon_size no-repeat;
+    background: @icon_image @icon_left 50% / @icon_size no-repeat,
+                linear-gradient(to bottom, #dedede, #ddd 10px, #eeeeee);
+}
+
+.control_font () {
+    color: @lowkey_color;
+    font-size: @control_font_size;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+
+body {
+    font: 16px/20px "Open Sans", "OpenSans", sans-serif;
+    background: white;
+    color: @normal_color;
+    padding: @control_height 0 0 0;
+}
+
+main {
+    margin: 0 10px;
+
+    :link {
+        color: #264b8e;
+    }
+    :link:active,
+    :visited {
+        color: #802996;
+    }
+}
+
+footer {
+    display: block;
+    padding: 40px 10px 10px 10px;
+    text-align: center;
+    .control_font;
+
+    :link,
+    :visited {
+        .control_font;
+        text-decoration: underline;
+    }
+}
+
+.control_border () {
+    border: 1px solid @border_color;
+
+    -moz-transition: border-color 0.2s;
+    -webkit-transition: border-color 0.2s;
+    transition: border-color 0.2s;
+
+    &:focus {
+        border-color: @highlight_color;
+    }
+}
+
+input[type=submit] {
+    padding: 10px 20px;
+    .control_font;
+    .control_background;
+    .control_border;
+    border-radius: @button_radius;
+
+    &:active {
+        .control_background_active;
+    }
+}
+
+input[type=text],
+input[type=password] {
+    padding: 5px;
+    border-radius: 3px;
+    background: white;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1) inset;
+    .border-box;
+    .control_border;
+}
+
+select {
+    padding: 5px;
+    .border-box;
+    .control_background;
+    .control_border;
+    border-radius: 3px;
+}
+
+.small_form {
+    padding: 0 10px;
+    .border-box;
+
+    @text_hpos: 6px; /* left-align with <input> text */
+
+    .errorlist {
+        padding: 0 0 0 (20px + @text_hpos);
+        list-style: none;
+        background: @error_icon top left no-repeat;
+        .control_font;
+    }
+
+    label,
+    .helptext {
+        display: block;
+        padding: 0 0 0 @text_hpos;
+        .control_font;
+    }
+    input[type=text],
+    input[type=password] {
+        width: 100%;
+    }
+    .actions {
+        padding: 5px 0 0 0;
+        text-align: right;
+    }
+}
+
+/* Uses Django's table form HTML */
+.yarr_form {
+    & > table {
+        width: 100%;
+    }
+    th {
+        text-align: left;
+        vertical-align: top;
+        padding: 10px 5px 0 0;
+        .control_font;
+    }
+    .helptext {
+        padding: 0 0 5px 5px;
+        .control_font;
+    }
+}
+
+/** Django message framework ***/
+.messages {
+    list-style: none;
+    padding: 0;
+    .control_font;
+    color: @normal_color; /* Override */
+
+    li {
+        position: relative;
+        margin: 10px; /* Margin collapsing will save us. */
+        padding: 5px 10px 5px 10px;
+        min-height: 20px;
+    }
+
+    .debug::before ,
+    .info::before ,
+    .success::before ,
+    .warning::before ,
+    .error::before {
+        padding-right: 1em;
+    }
+
+    .debug::before {
+        content: url(system-run-symbolic.svg);
+    }
+    .info::before {
+        content: url(dialog-information-symbolic.svg);
+    }
+    .success::before {
+        content: url(dialog-information-symbolic.svg);
+    }
+    .warning::before {
+        content: url(dialog-warning-symbolic.svg);
+    }
+    .error::before {
+        content: @error_icon;
+    }
+}
+
+/*** Status Toast ***/
+#yarr_status {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    width: 200px;
+    margin-left: -110px;
+    padding: 5px 10px;
+    text-align: center;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+    .control_font;
+    background: #333;
+    color: white; /* Override */
+
+    &.yarr_error {
+        background: red; /* TODO: Better color for this.*/
+    }
+}
+
+/*** LOGIN FORM ***/
+.yarrharr_login {
+    width: 20em;
+    max-width: 100%; /* Squish for phones */
+    margin: 0 auto;
+}
+
+/*** TOOLBAR ***/
 
 /* Big, touchable buttons up top */
 .yarr_control {
-    padding: 2px;
-    border: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 3px 0 0 0;
+    overflow: hidden;
+    line-height: 1;
+    .border-box;
+    .control_background;
+    border-bottom: 1px solid @border_color;
+    z-index: 1; /* Work around Firefox bug 886716 */
+
+    /* Float the buttons so there isn't whitespace between them */
+    ul {
+        display: inline-block;
+        position: relative; /* context for z-index */
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+        vertical-align: baseline;
+    }
+    li {
+        float: left;
+        list-style: none;
+    }
+
+    li a,
+    li span {
+        display: block;
+        position: relative;
+        z-index: 0;
+        padding: 0 20px;
+        .control_background;
+        .control_font;
+        .control_border;
+        line-height: 40px;
+    }
+    li:first-child a,
+    li:first-child span {
+        margin-left: 10px;
+        padding-left: 20px;
+        border-top-left-radius: @button_radius;
+        border-bottom-left-radius: @button_radius;
+    }
+    li:last-child a,
+    li:last-child span {
+        padding-right: 20px;
+        border-top-right-radius: @button_radius;
+        border-bottom-right-radius: @button_radius;
+    }
+    @media (max-width: 768px) {
+        li a,
+        li span {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        li:first-child a,
+        li:first-child span {
+            margin-left: 2px;
+            padding-left: 10px;
+        }
+        li:last-child a,
+        li:last-child span {
+            padding-right: 10px;
+        }
+    }
+    li + li a,
+    li + li span {
+        margin-left: -1px; /* Overlap with the prior item's border */
+    }
+    li a:active,
+    li span:active,
+    li a.yarr_selected,
+    li span.yarr_selected {
+        .control_background_active;
+    }
+    li a:active,
+    li a:focus,
+    li span:active,
+    li span:focus {
+        z-index: 1; /* Bring border above the overlapping one to the right */
+    }
+
+    /* Big, touchable text buttons instead of the tiny up/down arrow icons */
+    .yarr_nav li a:first-child,
+    .yarr_nav li a:last-child {
+        padding: 0;
+    }
+    li .yarr_previous {
+        display: block;
+        width: 50px;
+        height: 40px;
+        .control_background(url(go-up-symbolic.svg); 20px; 50%);
+    }
+    li .yarr_previous:active {
+        .control_background_active(url(go-up-symbolic.svg); 20px; 50%);
+    }
+    li .yarr_next {
+        display: block;
+        width: 50px;
+        height: 40px;
+        .control_background(url(go-down-symbolic.svg); 20px; 50%);
+    }
+    li .yarr_next:active {
+        .control_background_active(url(go-down-symbolic.svg); 20px; 50%);
+    }
 }
 
-/* Float the buttons so there isn't whitespace between them */
-.yarr_control ul {
-    display: inline-block;
-}
-.yarr_control li {
-    float: left;
-}
-
-.yarr_control li a,
-.yarr_control li span,
-.yarr_control .yarr_nav a {
-    padding: 10px 20px;
-    background: white; /* Old Android */
-    background: linear-gradient(to bottom, #fefefe, white 10px, #eeeeee);
-    color: #555;
-    font-weight: normal;
-}
-.yarr_control li:first-child a,
-.yarr_control li:first-child span {
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-}
-.yarr_control li:last-child a,
-.yarr_control li:last-child span {
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-.yarr_control li + li a,
-.yarr_control li + li span {
-    border-left: none;
-}
-.yarr_control li a:active,
-.yarr_control li span:active,
-.yarr_control li a.yarr_selected,
-.yarr_control li span.yarr_selected {
-    background: #dedede; /* Old Android */
-    background: linear-gradient(to bottom, #dedede, #ddd 10px, #eeeeee);
-    color: #101010;
-}
-
-/* Big, touchable text buttons instead of the tiny up/down arrow icons */
-.yarr_previous,
-.yarr_next {
-    width: auto !important;
-}
-.yarr_previous::before {
-    content: "Prev";
-}
-.yarr_next::before {
-    content: "Next";
-}
-
-/* Lower-key feed list */
+/*** FEED LIST ***/
 .yarr_feed_list {
-    border-radius: 10px;
-}
-.yarr_menu_feeds li {
-}
-.yarr_feed_list li a:link,
-.yarr_feed_list li a:visited {
-    text-decoration: none;
-    color: #555;
+    position: absolute;
+    left: 0;
+    top: @control_height;
+    z-index: 0;
+    width: @feed_list_width;
+
+    background: #eee;
+    border-right: 1px solid @border_color;
+    border-bottom: 1px solid @border_color;
+
+    ul {
+        list-style: none;
+        margin: 0 0 10px 0;
+        padding: 0;
+    }
+    li {
+        padding: 0;
+        line-height: 1.5;
+
+        a:link,
+        a:visited {
+            position: relative;
+            display: block;
+            padding: 5px 30px 5px 10px;
+            text-decoration: none;
+            color: #555;
+            .ellipsize;
+        }
+
+        a:hover,
+        a:active {
+            background: #ddd;
+        }
+
+        .yarr_count_unread {
+            display: block;
+            position: absolute;
+            text-align: center;
+            top: 5px;
+            right: 10px;
+            padding: 0 5px;
+            border-radius: 5px;
+            color: #eee;
+            background: #999;
+            text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+        }
+
+        &:not(.yarr_feed_unread) .yarr_count_unread {
+            display: none;
+        }
+
+    }
+
+    .yarr_menu_feeds {
+        font-weight: 600;
+    }
 }
 
-/* Touchable read/saved checkbox controls */
-.yarr_entry_control label {
-    padding: 10px;
+/*** FEED CONTENT ***/
+.yarr_content {
+    margin: 0 -10px 0 @feed_list_width; /* Cancel out base page margins */
+
+    & > p, /* "No unread items" etc. */
+    .yarr_entry_content {
+        padding: 0 10px;
+    }
+
+    .yarr_entry_li {
+        display: none;
+    }
+    .yarr_entry_content {
+        display: block;
+    }
+
+    /* In this mode the content is hidden until the list item is clicked, which
+     * adds the ``yarr_open`` class to the entry. */
+    &.yarr_mode_list {
+        .yarr_entry_li {
+            display: block;
+        }
+        .yarr_entry_content,
+        .yarr_entry_control {
+            display: none;
+        }
+        .yarr_open .yarr_entry_content,
+        .yarr_open .yarr_entry_control {
+            display: block;
+        }
+    }
+}
+
+.yarr_entry {
+    position: relative; /* Positioning context for ::before icon */
+}
+
+/* An icon indicating unread/read/saved status to the left of the header.  In
+ * list mode this goes to the left of the .yarr_entry_li, but otherwise it is
+ * to the left of the heading/author information. */
+.yarr_entry {
+    background: @unread_icon 0px 10px no-repeat;
+    background-size: 40px 40px;
+
+    .yarr_read& {
+        background-image: @read_icon;
+    }
+    [data-yarr-saved="true"]& {
+        background-image: @saved_icon;
+    }
+}
+
+/* Here we differ from django-yarr's styles a bit.  The row needs to be taller
+ * so that it is manipulable via touchscreen. */
+.yarr_entry_li {
+    @vert: 10px;
+
+    color: @lowkey_color;
+    padding: 0 0 0 ( @entry_icon_width + 10px );
+
+    .yarr_li_feed {
+        float: left;
+        width: 60%;
+        padding: @vert 0 0 0;
+        font-size: 12px;
+        .border-box;
+        .ellipsize;
+    }
+    .yarr_li_date {
+        float: left;
+        width: 40%;
+        text-align: right;
+        padding: @vert 10px 0 0;
+        font-size: 12px;
+        .border-box;
+        .ellipsize;
+    }
+    .yarr_li_entry {
+        clear: both;
+        width: 100%;
+        padding: 0 10px @vert 0;
+        .border-box;
+        .ellipsize;
+        color: @normal_color;
+
+        span { /* entry title */
+            font-weight: 600;
+        }
+    }
+
+}
+
+.yarr_entry_content {
+    h2 {
+        font-size: 24px;
+        line-height: 30px;
+        font-weight: normal;
+        margin-bottom: 10px;
+    }
+    .yarr_date,
+    .yarr_feed {
+        color: @lowkey_color;
+        font-size: 12px;
+        margin: 0 0 16px 0;
+    }
+    .yarr_date {
+        float: right;
+    }
+
+    h2:first-child,
+    .yarr_feed {
+        padding-left: @entry_icon_width;
+
+        .yarr_mode_list & {
+            padding-left: 0;
+        }
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    hr {
+        margin: 10px 40px 10px 40px;
+        border: 1px solid #eeeeee;
+    }
+}
+
+.yarr_entry_control {
+    position: static; /* z-index context */
+    padding: 0;
+    .control_background;
+    color: @lowkey_color;
+    border-top: 1px solid @border_color;
+    border-bottom: 1px solid @border_color;
+    height: 40px;
+
+    /* Big and touchable read/saved checkbox controls */
+    li {
+        display: inline;
+        list-style: none;
+    }
+    /* The controls are links before progressive enhancements, then checkboxes
+     * wrapped in <label> tags. */
+    a, label span {
+        display: inline-block;
+        position: relative; /* Positioning context for checkbox */
+        padding: 0 20px;
+        height: 40px;
+        line-height: 40px;
+        .control_font;
+        .control_border;
+        margin: -1px 0 -1px -1px; /* Overlap borders */
+        z-index: 0;
+    }
+    input[type=checkbox] {
+        position: absolute;
+        opacity: 0;
+
+        & + span {
+            padding-left: 40px;
+        }
+    }
+
+    /* We need two selectors because the click is actually handled by the
+     * <label> tag, and focus doesn't transfer to the actual checkbox until after
+     * mouseup.  The label never really gets focus, just :active. */
+    input[type=checkbox]:focus + span,
+    label:active span {
+        border-color: @highlight_color;
+        z-index: 1;
+    }
+
+    .icons_for_checkbox(@checked_icon; @unchecked_icon) {
+        & + span {
+            .control_background(@unchecked_icon; 20px);
+        }
+        &:active + span,
+        &:checked + span {
+            .control_background_active(@checked_icon; 20px);
+        }
+    }
+
+    input[name=read] {
+        .icons_for_checkbox(@read_icon; @unread_icon);
+    }
+    input[name=saved] {
+        .icons_for_checkbox(@saved_icon; @unsaved_icon);
+    }
+}
+
+
+/*** FEED MANAGEMENT ***/
+.yarr_feed_manage {
+    width: 100%;
+
+    th, td {
+        border-top: 1px solid @border_color;
+        padding: 5px 10px 5px 0;
+    }
+    th {
+        text-align: left;
+    }
+    td[colspan] {
+        border-top: none;
+    }
+
+    .yarr_name {
+    }
+    .yarr_unread,
+    .yarr_status {
+    }
+    .yarr_next_check {
+    }
+}
+
+.yarrharr_feed_add,
+.yarr_confirm {
+    width: 80%;
+    max-width: 35em;
+    margin: 0 auto;
 }

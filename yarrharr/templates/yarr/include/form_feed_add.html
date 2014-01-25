@@ -1,0 +1,5 @@
+<form class="yarrharr_feed_add small_form" method=POST action="{% url "yarr-feed_add" %}">
+    {{ feed_form.non_field_errors }}
+    {{ feed_form.as_p }}
+    <p class=actions>{% csrf_token %}<input type=submit value="Add feed">
+</form>
