@@ -2,9 +2,9 @@
 Hacking on Yarrharr
 ===================
 
-You want to help?  Awesome!  I accept pull requests on `Github`_.
+You want to help?  Awesome!  I accept pull requests on `GitHub`_.
 
-.. _Github: https://github.com/twm/yarrharr
+.. _GitHub: https://github.com/twm/yarrharr
 
 Project Goals
 =============
@@ -62,7 +62,11 @@ before the ``sdist`` stage so that Yarrharr can be installed via PIP without
 non-Python dependencies.  All of the raw assets are stored in ``assets``, and
 outputs go in ``yarrharr/static``.  The build system is a simple GNU makefile.
 
-On Ubuntu 12.04, install all the dependencies with::
+Once you've cloned the repository, clone the submodules as well::
+
+  $ git submodule update --init
+
+On Ubuntu 12.04, install all the build dependencies with::
 
   $ sudo apt-get install inkscape icoutils python-scour optipng nodejs npm
 
