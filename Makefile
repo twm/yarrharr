@@ -1,35 +1,63 @@
 # A very lazy Makefile.  Just shell out to do everything.  Some day this can
 # become a real build system, maybe, if I feel like it…
 
+# Clear default rules.
+.SUFFIXES:
+
 export YARRHARR_CONF=yarrharr/tests/test_config.ini
 
 NODEJS ?= $(shell which nodejs || which node)
 LESSC ?= $(NODEJS) node_modules/.bin/lessc
 
-yarrharr/static/yarrharr.css: assets/yarrharr.less
-	@mkdir -p $(dir $@)
-	$(LESSC) --verbose --strict-math=on --compress $< $@
+SCOUR ?= scour
+SCOURFLAGS := --indent=none --enable-comment-stripping \
+	--enable-id-stripping --shorten-ids
 
-static-assets: yarrharr/static/yarrharr.css
-	cp 'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/go-down-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/go-up-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/system-run-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/status/starred-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/status/non-starred-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/status/dialog-error-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/status/dialog-information-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/status/dialog-question-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/status/dialog-warning-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/mimetypes/text-x-generic-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/places/folder-saved-search-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/view-continuous-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/view-list-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/view-paged-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/view-refresh-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/actions/object-select-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/emblems/emblem-synchronizing-symbolic.svg' \
-	    'assets/gnome-icon-theme-symbolic/gnome/scalable/emblems/emblem-system-symbolic.svg' \
-	    'yarrharr/static/'
+V := @
+
+STATIC_TARGETS := yarrharr/static/yarrharr.css
+
+yarrharr/static:
+	$(V)mkdir -p $(dir $@)
+
+yarrharr/static/yarrharr.css: assets/yarrharr.less yarrharr/static
+	@echo "LESS $@"
+	$(V)$(LESSC) --verbose --strict-math=on --compress $< $@
+
+ICON_SRC_ROOT := assets/gnome-icon-theme-symbolic/gnome/scalable
+ICON_DEST := yarrharr/static
+ICONS := \
+    actions/go-down-symbolic.svg \
+    actions/go-up-symbolic.svg \
+    actions/system-run-symbolic.svg \
+    status/starred-symbolic.svg \
+    status/non-starred-symbolic.svg \
+    status/dialog-error-symbolic.svg \
+    status/dialog-information-symbolic.svg \
+    status/dialog-question-symbolic.svg \
+    status/dialog-warning-symbolic.svg \
+    mimetypes/text-x-generic-symbolic.svg \
+    places/folder-saved-search-symbolic.svg \
+    actions/view-continuous-symbolic.svg \
+    actions/view-list-symbolic.svg \
+    actions/view-paged-symbolic.svg \
+    actions/view-refresh-symbolic.svg \
+    actions/object-select-symbolic.svg \
+    emblems/emblem-synchronizing-symbolic.svg \
+    emblems/emblem-system-symbolic.svg
+
+define MINIFY-ICON-RULE
+STATIC_TARGETS += $(ICON_DEST)/$(notdir $(1))
+
+$(ICON_DEST)/$(notdir $(1)): $(ICON_SRC_ROOT)/$(1) $(ICON_DEST)
+	@echo "SCOUR $$@ "
+	$(V)$(SCOUR) -i "$$<" -o "$$@" $(SCOURFLAGS) >/dev/null 2>&1
+endef
+
+$(foreach f,$(ICONS),$(eval $(call MINIFY-ICON-RULE,$f)))
+
+
+static-assets: $(STATIC_TARGETS)
 	tools/build-icons.sh
 
 release: static-assets
@@ -42,4 +70,7 @@ devserver:
 	mkdir -p static
 	bin/manage.py runserver
 
-.PHONY: static-assets release test devserver
+clean:
+	-rm -rf yarrharr/static
+
+.PHONY: static-assets release test devserver clean
