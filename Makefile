@@ -51,14 +51,14 @@ STATIC_TARGETS += $(ICON_DEST)/$(notdir $(1))
 
 $(ICON_DEST)/$(notdir $(1)): $(ICON_SRC_ROOT)/$(1) $(ICON_DEST)
 	@echo "SCOUR $$@ "
-	$(V)$(SCOUR) -i "$$<" -o "$$@" $(SCOURFLAGS) >/dev/null 2>&1
+	$$(V)$$(SCOUR) -i "$$<" -o "$$@" $$(SCOURFLAGS) >/dev/null 2>&1
 endef
 
 $(foreach f,$(ICONS),$(eval $(call MINIFY-ICON-RULE,$f)))
 
+include tools/yarrharr-icon.mk
 
 static-assets: $(STATIC_TARGETS)
-	tools/build-icons.sh
 
 release: static-assets
 	python setup.py sdist
