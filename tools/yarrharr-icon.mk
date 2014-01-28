@@ -13,7 +13,7 @@ STATIC_TARGETS += $(1)
 $(1): $(YARRHARR_ICON_SOURCE)
 	$$(V)mkdir -p "$$(dir $$@)"
 	@echo "INKSCAPE $$@"
-	$$(V)inkscape -f "$$<" --export-png="$$@" -w "$(2)" -h "$(2)" --export-area-page >/dev/null
+	$$(V)inkscape -f "$$<" --export-png="$$@" -w "$(2)" -h "$(2)" --export-area-page >/dev/null 2>&1
 	@echo "OPTIPNG $$@"
 	$$(V)optipng -quiet "$$@"
 endef
