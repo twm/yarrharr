@@ -75,8 +75,6 @@ body {
 }
 
 main {
-    margin: 0 10px;
-
     :link {
         color: #264b8e;
     }
@@ -252,6 +250,19 @@ select {
     margin: 0 auto;
 }
 
+/*** MANAGEMENT PAGE WRAPPERS ***/
+#yarr_feeds,
+#yarr_feed_add,
+#yarr_feed_edit {
+    padding: 0 10px;
+}
+
+/*** FEED VIEW WRAPPER ***/
+#yarr_con {
+    display: flex;
+    align-items: flex-start; /* Align to top */
+}
+
 /*** TOOLBAR ***/
 
 /* Big, touchable buttons up top */
@@ -367,11 +378,9 @@ select {
 
 /*** FEED LIST ***/
 .yarr_feed_list {
-    position: absolute;
-    left: 0;
-    top: @control_height;
-    z-index: 0;
+    flex: none;
     width: @feed_list_width;
+    z-index: 0;
 
     background: #eee;
     border-right: 1px solid @border_color;
@@ -427,9 +436,15 @@ select {
 
 /*** FEED CONTENT ***/
 .yarr_content {
-    margin: 0 -10px 0 @feed_list_width; /* Cancel out base page margins */
+    flex: 1;
+    margin: 0 0 0 10px;
 
-    & > p, /* "No unread items" etc. */
+    & > p { /* "No unread items" etc. */
+        text-align: center;
+        padding: 50px 0;
+        .control_font;
+    }
+
     .yarr_entry_content {
         padding: 0 10px;
     }
