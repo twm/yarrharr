@@ -268,30 +268,44 @@ select {
 /* Big, touchable buttons up top */
 .yarr_control {
     position: fixed;
+    display: flex;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 2;
-    padding: 3px 0 0 0;
-    overflow: hidden;
-    line-height: 1;
-    .border-box;
+    padding: 3px 0;
+    z-index: 100; /* Work around Firefox bug 886716 */
     .control_background;
     border-bottom: 1px solid @border_color;
-    z-index: 1; /* Work around Firefox bug 886716 */
 
-    /* Float the buttons so there isn't whitespace between them */
     ul {
-        display: inline-block;
+        display: flex;
         position: relative; /* context for z-index */
-        margin: 0;
+        margin: 0 5px;
         padding: 0;
-        line-height: 1;
-        vertical-align: baseline;
     }
     li {
-        float: left;
         list-style: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        min-width: 40px; /* At least as wide as tall */
+    }
+
+    /* Left and right align the first and last button sets, respectively.  If
+     * there's only one, left align (so :first-child needs more specificity
+     * than :last-child and must go after it). */
+    ul:last-child {
+        margin: 0 10px 0 auto; /* Right align */
+    }
+    ul:first-child {
+        margin: 0 auto 0 10px; /* Left-align */
+    }
+
+    ul.yarr_menu_op,
+    ul.yarr_menu_mode,
+    ul.yarr_menu_sort {
+        flex: 0 1 auto;
     }
 
     li a,
@@ -307,7 +321,6 @@ select {
     }
     li:first-child a,
     li:first-child span {
-        margin-left: 10px;
         padding-left: 20px;
         border-top-left-radius: @button_radius;
         border-bottom-left-radius: @button_radius;
@@ -326,7 +339,6 @@ select {
         }
         li:first-child a,
         li:first-child span {
-            margin-left: 2px;
             padding-left: 10px;
         }
         li:last-child a,
