@@ -12,7 +12,7 @@
 
 /* Height of the toolbar. */
 @control_height: 48px;
-@feed_list_width: 320px;
+@feed_list_width: 250px;
 
 /* Icon URLs */
 @unread_icon: url(text-x-generic-symbolic.svg); /* Blank page*/
@@ -382,7 +382,7 @@ select {
     width: @feed_list_width;
     z-index: 0;
 
-    background: #eee;
+    background: #fafafa;
     border-right: 1px solid @border_color;
     border-bottom: 1px solid @border_color;
 
@@ -395,13 +395,12 @@ select {
         padding: 0;
         line-height: 1.5;
 
-        a:link,
-        a:visited {
+        a {
             position: relative;
             display: block;
             padding: 5px 30px 5px 10px;
             text-decoration: none;
-            color: #555;
+            .control_font;
             .ellipsize;
         }
 
@@ -418,18 +417,17 @@ select {
             right: 10px;
             padding: 0 5px;
             border-radius: 5px;
-            color: #eee;
-            background: #999;
-            text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+            color: #fafafa;
+            background: #777;
         }
 
         &:not(.yarr_feed_unread) .yarr_count_unread {
-            display: none;
+            visibility: collapse;
         }
 
     }
 
-    .yarr_menu_feeds {
+    .yarr_menu_feeds li a {
         font-weight: 600;
     }
 }
