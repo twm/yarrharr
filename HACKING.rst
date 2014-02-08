@@ -33,50 +33,68 @@ Non-Goals
 Development
 ===========
 
-I suggesting using ``virtualenv`` to manage Python dependencies.  Runtime
-dependencies are limited to pure Python for portability, but the build-time
-deps are pretty extensive.
+Create a new `virtualenv`_ and use PIP install editable versions of django-yarr
+and Yarrharr::
 
-``lessc``, installed via ``npm``, is used for building the CSS.  The goal is to
-keep to the version used in the current Ubuntu LTS release, despite how
-difficult the Node.js and npm folks make that.
+  $ virtualenv ~/yarrharr-dev
+  $ cd ~/yarrharr-dev
+  $ . bin/activate
+  $ pip install -e 'git+https://github.com/radiac/django-yarr.git#egg=django-yarr'
+  $ pip install -e 'git+https://github.com/twm/yarrharr.git#egg=yarrharr'
 
-Building Yarrharr
------------------
+Install additional development dependencies, submodules, and build tools::
 
-Because Yarrharr is intended as an end-user application, it has a more complex
-build process than the typical Python package.  Normally the ``python setup.py
-sdist`` step is as simple as scraping all of the ``.py`` files out of
-a repository checkout, along with some documentation, but a web application
-includes a number of assets which `Distribute`_ doesn't know how to deal with:
-
- * CSS — compiled from `LESS`_ sources, combined, and minified
- * JavaScript — combined and minified
- * Images — rasterized from SVG sources, crushed
-
-.. _Distribute: http://pythonhosted.org/distribute/
-.. _LESS: http://lesscss.org/
-
-As the software required to do all of this is pretty extensive, it's done
-before the ``sdist`` stage so that Yarrharr can be installed via PIP without
-non-Python dependencies.  All of the raw assets are stored in ``assets``, and
-outputs go in ``yarrharr/static``.  The build system is a simple GNU makefile.
-
-Once you've cloned the repository, clone the submodules as well::
-
+  $ cd src/yarrharr
+  $ pip install -r requirements-dev.txt
   $ git submodule update --init
 
 On Ubuntu 12.04, install all the build dependencies with::
 
-  $ sudo apt-get install inkscape icoutils python-scour optipng nodejs npm
+  $ sudo apt-get install inkscape icoutils python-scour optipng nodejs npm \
+                         python-dev build-essential
 
-Grab Node.js dependencies with this command in the package root::
+Install `lessc`_ via `npm`_::
 
   $ npm install
 
 Then build the static assets::
 
   $ make static-assets
+
+.. _lessc: http://lesscss.org/
+.. _virtualenv: http://www.virtualenv.org/en/latest/
+.. _npm: https://npmjs.org/
+
+Running Tests
+-------------
+
+.. ::
+
+  $ make test
+
+Dependency Policy
+-----------------
+
+Because Yarrharr is intended as an end-user application, it has a more complex
+build process than the typical Python package.  For ease of installation, the
+Python distribution must be kept ``pip``-installable, and all the heavy
+dependencies pushed to the build stage (``python setup.py sdist``).
+
+Normally the sdist step is as simple as scraping all of the ``.py`` files out
+of a repository checkout but a web application includes a number of assets
+which `setuptools`_ doesn't know how to deal with:
+
+ * CSS — compiled from `LESS`_ sources, combined, and minified
+ * JavaScript — combined and minified
+ * Images — rasterized from SVG sources, crushed
+
+To make it easy to get started, keep Node.js build dependencies compatible with
+the version shipped with the current Ubuntu LTS release, currently 0.6.x on
+Ubuntu 12.04.  Unfortunately the Node.js and npm folks make this pretty
+difficult, but things should get better in Ubuntu 14.04.
+
+.. _setuptools: https://pythonhosted.org/setuptools/
+.. _LESS: http://lesscss.org/
 
 Releases
 --------

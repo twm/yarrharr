@@ -7,9 +7,7 @@ Yarrharr is a simple, self-hosted web-based feed reader.
 Installation
 ============
 
-Some day there will be packages available.  For the moment you'll need to check
-out the repository and install the dependencies with ``pip`` and your operating
-system package manager.
+Some day there will be packages available.  For now, see HACKING.rst
 
 License
 =======
