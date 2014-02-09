@@ -33,11 +33,11 @@ release: static-assets
 	python setup.py sdist
 
 test:
-	bin/manage.py test south yarr yarrharr
+	python bin/manage.py test
 
 devserver:
 	mkdir -p static
-	bin/manage.py runserver
+	python bin/manage.py runserver
 
 clean:
 	-rm -rf yarrharr/static
