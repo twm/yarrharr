@@ -1,20 +1,52 @@
-# Copyright 2013 Tom Most <twm@freecog.net>
+# Copyright 2013, 2014 Tom Most <twm@freecog.net>
 
+import re
 import unittest
 from tempfile import NamedTemporaryFile
 from ConfigParser import NoOptionError
 
-from yarrharr.conf import read_yarrharr_conf
+import mock
+
+from yarrharr.conf import (find_conf_files, read_yarrharr_conf,
+                           NoConfError, UnreadableConfError)
 
 
 class ConfTests(unittest.TestCase):
+    maxDiff = None
+
+    def test_no_conf(self):
+        """
+        A :env:`YARRHARR_CONF` pattern which doesn't match anything results in
+        an exception.
+        """
+        with mock.patch('os.environ', {'YARRHARR_CONF': '/does-not-exist/*.ini'}):
+            self.assertRaises(NoConfError, find_conf_files)
+
+    def test_file_exists(self):
+        """
+        A file given in the environment variable is picked up on.
+        """
+        with NamedTemporaryFile() as f:
+            with mock.patch('os.environ', {'YARRHARR_CONF': f.name}):
+                self.assertEqual([f.name], find_conf_files())
+
+    def test_unreadable(self):
+        """
+        If a conf file doesn't exist an exception results.
+        """
+        fn = '/foo/bar/does-not-exist'
+        self.assertRaisesRegexp(UnreadableConfError, re.escape(fn),
+                                read_yarrharr_conf, [fn], {})
+
     def test_read_defaults(self):
         """
         The defaults are not sufficient.  At least ``secret_key`` must be
         defined.
         """
-        self.assertRaisesRegexp(NoOptionError, r'secret_key',
-                                read_yarrharr_conf, [], {})
+        # Since at least one file is required, use an empty temp file.
+        with NamedTemporaryFile() as f:
+            self.assertRaisesRegexp(NoOptionError, r'secret_key',
+                                    read_yarrharr_conf, [f.name], {})
 
     def test_read_minimal(self):
         """
@@ -86,5 +118,5 @@ class ConfTests(unittest.TestCase):
             'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
             'YARR_LAYOUT_FIXED': False,
-            'YARR_ITEM_EXPIRY': 60,
+            'YARR_ITEM_EXPIRY': 365,
         })

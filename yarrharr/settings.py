@@ -1,4 +1,4 @@
-# Copyright 2013 Tom Most <twm@freecog.net>
+# Copyright 2013, 2014 Tom Most <twm@freecog.net>
 
 """
 Yarrharr's Django settings module
@@ -10,12 +10,8 @@ testability.  The files to read are defined by the :env:`YARRHARR_CONF`
 environment variable, a shell-style glob pattern.
 """
 
-import os
-import glob
-
-from yarrharr.conf import read_yarrharr_conf
+from yarrharr.conf import find_conf_files, read_yarrharr_conf
 
 
-pattern = os.environ.get('YARRHARR_CONF', '/etc/yarrharr/*.ini')
-files = glob.glob(pattern)
+files = find_conf_files()
 conf = read_yarrharr_conf(files, locals())
