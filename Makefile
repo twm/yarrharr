@@ -1,9 +1,9 @@
 # Copyright 2013, 2014 Tom Most <twm@freecog.net>; GPLv3+
+# Yarrharr development Makefile.  This file contains recipes useful during
+# development, but isn't part of the sdist release.
 
 # Clear default rules.
 .SUFFIXES:
-
-export YARRHARR_CONF=yarrharr/tests/test_config.ini
 
 NODEJS ?= $(shell which nodejs || which node)
 LESSC ?= $(NODEJS) node_modules/.bin/lessc
@@ -32,14 +32,11 @@ static-assets: $(STATIC_TARGETS)
 release: static-assets
 	python setup.py sdist
 
-test:
-	python bin/manage.py test
-
-devserver:
-	mkdir -p static
-	python bin/manage.py runserver
+devserver: static-assets
+	YARRHARR_CONF=yarrharr/tests/test_config.ini python bin/manage.py runserver
 
 clean:
 	-rm -rf yarrharr/static
+	-rm -rf .tox
 
 .PHONY: static-assets release test devserver clean

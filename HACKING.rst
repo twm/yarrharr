@@ -68,9 +68,16 @@ Then build the static assets::
 Running Tests
 -------------
 
-.. ::
+Use `tox`_ to run tests in a clean virtualenv::
 
-  $ make test
+  $ pip install tox
+  $ tox
+
+Or without tox, simply::
+
+  $ trial yarrharr
+
+.. _tox: http://tox.readthedocs.org/en/latest/
 
 Dependency Policy
 -----------------

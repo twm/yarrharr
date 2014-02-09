@@ -8,10 +8,14 @@ setup(
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
-        'django-yarr>=0.3.8',
-        'Twisted>=13.1.0',
-        'South>=0.8.1',
+        'django-yarr',
+        'Django >= 1.6',
+        'Twisted >= 13.1.0',
+        'South >= 0.8.1',
         'pytz',
+    ],
+    dependency_links=[
+        'https://github.com/radiac/django-yarr/tarball/v0.3.13#egg=django-yarr-0.3.13',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
