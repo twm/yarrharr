@@ -17,6 +17,9 @@ setup(
     dependency_links=[
         'https://github.com/radiac/django-yarr/tarball/v0.3.13#egg=django-yarr-0.3.13',
     ],
+    tests_require=[
+        'mock',
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
