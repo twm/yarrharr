@@ -20,10 +20,10 @@ endef
 
 # PNG raster icons in all the standard sizes.
 $(eval $(call SVG-TO-PNG,yarrharr/static/icon.16.png,16))
-$(eval $(call SVG-TO-PNG,yarrharr/static/icon.24.png,16))
-$(eval $(call SVG-TO-PNG,yarrharr/static/icon.32.png,16))
-$(eval $(call SVG-TO-PNG,yarrharr/static/icon.48.png,16))
-$(eval $(call SVG-TO-PNG,yarrharr/static/icon.64.png,16))
+$(eval $(call SVG-TO-PNG,yarrharr/static/icon.24.png,24))
+$(eval $(call SVG-TO-PNG,yarrharr/static/icon.32.png,32))
+$(eval $(call SVG-TO-PNG,yarrharr/static/icon.48.png,48))
+$(eval $(call SVG-TO-PNG,yarrharr/static/icon.64.png,64))
 # Firefox OS wants a 60x60 PNG.
 $(eval $(call SVG-TO-PNG,yarrharr/static/icon.fxos.png,60))
 # Android and iOS are crazy (see <http://mathiasbynens.be/notes/touch-icons>).
