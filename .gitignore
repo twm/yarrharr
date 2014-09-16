@@ -1,5 +1,6 @@
 /build
 /dist
+/.tox
 /yarrharr.egg-info
 /yarrharr/static
 /static

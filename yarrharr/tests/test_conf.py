@@ -1,4 +1,5 @@
-# Copyright 2013 Tom Most <twm@freecog.net>
+# Copyright 2013, 2014 Tom Most <twm@freecog.net>
+# See COPYING for details.
 
 import unittest
 from tempfile import NamedTemporaryFile
@@ -8,6 +9,8 @@ from yarrharr.conf import read_yarrharr_conf
 
 
 class ConfTests(unittest.TestCase):
+    maxDiff = None
+
     def test_read_defaults(self):
         """
         The defaults are not sufficient.  At least ``secret_key`` must be
@@ -86,5 +89,5 @@ class ConfTests(unittest.TestCase):
             'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
             'YARR_LAYOUT_FIXED': False,
-            'YARR_ITEM_EXPIRY': 60,
+            'YARR_ITEM_EXPIRY': 365,
         })

@@ -122,9 +122,11 @@ def run(sigstop=False, logPath=None):
 
     updateLoop = task.LoopingCall(updateFeeds, reactor)
     loopEndD = updateLoop.start(15 * 60)
+
     def stopUpdateLoop():
         updateLoop.stop()
         return loopEndD
+
     reactor.addSystemEventTrigger('before', 'shutdown', stopUpdateLoop)
 
     if sigstop:

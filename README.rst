@@ -14,7 +14,7 @@ system package manager.
 License
 =======
 
-Copyright © 2013 Tom Most
+Copyright © 2013, 2014 Tom Most
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
