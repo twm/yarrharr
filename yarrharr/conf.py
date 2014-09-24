@@ -1,13 +1,17 @@
-# Copyright 2013 Tom Most <twm@freecog.net>
+# Copyright 2013, 2014 Tom Most <twm@freecog.net>
 
 """
 Yarrharr configuration defaults and parsing
 """
 
+import os
+import glob
 from urlparse import urlparse
 from cStringIO import StringIO
 from ConfigParser import RawConfigParser
 
+
+USER_CONF_GLOB = '/etc/yarrharr/*.ini'
 
 DEFAULT_CONF = """\
 [yarrharr]
@@ -41,13 +45,55 @@ update = /var/log/yarrharr/update.log
 """
 
 
+class NoConfError(Exception):
+    """
+    Raised when no configuration files are given.
+    """
+
+
+class UnreadableConfError(Exception):
+    """
+    Raised when parsing a configuration file fails, likely because it doesn't
+    exist or is unreadable.
+    """
+    def __init__(self, files_unread):
+        msg = 'Unable to read these config files:'
+        msg += '\n    {0}'.format('\n    '.join(sorted(files_unread)))
+        msg += '\nAre these files readable?'
+        Exception.__init__(self, msg)
+
+
+def find_conf_files():
+    """
+    Get a list of configuration files to be read.  The location to look in may
+    be overridden by setting :env:`YARRHARR_CONF` to a glob pattern.
+
+    :returns: a list of filenames
+    :raises NoConfError: when no files match the pattern
+    """
+    pattern = os.environ.get('YARRHARR_CONF', USER_CONF_GLOB)
+    files = glob.glob(pattern)
+    if not files:
+        msg = 'No files were found matching {}\n'.format(pattern)
+        msg += 'Set YARRHARR_CONF to change this search location'
+        raise NoConfError(msg)
+    return files
+
+
 def read_yarrharr_conf(files, namespace):
     """
-    Read the given configuration files, mutating the given dictionary to produce
+    Read the given configuration files, mutating the given dictionary to
+    contain Django settings.
+
+    :raises UnreadableConfError:
+        if any of the given files are not read
     """
     conf = RawConfigParser()
     conf.readfp(StringIO(DEFAULT_CONF), '<defaults>')
-    conf.read(files)
+    files_read = conf.read(files)
+    files_unread = set(files) - set(files_read)
+    if files_unread:
+        raise UnreadableConfError(files_unread)
 
     namespace['DEBUG'] = conf.getboolean('yarrharr', 'debug')
     namespace['TEMPLATE_DEBUG'] = namespace['DEBUG']
