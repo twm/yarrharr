@@ -9,7 +9,7 @@ setup(
     license='GPLv3+',
     install_requires=[
         'django-yarr',
-        'Django >= 1.6',
+        'Django < 1.7',
         'Twisted >= 13.1.0',
         'South >= 0.8.1',
         'pytz',

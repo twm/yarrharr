@@ -33,10 +33,13 @@ release: static-assets
 	python setup.py sdist
 
 devserver: static-assets
-	YARRHARR_CONF=yarrharr/tests/test_config.ini python bin/manage.py runserver
+	tox -e runserver
+
+check-feeds:
+	tox -e run -- django-admin.py check_feeds
 
 clean:
 	-rm -rf yarrharr/static
 	-rm -rf .tox
 
-.PHONY: static-assets release test devserver clean
+.PHONY: static-assets release test devserver check-feeds clean

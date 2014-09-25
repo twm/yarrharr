@@ -74,7 +74,24 @@ assets with the ``static-assets`` make target::
 
   $ make static-assets
 
-The build products are placed in ``yarrharr/static``.
+The build products are placed in ``yarrharr/static``.  Once they have been
+generated the source distribution can be built in the usual Python way::
+
+  $ python setup.py sdist
+
+Or use the ``make release`` target.
+
+Running the Django Development Server
+-------------------------------------
+
+Run the Django development server via tox with::
+
+  $ make devserver
+
+Feed checks are not done automatically in this mode, but must be triggered
+manually::
+
+  $ make check-feeds
 
 Releases
 --------
