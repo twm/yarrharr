@@ -20,6 +20,11 @@ setup(
     tests_require=[
         'mock',
     ],
+    entry_points={
+        'console_scripts': [
+            'yarrharr=yarrharr.scripts.yarrharr:main',
+        ],
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
