@@ -41,5 +41,6 @@ check-feeds:
 clean:
 	-rm -rf yarrharr/static
 	-rm -rf .tox
+	-find -name '*.pyc' -delete
 
 .PHONY: static-assets release test devserver check-feeds clean
