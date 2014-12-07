@@ -478,6 +478,10 @@ select {
         .yarr_entry_control {
             display: none;
         }
+        .yarr_open.yarr_entry {
+            border-bottom: 1px solid @border_color;
+            margin-bottom: 20px;
+        }
         .yarr_open .yarr_entry_content,
         .yarr_open .yarr_entry_control {
             display: block;
@@ -584,12 +588,13 @@ select {
 }
 
 .yarr_entry_control {
-    position: static; /* z-index context */
+    position: sticky; /* z-index context */
+    bottom: 0;
     padding: 0;
+    margin: 20px 0 0 0;
     .control_background;
     color: @lowkey_color;
     border-top: 1px solid @border_color;
-    border-bottom: 1px solid @border_color;
     height: 40px;
 
     /* Big and touchable read/saved checkbox controls */
