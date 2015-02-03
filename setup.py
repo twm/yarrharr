@@ -15,7 +15,7 @@ setup(
         'pytz',
     ],
     dependency_links=[
-        'https://github.com/radiac/django-yarr/tarball/v0.3.13#egg=django-yarr-0.3.13',
+        'https://github.com/radiac/django-yarr/tarball/v0.4.5#egg=django-yarr-0.4.5',
     ],
     tests_require=[
         'mock',
