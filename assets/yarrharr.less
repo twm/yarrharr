@@ -259,8 +259,7 @@ select {
 
 /*** FEED VIEW WRAPPER ***/
 #yarr_con {
-    display: flex;
-    align-items: flex-start; /* Align to top */
+    display: block;
 }
 
 /*** TOOLBAR ***/
@@ -390,9 +389,13 @@ select {
 
 /*** FEED LIST ***/
 .yarr_feed_list {
-    flex: none;
+    position: fixed;
+    top: @control_height;
+    bottom: 0;
     width: @feed_list_width;
-    z-index: 0;
+    left: 0;
+    z-index: 2;
+    overflow: auto;
 
     background: #fafafa;
     border-right: 1px solid @border_color;
@@ -448,8 +451,7 @@ select {
 
 /*** FEED CONTENT ***/
 .yarr_content {
-    flex: 1;
-    margin: 0 0 0 10px;
+    margin: 0 0 0 @feed_list_width;
 
     & > p { /* "No unread items" etc. */
         text-align: center;
