@@ -2,7 +2,10 @@
   "name": "yarrharr",
   "version": "0.0.0",
   "dependencies": {
-    "less": "~1.6.1",
-    "request": "2.12.0"
+    "css-loader": "^0.9.1",
+    "jsx-loader": "^0.12.2",
+    "react": "~0.13.1",
+    "style-loader": "^0.8.3",
+    "webpack": "^1.7.2"
   }
 }
