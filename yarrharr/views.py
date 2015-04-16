@@ -9,6 +9,15 @@ import yarrharr
 from yarrharr.decorators import debug_only
 
 
+@login_required
+def index(request):
+    """
+    The user interface.
+    """
+    return render(request, 'index.html', {
+    })
+
+
 def about(request):
     """
     About page, which lists the version of everything involved to assist

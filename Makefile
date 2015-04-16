@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2015 Tom Most <twm@freecog.net>; GPLv3+
 # Yarrharr development Makefile.  This file contains recipes useful during
 # development, but isn't part of the sdist release.
 
@@ -32,8 +32,12 @@ static-assets: $(STATIC_TARGETS)
 release: static-assets
 	python setup.py sdist
 
-devserver: static-assets
-	tox -e runserver
+devserver:
+	tox -e runserver -- 127.0.0.1:8888
+
+webpackserver:
+	node_modules/.bin/webpack-dev-server --port 8889 --host 127.0.0.1 \
+		--hot --content-base ./static/
 
 check-feeds:
 	tox -e run -- django-admin.py check_feeds

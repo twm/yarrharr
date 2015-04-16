@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Yarrharr{% endblock %}
+
+{% block content %}
+<noscript>
+    <h1>JavaScript Required</h1>
+    <p>Please enable JavaScript to continue.</p>
+</noscript>
+<script src="{{ STATIC_URL }}bundle.js"></script>
+{% endblock %}

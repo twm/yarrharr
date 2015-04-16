@@ -22,6 +22,9 @@ server_endpoint = tcp:8888:interface=localhost
 ; effect.
 external_url = http://localhost:8888
 static_root = /var/lib/yarrharr/static/
+; URL of the files at static_root.  Normally this should only be overridden in
+; development mode.
+static_url = /static/
 
 [db]
 engine = django.db.backends.sqlite3
@@ -138,7 +141,7 @@ def read_yarrharr_conf(files, namespace):
     namespace['TIME_ZONE'] = 'UTC'
 
     namespace['STATIC_ROOT'] = conf.get('yarrharr', 'static_root')
-    namespace['STATIC_URL'] = '/static/'
+    namespace['STATIC_URL'] = conf.get('yarrharr', 'static_url')
     namespace['STATICFILES_FINDERS'] = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',)
 
