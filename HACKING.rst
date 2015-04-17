@@ -51,7 +51,7 @@ Check out the repository and the git submodules::
   $ cd yarrharr
   $ git submodule update --init
 
-Next install ``lessc``, which used to build the CSS::
+Next install the frontend build tools::
 
   $ npm install
 
@@ -84,9 +84,15 @@ Or use the ``make release`` target.
 Running the Django Development Server
 -------------------------------------
 
+When doing development you must run separate server processes for the Django backend and the Webpack frontend.
+
 Run the Django development server via tox with::
 
   $ make devserver
+
+In another terminal, run the Webpack development server with::
+
+  $ make webpackserver
 
 Feed checks are not done automatically in this mode, but must be triggered
 manually::
