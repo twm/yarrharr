@@ -126,7 +126,7 @@ def read_yarrharr_conf(files, namespace):
 
     namespace['ROOT_URLCONF'] = 'yarrharr.urls'
     namespace['LOGIN_URL'] = '/login/'
-    namespace['LOGIN_REDIRECT_URL'] = '/yarr/'
+    namespace['LOGIN_REDIRECT_URL'] = '/'
     namespace['LOGOUT_URL'] = '/logout/'
 
     namespace['LANGUAGE_CODE'] = 'en-us'

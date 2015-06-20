@@ -78,7 +78,7 @@ class ConfTests(unittest.TestCase):
             'SERVER_ENDPOINT': 'tcp:8888:interface=localhost',
             'ROOT_URLCONF': 'yarrharr.urls',
             'LOGIN_URL': '/login/',
-            'LOGIN_REDIRECT_URL': '/yarr/',
+            'LOGIN_REDIRECT_URL': '/',
             'LOGOUT_URL': '/logout/',
             'LANGUAGE_CODE': 'en-us',
             'USE_I18N': True,
