@@ -7,17 +7,27 @@ var Toolbar = React.createClass({
     },
 });
 
+require("./view-picker.less");
 var ViewPicker = React.createClass({
     handleFilterClick(filter) {
-        this.props.controller.setState({filter: filter});
+        this.props.controller.setState({filter});
+    },
+    handleOrderClick(order) {
+        this.props.controller.setState({order});
     },
     render() {
         return (
-            <span class="view-picker">
-                <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "new")}>New</span>
-                <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "saved")}>Saved</span>
-                <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "read")}>Read</span>
-                <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "all")}>All</span>
+            <span className="view-picker">
+                <span className="group">
+                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "new")}>New</span>
+                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "saved")}>Saved</span>
+                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "read")}>Read</span>
+                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "all")}>All</span>
+                </span>
+                <span className="group">
+                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "date")}>Chronological</span>
+                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "tail")}>Latest</span>
+                </span>
             </span>
         );
     },
