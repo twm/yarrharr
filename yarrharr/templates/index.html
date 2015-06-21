@@ -3,9 +3,9 @@
 {% block title %}Yarrharr{% endblock %}
 
 {% block content %}
-<noscript>
-    <h1>JavaScript Required</h1>
-    <p>Please enable JavaScript to continue.</p>
-</noscript>
 <script src="{{ STATIC_URL }}bundle.js"></script>
+<script>
+    React.initializeTouchEvents(true);
+    React.render(React.createElement(Yarrharr, {{ props|safe }}), document.body);
+</script>
 {% endblock %}

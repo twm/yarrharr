@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+import simplejson
+
 import yarr
 import django
 import feedparser
@@ -9,12 +12,49 @@ import yarrharr
 from yarrharr.decorators import debug_only
 
 
+def json_for_entry(entry):
+    """
+    Translate a Yarr feed entry into the JSON data for an article.
+    """
+    return {
+        'feed_id': entry.feed.id,
+        'id': entry.id,
+        'state': {
+            0: "new",
+            1: "read",
+            2: "saved",
+        }[entry.state],
+        'title': entry.title,
+        # 'content': entry.content,
+        'author': entry.author,
+        'date': str(entry.date),
+        'url': entry.url,
+    }
+
+
 @login_required
 def index(request):
     """
-    The user interface.
+    The user interface.  For the moment this is pre-loaded with basic
+    information about all the feeds and articles.
     """
+    feed_list = []
+    articles_by_feed = {}
+
+    for feed in request.user.feed_set.all():
+        feed_list.append({
+            'id': feed.id,
+            'title': feed.title,
+            'text': feed.text,
+            'unread': feed.count_unread,
+            'total': feed.count_total,
+        })
+        articles_by_feed[feed.id] = map(json_for_entry, feed.entries.all())
     return render(request, 'index.html', {
+        'props': simplejson.JSONEncoderForHTML().encode({
+            'feedList': feed_list,
+            'articlesByFeed': articles_by_feed,
+        }),
     })
 
 

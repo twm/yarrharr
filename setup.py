@@ -13,6 +13,7 @@ setup(
         'Twisted >= 13.1.0',
         'South >= 0.8.1',
         'pytz',
+        'simplejson >= 2.1.0',  # for JSONEncoderForHTML
     ],
     dependency_links=[
         'https://github.com/radiac/django-yarr/tarball/v0.4.5#egg=django-yarr-0.4.5',

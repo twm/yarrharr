@@ -1,0 +1,10 @@
+.feed-list {
+    background: skyblue;
+    position: fixed;
+    top: 40px;
+    left: 0;
+    width: 200px;
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
