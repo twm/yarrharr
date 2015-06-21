@@ -2,44 +2,57 @@ var React = require('react');
 
 require('./toolbar.less');
 var Toolbar = React.createClass({
+    render() {
+        return <div className="toolbar">{this.props.children}</div>;
+    },
+});
+
+var ViewPicker = React.createClass({
     handleFilterClick(filter) {
         this.props.controller.setState({filter: filter});
     },
     render() {
         return (
-            <div className="toolbar">
-                {this.props.feedList.length} Feeds
+            <span class="view-picker">
                 <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "new")}>New</span>
                 <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "saved")}>Saved</span>
                 <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "read")}>Read</span>
                 <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "all")}>All</span>
-            </div>
+            </span>
         );
     },
 });
 
-require('./feed-list.less');
-var FeedList = React.createClass({
+require('./feed-picker.less');
+var FeedPicker = React.createClass({
+    getInitialState() {
+        return {open: false};
+    },
+    handleClick() {
+        this.setState({open: !this.state.open});
+        // FIXME: move focus when opened
+    },
     handleFeedClick(feed) {
-        console.log('feed click %o', feed);
         this.props.controller.setState({
             feeds: [feed.id],
         });
     },
     render() {
-        var feedItems = [];
-        for (var i = 0; i < this.props.feedList.length; i++) {
-            var feed = this.props.feedList[i];
-            feedItems.push(
-                <div key={feed.id} className="feed" tabIndex="0"
+        var picker = null;
+        if (this.state.open) {
+            var feedItems = this.props.feedList.map((feed) =>
+                <li key={feed.id} tabIndex="0"
                         onClick={this.handleFeedClick.bind(this, feed)}>
                     {feed.text || feed.title}
-                </div>
+                </li>
             );
+            // TODO: Filtering for keyboard, alphabetical jumps for touch
+            picker = <div className="overlay"><ul>{feedItems}</ul></div>;
         }
         return (
-            <div className="feed-list">
-                {feedItems}
+            <div className="feed-picker" tabIndex="0" onClick={this.handleClick}>
+                {this.props.text}
+                {picker}
             </div>
         );
     },
@@ -72,11 +85,10 @@ var Yarrharr = React.createClass({
         // For now we will just use state on this top-level component for the
         // overall state of the UI.  Eventually this stuff should move to the
         // URL.
-
         return {
             // XXX: Temp hack: start with all feeds selected.
             feeds: Object.keys(this.props.articlesByFeed), // Set of feeds to display.
-            filter: 'saved',  // 'all', 'new', 'read', 'saved'
+            filter: 'new',  // 'all', 'new', 'read', 'saved'
             order: 'date', // 'date', 'tail' (maybe 'group' someday?)
         };
     },
@@ -106,9 +118,11 @@ var Yarrharr = React.createClass({
         var articles = this.getArticles();
         return (
             <div id="yarrharr">
-                <Toolbar controller={this} feedList={this.props.feedList} articles={articles} {...this.state} />
+                <Toolbar>
+                    <FeedPicker controller={this} feedList={this.props.feedList} text="Feeds" />
+                    <ViewPicker controller={this} {...this.state} />
+                </Toolbar>
                 <ArticleList articles={articles} />
-                <FeedList controller={this} feedList={this.props.feedList} />
             </div>
         );
     }
