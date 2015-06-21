@@ -13,6 +13,7 @@ module.exports = {
     },
     module: {
         loaders: [
+            {test: /\.less$/, loaders: ['style', 'css', 'less?strictMath&noIeCompat']},
             {test: /\.css$/, loaders: ['style', 'css']},
             {test: /\.jsx$/, loaders: ['react-hot', 'jsx-loader?insertPragma=React.DOM&harmony']},
         ],

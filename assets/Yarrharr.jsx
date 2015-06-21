@@ -1,6 +1,6 @@
 var React = require('react');
 
-require('./toolbar.css');
+require('./toolbar.less');
 var Toolbar = React.createClass({
     handleFilterClick(filter) {
         this.props.controller.setState({filter: filter});
@@ -18,7 +18,7 @@ var Toolbar = React.createClass({
     },
 });
 
-require('./feed-list.css');
+require('./feed-list.less');
 var FeedList = React.createClass({
     handleFeedClick(feed) {
         console.log('feed click %o', feed);
@@ -45,7 +45,7 @@ var FeedList = React.createClass({
     },
 });
 
-require("./article-list.css");
+require("./article-list.less");
 var ArticleList = React.createClass({
     render() {
         var articles = [];
