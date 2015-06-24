@@ -91,6 +91,7 @@ var Article = React.createClass({
             <article>
                 <h1><a href={this.props.url}>{this.props.title}</a></h1>
                 <p>{this.props.author}</p>
+                <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
             </article>
         );
     }

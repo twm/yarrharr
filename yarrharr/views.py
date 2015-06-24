@@ -25,7 +25,7 @@ def json_for_entry(entry):
             2: "saved",
         }[entry.state],
         'title': entry.title,
-        # 'content': entry.content,
+        'content': entry.content,
         'author': entry.author,
         'date': str(entry.date),
         'url': entry.url,
