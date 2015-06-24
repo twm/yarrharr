@@ -1,22 +1,15 @@
 .feed-picker {
-    .overlay {
-        position: fixed;
-        background: rgba(0, 0, 0, 0.25);
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
     ul {
-        height: 100vh;
-        background: white;
-        overflow-y: auto;
-        overflow-x: hidden;
-        margin: 40px;
-        padding: 0;
+        display: flex;
+        flex-flow: column wrap;
     }
     li {
         list-style-type: none;
+        box-sizing: border-box;
         padding: 5px 10px;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
