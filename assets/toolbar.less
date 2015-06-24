@@ -1,11 +1,17 @@
+@import "./globals.less";
+
 .toolbar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 40px;
-    background: salmon;
+    height: @toolbar_height;
+    background: darken(@background_color, 20%);
+    color: darken(@text_color, 20%);
     display: flex;
     flex-flow: row;
     align-items: center;
+}
+.toolbar > * {
+    margin: 10px;
 }

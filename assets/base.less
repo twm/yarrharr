@@ -1,0 +1,18 @@
+/**
+ * Global base styles for the Yarrharr UI.
+ */
+@import (less) "./normalize.css/normalize.css";
+@import "./globals.less";
+
+html {
+    background: @background_color;
+    color: @text_color;
+}
+
+a[href] {
+    color: @text_color;
+    text-decoration: underline;
+}
+a[href]:visited {
+    color: darken(@text_color, 20%);
+}

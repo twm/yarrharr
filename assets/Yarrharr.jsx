@@ -1,5 +1,6 @@
 'use strict';
 var React = require('react');
+require('./base.less');
 
 require('./toolbar.less');
 var Toolbar = React.createClass({
@@ -34,39 +35,41 @@ var ViewPicker = React.createClass({
     },
 });
 
-require('./feed-picker.less');
-var FeedPicker = React.createClass({
+require("./drop-button.less");
+var DropButton = React.createClass({
     getInitialState() {
         return {open: false};
     },
     handleClick() {
         this.setState({open: !this.state.open});
-        // FIXME: move focus when opened
     },
+    render() {
+        var drop = this.state.open ? <div className="card">{this.props.children}</div> : null;
+        return <div className="drop-button" tabIndex="0" onClick={this.handleClick}>
+            <div className="trigger">{this.props.text}</div>
+            {drop}
+        </div>;
+    }
+});
+
+require('./feed-picker.less');
+var FeedPicker = React.createClass({
     handleFeedClick(feed) {
         this.props.controller.setState({
             feeds: [feed.id],
         });
     },
     render() {
-        var picker = null;
-        if (this.state.open) {
-            var feedItems = this.props.feedList.map((feed) =>
+        // TODO: Filtering for keyboard, alphabetical jumps for touch
+        return <div className="feed-picker">
+            {this.props.feedList.map((feed) =>
                 <li key={feed.id} tabIndex="0"
                         onClick={this.handleFeedClick.bind(this, feed)}>
                     {feed.text || feed.title}
                 </li>
-            );
-            // TODO: Filtering for keyboard, alphabetical jumps for touch
-            picker = <div className="overlay"><ul>{feedItems}</ul></div>;
-        }
-        return (
-            <div className="feed-picker" tabIndex="0" onClick={this.handleClick}>
-                {this.props.text}
-                {picker}
-            </div>
-        );
-    },
+            )}
+        </div>;
+    }
 });
 
 require("./article-list.less");
@@ -130,8 +133,12 @@ var Yarrharr = React.createClass({
         return (
             <div id="yarrharr">
                 <Toolbar>
-                    <FeedPicker controller={this} feedList={this.props.feedList} text="Feeds" />
-                    <ViewPicker controller={this} {...this.state} />
+                    <DropButton text="Feeds">
+                        <FeedPicker controller={this} feedList={this.props.feedList} />
+                    </DropButton>
+                    <DropButton text="View">
+                        <ViewPicker controller={this} {...this.state} />
+                    </DropButton>
                 </Toolbar>
                 <ArticleList articles={articles} />
             </div>

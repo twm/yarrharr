@@ -1,0 +1,18 @@
+@import "./globals.less";
+
+.drop-button {
+    .trigger {
+        cursor: pointer;
+    }
+    .card {
+        position: fixed;
+        background: @background_color;
+        border: 2px solid lighten(@background_color, 20%);
+        top: @toolbar_height;
+        /* TODO: Automatically orient relative to the button */
+        left: @toolbar_height;
+        right: @toolbar_height;
+        max-height: calc(100vh - @toolbar_height - @toolbar_height);
+        overflow: auto;
+    }
+}
