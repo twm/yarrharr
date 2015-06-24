@@ -20,16 +20,18 @@ var ViewPicker = React.createClass({
     render() {
         return (
             <span className="view-picker">
-                <span className="group">
+                <h2>Filter</h2>
+                <div className="group">
                     <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "new")}>New</span>
                     <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "saved")}>Saved</span>
                     <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "read")}>Read</span>
                     <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "all")}>All</span>
-                </span>
-                <span className="group">
-                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "date")}>Chronological</span>
-                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "tail")}>Latest</span>
-                </span>
+                </div>
+                <h2>Sort</h2>
+                <div className="group">
+                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "date")}>Oldest first</span>
+                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "tail")}>Latest first</span>
+                </div>
             </span>
         );
     },

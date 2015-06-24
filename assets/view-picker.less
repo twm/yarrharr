@@ -1,18 +1,21 @@
-.view-picker {
-    display: flex;
-    flex-flow: row;
+@import "./globals.less";
 
+.view-picker {
+    h2 {
+        font: inherit;
+        color: darken(@text_color, 40%);
+        margin: 0;
+        padding: 10px 10px 0 10px;
+    }
     .group {
-        border: 1px solid white;
-        border-radius: 5px;
         display: flex;
         flex-flow: row;
+        flex-align: start;
+        padding: 10px;
 
         span {
-            padding: 5px;
-        }
-        span:not(:first-child) {
-            border-left: 1px solid white;
+            flex: none;
+            margin-right: 20px;
         }
     }
 
