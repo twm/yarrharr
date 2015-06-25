@@ -85,6 +85,7 @@ var ArticleList = React.createClass({
     }
 });
 
+require("./article.less");
 var Article = React.createClass({
     render() {
         return (

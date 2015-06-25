@@ -1,0 +1,26 @@
+@import "./globals.less";
+
+article {
+    word-wrap: break-word; /* Don't let long lines break the layout */
+
+    h2 {
+        font: inherit;
+        margin-bottom: 10px;
+    }
+    .meta {
+        color: darken(@text_color, 40%);
+        font-size: 12px;
+        margin: 0 0 16px 0;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        max-height: calc(100vh - (2 * @toolbar_height));
+    }
+
+    hr {
+        margin: 10px 40px 10px 40px;
+        border: 1px solid #eeeeee;
+    }
+}
