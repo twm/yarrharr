@@ -12,6 +12,8 @@ SCOUR ?= scour
 SCOURFLAGS := --indent=none --enable-comment-stripping \
 	--enable-id-stripping --shorten-ids
 
+LISTEN ?= 127.0.0.1
+
 # Run ``make V=`` to see the commands run.
 V := @
 
@@ -33,10 +35,10 @@ release: static-assets
 	python setup.py sdist
 
 devserver:
-	tox -e runserver -- 127.0.0.1:8888
+	tox -e runserver -- $(LISTEN):8888
 
 webpackserver:
-	node_modules/.bin/webpack-dev-server --port 8889 --host 127.0.0.1 \
+	node_modules/.bin/webpack-dev-server --port 8889 --host $(LISTEN) \
 		--hot --content-base ./static/
 
 check-feeds:
