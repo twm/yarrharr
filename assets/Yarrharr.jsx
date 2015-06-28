@@ -91,7 +91,10 @@ var Article = React.createClass({
         return (
             <article>
                 <h1><a href={this.props.url}>{this.props.title}</a></h1>
-                <p>{this.props.author}</p>
+                {this.props.author
+                    ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
+                    : <p className="meta">From {this.props.feed.text || this.props.feed.title}</p>}
+                <p className="meta">Posted {this.props.date}</p>
                 <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
             </article>
         );
@@ -118,6 +121,9 @@ var Yarrharr = React.createClass({
         var articles = [];
         this.state.feeds.forEach((feedId) => {
             this.props.articlesByFeed[feedId].forEach((article) => {
+                // FIXME: This is a hack and shouldn't go here.  Need a real data model...
+                article.feed = this.props.feedsById[feedId];
+
                 if (this.state.filter === 'all' || this.state.filter === article.state) {
                     articles.push(article);
                 }
