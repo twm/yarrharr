@@ -22,15 +22,15 @@ var ViewPicker = React.createClass({
             <span className="view-picker">
                 <h2>Filter</h2>
                 <div className="group">
-                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "new")}>New</span>
-                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "saved")}>Saved</span>
-                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "read")}>Read</span>
-                    <span tabIndex="0" onClick={this.handleFilterClick.bind(this, "all")}>All</span>
+                    <button onClick={this.handleFilterClick.bind(this, "new")}>New</button>
+                    <button onClick={this.handleFilterClick.bind(this, "saved")}>Saved</button>
+                    <button onClick={this.handleFilterClick.bind(this, "read")}>Read</button>
+                    <button onClick={this.handleFilterClick.bind(this, "all")}>All</button>
                 </div>
                 <h2>Sort</h2>
                 <div className="group">
-                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "date")}>Oldest first</span>
-                    <span tabIndex="0" onClick={this.handleOrderClick.bind(this, "tail")}>Latest first</span>
+                    <button onClick={this.handleOrderClick.bind(this, "date")}>Oldest first</button>
+                    <button onClick={this.handleOrderClick.bind(this, "tail")}>Latest first</button>
                 </div>
             </span>
         );
@@ -47,8 +47,8 @@ var DropButton = React.createClass({
     },
     render() {
         var drop = this.state.open ? <div className="card">{this.props.children}</div> : null;
-        return <div className="drop-button" tabIndex="0" onClick={this.handleClick}>
-            <div className="trigger">{this.props.text}</div>
+        return <div className="drop-button" onClick={this.handleClick}>
+            <button className="trigger">{this.props.text}</button>
             {drop}
         </div>;
     }
