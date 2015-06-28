@@ -132,13 +132,29 @@ var Yarrharr = React.createClass({
         return articles;
     },
 
+    /**
+     * Compute a sorted list of available feeds.
+     */
+    getFeedList() {
+        var feedList = Object.keys(this.props.feedsById).map((feedId) => this.props.feedsById[feedId]);
+        feedList.sort((a, b) => {
+            // TODO: Investigate Intl.Collator and friends to make this more correct.
+            var titleA = (a.text || a.title).toLowerCase();
+            var titleB = (b.text || b.title).toLowerCase();
+            return (titleA < titleB) ? -1 :
+                   (titleA > titleB) ? 1 :
+                   b.id - a.id;
+        })
+        return feedList;
+    },
+
     render() {
         var articles = this.getArticles();
         return (
             <div id="yarrharr">
                 <Toolbar>
                     <DropButton text="Feeds">
-                        <FeedPicker controller={this} feedList={this.props.feedList} />
+                        <FeedPicker controller={this} feedList={this.getFeedList()} />
                     </DropButton>
                     <DropButton text="View">
                         <ViewPicker controller={this} {...this.state} />

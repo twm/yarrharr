@@ -38,21 +38,22 @@ def index(request):
     The user interface.  For the moment this is pre-loaded with basic
     information about all the feeds and articles.
     """
-    feed_list = []
+    feeds_by_id = {}
     articles_by_feed = {}
 
     for feed in request.user.feed_set.all():
-        feed_list.append({
+        feeds_by_id[feed.id] = {
             'id': feed.id,
             'title': feed.title,
             'text': feed.text,
             'unread': feed.count_unread,
             'total': feed.count_total,
-        })
+        }
         articles_by_feed[feed.id] = map(json_for_entry, feed.entries.all())
+
     return render(request, 'index.html', {
         'props': simplejson.JSONEncoderForHTML().encode({
-            'feedList': feed_list,
+            'feedsById': feeds_by_id,
             'articlesByFeed': articles_by_feed,
         }),
     })
