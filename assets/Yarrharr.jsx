@@ -67,6 +67,7 @@ var FeedPicker = React.createClass({
             {this.props.feedList.map((feed) =>
                 <li key={feed.id} tabIndex="0"
                         onClick={this.handleFeedClick.bind(this, feed)}>
+                    <img src={feed.iconUrl} alt="" width="16" height="16" />
                     {feed.text || feed.title}
                 </li>
             )}

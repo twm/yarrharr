@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import simplejson
+import urlparse
 
+import simplejson
 import yarr
 import django
 import feedparser
@@ -17,7 +18,7 @@ def json_for_entry(entry):
     Translate a Yarr feed entry into the JSON data for an article.
     """
     return {
-        'feed_id': entry.feed.id,
+        'feedId': entry.feed.id,
         'id': entry.id,
         'state': {
             0: "new",
@@ -29,6 +30,7 @@ def json_for_entry(entry):
         'author': entry.author,
         'date': str(entry.date),
         'url': entry.url,
+        'iconUrl': urlparse.urljoin(entry.url, '/favicon.ico'),
     }
 
 
@@ -41,13 +43,14 @@ def index(request):
     feeds_by_id = {}
     articles_by_feed = {}
 
-    for feed in request.user.feed_set.all():
+    for feed in request.user.feed_set.all().select_related('entries'):
         feeds_by_id[feed.id] = {
             'id': feed.id,
             'title': feed.title,
             'text': feed.text,
             'unread': feed.count_unread,
             'total': feed.count_total,
+            'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
         }
         articles_by_feed[feed.id] = map(json_for_entry, feed.entries.all())
 
