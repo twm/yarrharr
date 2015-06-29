@@ -1,16 +1,51 @@
 @import "./globals.less";
+@article_text_color: rgb(20, 20, 20);
+@article_background_color: rgba(250, 250, 250, 1.0);
+
+article {
+    max-width: 34em;
+
+    padding: 8px 16px 16px 16px;
+    margin: @toolbar_height auto;
+
+    color: @article_text_color;
+    background: @article_background_color;
+    .grid(
+        @article_background_color;
+        darken(@article_background_color, 5%)
+    );
+    box-shadow: 0 0 16px black;
+}
 
 article {
     word-wrap: break-word; /* Don't let long lines break the layout */
 
-    h2 {
+    a[href] {
+        color: darken(@article_text_color, 20%);
+        text-decoration: underline;
+    }
+    a[href]:visited {
+        color: @article_text_color;
+    }
+
+    h1, h2, h3, h4, h5, h6, p, blockquote {
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        font: normal 24px / 32px sans-serif;
+        padding: 10px 0 2px 0;
+    }
+    h2, h3, h4, h5, h6 {
         font: inherit;
-        margin-bottom: 10px;
+        font-weight: bold;
+        margin: 12px 0;
     }
     .meta {
-        color: darken(@text_color, 40%);
-        font-size: 12px;
-        margin: 0 0 16px 0;
+        color: lighten(@article_text_color, 40%);
+    }
+    p {
+        margin: 12px 0;
     }
 
     img {
@@ -20,7 +55,7 @@ article {
     }
 
     hr {
-        margin: 10px 40px 10px 40px;
-        border: 1px solid #eeeeee;
+        margin: 16px 32px;
+        border: 2px solid @text_color;
     }
 }
