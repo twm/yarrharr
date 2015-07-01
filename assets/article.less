@@ -1,6 +1,4 @@
 @import "./globals.less";
-@article_text_color: rgb(20, 20, 20);
-@article_background_color: rgba(250, 250, 250, 1.0);
 
 article {
     max-width: 34em;
@@ -8,25 +6,13 @@ article {
     padding: 8px 16px 16px 16px;
     margin: @toolbar_height auto;
 
-    color: @article_text_color;
-    background: @article_background_color;
-    .grid(
-        @article_background_color;
-        darken(@article_background_color, 5%)
-    );
     box-shadow: 0 0 16px black;
 }
 
 article {
     word-wrap: break-word; /* Don't let long lines break the layout */
 
-    a[href] {
-        color: darken(@article_text_color, 20%);
-        text-decoration: underline;
-    }
-    a[href]:visited {
-        color: @article_text_color;
-    }
+    .content-colors;
 
     h1, h2, h3, h4, h5, h6, p, blockquote {
         margin: 0;
@@ -42,7 +28,7 @@ article {
         margin: 12px 0;
     }
     .meta {
-        color: lighten(@article_text_color, 40%);
+        color: lighten(@content_text_color, 40%);
     }
     p {
         margin: 12px 0;

@@ -17,9 +17,17 @@ var ViewPicker = React.createClass({
     handleOrderClick(order) {
         this.props.controller.setState({order});
     },
+    handleViewClick(view) {
+        this.props.controller.setState({view});
+    },
     render() {
         return (
             <span className="view-picker">
+                <h2>View</h2>
+                <div className="group">
+                    <button onClick={this.handleViewClick.bind(this, "list")}>List</button>
+                    <button onClick={this.handleViewClick.bind(this, "text")}>Full Text</button>
+                </div>
                 <h2>Filter</h2>
                 <div className="group">
                     <button onClick={this.handleFilterClick.bind(this, "new")}>New</button>
@@ -75,17 +83,6 @@ var FeedPicker = React.createClass({
     }
 });
 
-require("./article-list.less");
-var ArticleList = React.createClass({
-    render() {
-        var articles = [];
-        this.props.articles.forEach((article) => {
-            articles.push(<Article key={article.id} {...article} />);
-        });
-        return <div className="article-list">{articles}</div>;
-    }
-});
-
 require("./article.less");
 var Article = React.createClass({
     render() {
@@ -102,6 +99,22 @@ var Article = React.createClass({
     }
 });
 
+require("./list-article.less");
+var ListArticle = React.createClass({
+    render() {
+        return <div className="list-article">
+            <span className="icon">
+                <img src={this.props.iconUrl} alt="*" width="16" height="16" />
+            </span>
+            <span className="meta">
+                <span className="feed">{this.props.feed.text || this.props.feed.title}</span>
+                <time dateTime={this.props.date}>{this.props.date}</time>
+            </span>
+            <a className="title" href={this.props.url} target="_blank">{this.props.title}</a>
+        </div>
+    }
+});
+
 var Yarrharr = React.createClass({
     getInitialState() {
         // For now we will just use state on this top-level component for the
@@ -112,6 +125,7 @@ var Yarrharr = React.createClass({
             feeds: Object.keys(this.props.articlesByFeed), // Set of feeds to display.
             filter: 'new',  // 'all', 'new', 'read', 'saved'
             order: 'date', // 'date', 'tail' (maybe 'group' someday?)
+            view: 'list', // 'list', 'text', someday 'gallery'
         };
     },
 
@@ -167,7 +181,16 @@ var Yarrharr = React.createClass({
                         <ViewPicker controller={this} {...this.state} />
                     </DropButton>
                 </Toolbar>
-                <ArticleList articles={articles} />
+                {this.state.view === 'text' ?
+                    <div className="full-text-view">
+                        {this.getArticles().map((article) => <Article key={article.id} {...article} />)}
+                    </div>
+                : this.state.view === 'list' ?
+                    <div className="article-list">
+                        {this.getArticles().map((article) => <ListArticle key={article.id} {...article} />)}
+                    </div>
+                : <div>Invalid view: {this.state.view}</div>
+                }
             </div>
         );
     }

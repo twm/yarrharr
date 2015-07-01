@@ -1,0 +1,54 @@
+@import "./globals.less";
+
+.article-list {
+    margin: @toolbar_height 0 0 0;
+}
+
+.list-article {
+    display: flex;
+    flex-flow: row wrap;
+    position: relative;
+    z-index: -1;
+    margin: 4px 0;
+    padding: 8px 16px 8px 64px;
+    .content-colors;
+    white-space: nowrap;
+
+    .icon {
+        position: absolute;
+        top: 16px;
+        left: 12px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: darken(@content_background_color, 10%);
+
+        img {
+            display: block;
+            margin: 12px;
+        }
+    }
+
+    .meta {
+        display: flex;
+        flex: 0 0 100%;
+
+        .feed {
+            flex: 1 1 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        time {
+            flex: none;
+            margin-left: 1em;
+        }
+    }
+    .title {
+        flex: 1 1 100%;
+        font: normal 16px / 16px sans-serif;
+        padding: 5px 0 7px 0;
+        text-decoration: none !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

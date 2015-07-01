@@ -6,6 +6,8 @@
 @text_color: #eee;
 @toolbar_height: 40px;
 
+@content_text_color: rgb(20, 20, 20);
+@content_background_color: rgba(250, 250, 250, 1.0);
 
 .grid(@background; @color) {
     /*
@@ -26,4 +28,20 @@
             @color @grid_size),
         @background;
     /**/
+}
+
+.content-colors() {
+    color: @content_text_color;
+    background: @content_background_color;
+    .grid(
+        @content_background_color;
+        darken(@content_background_color, 5%)
+    );
+    a[href] {
+        color: darken(@content_text_color, 20%);
+        text-decoration: underline;
+    }
+    a[href]:visited {
+        color: @content_text_color;
+    }
 }
