@@ -10,8 +10,9 @@
     <body>
         <script src="{{ STATIC_URL }}bundle.js"></script>
         <script>
+            var props = {{ props|safe }};
             React.initializeTouchEvents(true);
-            React.render(React.createElement(Yarrharr, {{ props|safe }}), document.body);
+            React.render(React.createElement(Yarrharr, props), document.body);
         </script>
     </body>
 </html>

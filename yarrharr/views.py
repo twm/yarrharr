@@ -3,6 +3,7 @@ import urlparse
 
 import simplejson
 import yarr
+from yarr.models import Entry
 import django
 import feedparser
 from django.contrib import messages
@@ -34,6 +35,48 @@ def json_for_entry(entry):
     }
 
 
+def entries_for_snapshot(user, params):
+    """
+    Return a queryset containing entries which match the given params.
+    """
+    qs = Entry.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
+    if params['filter'] == 'new':
+        qs = qs.filter(state=0)
+    elif params['filter'] == 'read':
+        qs = qs.filter(state=1)
+    elif params['filter'] == 'saved':
+        qs = qs.filter(state=2)
+    # else 'all'
+
+    if params['order'] == 'date':
+        qs = qs.order_by('date')
+    else:
+        qs = qs.order_by('-date')
+
+    return qs
+
+
+def snapshot_params_from_query(query_dict, default_feeds):
+    try:
+        feeds = sorted(set(int(id) for id in query_dict.getlist('feeds')))
+    except (KeyError, ValueError):
+        feeds = default_feeds
+
+    def oneof(key, values):
+        value = query_dict.get(key)
+        if value in values:
+            return value
+        return values[0]
+
+    return {
+        'feeds': feeds,
+        'filter': oneof('filter', ['new', 'read', 'saved', 'all']),
+        'order': oneof('order', ['date', 'tail']),
+        'view': oneof('view', ['text', 'list']),
+    }
+
+
+
 @login_required
 def index(request):
     """
@@ -43,7 +86,7 @@ def index(request):
     feeds_by_id = {}
     articles_by_feed = {}
 
-    for feed in request.user.feed_set.all().select_related('entries'):
+    for feed in request.user.feed_set.all():
         feeds_by_id[feed.id] = {
             'id': feed.id,
             'title': feed.title,
@@ -52,12 +95,17 @@ def index(request):
             'total': feed.count_total,
             'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
         }
-        articles_by_feed[feed.id] = map(json_for_entry, feed.entries.all())
+
+    snapshot_params = snapshot_params_from_query(request.GET, list(feeds_by_id.keys()))
+    entries = entries_for_snapshot(request.user, snapshot_params)
 
     return render(request, 'index.html', {
         'props': simplejson.JSONEncoderForHTML().encode({
             'feedsById': feeds_by_id,
-            'articlesByFeed': articles_by_feed,
+            'snapshotParams': snapshot_params,
+            'snapshot': [entry.id for entry in entries],
+            # Pre-load the cache with the first articles in the shapshot.
+            'articlesById': {entry.id: json_for_entry(entry) for entry in entries[:10]}
         }),
     })
 

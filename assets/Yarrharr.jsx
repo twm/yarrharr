@@ -12,13 +12,13 @@ var Toolbar = React.createClass({
 require("./view-picker.less");
 var ViewPicker = React.createClass({
     handleFilterClick(filter) {
-        this.props.controller.setState({filter});
+        this.props.controller.setSnapshotParams({filter});
     },
     handleOrderClick(order) {
-        this.props.controller.setState({order});
+        this.props.controller.setSnapshotParams({order});
     },
     handleViewClick(view) {
-        this.props.controller.setState({view});
+        this.props.controller.setSnapshotParams({view});
     },
     render() {
         return (
@@ -65,7 +65,7 @@ var DropButton = React.createClass({
 require('./feed-picker.less');
 var FeedPicker = React.createClass({
     handleFeedClick(feed) {
-        this.props.controller.setState({
+        this.props.controller.setSnapshotParams({
             feeds: [feed.id],
         });
     },
@@ -101,8 +101,14 @@ var Article = React.createClass({
 
 require("./list-article.less");
 var ListArticle = React.createClass({
+    handleClick(event) {
+    },
     render() {
-        return <div className="list-article">
+        if (this.props.loading) {
+            return <div className="list-article loading"></div>;
+        }
+        var className = this.props.focused ? "list-article focused" : "list-article";
+        return <div className={className}>
             <span className="icon">
                 <img src={this.props.iconUrl} alt="*" width="16" height="16" />
             </span>
@@ -115,44 +121,16 @@ var ListArticle = React.createClass({
     }
 });
 
+
 var Yarrharr = React.createClass({
-    getInitialState() {
-        // For now we will just use state on this top-level component for the
-        // overall state of the UI.  Eventually this stuff should move to the
-        // URL.
-        return {
-            // XXX: Temp hack: start with all feeds selected.
-            feeds: Object.keys(this.props.articlesByFeed), // Set of feeds to display.
-            filter: 'new',  // 'all', 'new', 'read', 'saved'
-            order: 'date', // 'date', 'tail' (maybe 'group' someday?)
-            view: 'list', // 'list', 'text', someday 'gallery'
-        };
+    setSnapshotParams(params) {
+        var p = Object.assign({}, this.props.snapshotParams, params);
+        var query = p.feeds.map((id) => "feeds=" + id);
+        query.push('filter=' + p.filter);
+        query.push('order=' + p.order);
+        query.push('view=' + p.view);
+        window.location.search = query.join('&');
     },
-
-    /**
-     * Compute the list of articles to display based on the current state.
-     */
-    getArticles() {
-        var articles = [];
-        this.state.feeds.forEach((feedId) => {
-            this.props.articlesByFeed[feedId].forEach((article) => {
-                // FIXME: This is a hack and shouldn't go here.  Need a real data model...
-                article.feed = this.props.feedsById[feedId];
-
-                if (this.state.filter === 'all' || this.state.filter === article.state) {
-                    articles.push(article);
-                }
-            });
-        });
-        articles.sort((a, b) => {
-            var order = (a.date < b.date) ? -1 :
-                        (a.date > b.date) ? 1 :
-                        b.id - a.id;
-            return this.state.order === 'date' ? order : order * -1;
-        });
-        return articles;
-    },
-
     /**
      * Compute a sorted list of available feeds.
      */
@@ -170,7 +148,12 @@ var Yarrharr = React.createClass({
     },
 
     render() {
-        var articles = this.getArticles();
+        for (var id in this.props.articlesById) {
+            // XXX: Mutating props is a dirty hack; need a real data model.
+            var article = this.props.articlesById[id];
+            article.feed = this.props.feedsById[article.feedId];
+        }
+
         return (
             <div id="yarrharr">
                 <Toolbar>
@@ -178,18 +161,32 @@ var Yarrharr = React.createClass({
                         <FeedPicker controller={this} feedList={this.getFeedList()} />
                     </DropButton>
                     <DropButton text="View">
-                        <ViewPicker controller={this} {...this.state} />
+                        <ViewPicker controller={this} {...this.props.snapshotParams} />
                     </DropButton>
                 </Toolbar>
-                {this.state.view === 'text' ?
+                {this.props.snapshotParams.view === 'text' ?
                     <div className="full-text-view">
-                        {this.getArticles().map((article) => <Article key={article.id} {...article} />)}
+                        {this.props.snapshot.map((id) => {
+                            var article = this.props.articlesById[id];
+                            if (article) {
+                                return <Article key={id} {...article} />
+                            } else {
+                                return <div key={id}>Loading {id}...</div>;
+                            }
+                        })}
                     </div>
-                : this.state.view === 'list' ?
+                : this.props.snapshotParams.view === 'list' ?
                     <div className="article-list">
-                        {this.getArticles().map((article) => <ListArticle key={article.id} {...article} />)}
+                        {this.props.snapshot.map((id) => {
+                            var article = this.props.articlesById[id];
+                            if (article) {
+                                return <ListArticle key={id} {...article} />;
+                            } else {
+                                return <ListArticle key={id} loading={true} />;
+                            }
+                        })}
                     </div>
-                : <div>Invalid view: {this.state.view}</div>
+                : <div>Invalid view: {this.props.snapshotParams.view}</div>
                 }
             </div>
         );
