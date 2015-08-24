@@ -56,11 +56,22 @@ def entries_for_snapshot(user, params):
     return qs
 
 
-def snapshot_params_from_query(query_dict, default_feeds):
+def snapshot_params_from_query(query_dict, user_feeds):
+    """
+    Extract snapshot parameters from the querystring, being somewhat paranoid
+    about ensuring valid values.
+
+    :param query_dict: A :class:`django.http.QueryDict` from ``request.GET``
+    :param user_feeds: List of the feed IDs for the authenticated user
+    """
     try:
-        feeds = sorted(set(int(id) for id in query_dict.getlist('feeds')))
+        feeds = set()
+        for value in query_dict.getlist('feeds'):
+            id = int(value)
+            if id in user_feeds:
+                feeds.add(id)
     except (KeyError, ValueError):
-        feeds = default_feeds
+        feeds = user_feeds
 
     def oneof(key, values):
         value = query_dict.get(key)
@@ -69,12 +80,11 @@ def snapshot_params_from_query(query_dict, default_feeds):
         return values[0]
 
     return {
-        'feeds': feeds,
+        'feeds': sorted(feeds),
         'filter': oneof('filter', ['new', 'read', 'saved', 'all']),
         'order': oneof('order', ['date', 'tail']),
         'view': oneof('view', ['text', 'list']),
     }
-
 
 
 @login_required
@@ -84,7 +94,6 @@ def index(request):
     information about all the feeds and articles.
     """
     feeds_by_id = {}
-    articles_by_feed = {}
 
     for feed in request.user.feed_set.all():
         feeds_by_id[feed.id] = {
