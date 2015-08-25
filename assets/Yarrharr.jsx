@@ -2,6 +2,15 @@
 var React = require('react');
 require('./base.less');
 
+function assign(target, ...sources) {
+    for (let i = 0; i < sources.length; i++) {
+        for (let key in sources[i]) {
+            target[key] = sources[i][key];
+        }
+    }
+    return target;
+}
+
 require('./toolbar.less');
 var Toolbar = React.createClass({
     render() {
@@ -123,8 +132,15 @@ var ListArticle = React.createClass({
 
 
 var Yarrharr = React.createClass({
+    getInitialState() {
+        return {
+            // Lazily-loaded articles.
+            articlesById: {},
+        };
+    },
+
     setSnapshotParams(params) {
-        var p = Object.assign({}, this.props.snapshotParams, params);
+        var p = assign({}, this.props.snapshotParams, params);
         var query = p.feeds.map((id) => "feeds=" + id);
         query.push('filter=' + p.filter);
         query.push('order=' + p.order);
@@ -147,11 +163,76 @@ var Yarrharr = React.createClass({
         return feedList;
     },
 
+    /**
+     * Get a list of the articles available for display right now.  This merges
+     * the preloaded articles (from props) and the lazily-loaded articles (from
+     * state).
+     *
+     * Each article is also copied to add in a reference to its feed.
+     *
+     * This is icky.
+     */
+    getArticles() {
+        const articles = [];
+        this.props.snapshot.map((id) => {
+            const article = this.props.articlesById[id] || this.state.articlesById[id];
+            if (article) {
+                articles.push(assign({
+                    feed: this.props.feedsById[article.feedId]
+                }, article));
+            }
+        });
+        return articles;
+    },
+
+    /**
+     * This is called when there isn't another viewport's worth of content
+     * below the fold.  (It may be called many times.)
+     *
+     * Load another chunk of articles.
+     */
+    handleArticleShortage() {
+        let count = 0;
+        const body = new FormData();
+        for (let i = 0; i < this.props.snapshot.length; i++) {
+            let id = this.props.snapshot[i];
+            if (!this.props.articlesById[id] && !this.state.articlesById[id]) {
+                body.append('article', String(id));
+                count++;
+            }
+            if (count >= 10) {
+                break;
+            }
+        }
+
+        if (count <= 0) {
+            return; // No more articles available.
+        }
+
+        fetch('/articles/', {
+            method: 'POST',
+            body: body,
+            headers: new Headers({
+                'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
+            }),
+            credentials: 'same-origin',
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response);
+            }
+            return response.json();
+        }).then((json) => {
+            console.log('new articles loaded', json);
+            this.setState({
+                articlesById: assign({}, this.state.articlesById, json),
+            });
+        }).catch((e) => {console.error(e)});
+    },
+
     render() {
         for (var id in this.props.articlesById) {
             // XXX: Mutating props is a dirty hack; need a real data model.
             var article = this.props.articlesById[id];
-            article.feed = this.props.feedsById[article.feedId];
         }
 
         return (
@@ -164,30 +245,22 @@ var Yarrharr = React.createClass({
                         <ViewPicker controller={this} {...this.props.snapshotParams} />
                     </DropButton>
                 </Toolbar>
-                {this.props.snapshotParams.view === 'text' ?
-                    <div className="full-text-view">
-                        {this.props.snapshot.map((id) => {
-                            var article = this.props.articlesById[id];
-                            if (article) {
-                                return <Article key={id} {...article} />
-                            } else {
-                                return <div key={id}>Loading {id}...</div>;
-                            }
-                        })}
-                    </div>
-                : this.props.snapshotParams.view === 'list' ?
-                    <ScrollSpy onNearBottom={() => {}}>
-                        <div className="article-list">
-                            {this.props.snapshot.map((id) => {
-                                var article = this.props.articlesById[id];
-                                if (article) {
-                                    return <ListArticle key={id} {...article} />;
-                                }
+                <ScrollSpy onNearBottom={this.handleArticleShortage}>
+                    {this.props.snapshotParams.view === 'text' ?
+                        <div className="full-text-view">
+                            {this.getArticles().map((article) => {
+                                return <Article key={article.id} {...article} />
                             })}
                         </div>
-                    </ScrollSpy>
-                : <div>Invalid view: {this.props.snapshotParams.view}</div>
-                }
+                    : this.props.snapshotParams.view === 'list' ?
+                            <div className="article-list">
+                                {this.getArticles().map((article) => {
+                                    return <ListArticle key={article.id} {...article} />
+                                })}
+                            </div>
+                    : <div>Invalid view: {this.props.snapshotParams.view}</div>
+                    }
+                </ScrollSpy>
             </div>
         );
     }

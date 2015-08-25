@@ -9,6 +9,7 @@ import feedparser
 from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseNotAllowed, HttpResponse
 
 import yarrharr
 from yarrharr.decorators import debug_only
@@ -117,6 +118,21 @@ def index(request):
             'articlesById': {entry.id: json_for_entry(entry) for entry in entries[:10]}
         }),
     })
+
+
+@login_required
+def articles(request):
+    """
+    Get article contents as JSON.
+    """
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    article_ids = map(int, request.POST.getlist('article'))
+    qs = Entry.objects.filter(feed__in=request.user.feed_set.all())
+    qs = qs.filter(id__in=article_ids)
+    data = {entry.id: json_for_entry(entry) for entry in qs}
+    return HttpResponse(simplejson.JSONEncoderForHTML().encode(data),
+                        content_type='application/json')
 
 
 def about(request):
