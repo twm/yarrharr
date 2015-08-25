@@ -176,20 +176,73 @@ var Yarrharr = React.createClass({
                         })}
                     </div>
                 : this.props.snapshotParams.view === 'list' ?
-                    <div className="article-list">
-                        {this.props.snapshot.map((id) => {
-                            var article = this.props.articlesById[id];
-                            if (article) {
-                                return <ListArticle key={id} {...article} />;
-                            } else {
-                                return <ListArticle key={id} loading={true} />;
-                            }
-                        })}
-                    </div>
+                    <ScrollSpy onNearBottom={() => {}}>
+                        <div className="article-list">
+                            {this.props.snapshot.map((id) => {
+                                var article = this.props.articlesById[id];
+                                if (article) {
+                                    return <ListArticle key={id} {...article} />;
+                                }
+                            })}
+                        </div>
+                    </ScrollSpy>
                 : <div>Invalid view: {this.props.snapshotParams.view}</div>
                 }
             </div>
         );
+    }
+});
+
+
+/**
+ * A component which watches the window scroll position and fires an event when
+ * it nears the end.  While this monitors the global scroll position, it is
+ * useful to install and remove the event listeners as part of the component
+ * life cycle.
+ *
+ * This will fire events as long as there is less than a full viewport's worth
+ * of content below the fold.
+ */
+var ScrollSpy = React.createClass({
+    propTypes: {
+        onNearBottom: React.PropTypes.func.isRequired,
+    },
+    componentDidMount() {
+        window.addEventListener('scroll', this.handleChange, false);
+        window.addEventListener('resize', this.handleChange, false);
+        // Immediately schedule a check now that we have rendered.
+        this.handleChange();
+    },
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleChange, false);
+        window.removeEventListener('scroll', this.handleChange, false);
+    },
+    /**
+     * The view has resized or scrolled.  Schedule a check for whether we need
+     * to load more items.
+     */
+    handleChange(event) {
+        if (this._scrollTimeout) {
+            clearTimeout(this._scrollTimeout);
+        }
+        this._scrollTimeout = setTimeout(this.checkBufferSize, 50);
+    },
+    /**
+     * Schedule the load of more items once we get near the bottom of the
+     * scrollable area.
+     */
+    checkBufferSize() {
+        const viewportHeight = document.documentElement.clientHeight;
+        // Only Firefox seems to support window.scrollMaxY, but this generally seems to be equivalent.
+        const scrollMaxY = document.body.scrollHeight - viewportHeight;
+        const buffer = scrollMaxY - window.scrollY;
+        if (buffer < viewportHeight) {
+            console.log('scroll near bottom: buffer=%d < viewportHeight=%d', buffer, viewportHeight);
+            this.props.onNearBottom();
+        }
+    },
+    render() {
+        return <div>{this.props.children}</div>;
     }
 });
 
