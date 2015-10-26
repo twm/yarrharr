@@ -3,8 +3,8 @@ var React = require('react');
 require('./base.less');
 
 function assign(target, ...sources) {
-    for (let i = 0; i < sources.length; i++) {
-        for (let key in sources[i]) {
+    for (var i = 0; i < sources.length; i++) {
+        for (var key in sources[i]) {
             target[key] = sources[i][key];
         }
     }
@@ -192,10 +192,10 @@ var Yarrharr = React.createClass({
      * Load another chunk of articles.
      */
     handleArticleShortage() {
-        let count = 0;
+        var count = 0;
         const body = new FormData();
-        for (let i = 0; i < this.props.snapshot.length; i++) {
-            let id = this.props.snapshot[i];
+        for (var i = 0; i < this.props.snapshot.length; i++) {
+            var id = this.props.snapshot[i];
             if (!this.props.articlesById[id] && !this.state.articlesById[id]) {
                 body.append('article', String(id));
                 count++;
