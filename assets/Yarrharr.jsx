@@ -230,11 +230,6 @@ var Yarrharr = React.createClass({
     },
 
     render() {
-        for (var id in this.props.articlesById) {
-            // XXX: Mutating props is a dirty hack; need a real data model.
-            var article = this.props.articlesById[id];
-        }
-
         return (
             <div id="yarrharr">
                 <Toolbar>
