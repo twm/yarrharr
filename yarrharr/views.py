@@ -68,9 +68,12 @@ def snapshot_params_from_query(query_dict, user_feeds):
     try:
         feeds = set()
         for value in query_dict.getlist('feeds'):
-            id = int(value)
-            if id in user_feeds:
-                feeds.add(id)
+            if value == 'all':
+                feeds.update(user_feeds)
+            else:
+                id = int(value)
+                if id in user_feeds:
+                    feeds.add(id)
     except (KeyError, ValueError):
         feeds = user_feeds
 
