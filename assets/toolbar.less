@@ -1,7 +1,7 @@
 @import "./globals.less";
 
 .toolbar {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
@@ -13,5 +13,20 @@
     align-items: center;
 }
 .toolbar > * {
-    margin: 10px;
+    margin: 0 4px;
+}
+
+.toolbar button {
+    background: lighten(@background_color, 20%);
+    color: @text_color;
+    padding: 6px 18px;
+    border-radius: 7px;
+    border: 2px solid transparent;
+
+    &:active {
+        background: lighten(@background_color, 10%);
+    }
+    &:focus {
+        border-color: @logo_orange;
+    }
 }
