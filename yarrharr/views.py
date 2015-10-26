@@ -15,6 +15,9 @@ import yarrharr
 from yarrharr.decorators import debug_only
 
 
+json_encoder = simplejson.JSONEncoderForHTML()
+
+
 def json_for_entry(entry):
     """
     Translate a Yarr feed entry into the JSON data for an article.
@@ -24,7 +27,7 @@ def json_for_entry(entry):
         'id': entry.id,
         'state': {
             0: "new",
-            1: "read",
+            1: "done",
             2: "saved",
         }[entry.state],
         'title': entry.title,
@@ -43,7 +46,7 @@ def entries_for_snapshot(user, params):
     qs = Entry.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
     if params['filter'] == 'new':
         qs = qs.filter(state=0)
-    elif params['filter'] == 'read':
+    elif params['filter'] == 'done':
         qs = qs.filter(state=1)
     elif params['filter'] == 'saved':
         qs = qs.filter(state=2)
@@ -85,7 +88,7 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
     return {
         'feeds': sorted(feeds),
-        'filter': oneof('filter', ['new', 'read', 'saved', 'all']),
+        'filter': oneof('filter', ['new', 'done', 'saved', 'all']),
         'order': oneof('order', ['date', 'tail']),
         'view': oneof('view', ['text', 'list']),
     }
@@ -97,24 +100,32 @@ def index(request):
     The user interface.  For the moment this is pre-loaded with basic
     information about all the feeds and articles.
     """
-    feeds_by_id = {}
+    labels_by_id = {}
+    for label in request.user.label_set.all():
+        labels_by_id[label.id] = {
+            'id': label.id,
+            'text': label.text,
+        }
 
+    feeds_by_id = {}
     for feed in request.user.feed_set.all():
         feeds_by_id[feed.id] = {
             'id': feed.id,
             'title': feed.title,
             'text': feed.text,
-            'unread': feed.count_unread,
+            'undone': feed.count_unread,
             'total': feed.count_total,
             'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
+            'labels': sorted(label.id for label in feed.label_set.all()),
         }
 
     snapshot_params = snapshot_params_from_query(request.GET, list(feeds_by_id.keys()))
     entries = entries_for_snapshot(request.user, snapshot_params)
 
     return render(request, 'index.html', {
-        'props': simplejson.JSONEncoderForHTML().encode({
+        'props': json_encoder.encode({
             'feedsById': feeds_by_id,
+            'labelsById': labels_by_id,
             'snapshotParams': snapshot_params,
             'snapshot': [entry.id for entry in entries],
             # Pre-load the cache with the first articles in the shapshot.
@@ -123,19 +134,47 @@ def index(request):
     })
 
 
+def articles_for_request(request):
+    """
+    Get a QuerySet for the Entry objects listed by the request's "article"
+    parameter (which are also owned by the authenticated user).
+
+    :returns: A QuerySet for Entry model instances
+    """
+    article_ids = map(int, request.POST.getlist('article'))
+    qs = Entry.objects.filter(feed__in=request.user.feed_set.all())
+    return qs.filter(id__in=article_ids)
+
+
 @login_required
 def articles(request):
     """
     Get article contents as JSON.
+
+    :query article: One or more article IDs.
     """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
-    article_ids = map(int, request.POST.getlist('article'))
-    qs = Entry.objects.filter(feed__in=request.user.feed_set.all())
-    qs = qs.filter(id__in=article_ids)
+    qs = articles_for_request(request)
     data = {entry.id: json_for_entry(entry) for entry in qs}
-    return HttpResponse(simplejson.JSONEncoderForHTML().encode(data),
+    return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')
+
+
+@login_required
+def status(request):
+    """
+    Change the status of articles.
+
+    :query status: One of "new", "saved", or "done".
+    :query article: One or more article IDs.
+    """
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    status = {'new': 0, 'done': 1, 'saved': 2}[request.POST['status']]
+    entries = articles_for_request(request)
+    entries.update(status=status)
+    return HttpResponse(b'{}', content_type='application/json')
 
 
 def about(request):

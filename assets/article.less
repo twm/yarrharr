@@ -3,7 +3,7 @@
 article {
     max-width: 34em;
 
-    padding: 8px 16px 16px 16px;
+    padding: 8px 16px 0 16px;
     margin: @toolbar_height auto;
 
     box-shadow: 0 0 16px black;
@@ -43,5 +43,71 @@ article {
     hr {
         margin: 16px 32px;
         border: 2px solid @text_color;
+    }
+}
+
+@footer_background_color: darken(@content_background_color, 10%);
+
+article footer {
+    background: @footer_background_color;
+    position: sticky;
+    bottom: 0;
+    margin: 16px -16px 0 -16px;
+    height: 40px;
+    display: flex;
+
+    button, a:link, a:visited {
+        &:focus {
+            background: darken(@content_background_color, 20%);
+            outline: none;
+        }
+        &:active {
+            background: @logo_orange;
+            color: white;
+        }
+    }
+
+    button {
+        flex: 0;
+        height: 40px;
+        width: auto;
+        margin: 0;
+        padding: 0 16px;
+        border: 0;
+        border-top: 4px solid transparent;
+        background: @footer_background_color;
+        color: @content_text_color;
+
+        &.current {
+            border-top-color: @logo_orange;
+        }
+        &.progress {
+            animation: progress-stripe 2s linear infinite;
+        }
+    }
+
+    a:link, a:visited {
+        flex-basis: auto;
+        flex-grow: 0;
+        flex-shrink: 1;
+        align-self: flex-end;
+        padding: 0 16px;
+        margin: 0 0 0 auto;
+        display: block;
+        text-align: right;
+        border-top: 4px solid transparent;
+        line-height: 36px;
+    }
+}
+
+@keyframes progress-stripe {
+    0% {
+        background: @logo_orange;
+    }
+    50% {
+        background: @footer_background_color;
+    }
+    100% {
+        background: @logo_orange;
     }
 }

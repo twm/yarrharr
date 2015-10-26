@@ -41,7 +41,7 @@ var ViewPicker = React.createClass({
                 <div className="group">
                     <button onClick={this.handleFilterClick.bind(this, "new")}>New</button>
                     <button onClick={this.handleFilterClick.bind(this, "saved")}>Saved</button>
-                    <button onClick={this.handleFilterClick.bind(this, "read")}>Read</button>
+                    <button onClick={this.handleFilterClick.bind(this, "done")}>Done</button>
                     <button onClick={this.handleFilterClick.bind(this, "all")}>All</button>
                 </div>
                 <h2>Sort</h2>
@@ -79,8 +79,18 @@ var FeedPicker = React.createClass({
         });
     },
     render() {
-        // TODO: Filtering for keyboard, alphabetical jumps for touch
         return <div className="feed-picker">
+            <h2>Labels</h2>
+            <ul>
+            {this.props.labelList.map((label) =>
+                <li key={label.id} tabIndex="0"
+                        onClick={this.handleLabelClick.bind(this, label)}>
+                    {label.text}
+                </li>
+            )}
+            </ul>
+            <h2>Feeds</h2>
+            <ul>
             {this.props.feedList.map((feed) =>
                 <li key={feed.id} tabIndex="0"
                         onClick={this.handleFeedClick.bind(this, feed)}>
@@ -88,12 +98,57 @@ var FeedPicker = React.createClass({
                     {feed.text || feed.title}
                 </li>
             )}
+            </ul>
         </div>;
     }
 });
 
 require("./article.less");
 var Article = React.createClass({
+    getInitialState() {
+        return {
+            newProgress: false,
+            savedProgress: false,
+            doneProgress: false,
+        };
+    },
+    setArticleState(state) {
+        const body = new FormData();
+        body.append('article', String(this.props.id));
+        body.append('state', state);
+
+        var s = {};
+        s[state + "Progress"] = true;
+        this.setState(s);
+
+        fetch('/state/', {
+            method: 'POST',
+            body: body,
+            headers: new Headers({
+                'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
+            }),
+            credentials: 'same-origin',
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response);
+            }
+            return response.json();
+        }).then((json) => {
+            // TODO: Update global props?  Probably should add a real dataflow
+            // abstraction in here somewhere... Redux?
+            console.log("done setting article state to " + state);
+            s[state + "Progress"] = false;
+            this.setState(s);
+        }).catch((e) => {console.error(e)});
+
+    },
+    stateButtonClass(state) {
+        var className = (this.props.state === state) ? "current" : "";
+        if (this.state[state + 'Progress']) {
+            className += ' progress';
+        }
+        return className;
+    },
     render() {
         return (
             <article>
@@ -103,6 +158,12 @@ var Article = React.createClass({
                     : <p className="meta">From {this.props.feed.text || this.props.feed.title}</p>}
                 <p className="meta">Posted {this.props.date}</p>
                 <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
+                <footer>
+                    <button className={this.stateButtonClass("new")} onClick={this.setArticleState.bind(this, "new")}>New</button>
+                    <button className={this.stateButtonClass("saved")} onClick={this.setArticleState.bind(this, "saved")}>Saved</button>
+                    <button className={this.stateButtonClass("done")} onClick={this.setArticleState.bind(this, "done")}>Done</button>
+                    <a href={this.props.url} target="_blank">View externally</a>
+                </footer>
             </article>
         );
     }
@@ -110,8 +171,6 @@ var Article = React.createClass({
 
 require("./list-article.less");
 var ListArticle = React.createClass({
-    handleClick(event) {
-    },
     render() {
         if (this.props.loading) {
             return <div className="list-article loading"></div>;
@@ -161,6 +220,21 @@ var Yarrharr = React.createClass({
                    b.id - a.id;
         })
         return feedList;
+    },
+
+    /**
+     * Get all the labels, sorted alphabetically.
+     */
+    getLabelList() {
+        var labelList = Object.keys(this.props.labelsById).map((labelId) => this.props.labelsById[labelId]);
+        labelList.sort((a, b) => {
+            var textA = a.text.toLowerCase();
+            var textB = b.text.toLowerCase();
+            return (titleA < titleB) ? -1 :
+                   (titleA > titleB) ? 1 :
+                   b.id - a.id;
+        });
+        return labelList;
     },
 
     /**
@@ -234,7 +308,7 @@ var Yarrharr = React.createClass({
             <div id="yarrharr">
                 <Toolbar>
                     <DropButton text="Feeds">
-                        <FeedPicker controller={this} feedList={this.getFeedList()} />
+                        <FeedPicker controller={this} feedList={this.getFeedList()} labelList={this.getLabelList()} />
                     </DropButton>
                     <DropButton text="View">
                         <ViewPicker controller={this} {...this.props.snapshotParams} />
