@@ -162,19 +162,21 @@ def articles(request):
 
 
 @login_required
-def status(request):
+def state(request):
     """
-    Change the status of articles.
+    Change the state of articles.
 
     :query status: One of "new", "saved", or "done".
     :query article: One or more article IDs.
     """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
-    status = {'new': 0, 'done': 1, 'saved': 2}[request.POST['status']]
-    entries = articles_for_request(request)
-    entries.update(status=status)
-    return HttpResponse(b'{}', content_type='application/json')
+    state = {'new': 0, 'done': 1, 'saved': 2}[request.POST['state']]
+    qs = articles_for_request(request)
+    qs.update(state=state)
+    data = {entry.id: json_for_entry(entry) for entry in qs.all()}
+    return HttpResponse(json_encoder.encode(data),
+                        content_type='application/json')
 
 
 def about(request):

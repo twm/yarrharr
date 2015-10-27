@@ -139,6 +139,10 @@ var Article = React.createClass({
             console.log("done setting article state to " + state);
             s[state + "Progress"] = false;
             this.setState(s);
+            // XXX FIXME Ew ew ew ew ew
+            this.props.controller.setState({
+                articlesById: assign({}, this.props.controller.state.articlesById, json),
+            });
         }).catch((e) => {console.error(e)});
 
     },
@@ -249,7 +253,7 @@ var Yarrharr = React.createClass({
     getArticles() {
         const articles = [];
         this.props.snapshot.map((id) => {
-            const article = this.props.articlesById[id] || this.state.articlesById[id];
+            const article = this.state.articlesById[id] || this.props.articlesById[id];
             if (article) {
                 articles.push(assign({
                     feed: this.props.feedsById[article.feedId]
@@ -318,13 +322,13 @@ var Yarrharr = React.createClass({
                     {this.props.snapshotParams.view === 'text' ?
                         <div className="full-text-view">
                             {this.getArticles().map((article) => {
-                                return <Article key={article.id} {...article} />
+                                return <Article key={article.id} controller={this} {...article} />
                             })}
                         </div>
                     : this.props.snapshotParams.view === 'list' ?
                             <div className="article-list">
                                 {this.getArticles().map((article) => {
-                                    return <ListArticle key={article.id} {...article} />
+                                    return <ListArticle key={article.id} controller={this} {...article} />
                                 })}
                             </div>
                     : <div>Invalid view: {this.props.snapshotParams.view}</div>
