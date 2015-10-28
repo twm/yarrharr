@@ -161,13 +161,15 @@ var Article = React.createClass({
                     ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
                     : <p className="meta">From {this.props.feed.text || this.props.feed.title}</p>}
                 <p className="meta">Posted {this.props.date}</p>
-                <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
-                <footer>
-                    <button className={this.stateButtonClass("new")} onClick={this.setArticleState.bind(this, "new")}>New</button>
-                    <button className={this.stateButtonClass("saved")} onClick={this.setArticleState.bind(this, "saved")}>Saved</button>
-                    <button className={this.stateButtonClass("done")} onClick={this.setArticleState.bind(this, "done")}>Done</button>
-                    <a href={this.props.url} target="_blank">View externally</a>
-                </footer>
+                <div>
+                    <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
+                    <footer>
+                        <button className={this.stateButtonClass("new")} onClick={this.setArticleState.bind(this, "new")}>New</button>
+                        <button className={this.stateButtonClass("saved")} onClick={this.setArticleState.bind(this, "saved")}>Saved</button>
+                        <button className={this.stateButtonClass("done")} onClick={this.setArticleState.bind(this, "done")}>Done</button>
+                        <a href={this.props.url} target="_blank">View externally</a>
+                    </footer>
+                </div>
             </article>
         );
     }

@@ -55,28 +55,32 @@ article footer {
     margin: 16px -16px 0 -16px;
     height: 40px;
     display: flex;
+    align-items: stretch;
 
     button, a:link, a:visited {
+        display: block;
+        width: auto;
+        margin: 0;
+        -moz-box-sizing: border-box;
+        padding: 0 16px;
+        border: 0;
+        background: @footer_background_color;
+        color: @content_text_color;
+        transition: border-top-color 0.1s;
+
         &:focus {
-            background: darken(@content_background_color, 20%);
-            outline: none;
+            outline: 1px dotted darken(@content_background_color, 50%);
         }
         &:active {
-            background: @logo_orange;
-            color: white;
+            animation: button-press;
         }
     }
 
+    /* The buttons are packed on the left side of the toolbar */
     button {
         flex: none;
-        height: 40px;
-        width: auto;
-        margin: 0;
-        padding: 0 16px;
-        border: 0;
         border-top: 4px solid transparent;
-        background: @footer_background_color;
-        color: @content_text_color;
+        border-bottom: 4px solid transparent;
 
         &.current {
             border-top-color: @logo_orange;
@@ -91,25 +95,33 @@ article footer {
         flex-grow: 0;
         flex-shrink: 1;
         align-self: flex-end;
-        padding: 0 16px;
-        margin: 0 0 0 auto;
-        display: block;
-        text-align: right;
-        border-top: 4px solid transparent;
-        line-height: 36px;
+        margin: 0 0 0 auto; /* right align */
+        height: 40px;
+        line-height: 40px;
+    }
+}
+
+@keyframes button-press {
+    0% {
+        background: @footer_background_color;
+    }
+    20% {
+        background: @logo_orange;
+        color: white;
+    }
+    100% {
+        background: @footer_background_color;
     }
 }
 
 @keyframes progress-stripe {
     0% {
-        background: @logo_orange;
-        color: white;
+        border-top-color: @logo_orange;
     }
     50% {
-        background: @footer_background_color;
+        border-top-color: @footer_background_color;
     }
     100% {
-        background: @logo_orange;
-        color: white;
+        border-top-color: @logo_orange;
     }
 }
