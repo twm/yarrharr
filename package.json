@@ -2,10 +2,15 @@
   "name": "yarrharr",
   "version": "0.0.0",
   "dependencies": {
+    "history": "^1.13.1",
     "react": "^0.14.3",
+    "react-redux": "^4.0.0",
+    "react-router": "^1.0.0",
     "react-addons-css-transition-group": "^0.14.3",
     "react-addons-pure-render-mixin": "^0.14.3",
-    "react-dom": "^0.14.3"
+    "react-dom": "^0.14.3",
+    "redux": "^3.0.4",
+    "redux-simple-router": "0.0.8"
   },
   "devDependencies": {
     "babel-core": "^6.0.20",
@@ -17,6 +22,7 @@
     "less": "~2.5.1",
     "less-loader": "~2.2.0",
     "react-hot-loader": "^1.3.0",
+    "redux-devtools": "^2.1.5",
     "webpack": "^1.12.9",
     "webpack-dev-server": "^1.12.1"
   }
