@@ -1,7 +1,7 @@
 // This file is the Webpack entry point to the whole codebase.
 import { createStore, combineReducers } from 'redux';
 import { Provider, connect } from 'react-redux';
-import { Router, Route, IndexRoute } from 'react-router';
+import { Router, Route, IndexRoute, Link } from 'react-router';
 import { createHistory } from 'history';
 import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 import React from 'react';
@@ -115,13 +115,13 @@ function RootView({labelList, feedList}) {
         <div className="labels">
             <h1>Labels</h1>
             {labelList.length
-                ? labelList.map((label) => <div key={label.id}>{label.text}</div>)
+                ? <ul>{labelList.map((label) => <li key={label.id}><Link to={`/label/${label.id}/`}>{label.text}</Link></li>)}</ul>
                 : <div>No labels.  Add one?</div>}
         </div>
         <div className="feeds">
             <h1>Feeds</h1>
             {feedList.length
-                ? feedList.map((feed) => <div key={feed.id}>{feed.text || feed.title}</div>)
+                ? <ul>{feedList.map((feed) => <li key={feed.id}><Link to={`/feed/${feed.id}/`}>{feed.text || feed.title}</Link></li>)}</ul>
                 : <div>No feeds.  Add one?</div>}
         </div>
     </div>;
@@ -138,16 +138,27 @@ const RootViewRedux = connect(state => {
     };
 }, null)(RootView);
 
+
+function LabelView(props) {
+    return <div>Label {props.params.labelId}</div>;
+}
+const LabelViewRedux = connect(state => state, null)(LabelView);
+
+
+function FeedView(props) {
+    return <div>Feed {props.params.feedId}</div>;
+}
+const FeedViewRedux = connect(state => state, null)(FeedView);
+
+
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
             <Route path="/" component={Root}>
                 <IndexRoute component={RootViewRedux} />
                 <Route path="article/:articleId" component={ArticleViewRedux} />
-                {/*
-                <Route path="label/:labelId/:view/:sort" component={LabelView} />
-                <Route path="feed/:feedId/:view/:sort" component={FeedView} />
-                */}
+                <Route path="label/:labelId" component={LabelViewRedux} />
+                <Route path="feed/:feedId" component={FeedViewRedux} />
             </Route>
         </Router>
     </Provider>,
