@@ -6,6 +6,10 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^$', 'yarrharr.views.index'),
+    url(r'^article/\d+$', 'yarrharr.views.index'),
+    url(r'^label/\d+/[^/]+/[^/]+$', 'yarrharr.views.index'),
+    url(r'^feed/\d+/[^/]+/[^/]+$', 'yarrharr.views.index'),
+
     url(r'^articles/$', 'yarrharr.views.articles'),
     url(r'^state/$', 'yarrharr.views.state'),
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),

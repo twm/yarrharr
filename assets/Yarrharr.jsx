@@ -212,36 +212,6 @@ var Yarrharr = React.createClass({
         query.push('view=' + p.view);
         window.location.search = query.join('&');
     },
-    /**
-     * Compute a sorted list of available feeds.
-     */
-    getFeedList() {
-        var feedList = Object.keys(this.props.feedsById).map((feedId) => this.props.feedsById[feedId]);
-        feedList.sort((a, b) => {
-            // TODO: Investigate Intl.Collator and friends to make this more correct.
-            var titleA = (a.text || a.title).toLowerCase();
-            var titleB = (b.text || b.title).toLowerCase();
-            return (titleA < titleB) ? -1 :
-                   (titleA > titleB) ? 1 :
-                   b.id - a.id;
-        })
-        return feedList;
-    },
-
-    /**
-     * Get all the labels, sorted alphabetically.
-     */
-    getLabelList() {
-        var labelList = Object.keys(this.props.labelsById).map((labelId) => this.props.labelsById[labelId]);
-        labelList.sort((a, b) => {
-            var textA = a.text.toLowerCase();
-            var textB = b.text.toLowerCase();
-            return (titleA < titleB) ? -1 :
-                   (titleA > titleB) ? 1 :
-                   b.id - a.id;
-        });
-        return labelList;
-    },
 
     /**
      * Get a list of the articles available for display right now.  This merges
@@ -311,7 +281,7 @@ var Yarrharr = React.createClass({
 
     render() {
         return (
-            <div id="yarrharr">
+            <div>
                 <Toolbar>
                     <DropButton text="Feeds">
                         <FeedPicker controller={this} feedList={this.getFeedList()} labelList={this.getLabelList()} />
@@ -394,4 +364,7 @@ var ScrollSpy = React.createClass({
     }
 });
 
-module.exports = Yarrharr;
+module.exports = {
+    Yarrharr,
+    Article
+};
