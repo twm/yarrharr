@@ -10,9 +10,7 @@
     <body>
         <div id="app"></div>
         <script>
-            var props = {{ props|safe }};
-        </script>
-        <script>
+            var __webpack_public_path__ = "{{ STATIC_URL|escapejs }}";
             var props = {{ props|safe }};
         </script>
         <script src="{{ STATIC_URL }}bundle.js"></script>

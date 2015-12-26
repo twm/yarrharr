@@ -7,6 +7,7 @@
 
 NODEJS ?= $(shell which nodejs || which node)
 LESSC ?= $(NODEJS) node_modules/.bin/lessc
+WEBPACK ?= $(NODEJS) node_modules/.bin/webpack
 
 SCOUR ?= scour
 SCOURFLAGS := --indent=none --enable-comment-stripping \
@@ -26,10 +27,15 @@ yarrharr/static/yarrharr.css: assets/yarrharr.less
 	@echo "LESS $@"
 	$(V)$(LESSC) --strict-math=on --compress $< $@
 
+webpack-prod:
+	$(V)mkdir -p "$(dir $@)"
+	@echo "WEBPACK"
+	$(V)NODE_ENV=production $(WEBPACK)
+
 include tools/symbolic-icons.mk
 include tools/yarrharr-icon.mk
 
-static-assets: $(STATIC_TARGETS)
+static-assets: $(STATIC_TARGETS) webpack-prod
 
 release: static-assets
 	python setup.py sdist
@@ -37,9 +43,8 @@ release: static-assets
 devserver:
 	tox -e runserver -- $(LISTEN):8888
 
-webpackserver:
-	node_modules/.bin/webpack-dev-server --port 8889 --host $(LISTEN) \
-		--hot --content-base ./static/
+webpack:
+	$(WEBPACK) --watch --progress
 
 check-feeds:
 	tox -e run -- django-admin.py check_feeds

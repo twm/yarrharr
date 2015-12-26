@@ -37,13 +37,23 @@ Yarrharr is a Python application, but also a modern web app, so its
 dependencies are substantial.  The following steps are known to work on Ubuntu
 14.04; slight modification may be necessary for Debian.
 
-Gett the Source and Dependencies
---------------------------------
+Get the Source and Dependencies
+-------------------------------
 
 Grab the build dependencies with::
 
   $ sudo apt-get install inkscape icoutils git python-scour optipng \
-                         nodejs npm python-dev build-essential python-tox
+                         python-dev build-essential
+
+Install `install pip`_, then install `Tox`_.
+(I actually recommend installing this in your home directory, but that's outside the scope of this document.)
+
+.. _install pip: https://pip.pypa.io/en/latest/installing/#get-pip
+.. _tox: http://tox.readthedocs.org/en/latest/
+
+Install `nvm`_.
+
+.. _nvm: https://github.com/creationix/nvm
 
 Check out the repository and the git submodules::
 
@@ -53,24 +63,38 @@ Check out the repository and the git submodules::
 
 Next install the frontend build tools::
 
+  $ nvm use
   $ npm install
 
-.. note::
+This will take a minute to produce a ``node_modules`` directory with gobs of JavaScript in it.
 
-    If ``npm install`` fails with an SSL error you'll need to either install
-    more recent versions of Node.js and npm, or disable SSL cert verification
-    with ``npm config set strict-ssl false``.  The `npm folks changed the SSL
-    certs`_.
+Running the Django Development Server
+-------------------------------------
 
-.. _npm folks changed the ssl certs: http://blog.npmjs.org/post/71267056460/fastly-manta-loggly-and-couchdb-attachments
+When doing development you must run separate server processes for the Django backend and the Webpack frontend.
 
-Building Yarrharr
------------------
+Run the Django development server via `Tox`_ with::
 
-Yarharr's web assets are processed into a production-ready state before the
-Python source package is generated so that the Python package can be installed
-from PyPI without all of the build dependencies.  You can build the static
-assets with the ``static-assets`` make target::
+  $ make devserver
+
+In another terminal, run the `Webpack`_ build process with::
+
+  $ make webpack
+
+.. _webpack: http://webpack.github.io/
+
+Feed checks are not done automatically in this mode, but must be triggered
+manually::
+
+  $ make check-feeds
+
+Releasing Yarrharr
+------------------
+
+Yarharr's web assets need to be processed into a production-ready state before
+the Python source package is generated so that the Python package can be
+installed from PyPI without all of the build dependencies.  You can build the
+static assets with the ``static-assets`` make target::
 
   $ make static-assets
 
@@ -80,24 +104,6 @@ generated the source distribution can be built in the usual Python way::
   $ python setup.py sdist
 
 Or use the ``make release`` target.
-
-Running the Django Development Server
--------------------------------------
-
-When doing development you must run separate server processes for the Django backend and the Webpack frontend.
-
-Run the Django development server via tox with::
-
-  $ make devserver
-
-In another terminal, run the Webpack development server with::
-
-  $ make webpackserver
-
-Feed checks are not done automatically in this mode, but must be triggered
-manually::
-
-  $ make check-feeds
 
 Releases
 --------
