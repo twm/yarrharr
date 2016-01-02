@@ -129,9 +129,7 @@ function fetchSnapshot(feedIds, order, filter) {
  * Query the backend for a list of articles.  The result is
  * a Promise which resolves to an object of this layout:
  *
- *     {
- *         articlesById: Object<articleId, *>,
- *     }
+ *     Object<articleId, *>
  *
  * The result will contain all of the articles requested provided they are
  * owned by the authenticated user.
