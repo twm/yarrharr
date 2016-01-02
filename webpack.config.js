@@ -12,7 +12,7 @@ module.exports = {
         loaders: [
             {test: /\.less$/, loaders: ['style', 'css', 'less?strictMath&noIeCompat']},
             {test: /\.css$/, loaders: ['style', 'css']},
-            {test: /\.jsx$/, loaders: ['babel']},
+            {test: /\.jsx?$/, loaders: ['babel']},
         ],
     },
     plugins: [

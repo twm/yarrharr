@@ -1,5 +1,7 @@
 // This file is the Webpack entry point to the whole codebase.
-import { createStore, combineReducers } from 'redux';
+import { applyMiddleware, createStore, combineReducers } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import createLogger from 'redux-logger';
 import { Provider, connect } from 'react-redux';
 import { Router, Route, IndexRoute, Link } from 'react-router';
 import { createHistory } from 'history';
@@ -8,7 +10,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Article, Yarrharr } from "./Yarrharr.jsx";
 
+import { RECEIVE_ARTICLES } from './actions.js';
 function articleReducer(state = window.props.articlesById, action) {
+    if (action.type === RECEIVE_ARTICLES) {
+        return Object.assign({}, state, action.articlesById);
+    }
     return state;
 }
 
@@ -17,31 +23,65 @@ function feedReducer(state = window.props.feedsById, action) {
     return state;
 }
 
+import { REQUEST_FEED_SNAPSHOT, RECEIVE_FEED_SNAPSHOT, FAIL_FEED_SNAPSHOT } from './actions.js';
+function feedSnapshotReducer(state = {}, action) {
+    if (action.type === REQUEST_FEED_SNAPSHOT) {
+        return Object.assign({}, state, {
+            [action.feedId]: {
+                loading: true,
+                error: false,
+                articleIds: [],
+            },
+        });
+    } else if (action.type === RECEIVE_FEED_SNAPSHOT) {
+        return Object.assign({}, state, {
+            [action.feedId]: {
+                loading: false,
+                error: false,
+                articleIds: action.articleIds,
+            },
+        });
+    } else if (action.type === FAIL_FEED_SNAPSHOT) {
+        return Object.assign({}, state, {
+            [action.feedId]: Object.assign({}, state[action.feedId], {
+                loading: false,
+                error: true,
+            }),
+        });
+    }
+    return state;
+}
+
 function labelReducer(state = window.props.labelsById, action) {
     // TODO: Support label CRUD.
     return state;
 }
 
-function snapshotReducer(state = window.props.snapshot, action) {
+function orderReducer(state = 'date', action) {
     return state;
 }
 
-// FIXME: Replace with routing.
-function snapshotParamsReducer(state = window.props.snapshotParams, action) {
+function filterReducer(state = 'all', action) {
     return state;
 }
+
 
 const reducer = combineReducers({
     articlesById: articleReducer,
     feedsById: feedReducer,
+    feedSnapshots: feedSnapshotReducer,
     labelsById: labelReducer,
-    snapshot: snapshotReducer,
-    snapshotParams: snapshotParamsReducer,
+    order: orderReducer,
+    filter: filterReducer,
     routing: routeReducer,
 });
-const store = createStore(reducer);
-const history = createHistory();
+const middleware = [
+    thunkMiddleware,
+    createLogger(),
+];
+const store = applyMiddleware(...middleware)(createStore)(reducer);
 
+const history = createHistory();
 syncReduxAndRouter(history, store);
 
 const YarrharrRedux = connect(state => state, null)(Yarrharr);
@@ -121,7 +161,10 @@ function RootView({labelList, feedList}) {
         <div className="feeds">
             <h1>Feeds</h1>
             {feedList.length
-                ? <ul>{feedList.map((feed) => <li key={feed.id}><Link to={`/feed/${feed.id}/`}>{feed.text || feed.title}</Link></li>)}</ul>
+                ? <ul>{feedList.map((feed) =>
+                    <li key={feed.id}>
+                        <Link to={`/feed/${feed.id}/`}>{feed.text || feed.title}</Link>
+                    </li>)}</ul>
                 : <div>No feeds.  Add one?</div>}
         </div>
     </div>;
@@ -145,11 +188,57 @@ function LabelView(props) {
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
-function FeedView(props) {
-    return <div>Feed {props.params.feedId}</div>;
+import { showFeed } from './actions.js';
+function FeedView({params, feedsById, feedSnapshots, articlesById, dispatch}) {
+    const feedId = params.feedId;
+    const feed = feedsById[feedId];
+    const title = feed.text || feed.title;
+    const snapshot = feedSnapshots[feedId];
+    if (!snapshot || snapshot.loading) {
+        return (
+            <div>
+                <h1>{title}</h1>
+                <p>Loading&hellip;</p>
+            </div>
+        );
+    }
+    if (snapshot.error) {
+        return (
+            <div>
+                <h1>{title}</h1>
+                <p>
+                    Failed to load&hellip;
+                    <a href={`/feeds/${feedId}/`} onClick={(event) => {
+                        event.preventDefault();
+                        dispatch(showFeed(feedId));
+                    }}>retry</a>.
+                </p>
+            </div>
+        );
+    }
+    return (
+        <div>
+            <h1>{title}</h1>
+            {renderArticles(snapshot.articleIds, articlesById, feedsById)}
+        </div>
+    );
 }
 const FeedViewRedux = connect(state => state, null)(FeedView);
 
+
+function renderArticles(articleIds, articlesById, feedsById) {
+    if (!articleIds.length) {
+        return <p>No articles</p>;
+    }
+    return articleIds.map((id) => {
+        // TODO
+        const article = articlesById[id];
+        if (article) {
+            const feed = feedsById[article.feedId];
+            return <Article key={id} feed={feed} {...article} />;
+        }
+    });
+}
 
 ReactDOM.render(
     <Provider store={store}>
@@ -158,7 +247,9 @@ ReactDOM.render(
                 <IndexRoute component={RootViewRedux} />
                 <Route path="article/:articleId" component={ArticleViewRedux} />
                 <Route path="label/:labelId" component={LabelViewRedux} />
-                <Route path="feed/:feedId" component={FeedViewRedux} />
+                <Route path="feed/:feedId" component={FeedViewRedux} onEnter={(nextState) => {
+                    store.dispatch(showFeed(nextState.params.feedId));
+                }} />
             </Route>
         </Router>
     </Provider>,

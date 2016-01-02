@@ -134,6 +134,31 @@ def index(request):
     })
 
 
+@login_required
+def snapshots(request):
+    """
+    Get a list of article IDs matching the snapshot parameters.
+
+    :query article: One or more article IDs.
+    """
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    user_feeds = request.user.feed_set.all().values_list('id', flat=True)
+    snapshot_params = snapshot_params_from_query(request.POST, user_feeds)
+    articles = entries_for_snapshot(request.user, snapshot_params)
+
+    data = {
+        'snapshot': [article.id for article in articles],
+        # Include the first 10 articles for instant display.
+        # TODO: It would be better to include metadata for a larger number of
+        # articles.
+        'articlesById': {article.id: json_for_entry(article) for article in articles[:10]}
+    }
+    return HttpResponse(json_encoder.encode(data),
+                        content_type='application/json')
+
+
 def articles_for_request(request):
     """
     Get a QuerySet for the Entry objects listed by the request's "article"
