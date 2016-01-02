@@ -49,14 +49,12 @@ article {
     }
 }
 
-@footer_background_color: darken(@content_background_color, 10%);
-
 article footer {
-    background: @footer_background_color;
+    background: @toolbar_background_color;
     position: sticky;
     bottom: 0;
     margin: 16px -16px 0 -16px;
-    height: 40px;
+    height: @toolbar_height;
     display: flex;
     align-items: stretch;
 
@@ -67,7 +65,7 @@ article footer {
         -moz-box-sizing: border-box;
         padding: 0 16px;
         border: 0;
-        background: @footer_background_color;
+        background: @toolbar_background_color;
         color: @content_text_color;
         transition: border-top-color 0.1s;
 
@@ -99,21 +97,21 @@ article footer {
         flex-shrink: 1;
         align-self: flex-end;
         margin: 0 0 0 auto; /* right align */
-        height: 40px;
-        line-height: 40px;
+        height: @toolbar_height;
+        line-height: @toolbar_height;
     }
 }
 
 @keyframes button-press {
     0% {
-        background: @footer_background_color;
+        background: @toolbar_background_color;
     }
     20% {
         background: @logo_orange;
         color: white;
     }
     100% {
-        background: @footer_background_color;
+        background: @toolbar_background_color;
     }
 }
 
@@ -122,7 +120,7 @@ article footer {
         border-top-color: @logo_orange;
     }
     50% {
-        border-top-color: @footer_background_color;
+        border-top-color: @toolbar_background_color;
     }
     100% {
         border-top-color: @logo_orange;
