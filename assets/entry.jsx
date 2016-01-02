@@ -13,6 +13,8 @@ import './base.less';
 import Article from './Article.js';
 import ScrollSpy from './ScrollSpy.js';
 
+import { SET_VIEW, VIEW_TEXT, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
+
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 function articleReducer(state = window.props.articlesById, action) {
     if (action.type === REQUEST_ARTICLES) {
@@ -74,11 +76,25 @@ function labelReducer(state = window.props.labelsById, action) {
     return state;
 }
 
-function orderReducer(state = 'date', action) {
+function orderReducer(state = ORDER_DATE, action) {
+    if (action.type === SET_ORDER) {
+        return action.order;
+    }
     return state;
 }
 
-function filterReducer(state = 'all', action) {
+function filterReducer(state = FILTER_NEW, action) {
+    if (action.type === SET_FILTER) {
+        return action.filter;
+    }
+    return state;
+}
+
+
+function viewReducer(state = VIEW_TEXT, action) {
+    if (action.type === SET_VIEW) {
+        return action.view;
+    }
     return state;
 }
 
@@ -90,6 +106,7 @@ const reducer = combineReducers({
     labelsById: labelReducer,
     order: orderReducer,
     filter: filterReducer,
+    view: viewReducer,
     routing: routeReducer,
 });
 const middleware = [

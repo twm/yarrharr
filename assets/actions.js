@@ -1,3 +1,38 @@
+export const SET_VIEW = 'SET_VIEW';
+export const VIEW_LIST = 'list';
+export const VIEW_TEXT = 'text';
+export function setView(view) {
+    return {
+        type: SET_VIEW,
+        view,
+    };
+}
+
+
+export const SET_FILTER = 'SET_FILTER';
+export const FILTER_NEW = 'new';
+export const FILTER_SAVED = 'saved';
+export const FILTER_DONE = 'done';
+export const FILTER_ALL = 'all';
+export function setFilter(filter) {
+    return {
+        type: SET_FILTER,
+        filter,
+    };
+}
+
+
+export const SET_ORDER = 'SET_ORDER';
+export const ORDER_DATE = 'date';
+export const ORDER_TAIL = 'tail';
+export function setOrder(order) {
+    return {
+        type: SET_ORDER,
+        order,
+    };
+}
+
+
 export const REQUEST_FEED_SNAPSHOT = 'REQUEST_FEED_SNAPSHOT';
 function requestFeedSnapshot(feedId, order, filter) {
     return {
@@ -7,6 +42,7 @@ function requestFeedSnapshot(feedId, order, filter) {
         filter,
     };
 }
+
 
 export const RECEIVE_FEED_SNAPSHOT = 'RECEIVE_FEED_SNAPSHOT';
 function receiveFeedSnapshot(feedId, order, filter, articleIds) {
