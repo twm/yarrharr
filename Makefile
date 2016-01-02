@@ -5,9 +5,8 @@
 # Clear default rules.
 .SUFFIXES:
 
-NODEJS ?= $(shell which nodejs || which node)
-LESSC ?= $(NODEJS) node_modules/.bin/lessc
-WEBPACK ?= $(NODEJS) node_modules/.bin/webpack
+LESSC ?= node_modules/.bin/lessc
+WEBPACK ?= node_modules/.bin/webpack
 
 SCOUR ?= scour
 SCOURFLAGS := --indent=none --enable-comment-stripping \
