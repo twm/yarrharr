@@ -8,7 +8,10 @@ import { createHistory } from 'history';
 import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Article, ScrollSpy } from "./Yarrharr.jsx";
+
+import './base.less';
+import Article from './Article.js';
+import ScrollSpy from './ScrollSpy.js';
 
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 function articleReducer(state = window.props.articlesById, action) {
