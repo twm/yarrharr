@@ -15,9 +15,9 @@ export const FILTER_SAVED = 'saved';
 export const FILTER_DONE = 'done';
 export const FILTER_ALL = 'all';
 export function setFilter(filter) {
-    return {
-        type: SET_FILTER,
-        filter,
+    return (dispatch, getState) => {
+        const { snapshot: { feedIds, order } } = getState();
+        return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
 
@@ -26,29 +26,29 @@ export const SET_ORDER = 'SET_ORDER';
 export const ORDER_DATE = 'date';
 export const ORDER_TAIL = 'tail';
 export function setOrder(order) {
-    return {
-        type: SET_ORDER,
-        order,
+    return (dispatch, getState) => {
+        const { snapshot: { feedIds, filter } } = getState();
+        return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
 
 
-export const REQUEST_FEED_SNAPSHOT = 'REQUEST_FEED_SNAPSHOT';
-function requestFeedSnapshot(feedId, order, filter) {
+export const REQUEST_SNAPSHOT = 'REQUEST_SNAPSHOT';
+function requestSnapshot(feedIds, order, filter) {
     return {
-        type: REQUEST_FEED_SNAPSHOT,
-        feedId,
+        type: REQUEST_SNAPSHOT,
+        feedIds,
         order,
         filter,
     };
 }
 
 
-export const RECEIVE_FEED_SNAPSHOT = 'RECEIVE_FEED_SNAPSHOT';
-function receiveFeedSnapshot(feedId, order, filter, articleIds) {
+export const RECEIVE_SNAPSHOT = 'RECEIVE_SNAPSHOT';
+function receiveSnapshot(feedIds, order, filter, articleIds) {
     return {
-        type: RECEIVE_FEED_SNAPSHOT,
-        feedId,
+        type: RECEIVE_SNAPSHOT,
+        feedIds,
         order,
         filter,
         articleIds,
@@ -56,11 +56,11 @@ function receiveFeedSnapshot(feedId, order, filter, articleIds) {
 }
 
 
-export const FAIL_FEED_SNAPSHOT = 'FAIL_FEED_SNAPSHOT';
-function failFeedSnapshot(feedId, order, filter) {
+export const FAIL_SNAPSHOT = 'FAIL_SNAPSHOT';
+function failSnapshot(feedIds, order, filter) {
     return {
-        type: FAIL_FEED_SNAPSHOT,
-        feedId,
+        type: FAIL_SNAPSHOT,
+        feedIds,
         order,
         filter,
     };
@@ -159,21 +159,28 @@ function fetchArticles(articleIds) {
 export function showFeed(feedId) {
     return (dispatch, getState) => {
         const feedIds = [feedId];
-        const { order, filter } = getState();
-
-        // TODO: Only load snapshot if not already cached
-        dispatch(requestFeedSnapshot(feedIds, order, filter));
-
-        return fetchSnapshot(feedIds, order, filter).then(
-            json => {
-                dispatch(receiveArticles(json.articlesById));
-                dispatch(receiveFeedSnapshot(feedIds, order, filter, json.snapshot));
-            },
-            err => {
-                console.error(err);
-                dispatch(failFeedSnapshot(feedIds, order, filter))
-            });
+        const { snapshot: { order, filter } } = getState();
+        return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
+}
+
+function _setSnapshot(feedIds, order, filter, dispatch, getState) {
+    // TODO: Only load snapshot if not already cached
+    dispatch(requestSnapshot(feedIds, order, filter));
+
+    return fetchSnapshot(feedIds, order, filter).then(
+        json => {
+            // Updated articles are always welcome.
+            dispatch(receiveArticles(json.articlesById));
+            // TODO: Check if the desired snapshot parameters have
+            // changed since the request was sent.
+            // FIXME (race condition)
+            dispatch(receiveSnapshot(feedIds, order, filter, json.snapshot));
+        },
+        err => {
+            console.error(err);
+            dispatch(failSnapshot(feedIds, order, filter))
+        });
 }
 
 

@@ -12,6 +12,7 @@ import ReactDOM from 'react-dom';
 import './base.less';
 import Article from './Article.js';
 import ScrollSpy from './ScrollSpy.js';
+import ViewToolbar from './ViewToolbar.js';
 
 import { SET_VIEW, VIEW_TEXT, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
@@ -42,30 +43,38 @@ function feedReducer(state = window.props.feedsById, action) {
     return state;
 }
 
-import { REQUEST_FEED_SNAPSHOT, RECEIVE_FEED_SNAPSHOT, FAIL_FEED_SNAPSHOT } from './actions.js';
-function feedSnapshotReducer(state = {}, action) {
-    if (action.type === REQUEST_FEED_SNAPSHOT) {
+import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT } from './actions.js';
+const defaultSnapshot = {
+    loading: false,
+    error: false,
+    order: ORDER_DATE,
+    filter: FILTER_NEW,
+    feedIds: [],
+    articleIds: [],
+};
+function snapshotReducer(state = defaultSnapshot, action) {
+    if (action.type === REQUEST_SNAPSHOT) {
         return Object.assign({}, state, {
-            [action.feedId]: {
-                loading: true,
-                error: false,
-                articleIds: [],
-            },
+            loading: true,
+            error: false,
+            order: action.order,
+            filter: action.filter,
+            feedIds: action.feedIds,
+            articleIds: [],
         });
-    } else if (action.type === RECEIVE_FEED_SNAPSHOT) {
+    } else if (action.type === RECEIVE_SNAPSHOT) {
         return Object.assign({}, state, {
-            [action.feedId]: {
-                loading: false,
-                error: false,
-                articleIds: action.articleIds,
-            },
+            loading: false,
+            error: false,
+            order: action.order,
+            filter: action.filter,
+            feedIds: action.feedIds,
+            articleIds: action.articleIds,
         });
-    } else if (action.type === FAIL_FEED_SNAPSHOT) {
+    } else if (action.type === FAIL_SNAPSHOT) {
         return Object.assign({}, state, {
-            [action.feedId]: Object.assign({}, state[action.feedId], {
-                loading: false,
-                error: true,
-            }),
+            loading: false,
+            error: true,
         });
     }
     return state;
@@ -75,21 +84,6 @@ function labelReducer(state = window.props.labelsById, action) {
     // TODO: Support label CRUD.
     return state;
 }
-
-function orderReducer(state = ORDER_DATE, action) {
-    if (action.type === SET_ORDER) {
-        return action.order;
-    }
-    return state;
-}
-
-function filterReducer(state = FILTER_NEW, action) {
-    if (action.type === SET_FILTER) {
-        return action.filter;
-    }
-    return state;
-}
-
 
 function viewReducer(state = VIEW_TEXT, action) {
     if (action.type === SET_VIEW) {
@@ -102,10 +96,8 @@ function viewReducer(state = VIEW_TEXT, action) {
 const reducer = combineReducers({
     articlesById: articleReducer,
     feedsById: feedReducer,
-    feedSnapshots: feedSnapshotReducer,
+    snapshot: snapshotReducer,
     labelsById: labelReducer,
-    order: orderReducer,
-    filter: filterReducer,
     view: viewReducer,
     routing: routeReducer,
 });
@@ -220,11 +212,10 @@ function LabelView(props) {
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
-function FeedView({params, feedsById, feedSnapshots, articlesById, dispatch}) {
+function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     const title = feed.text || feed.title;
-    const snapshot = feedSnapshots[feedId];
     if (!snapshot || snapshot.loading) {
         return (
             <div>
@@ -250,6 +241,7 @@ function FeedView({params, feedsById, feedSnapshots, articlesById, dispatch}) {
     return (
         <div>
             <h1>{title}</h1>
+            <ViewToolbar snapshot={snapshot} dispatch={dispatch} />
             {(snapshot.articleIds.length > 0)
                 ? <ScrollSpy onNearBottom={() => { dispatch(loadMore(snapshot.articleIds)); }}>
                     {renderArticles(snapshot.articleIds, articlesById, feedsById)}
@@ -273,6 +265,7 @@ function renderArticles(articleIds, articlesById, feedsById) {
                 elements.push(<p>Loading&hellip;</p>);
                 break;
             }
+            // TODO: Handle errors
             const feed = feedsById[article.feedId];
             elements.push(<Article key={id} feed={feed} {...article} />);
         } else {
