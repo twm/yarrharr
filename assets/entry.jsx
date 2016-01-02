@@ -12,7 +12,7 @@ import ReactDOM from 'react-dom';
 import './base.less';
 import Article from './Article.js';
 import ScrollSpy from './ScrollSpy.js';
-import ViewToolbar from './ViewToolbar.js';
+import ViewControls from './ViewControls.js';
 
 import { SET_VIEW, VIEW_TEXT, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
@@ -212,14 +212,40 @@ function LabelView(props) {
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
+function Logo() {
+    // TODO: Use minified SVG
+    return <img src={window.__webpack_public_path__ + require('./icon.inkscape.svg')} width="32" height="32" />;
+}
+
+
+function ViewButton() {
+    // TODO: Use icon
+    return <button className="toolbar-button toolbar-button-text">View ▾</button>
+}
+
+
+import { setView, setFilter, setOrder } from "./actions.js";
+import "./feed-view.less";
+import DropButton from "./DropButton.js";
 function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
-    const title = feed.text || feed.title;
+    const controls = <div className="controls">
+        <Link to="/" className="toolbar-button" title="Return to feed list">
+            <Logo />
+        </Link>
+        <div className="feed-title">{feed.text || feed.title}</div>
+        <DropButton trigger={ViewButton}>
+            <ViewControls snapshot={snapshot}
+                onSetView={(view) => dispatch(setView(view))}
+                onSetFilter={(filter) => dispatch(setFilter(filter))}
+                onSetOrder={(order) => dispatch(setOrder(order))} />
+        </DropButton>
+    </div>;
     if (!snapshot || snapshot.loading) {
         return (
             <div>
-                <h1>{title}</h1>
+                {controls}
                 <p>Loading&hellip;</p>
             </div>
         );
@@ -227,7 +253,7 @@ function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
     if (snapshot.error) {
         return (
             <div>
-                <h1>{title}</h1>
+                {controls}
                 <p>
                     Failed to load&hellip;
                     <a href={`/feeds/${feedId}/`} onClick={(event) => {
@@ -240,8 +266,7 @@ function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
     }
     return (
         <div>
-            <h1>{title}</h1>
-            <ViewToolbar snapshot={snapshot} dispatch={dispatch} />
+            {controls}
             {(snapshot.articleIds.length > 0)
                 ? <ScrollSpy onNearBottom={() => { dispatch(loadMore(snapshot.articleIds)); }}>
                     {renderArticles(snapshot.articleIds, articlesById, feedsById)}

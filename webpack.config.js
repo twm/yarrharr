@@ -13,6 +13,7 @@ module.exports = {
             {test: /\.less$/, loaders: ['style', 'css', 'less?strictMath&noIeCompat']},
             {test: /\.css$/, loaders: ['style', 'css']},
             {test: /\.jsx?$/, loaders: ['babel']},
+            {test: /\.svg$/, loaders: ['file']},
         ],
     },
     plugins: [

@@ -24,6 +24,7 @@
     "less": "~2.5.1",
     "less-loader": "~2.2.0",
     "redux-devtools": "^2.1.5",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.9",
+    "file-loader": "~0.8.5"
   }
 }

@@ -18,59 +18,6 @@ var Toolbar = React.createClass({
     },
 });
 
-require("./view-picker.less");
-var ViewPicker = React.createClass({
-    handleFilterClick(filter) {
-        this.props.controller.setSnapshotParams({filter});
-    },
-    handleOrderClick(order) {
-        this.props.controller.setSnapshotParams({order});
-    },
-    handleViewClick(view) {
-        this.props.controller.setSnapshotParams({view});
-    },
-    render() {
-        return (
-            <span className="view-picker">
-                <h2>View</h2>
-                <div className="group">
-                    <button onClick={this.handleViewClick.bind(this, "list")}>List</button>
-                    <button onClick={this.handleViewClick.bind(this, "text")}>Full Text</button>
-                </div>
-                <h2>Filter</h2>
-                <div className="group">
-                    <button onClick={this.handleFilterClick.bind(this, "new")}>New</button>
-                    <button onClick={this.handleFilterClick.bind(this, "saved")}>Saved</button>
-                    <button onClick={this.handleFilterClick.bind(this, "done")}>Done</button>
-                    <button onClick={this.handleFilterClick.bind(this, "all")}>All</button>
-                </div>
-                <h2>Sort</h2>
-                <div className="group">
-                    <button onClick={this.handleOrderClick.bind(this, "date")}>Oldest first</button>
-                    <button onClick={this.handleOrderClick.bind(this, "tail")}>Latest first</button>
-                </div>
-            </span>
-        );
-    },
-});
-
-require("./drop-button.less");
-var DropButton = React.createClass({
-    getInitialState() {
-        return {open: false};
-    },
-    handleClick() {
-        this.setState({open: !this.state.open});
-    },
-    render() {
-        var drop = this.state.open ? <div className="card">{this.props.children}</div> : null;
-        return <div className="drop-button" onClick={this.handleClick}>
-            <button className="trigger">{this.props.text}</button>
-            {drop}
-        </div>;
-    }
-});
-
 require('./feed-picker.less');
 var FeedPicker = React.createClass({
     handleFeedClick(feed) {

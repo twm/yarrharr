@@ -59,36 +59,13 @@ article footer {
     align-items: stretch;
 
     button, a:link, a:visited {
-        display: block;
-        width: auto;
-        margin: 0;
-        -moz-box-sizing: border-box;
-        padding: 0 16px;
-        border: 0;
-        background: @toolbar_background_color;
-        color: @content_text_color;
-        transition: border-top-color 0.1s;
-
-        &:focus {
-            outline: 1px dotted darken(@content_background_color, 50%);
-        }
-        &:active {
-            animation: button-press;
-        }
+        .toolbar-button;
+        .toolbar-button-text;
     }
 
     /* The buttons are packed on the left side of the toolbar */
     button {
         flex: none;
-        border-top: 4px solid transparent;
-        border-bottom: 4px solid transparent;
-
-        &.current {
-            border-top-color: @logo_orange;
-        }
-        &.progress {
-            animation: progress-stripe 2s linear infinite;
-        }
     }
 
     a:link, a:visited {
@@ -97,32 +74,5 @@ article footer {
         flex-shrink: 1;
         align-self: flex-end;
         margin: 0 0 0 auto; /* right align */
-        height: @toolbar_height;
-        line-height: @toolbar_height;
-    }
-}
-
-@keyframes button-press {
-    0% {
-        background: @toolbar_background_color;
-    }
-    20% {
-        background: @logo_orange;
-        color: white;
-    }
-    100% {
-        background: @toolbar_background_color;
-    }
-}
-
-@keyframes progress-stripe {
-    0% {
-        border-top-color: @logo_orange;
-    }
-    50% {
-        border-top-color: @toolbar_background_color;
-    }
-    100% {
-        border-top-color: @logo_orange;
     }
 }
