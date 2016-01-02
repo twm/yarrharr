@@ -8,12 +8,26 @@ import { createHistory } from 'history';
 import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Article, Yarrharr } from "./Yarrharr.jsx";
+import { Article, ScrollSpy } from "./Yarrharr.jsx";
 
-import { RECEIVE_ARTICLES } from './actions.js';
+import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 function articleReducer(state = window.props.articlesById, action) {
-    if (action.type === RECEIVE_ARTICLES) {
+    if (action.type === REQUEST_ARTICLES) {
+        const patch = {};
+        const flags = {loading: true, error: false};
+        action.articleIds.forEach((id) => {
+            patch[id] = Object.assign({}, state[id], flags);
+        });
+        return Object.assign({}, state, patch);
+    } else if (action.type === RECEIVE_ARTICLES) {
         return Object.assign({}, state, action.articlesById);
+    } else if (action.type === FAIL_ARTICLES) {
+        const patch = {};
+        const flags = {loading: false, error: true};
+        action.articleIds.forEach((id) => {
+            patch[id] = Object.assign({}, state[id], flags);
+        });
+        return Object.assign({}, state, patch);
     }
     return state;
 }
@@ -83,8 +97,6 @@ const store = applyMiddleware(...middleware)(createStore)(reducer);
 
 const history = createHistory();
 syncReduxAndRouter(history, store);
-
-const YarrharrRedux = connect(state => state, null)(Yarrharr);
 
 var ArticleView = (props) => {
     const article = props.articlesById[props.params.articleId];
@@ -188,7 +200,6 @@ function LabelView(props) {
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
-import { showFeed } from './actions.js';
 function FeedView({params, feedsById, feedSnapshots, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
@@ -219,7 +230,11 @@ function FeedView({params, feedsById, feedSnapshots, articlesById, dispatch}) {
     return (
         <div>
             <h1>{title}</h1>
-            {renderArticles(snapshot.articleIds, articlesById, feedsById)}
+            {(snapshot.articleIds.length > 0)
+                ? <ScrollSpy onNearBottom={() => { dispatch(loadMore(snapshot.articleIds)); }}>
+                    {renderArticles(snapshot.articleIds, articlesById, feedsById)}
+                </ScrollSpy>
+                : <p>No articles</p>}
         </div>
     );
 }
@@ -230,16 +245,26 @@ function renderArticles(articleIds, articlesById, feedsById) {
     if (!articleIds.length) {
         return <p>No articles</p>;
     }
-    return articleIds.map((id) => {
-        // TODO
+    const elements = [];
+    for (let id of articleIds) {
         const article = articlesById[id];
         if (article) {
+            if (article.loading) {
+                elements.push(<p>Loading&hellip;</p>);
+                break;
+            }
             const feed = feedsById[article.feedId];
-            return <Article key={id} feed={feed} {...article} />;
+            elements.push(<Article key={id} feed={feed} {...article} />);
+        } else {
+            // We only render up to the first unavailable article.  This
+            // ensures that loading always occurs at the end.
+            break;
         }
-    });
+    }
+    return elements;
 }
 
+import { showFeed, loadMore } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>

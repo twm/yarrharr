@@ -366,5 +366,6 @@ var ScrollSpy = React.createClass({
 
 module.exports = {
     Yarrharr,
-    Article
+    Article,
+    ScrollSpy,
 };
