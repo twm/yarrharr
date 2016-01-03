@@ -125,6 +125,24 @@ function failMarkArticle(articleId, state, error) {
     };
 }
 
+function post(path, body) {
+    return fetch(path, {
+        method: 'POST', // a.k.a. "RPC"
+        body: body,
+        headers: new Headers({
+            // Pass the Django CSRF token (or the request will be rejected).
+            'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
+        }),
+        // Pass cookies (or the request will be rejected).
+        credentials: 'same-origin',
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(response);
+        }
+        return response.json();
+    });
+}
+
 
 /**
  * Thunk action which asynchronously alters the state of an article.
@@ -137,19 +155,7 @@ export function markArticle(articleId, state) {
 
         dispatch(requestMarkArticle(articleId, state));
 
-        fetch('/state/', {
-            method: 'POST',
-            body: body,
-            headers: new Headers({
-                'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
-            }),
-            credentials: 'same-origin',
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error(response);
-            }
-            return response.json();
-        }).then((json) => {
+        post('/state/', body).then((json) => {
            dispatch(receiveMarkArticle(articleId, state));
            // TODO: Update counts on affected feeds and labels.
         }).catch((e) => {console.error(e)});
@@ -171,20 +177,7 @@ function fetchSnapshot(feedIds, order, filter) {
     feedIds.forEach((id) => body.append('feeds', String(id)));
     body.append('order', order);
     body.append('filter', filter);
-
-    return fetch('/snapshots/', {
-        method: 'POST',
-        body: body,
-        headers: new Headers({
-            'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
-        }),
-        credentials: 'same-origin',
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error(response);
-        }
-        return response.json();
-    });
+    return post('/snapshots/', body);
 }
 
 
@@ -200,20 +193,7 @@ function fetchSnapshot(feedIds, order, filter) {
 function fetchArticles(articleIds) {
     const body = new FormData();
     articleIds.forEach((id) => body.append('article', String(id)));
-
-    return fetch('/articles/', {
-        method: 'POST',
-        body: body,
-        headers: new Headers({
-            'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
-        }),
-        credentials: 'same-origin',
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error(response);
-        }
-        return response.json();
-    });
+    return post('/articles/', body);
 }
 
 /**
