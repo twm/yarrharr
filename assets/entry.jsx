@@ -218,9 +218,10 @@ function Logo() {
 }
 
 
-function ViewButton() {
+function ViewButton({open}) {
+    const className = (open ? "toolbar-button-dropping " : "") + "toolbar-button toolbar-button-text";
     // TODO: Use icon
-    return <button className="toolbar-button toolbar-button-text">View ▾</button>
+    return <button className={className}>View ▾</button>
 }
 
 

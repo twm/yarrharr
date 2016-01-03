@@ -1,19 +1,14 @@
 @import "./globals.less";
 
-.drop-button {
-    .trigger {
-        cursor: pointer;
-    }
-    .card {
-        position: fixed;
-        background: @toolbar_background_color;
-        top: @toolbar_height;
-        /* TODO: Automatically orient relative to the button */
-        left: @toolbar_height;
-        right: @toolbar_height;
-        z-index: 0; /* Under .controls so the box-shadow doesn't overlap. */
-        max-height: calc(100vh - @toolbar_height - @toolbar_height);
-        overflow: auto;
-        box-shadow: 0 0 8px black;
-    }
+.dropdown {
+    position: absolute;
+    background: @dropdown_background_color;
+    top: @toolbar_height;
+    /* TODO: Automatically orient relative to the button */
+    right: 0;
+    z-index: 0; /* Under .controls so the box-shadow doesn't overlap. */
+    max-height: calc(100vh - @toolbar_height - @toolbar_height);
+    max-width: 100vw;
+    overflow: auto;
+    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.5);
 }

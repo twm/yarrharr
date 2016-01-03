@@ -8,6 +8,8 @@
 @toolbar_height: 40px;
 @toolbar_background_color: darken(@content_background_color, 10%);
 
+@dropdown_background_color: darken(@toolbar_background_color, 10%);
+
 @content_text_color: rgb(20, 20, 20);
 @content_background_color: rgba(250, 250, 250, 1.0);
 
@@ -62,7 +64,7 @@
     box-sizing: border-box;
     padding: 0 4px;
     border: 0;
-    background: @toolbar_background_color;
+    background: inherit;
     color: @content_text_color;
     transition: border-top-color 0.1s;
     border-top: 4px solid transparent;
@@ -87,16 +89,20 @@
     padding: 0 16px;
 }
 
+.toolbar-button-dropping {
+    background: @dropdown_background_color;
+}
+
 @keyframes button-press {
     0% {
-        background: @toolbar_background_color;
+        background: inherit;
     }
     20% {
         background: @logo_orange;
         color: white;
     }
     100% {
-        background: @toolbar_background_color;
+        background: inherit;
     }
 }
 
@@ -105,7 +111,7 @@
         border-top-color: @logo_orange;
     }
     50% {
-        border-top-color: @toolbar_background_color;
+        border-top-color: inherit;
     }
     100% {
         border-top-color: @logo_orange;
