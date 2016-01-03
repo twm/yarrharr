@@ -1,4 +1,5 @@
 import React from 'react';
+import { FeedLink } from "widgets/links.js";
 import "./Article.less";
 
 const Article = React.createClass({
@@ -56,7 +57,7 @@ const Article = React.createClass({
                 <h1><a href={this.props.url}>{this.props.title}</a></h1>
                 {this.props.author
                     ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
-                    : <p className="meta">From {this.props.feed.text || this.props.feed.title}</p>}
+                    : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
                 <p className="meta">Posted {this.props.date}</p>
                 <div>
                     <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />

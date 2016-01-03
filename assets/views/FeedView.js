@@ -9,6 +9,7 @@ import DropButton from 'widgets/DropButton.js';
 import Logo from 'widgets/Logo.js';
 import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
+import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import ViewControls from 'widgets/ViewControls.js';
 import './FeedView.less';
@@ -30,11 +31,11 @@ function ViewButton({open}) {
 function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
-    return <div>
+    return <div className="feed-view">
         <div className="controls">
-            <Link to="/" className="toolbar-button" title="Return to feed list">
+            <RootLink className="toolbar-button" title="Return to feed list">
                 <Logo />
-            </Link>
+            </RootLink>
             <div className="feed-title">{feed.text || feed.title}</div>
             <DropButton trigger={ViewButton}>
                 <ViewControls snapshot={snapshot}

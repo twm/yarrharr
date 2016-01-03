@@ -10,7 +10,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import './base.less';
-import FeedView from './views/FeedView.js';
+import FeedView from 'views/FeedView.js';
 
 import { SET_VIEW, VIEW_TEXT, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
@@ -172,12 +172,14 @@ function sortedFeeds({feedsById}) {
     return feedList;
 }
 
+
+import { FeedLink, LabelLink } from 'widgets/links.js';
 function RootView({labelList, feedList}) {
     return <div className="root">
         <div className="labels">
             <h1>Labels</h1>
             {labelList.length
-                ? <ul>{labelList.map((label) => <li key={label.id}><Link to={`/label/${label.id}/`}>{label.text}</Link></li>)}</ul>
+                ? <ul>{labelList.map((label) => <li key={label.id}><LabelLink labelId={label.id}>{label.text}</LabelLink></li>)}</ul>
                 : <div>No labels.  Add one?</div>}
         </div>
         <div className="feeds">
@@ -185,7 +187,7 @@ function RootView({labelList, feedList}) {
             {feedList.length
                 ? <ul>{feedList.map((feed) =>
                     <li key={feed.id}>
-                        <Link to={`/feed/${feed.id}/`}>{feed.text || feed.title}</Link>
+                        <FeedLink feedId={feed.id}>{feed.text || feed.title}</FeedLink>
                     </li>)}</ul>
                 : <div>No feeds.  Add one?</div>}
         </div>
