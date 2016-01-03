@@ -58,13 +58,7 @@ function renderSnapshot(snapshot, renderArticles, onNearBottom) {
         return <p className="placeholder">Loading&hellip;</p>;
     }
     if (snapshot.error) {
-        return <p className="placeholder">
-            Failed to load&hellip;
-            <a href={`/feeds/${feedId}/`} onClick={(event) => {
-                event.preventDefault();
-                dispatch(showFeed(feedId));
-            }}>retry</a>.
-        </p>;
+        return <p className="placeholder">Failed to load (reload to retry)</p>;
     }
     if (snapshot.articleIds.length === 0) {
         return <p className="placeholder">No articles</p>;
