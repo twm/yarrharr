@@ -247,7 +247,7 @@ function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
         return (
             <div>
                 {controls}
-                <p>Loading&hellip;</p>
+                <p className="placeholder">Loading&hellip;</p>
             </div>
         );
     }
@@ -255,7 +255,7 @@ function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
         return (
             <div>
                 {controls}
-                <p>
+                <p className="placeholder">
                     Failed to load&hellip;
                     <a href={`/feeds/${feedId}/`} onClick={(event) => {
                         event.preventDefault();
@@ -272,7 +272,7 @@ function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
                 ? <ScrollSpy onNearBottom={() => { dispatch(loadMore(snapshot.articleIds)); }}>
                     {renderArticles(snapshot.articleIds, articlesById, feedsById)}
                 </ScrollSpy>
-                : <p>No articles</p>}
+                : <p className="placeholder">No articles</p>}
         </div>
     );
 }
