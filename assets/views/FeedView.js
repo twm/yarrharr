@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setFilter, setOrder } from 'actions.js';
+import { markArticle } from 'actions.js';
 import { VIEW_TEXT, VIEW_LIST } from 'actions.js';
 
 import { Link } from 'react-router';
@@ -45,7 +46,8 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
             </DropButton>
         </div>
         {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById),
+            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
+                (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
             () => dispatch(loadMore(snapshot.articleIds)))}
     </div>;
 }
@@ -72,7 +74,7 @@ function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     </ScrollSpy>;
 }
 
-function renderArticles(view, articleIds, articlesById, feedsById) {
+function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
     if (!articleIds.length) {
         return <p>No articles</p>;
     }
@@ -87,7 +89,7 @@ function renderArticles(view, articleIds, articlesById, feedsById) {
             }
             // TODO: Handle errors
             const feed = feedsById[article.feedId];
-            elements.push(<Widget key={id} feed={feed} {...article} />);
+            elements.push(<Widget key={id} feed={feed} onMark={onMark} {...article} />);
         } else {
             // We only render up to the first unavailable article.  This
             // ensures that loading always occurs at the end.

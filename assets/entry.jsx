@@ -16,6 +16,7 @@ import RootView from 'views/RootView.js';
 import { SET_VIEW, VIEW_TEXT, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
+import { REQUEST_MARK_ARTICLE, RECEIVE_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
 function articleReducer(state = window.props.articlesById, action) {
     if (action.type === REQUEST_ARTICLES) {
         const patch = {};
@@ -33,6 +34,25 @@ function articleReducer(state = window.props.articlesById, action) {
             patch[id] = Object.assign({}, state[id], flags);
         });
         return Object.assign({}, state, patch);
+    } else if (action.type === REQUEST_MARK_ARTICLE) {
+        const article = state[action.articleId];
+        return Object.assign({}, state, {
+            [action.articleId]: Object.assign({}, article, {marking: action.state}),
+        });
+    } else if (action.type === RECEIVE_MARK_ARTICLE) {
+        const article = state[action.articleId];
+        return Object.assign({}, state, {
+            [action.articleId]: Object.assign({}, article, {
+                state: action.state,
+                marking: null,
+            }),
+        });
+    } else if (action.type === FAIL_MARK_ARTICLE) {
+        // TODO: Communicate the error to the user somehow.
+        const article = state[action.articleId];
+        return Object.assign({}, state, {
+            [action.articleId]: Object.assign({}, article, {marking: null}),
+        });
     }
     return state;
 }

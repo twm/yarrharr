@@ -1,75 +1,62 @@
 import React from 'react';
 import { FeedLink } from "widgets/links.js";
+import { STATE_NEW, STATE_SAVED, STATE_DONE } from 'actions.js';
 import "./Article.less";
 
 const Article = React.createClass({
-    getInitialState() {
+    propTypes: {
+        // Data attributes
+        id: React.PropTypes.number.isRequired,
+        url: React.PropTypes.string.isRequired,
+        title: React.PropTypes.string.isRequired,
+        author: React.PropTypes.string,
+        content: React.PropTypes.string.isRequired,
+        date: React.PropTypes.string.isRequired,
+        feed: React.PropTypes.shape({
+            id: React.PropTypes.number.isRequired,
+            text: React.PropTypes.string,
+            title: React.PropTypes.string.isRequired,
+        }).isRequired,
+        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]),
+        // Non-null indicates that a mark operation is in-progress.
+        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_DONE]),
+        // Event handlers
+        onMark: React.PropTypes.func.isRequired,
+    },
+    getDefaultProps() {
         return {
-            newProgress: false,
-            savedProgress: false,
-            doneProgress: false,
+            marking: null,
         };
     },
-    setArticleState(state) {
-        const body = new FormData();
-        body.append('article', String(this.props.id));
-        body.append('state', state);
-
-        var s = {};
-        s[state + "Progress"] = true;
-        this.setState(s);
-
-        fetch('/state/', {
-            method: 'POST',
-            body: body,
-            headers: new Headers({
-                'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
-            }),
-            credentials: 'same-origin',
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error(response);
-            }
-            return response.json();
-        }).then((json) => {
-            // TODO: Update global props?  Probably should add a real dataflow
-            // abstraction in here somewhere... Redux?
-            console.log("done setting article state to " + state);
-            s[state + "Progress"] = false;
-            this.setState(s);
-            // XXX FIXME Ew ew ew ew ew
-            this.props.controller.setState({
-                articlesById: assign({}, this.props.controller.state.articlesById, json),
-            });
-        }).catch((e) => {console.error(e)});
-
-    },
-    stateButtonClass(state) {
-        var className = (this.props.state === state) ? "current" : "";
-        if (this.state[state + 'Progress']) {
+    renderMarkButton(text, targetState) {
+        var className = (this.props.state === targetState) ? "current" : "";
+        if (this.props.marking === targetState) {
             className += ' progress';
         }
-        return className;
+        return <button className={className} onClick={(event) => {
+            event.preventDefault();
+            this.props.onMark(this.props.id, targetState);
+        }}>
+            {text}
+        </button>;
     },
     render() {
-        return (
-            <article>
-                <h1><a href={this.props.url}>{this.props.title}</a></h1>
-                {this.props.author
-                    ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
-                    : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
-                <p className="meta">Posted {this.props.date}</p>
-                <div>
-                    <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
-                    <footer>
-                        <button className={this.stateButtonClass("new")} onClick={this.setArticleState.bind(this, "new")}>New</button>
-                        <button className={this.stateButtonClass("saved")} onClick={this.setArticleState.bind(this, "saved")}>Saved</button>
-                        <button className={this.stateButtonClass("done")} onClick={this.setArticleState.bind(this, "done")}>Done</button>
-                        <a href={this.props.url} target="_blank">View externally</a>
-                    </footer>
-                </div>
-            </article>
-        );
+        return <article>
+            <h1><a href={this.props.url}>{this.props.title}</a></h1>
+            {this.props.author
+                ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
+                : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
+            <p className="meta">Posted {this.props.date}</p>
+            <div>
+                <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
+                <footer>
+                    {this.renderMarkButton('New', STATE_NEW)}
+                    {this.renderMarkButton('Saved', STATE_SAVED)}
+                    {this.renderMarkButton('Done', STATE_DONE)}
+                    <a href={this.props.url} target="_blank">View externally</a>
+                </footer>
+            </div>
+        </article>;
     }
 });
 

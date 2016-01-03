@@ -94,6 +94,69 @@ function failArticles(articleIds) {
 }
 
 
+export const REQUEST_MARK_ARTICLE = 'REQUEST_MARK_ARTICLE';
+export const STATE_NEW = 'new';
+export const STATE_SAVED = 'saved';
+export const STATE_DONE = 'done';
+function requestMarkArticle(articleId, state) {
+    return {
+        type: REQUEST_MARK_ARTICLE,
+        articleId,
+        state,
+    };
+}
+
+export const RECEIVE_MARK_ARTICLE = 'RECEIVE_MARK_ARTICLE';
+function receiveMarkArticle(articleId, state) {
+    return {
+        type: RECEIVE_MARK_ARTICLE,
+        articleId,
+        state,
+    };
+}
+
+export const FAIL_MARK_ARTICLE = 'FAIL_MARK_ARTICLE';
+function failMarkArticle(articleId, state, error) {
+    return {
+        type: FAIL_MARK_ARTICLE,
+        articleId,
+        state,
+        error,
+    };
+}
+
+
+/**
+ * Thunk action which asynchronously alters the state of an article.
+ */
+export function markArticle(articleId, state) {
+    return (dispatch) => {
+        const body = new FormData();
+        body.append('article', String(articleId));
+        body.append('state', state);
+
+        dispatch(requestMarkArticle(articleId, state));
+
+        fetch('/state/', {
+            method: 'POST',
+            body: body,
+            headers: new Headers({
+                'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
+            }),
+            credentials: 'same-origin',
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response);
+            }
+            return response.json();
+        }).then((json) => {
+           dispatch(receiveMarkArticle(articleId, state));
+           // TODO: Update counts on affected feeds and labels.
+        }).catch((e) => {console.error(e)});
+    };
+}
+
+
 /**
  * Query the backend for a snapshot of the given feed(s).  The result is
  * a Promise which resolves to an object of this layout:
