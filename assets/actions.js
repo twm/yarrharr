@@ -1,6 +1,7 @@
 export const SET_VIEW = 'SET_VIEW';
 export const VIEW_LIST = 'list';
-export const VIEW_TEXT = 'text';
+export const VIEW_NARROW = 'narrow';
+export const VIEW_WIDE = 'wide';
 export function setView(view) {
     return {
         type: SET_VIEW,

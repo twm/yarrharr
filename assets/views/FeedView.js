@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setFilter, setOrder } from 'actions.js';
 import { markArticle } from 'actions.js';
-import { VIEW_TEXT, VIEW_LIST } from 'actions.js';
+import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
 
-import { Link } from 'react-router';
 import DropButton from 'widgets/DropButton.js';
 import Logo from 'widgets/Logo.js';
 import Article from 'widgets/Article.js';
@@ -13,12 +12,14 @@ import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import ViewControls from 'widgets/ViewControls.js';
+import { FeedLink } from 'widgets/links.js';
 import './FeedView.less';
 
 
 const VIEW_TO_WIDGET = {
-    [VIEW_TEXT]: Article,
     [VIEW_LIST]: ListArticle,
+    [VIEW_NARROW]: Article,
+    [VIEW_WIDE]: Article,
 };
 
 
@@ -32,7 +33,7 @@ function ViewButton({open}) {
 function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
-    return <div className="feed-view">
+    return <div className={"feed-view view-" + view}>
         <div className="controls">
             <RootLink className="toolbar-button" title="Return to feed list">
                 <Logo />
@@ -78,7 +79,7 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
         const article = articlesById[id];
         if (article) {
             if (article.loading) {
-                elements.push(<p>Loading&hellip;</p>);
+                elements.push(<p key="loading">Loading&hellip;</p>);
                 break;
             }
             // TODO: Handle errors

@@ -1,12 +1,23 @@
 @import "../globals.less";
 
-article {
+.view-narrow article {
     max-width: 34em;
-
     padding: 8px 16px 0 16px;
     margin: @toolbar_height auto;
-
     box-shadow: 0 0 16px black;
+
+    footer {
+        margin: 16px -16px 0 -16px;
+    }
+}
+
+.view-wide article {
+    padding: 8px 4px 0 4px;
+    margin: 0 0 4px 0;
+
+    footer {
+        margin: 16px -4px 0 -4px;
+    }
 }
 
 article {
@@ -53,7 +64,6 @@ article footer {
     background: @toolbar_background_color;
     position: sticky;
     bottom: 0;
-    margin: 16px -16px 0 -16px;
     height: @toolbar_height;
     display: flex;
     align-items: stretch;

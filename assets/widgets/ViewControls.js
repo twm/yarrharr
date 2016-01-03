@@ -1,5 +1,5 @@
 import React from 'react';
-import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
+import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 import './ViewControls.less';
@@ -21,7 +21,8 @@ function ViewControls({snapshot, onSetView, onSetFilter, onSetOrder}) {
         <h2>View</h2>
         <div className="group">
             <TextButton onClick={callback(onSetView, VIEW_LIST)}>List</TextButton>
-            <TextButton onClick={callback(onSetView, VIEW_TEXT)}>Full Text</TextButton>
+            <TextButton onClick={callback(onSetView, VIEW_NARROW)}>Narrow</TextButton>
+            <TextButton onClick={callback(onSetView, VIEW_WIDE)}>Wide</TextButton>
         </div>
         <h2>Filter</h2>
         <div className="group">
