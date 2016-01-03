@@ -1,8 +1,8 @@
 import React from 'react';
-import { VIEW_LIST, VIEW_TEXT } from './actions.js';
-import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from './actions.js';
-import { ORDER_DATE, ORDER_TAIL } from './actions.js';
-import './view-picker.less';
+import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
+import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from 'actions.js';
+import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
+import './ViewControls.less';
 
 
 function TextButton(props) {

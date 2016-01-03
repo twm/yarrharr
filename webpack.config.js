@@ -4,6 +4,9 @@ module.exports = {
     entry: [
         './assets/entry.jsx',
     ],
+    resolve: {
+        root: __dirname + '/assets',
+    },
     output: {
         path: __dirname + '/yarrharr/static',
         filename: 'bundle.js',
@@ -17,6 +20,8 @@ module.exports = {
         ],
     },
     plugins: [
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.DedupePlugin(),
         new webpack.NoErrorsPlugin(),
     ],
     devtool: 'source-map',

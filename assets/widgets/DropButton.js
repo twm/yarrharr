@@ -1,5 +1,5 @@
 import React from 'react';
-import './drop-button.less';
+import './DropButton.less';
 
 const DropButton = React.createClass({
     propTypes: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import "./article.less";
+import "./Article.less";
 
 const Article = React.createClass({
     getInitialState() {

@@ -10,9 +10,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import './base.less';
-import Article from './Article.js';
-import ScrollSpy from './ScrollSpy.js';
-import ViewControls from './ViewControls.js';
+import FeedView from './views/FeedView.js';
 
 import { SET_VIEW, VIEW_TEXT, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
@@ -211,99 +209,7 @@ function LabelView(props) {
 }
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
-
-function Logo() {
-    // TODO: Use minified SVG
-    return <img src={window.__webpack_public_path__ + require('./icon.inkscape.svg')} width="32" height="32" />;
-}
-
-
-function ViewButton({open}) {
-    const className = (open ? "toolbar-button-dropping " : "") + "toolbar-button toolbar-button-text";
-    // TODO: Use icon
-    return <button className={className}>View ▾</button>
-}
-
-
-import { setView, setFilter, setOrder } from "./actions.js";
-import "./feed-view.less";
-import DropButton from "./DropButton.js";
-function FeedView({params, feedsById, snapshot, articlesById, dispatch}) {
-    const feedId = params.feedId;
-    const feed = feedsById[feedId];
-    const controls = <div className="controls">
-        <Link to="/" className="toolbar-button" title="Return to feed list">
-            <Logo />
-        </Link>
-        <div className="feed-title">{feed.text || feed.title}</div>
-        <DropButton trigger={ViewButton}>
-            <ViewControls snapshot={snapshot}
-                onSetView={(view) => dispatch(setView(view))}
-                onSetFilter={(filter) => dispatch(setFilter(filter))}
-                onSetOrder={(order) => dispatch(setOrder(order))} />
-        </DropButton>
-    </div>;
-    if (!snapshot || snapshot.loading) {
-        return (
-            <div>
-                {controls}
-                <p className="placeholder">Loading&hellip;</p>
-            </div>
-        );
-    }
-    if (snapshot.error) {
-        return (
-            <div>
-                {controls}
-                <p className="placeholder">
-                    Failed to load&hellip;
-                    <a href={`/feeds/${feedId}/`} onClick={(event) => {
-                        event.preventDefault();
-                        dispatch(showFeed(feedId));
-                    }}>retry</a>.
-                </p>
-            </div>
-        );
-    }
-    return (
-        <div>
-            {controls}
-            {(snapshot.articleIds.length > 0)
-                ? <ScrollSpy onNearBottom={() => { dispatch(loadMore(snapshot.articleIds)); }}>
-                    {renderArticles(snapshot.articleIds, articlesById, feedsById)}
-                </ScrollSpy>
-                : <p className="placeholder">No articles</p>}
-        </div>
-    );
-}
-const FeedViewRedux = connect(state => state, null)(FeedView);
-
-
-function renderArticles(articleIds, articlesById, feedsById) {
-    if (!articleIds.length) {
-        return <p>No articles</p>;
-    }
-    const elements = [];
-    for (let id of articleIds) {
-        const article = articlesById[id];
-        if (article) {
-            if (article.loading) {
-                elements.push(<p>Loading&hellip;</p>);
-                break;
-            }
-            // TODO: Handle errors
-            const feed = feedsById[article.feedId];
-            elements.push(<Article key={id} feed={feed} {...article} />);
-        } else {
-            // We only render up to the first unavailable article.  This
-            // ensures that loading always occurs at the end.
-            break;
-        }
-    }
-    return elements;
-}
-
-import { showFeed, loadMore } from './actions.js';
+import { showFeed } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
@@ -311,7 +217,7 @@ ReactDOM.render(
                 <IndexRoute component={RootViewRedux} />
                 <Route path="article/:articleId" component={ArticleViewRedux} />
                 <Route path="label/:labelId" component={LabelViewRedux} />
-                <Route path="feed/:feedId" component={FeedViewRedux} onEnter={(nextState) => {
+                <Route path="feed/:feedId" component={FeedView} onEnter={(nextState) => {
                     store.dispatch(showFeed(nextState.params.feedId));
                 }} />
             </Route>
