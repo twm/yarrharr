@@ -113,7 +113,7 @@ def index(request):
             'id': feed.id,
             'title': feed.title,
             'text': feed.text,
-            'undone': feed.count_unread,
+            'newCount': feed.count_unread,
             'total': feed.count_total,
             'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
             'labels': sorted(label.id for label in feed.label_set.all()),

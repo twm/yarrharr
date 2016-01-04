@@ -1,3 +1,19 @@
-.root {
-    /* TODO */
+@import "../globals.less";
+
+.root-view {
+    /* Allow space for the floating controls */
+    padding: @toolbar_height 4px 4px 4px;
+
+    .content-colors;
+
+    ul, li {
+        list-style: none;
+        padding: 0;
+    }
+
+    .new-count {
+        background: darken(@content_background_color, 10%);
+        border-radius: 0.5em;
+        padding: 0 0.4em;
+    }
 }

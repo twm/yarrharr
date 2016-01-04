@@ -39,7 +39,7 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
             <RootLink className="toolbar-button" title="Return to feed list">
                 <Logo />
             </RootLink>
-            <div className="feed-title">{feed.text || feed.title}</div>
+            <div className="expand">{feed.text || feed.title}</div>
             <DropButton trigger={ViewButton}>
                 <ViewControls snapshot={snapshot}
                     onSetView={(view) => dispatch(setView(view))}

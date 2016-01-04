@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import Logo from 'widgets/Logo.js';
 import { FeedLink, LabelLink } from 'widgets/links.js';
 import './RootView.less';
 
@@ -23,7 +24,9 @@ function sortedLabels({labelsById}) {
 
 
 /**
- * Compute a sorted list of available feeds.
+ * Compute a sorted list of available feeds.  Feeds are ordered by count of new
+ * posts, then alphabetically.  The sort is stable (using feed ID as
+ * a tie-breaker).
  *
  * @param state
  */
@@ -33,7 +36,9 @@ function sortedFeeds({feedsById}) {
         // TODO: Investigate Intl.Collator and friends to make this more correct.
         var titleA = (a.text || a.title).toLowerCase();
         var titleB = (b.text || b.title).toLowerCase();
-        return (titleA < titleB) ? -1 :
+        return (a.newCount > b.newCount) ? -1 :
+               (a.newCount < b.newCount) ? 1 :
+               (titleA < titleB) ? -1 :
                (titleA > titleB) ? 1 :
                b.id - a.id;
     })
@@ -42,7 +47,12 @@ function sortedFeeds({feedsById}) {
 
 
 function RootView({labelList, feedList}) {
-    return <div className="root">
+    return <div className="root-view">
+        <div className="controls">
+            <div className="toolbar-button"><Logo /></div>
+            <div className="expand">Yarrharr Feed Reader</div>
+            {/* TODO: Add useful functionality here */}
+        </div>
         <div className="labels">
             <h1>Labels</h1>
             {labelList.length
@@ -55,6 +65,7 @@ function RootView({labelList, feedList}) {
                 ? <ul>{feedList.map((feed) =>
                     <li key={feed.id}>
                         <FeedLink feedId={feed.id}>{feed.text || feed.title}</FeedLink>
+                        &nbsp;<span className="new-count">{ feed.newCount }</span>
                     </li>)}</ul>
                 : <div>No feeds.  Add one?</div>}
         </div>
