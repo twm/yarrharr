@@ -13,6 +13,7 @@ import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import ViewControls from 'widgets/ViewControls.js';
 import { FeedLink } from 'widgets/links.js';
+import Loading from 'widgets/Loading.js';
 import './FeedView.less';
 
 
@@ -56,7 +57,7 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
-        return <p className="placeholder">Loading&hellip;</p>;
+        return <Loading />;
     }
     if (snapshot.error) {
         return <p className="placeholder">Failed to load (reload to retry)</p>;
@@ -79,7 +80,7 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
         const article = articlesById[id];
         if (article) {
             if (article.loading) {
-                elements.push(<p key="loading">Loading&hellip;</p>);
+                elements.push(<Loading />);
                 break;
             }
             // TODO: Handle errors

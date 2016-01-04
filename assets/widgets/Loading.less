@@ -1,0 +1,70 @@
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 16px auto;
+    position: relative;
+
+    .arc1, .arc2, .arc3, .arc4 {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        opacity: 0.4;
+    }
+    .arc1 {
+        animation: spin-cw 1s linear infinite;
+    }
+    .arc2 {
+        animation: spin-ccw 2s linear infinite;
+    }
+    .arc3 {
+        animation: spin-cw 3s linear infinite;
+    }
+    .arc4 {
+        animation: spin-ccw 5s linear infinite;
+    }
+
+    .big, .little {
+        position: absolute;
+        border-top: 2.5px solid white;
+        border-right: 2.5px solid white;
+        border-top-right-radius: 100%;
+    }
+    .big {
+        width: 17px;
+        height: 17px;
+        left: 20px;
+    }
+    .little {
+        top: 6px;
+        left: 20px;
+        width: 11px;
+        height: 11px;
+    }
+    .dot {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border: 3px solid white;
+        border-radius: 50%;
+        top: 16px;
+        left: 17px;
+        top: 17px;
+        opacity: 0.5;
+        animation: pulse 500ms ease infinite alternate;
+    }
+}
+
+@keyframes spin-cw {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-ccw {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1.0); }
+    100% { transform: scale(1.5); }
+}
