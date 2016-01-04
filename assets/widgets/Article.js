@@ -17,7 +17,7 @@ const Article = React.createClass({
             text: React.PropTypes.string,
             title: React.PropTypes.string.isRequired,
         }).isRequired,
-        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]),
+        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]).isRequired,
         // Non-null indicates that a mark operation is in-progress.
         marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_DONE]),
         // Event handlers

@@ -8,6 +8,11 @@ import { Link, IndexLink } from 'react-router';
  * the route configuration.
  */
 
+export function ArticleLink(props) {
+    const { articleId, children } = props;
+    return <Link to={`/article/${articleId}/`} {...props}>{children}</Link>;
+}
+
 export function FeedLink(props) {
     const { feedId, children } = props;
     return <Link to={`/feed/${feedId}/`} {...props}>{children}</Link>;

@@ -23,6 +23,7 @@ const store = applyMiddleware(...middleware)(createStore)(reducer);
 const history = createHistory();
 syncReduxAndRouter(history, store);
 
+import Article from 'widgets/Article.js';
 var ArticleView = (props) => {
     const article = props.articlesById[props.params.articleId];
     if (article) {

@@ -6,49 +6,62 @@
 
 .list-article {
     display: flex;
-    flex-flow: row wrap;
-    position: relative;
+    flex-flow: row nowrap;
     margin: 4px 0;
-    padding: 8px 16px 8px 64px;
+    padding: 4px;
     .content-colors;
     white-space: nowrap;
 
-    .icon {
-        position: absolute;
-        top: 16px;
-        left: 12px;
-        width: 40px;
-        height: 40px;
+    .state-toggle {
+        flex: 0 0 auto;
+        width: 52px;
+        height: 52px;
+        border: 4px solid @content_background_color;
         border-radius: 50%;
         background: darken(@content_background_color, 10%);
+        z-index: 2;
+        margin: 0 8px 0 0;
 
-        img {
-            display: block;
-            margin: 12px;
+        &.state-new {
+        }
+        &.state-saved {
+        }
+
+        &:active {
+            transform: scale(0.95);
         }
     }
 
-    .meta {
-        display: flex;
-        flex: 0 0 100%;
+    .middle {
+        flex: 1 1 auto;
+        width: 0;
 
-        .feed {
-            flex: 1 1 100%;
-            width: 0; // Allow it to shrink so content ellipsizes.
+        .feed, .external-link {
+            display: block;
+            max-width: 100%; // Allow it to shrink so content ellipsizes.
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        time {
-            flex: none;
-            margin-left: 1em;
-        }
     }
-    .title {
-        flex: 1 1 100%;
-        font: normal 16px / 16px sans-serif;
-        padding: 5px 0 7px 0;
+
+    .view-link {
+        flex: 0 0 auto;
+        margin: 0 0 0 4px;
         text-decoration: none !important;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 0 32px 0 0;
+    }
+}
+
+.date-block {
+    display: flex;
+    flex-flow: column nowrap;
+    line-height: 1;
+    text-align: center;
+
+    .month {
+        text-transform: uppercase;
+    }
+    .day {
+        font-size: 1.8em;
     }
 }
