@@ -117,3 +117,31 @@
         border-top-color: @logo_orange;
     }
 }
+
+/* The top toolbar */
+.controls {
+    display: flex;
+    flex-flow: row;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: @toolbar_height;
+    color: @content_text_color;
+    background: @toolbar_background_color;
+    box-shadow: 0 0 8px black;
+
+    .feed-title {
+        flex: 1 1 auto;
+        line-height: @toolbar_height;
+        padding: 0 0 0 8px;
+    }
+}
+
+/* Loading text and error messages */
+.placeholder {
+    margin: (2 * @toolbar_height) auto;
+    max-width: 34em;
+    text-align: center;
+}

@@ -10,6 +10,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import './base.less';
+import ArticleView from 'views/ArticleView.js';
 import FeedView from 'views/FeedView.js';
 import RootView from 'views/RootView.js';
 import reducer from 'reducer.js';
@@ -23,29 +24,6 @@ const store = applyMiddleware(...middleware)(createStore)(reducer);
 const history = createHistory();
 syncReduxAndRouter(history, store);
 
-import Article from 'widgets/Article.js';
-var ArticleView = (props) => {
-    const article = props.articlesById[props.params.articleId];
-    if (article) {
-        return <Article feed={props.feedsById[article.feedId]} {...article} />;
-    } else {
-        return <div>Loading article {props.params.articleId}&hellip;</div>;
-    }
-}
-ArticleView.propTypes = {
-    params: React.PropTypes.shape({
-        articleId: React.PropTypes.string.isRequired,
-    }).isRequired,
-    articlesById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
-    feedsById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
-};
-
-const ArticleViewRedux = connect(state => {
-    return {
-        articlesById: state.articlesById,
-        feedsById: state.feedsById,
-    };
-}, null)(ArticleView);
 
 const Root = React.createClass({
     render() {
@@ -62,13 +40,15 @@ function LabelView(props) {
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
-import { showFeed } from './actions.js';
+import { loadMore, showFeed } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
             <Route path="/" component={Root}>
                 <IndexRoute component={RootView} />
-                <Route path="article/:articleId" component={ArticleViewRedux} />
+                <Route path="article/:articleId" component={ArticleView} onEnter={(nextState) => {
+                    store.dispatch(loadMore([nextState.params.articleId]));
+                }} />
                 <Route path="label/:labelId" component={LabelViewRedux} />
                 <Route path="feed/:feedId" component={FeedView} onEnter={(nextState) => {
                     store.dispatch(showFeed(nextState.params.feedId));

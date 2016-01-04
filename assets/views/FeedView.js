@@ -57,7 +57,7 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
-        return <Loading />;
+        return <div className="placeholder"><Loading /></div>;
     }
     if (snapshot.error) {
         return <p className="placeholder">Failed to load (reload to retry)</p>;
