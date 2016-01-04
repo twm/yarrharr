@@ -4,7 +4,7 @@ import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { Provider, connect } from 'react-redux';
 import { Router, Route, IndexRoute, Link } from 'react-router';
-import { createHistory } from 'history';
+import { createHistory, useQueries } from 'history';
 import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -40,7 +40,7 @@ function LabelView(props) {
 const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
-import { loadMore, showFeed } from './actions.js';
+import { loadMore, showFeed, setFilter } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
@@ -51,6 +51,13 @@ ReactDOM.render(
                 }} />
                 <Route path="label/:labelId" component={LabelViewRedux} />
                 <Route path="feed/:feedId" component={FeedView} onEnter={(nextState) => {
+                    // XXX: Icky hack.
+                    var search = nextState.location.search;
+                    var match = /filter=(new|saved|all)/.exec(search);
+                    console.log('search', search, 'match', match);
+                    if (match[1]) {
+                        store.dispatch(setFilter(match[1]));
+                    }
                     store.dispatch(showFeed(nextState.params.feedId));
                 }} />
             </Route>

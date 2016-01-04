@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Logo from 'widgets/Logo.js';
 import { FeedLink, LabelLink } from 'widgets/links.js';
+import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import './RootView.less';
 
 
@@ -64,8 +65,13 @@ function RootView({labelList, feedList}) {
             {feedList.length
                 ? <ul>{feedList.map((feed) =>
                     <li key={feed.id}>
-                        <FeedLink feedId={feed.id}>{feed.text || feed.title}</FeedLink>
-                        &nbsp;<span className="new-count">{ feed.newCount }</span>
+                        <FeedLink className="new-link" feedId={feed.id} filter={FILTER_NEW}>
+                            <div className="feed-title">{feed.text || feed.title}</div>
+                            <div className="new-count">{ feed.newCount } new</div>
+                        </FeedLink>
+                        <FeedLink className="saved-link" feedId={feed.id} filter={FILTER_SAVED}>
+                            { feed.savedCount }
+                        </FeedLink>
                     </li>)}</ul>
                 : <div>No feeds.  Add one?</div>}
         </div>

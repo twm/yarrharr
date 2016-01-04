@@ -14,8 +14,12 @@ export function ArticleLink(props) {
 }
 
 export function FeedLink(props) {
-    const { feedId, children } = props;
-    return <Link to={`/feed/${feedId}/`} {...props}>{children}</Link>;
+    const { feedId, filter=null, children } = props;
+    var path = `/feed/${feedId}/`;
+    if (filter) {
+        path += `?filter=${filter}`;
+    }
+    return <Link to={path} {...props}>{children}</Link>;
 }
 
 export function LabelLink(props) {
