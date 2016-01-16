@@ -16,7 +16,7 @@ setup(
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
     ],
     dependency_links=[
-        'https://github.com/radiac/django-yarr/tarball/v0.4.5#egg=django-yarr-0.4.5',
+        'https://github.com/twm/django-yarr/tarball/v0.4.6-twm.1#egg=django-yarr',
     ],
     tests_require=[
         'mock',
