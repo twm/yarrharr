@@ -71,6 +71,12 @@ function snapshotReducer(state = defaultSnapshot, action) {
             articleIds: [],
         });
     } else if (action.type === RECEIVE_SNAPSHOT) {
+        if (state.order !== action.order
+                || state.filter !== action.filter
+                /* NB: Should be equal by identity due to coming from the same closure */
+                || state.feedIds !== action.feedIds) {
+            return;
+        }
         return Object.assign({}, state, {
             loading: false,
             error: false,
@@ -80,6 +86,12 @@ function snapshotReducer(state = defaultSnapshot, action) {
             articleIds: action.articleIds,
         });
     } else if (action.type === FAIL_SNAPSHOT) {
+        if (state.order !== action.order
+                || state.filter !== action.filter
+                /* NB: Should be equal by identity due to coming from the same closure */
+                || state.feedIds !== action.feedIds) {
+            return;
+        }
         return Object.assign({}, state, {
             loading: false,
             error: true,
