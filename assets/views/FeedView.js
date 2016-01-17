@@ -6,7 +6,7 @@ import { markArticle } from 'actions.js';
 import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
 
 import DropButton from 'widgets/DropButton.js';
-import Logo from 'widgets/Logo.js';
+import { Logo } from 'widgets/icons.js';
 import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';

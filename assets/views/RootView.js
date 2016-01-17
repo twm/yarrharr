@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Logo from 'widgets/Logo.js';
+import { Logo } from 'widgets/icons.js';
 import { FeedLink, LabelLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import './RootView.less';

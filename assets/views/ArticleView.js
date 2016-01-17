@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Article from 'widgets/Article.js';
 import Loading from 'widgets/Loading.js';
-import Logo from 'widgets/Logo.js';
+import { Logo } from 'widgets/icons.js';
 import { RootLink, FeedLink } from 'widgets/links.js';
 import { markArticle } from 'actions.js';
 import './ArticleView.less';
