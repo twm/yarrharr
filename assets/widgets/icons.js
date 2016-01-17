@@ -17,9 +17,14 @@ function Logo(props) {
     return <img src={window.__webpack_public_path__ + require('../icon.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
+function Star(props) {
+    return <img src={window.__webpack_public_path__ + require('../star.inkscape.svg')} width="48" height="48" {...props} />;
+}
+
 module.exports = {
     ArrowLeft,
     ArrowRight,
     Eye,
     Logo,
+    Star,
 };

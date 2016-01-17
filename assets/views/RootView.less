@@ -20,14 +20,31 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-decoration: none !important;
 
             .new-count {
-                text-decoration: none !important;
             }
         }
         .saved-link {
             flex: 0 0 auto;
+            text-decoration: none !important;
             width: 48px;
+            text-align: center;
+            position: relative;
+
+            .star-icon {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .saved-count {
+                position: absolute;
+                top: 4px;
+                left: 0;
+                width: 48px;
+                height: 44px;
+                line-height: 44px;
+            }
         }
     }
     li + li {
