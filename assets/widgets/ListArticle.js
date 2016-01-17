@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArticleLink, FeedLink } from 'widgets/links.js';
+import { ArrowRight } from 'widgets/icons.js';
 import { STATE_NEW, STATE_SAVED, STATE_DONE } from 'actions.js';
 import "./ListArticle.less";
 
@@ -85,7 +86,7 @@ function Date({dateTime}) {
     const monthWord = MONTH_TO_WORD[month];
     return <time className="date-block" dateTime={dateTime}>
         <span className="month">{monthWord}</span>
-        <span className="day">{day}</span>
+        <span className="day">{day.replace(/^0/, '')}</span>
         <span className="year">{year}</span>
     </time>;
 }
@@ -101,6 +102,7 @@ function ListArticle(props) {
         </div>
         <ArticleLink articleId={props.id} className="view-link">
             <Date dateTime={props.date} />
+            <ArrowRight alt="View Article" className="arrow" />
         </ArticleLink>
     </div>;
 }

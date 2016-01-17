@@ -6,7 +6,7 @@ import { markArticle } from 'actions.js';
 import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
 
 import DropButton from 'widgets/DropButton.js';
-import { Logo } from 'widgets/icons.js';
+import { ArrowLeft, Eye } from 'widgets/icons.js';
 import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -25,9 +25,8 @@ const VIEW_TO_WIDGET = {
 
 
 function ViewButton({open}) {
-    const className = (open ? "toolbar-button-dropping " : "") + "toolbar-button toolbar-button-text";
-    // TODO: Use icon
-    return <button className={className}>View ▾</button>
+    const className = (open ? "toolbar-button-dropping " : "") + "toolbar-button";
+    return <button className={className}><Eye /></button>
 }
 
 
@@ -37,7 +36,7 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
     return <div className={"feed-view view-" + view}>
         <div className="controls">
             <RootLink className="toolbar-button" title="Return to feed list">
-                <Logo />
+                <ArrowLeft />
             </RootLink>
             <div className="expand">{feed.text || feed.title}</div>
             <DropButton trigger={ViewButton}>
