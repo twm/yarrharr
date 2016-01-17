@@ -3,8 +3,38 @@
 .root-view {
     /* Allow space for the floating controls */
     padding: @toolbar_height 4px 4px 4px;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
 
     .content-colors;
+
+
+    /* There are two major sections on this page: Labels and Feeds.  There are
+     * probably many more labels than feeds, so the labels are displayed in the
+     * first column alone, and the feeds get the rest of the space, flowing to
+     * multiple columns if possible. */
+    @column_width: 308px;
+    .labels {
+        flex: 1 1 @column_width;
+    }
+    .feeds {
+        flex: 100000 1 @column_width;
+        max-width: 100%;
+
+        ul {
+            display: flex;
+            flex-flow: row wrap;
+        }
+        li {
+            flex: 1 1 @column_width;
+        }
+    }
+
+    h1 {
+        font: inherit;
+        text-transform: uppercase;
+    }
 
     ul, li {
         list-style: none;
@@ -14,6 +44,9 @@
     li {
         display: flex;
         flex-flow: row nowrap;
+        align-items: center;
+        height: 48px;
+        max-width: 100%;
 
         .new-link {
             flex: 1 1 100%;
@@ -26,6 +59,7 @@
             }
         }
         .saved-link {
+            align-self: flex-start;
             flex: 0 0 auto;
             text-decoration: none !important;
             width: 48px;
@@ -46,8 +80,5 @@
                 line-height: 44px;
             }
         }
-    }
-    li + li {
-        border-top: 1px solid darken(@content_background_color, 10%);
     }
 }
