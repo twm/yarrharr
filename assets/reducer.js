@@ -75,7 +75,7 @@ function snapshotReducer(state = defaultSnapshot, action) {
                 || state.filter !== action.filter
                 /* NB: Should be equal by identity due to coming from the same closure */
                 || state.feedIds !== action.feedIds) {
-            return;
+            return state;
         }
         return Object.assign({}, state, {
             loading: false,
@@ -90,7 +90,7 @@ function snapshotReducer(state = defaultSnapshot, action) {
                 || state.filter !== action.filter
                 /* NB: Should be equal by identity due to coming from the same closure */
                 || state.feedIds !== action.feedIds) {
-            return;
+            return state;
         }
         return Object.assign({}, state, {
             loading: false,
