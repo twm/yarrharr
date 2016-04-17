@@ -2,7 +2,7 @@
 
 .root-view {
     /* Allow space for the floating controls */
-    padding: @toolbar_height 4px 4px 4px;
+    padding: @toolbar_height 0px 4px 0px;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
@@ -16,10 +16,12 @@
      * multiple columns if possible. */
     @column_width: 308px;
     .labels {
-        flex: 1 1 @column_width;
+        flex: 0 1 @column_width;
+        padding: 0 0 0 4px;
     }
     .feeds {
-        flex: 100000 1 @column_width;
+        flex: 1 1 @column_width;
+        padding: 0 0 0 4px;
         max-width: 100%;
 
         ul {
@@ -47,6 +49,7 @@
         align-items: center;
         height: 48px;
         max-width: 100%;
+        padding: 0 8px 0 0;
 
         .new-link {
             flex: 1 1 100%;
