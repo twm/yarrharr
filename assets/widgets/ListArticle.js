@@ -20,7 +20,7 @@ const MONTH_TO_WORD = {
 };
 
 
-function Date({dateTime}) {
+function VerticalDate({dateTime}) {
     const year = dateTime.slice(0, 4);
     const month = dateTime.slice(5, 7);
     const day = dateTime.slice(8, 10);
@@ -42,7 +42,7 @@ function ListArticle(props) {
             <a className="external-link" href={props.url} target="_blank">{props.title}</a>
         </div>
         <ArticleLink articleId={props.id} className="view-link">
-            <Date dateTime={props.date} />
+            <VerticalDate dateTime={props.date} />
             <ArrowRight alt="View Article" className="arrow" />
         </ArticleLink>
     </div>;
