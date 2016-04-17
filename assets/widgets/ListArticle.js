@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArticleLink, FeedLink } from 'widgets/links.js';
 import { ArrowRight } from 'widgets/icons.js';
-import { StateToggle } from 'widgets/StateToggle.js';
+import StateToggle from 'widgets/StateToggle.js';
 import "./ListArticle.less";
 
 const MONTH_TO_WORD = {

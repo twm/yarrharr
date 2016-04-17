@@ -14,6 +14,7 @@ const STATE_TEXT = {
 
 const StateToggle = React.createClass({
     propTypes: {
+        id: React.PropTypes.number.isRequired,
         state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]).isRequired,
         marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_DONE]),
         onMark: React.PropTypes.func.isRequired,
@@ -59,4 +60,4 @@ const StateToggle = React.createClass({
     },
 });
 
-module.exports = { StateToggle };
+module.exports = StateToggle;
