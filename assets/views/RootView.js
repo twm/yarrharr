@@ -54,17 +54,13 @@ function RootView({labelList, feedList}) {
             <div className="expand">Yarrharr Feed Reader</div>
             {/* TODO: Add useful functionality here */}
         </div>
-        <div className="labels">
-            <h1>Labels</h1>
+        <ul className="tiles">
             {labelList.length
-                ? <ul>{labelList.map((label) => <li key={label.id}><LabelLink labelId={label.id}>{label.text}</LabelLink></li>)}</ul>
-                : <div>No labels.  Add one?</div>}
-        </div>
-        <div className="feeds">
-            <h1>Feeds</h1>
+                ? labelList.map((label) => <li key={"label-" + label.id}><LabelLink labelId={label.id}>{label.text}</LabelLink></li>)
+                : null}
             {feedList.length
-                ? <ul>{feedList.map((feed) =>
-                    <li key={feed.id}>
+                ? feedList.map((feed) =>
+                    <li key={"feed-" + feed.id}>
                         <FeedLink className="new-link" feedId={feed.id} filter={FILTER_NEW}>
                             <div className="feed-title">{feed.text || feed.title}</div>
                             <div className="new-count">{feed.newCount} new</div>
@@ -75,9 +71,9 @@ function RootView({labelList, feedList}) {
                                 <span className="saved-count">{feed.savedCount}</span>
                             </FeedLink>
                             : null}
-                    </li>)}</ul>
-                : <div>No feeds.  Add one?</div>}
-        </div>
+                    </li>)
+                : <li>No feeds.  Add one?</li>}
+        </ul>
     </div>;
 }
 RootView.propTypes = {
