@@ -16,30 +16,14 @@
         flex: 0 0 auto;
         width: 52px;
         height: 52px;
-        border: 0;
-        border-radius: 50%;
-        background: linear-gradient(to bottom, @background_color, darken(@background_color, 10%));
-        box-shadow: inset  1px  1.0px 3.5px lighten(@background_color, 10%),
-                    inset -1px -1.0px 3.5px darken(@background_color, 20%);
         margin: 0 8px 0 0;
+        .button;
 
         &.state-new {
         }
         &.state-saved {
         }
         &.state-done {
-        }
-
-        &:focus {
-            outline: 1px dotted;
-        }
-        &:active {
-            background: linear-gradient(to top, @background_color, darken(@background_color, 10%));
-            box-shadow: inset  1px  1.0px 3.5px darken(@background_color, 20%),
-                        inset -1px -1.0px 3.5px lighten(@background_color, 10%);
-            img {
-                transform: translate(1px, 1px);
-            }
         }
 
         img {

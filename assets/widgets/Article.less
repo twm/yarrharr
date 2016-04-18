@@ -1,25 +1,66 @@
 @import "../globals.less";
 
-.view-narrow article {
-    max-width: 34em;
-    padding: 8px 16px 0 16px;
-    margin: @toolbar_height auto;
-
-    footer {
-        margin: 16px -16px 0 -16px;
+.view-narrow .article-wrap {
+    margin: 0 auto @toolbar_height auto;
+    max-width: calc(40px + 34em);
+    article {
+        padding: 8px 16px 0 16px;
     }
 }
 
-.view-wide article {
-    padding: 8px 4px 0 4px;
+.view-wide .article-wrap {
     margin: 0 0 4px 0;
 
-    footer {
-        margin: 16px -4px 0 -4px;
+    article {
+        padding: 8px 4px 0 4px;
+    }
+}
+
+.article-wrap {
+    display: flex;
+    flex: row nowrap;
+
+    .tools {
+        flex: 0 0 auto;
+        width: 48px;
+    }
+
+    article {
+        flex: 1 1 auto;
+        min-width: 0; /* allow flex to collapse past natural width */
+    }
+}
+
+/* The "tools" div is a channel which buttons float in.
+ *
+ * TODO: When there is sufficient space, add text labels to the buttons.
+ */
+.tools {
+    .tool-wrap {
+        position: sticky;
+        top: 0;
+    }
+
+    button, a {
+        display: block;
+        width: 40px;
+        height: 40px;
+        margin: 8px 0;
+        padding: 0;
+
+        .button;
+
+        img {
+            display: block;
+            margin: auto;
+        }
+    }
+    a:link, a:visited {
     }
 }
 
 article {
+    position: relative;
     word-wrap: break-word; /* Don't let long lines break the layout */
 
     .content-colors;
@@ -56,32 +97,5 @@ article {
     hr {
         margin: 16px 32px;
         border: 2px solid @text_color;
-    }
-}
-
-article footer {
-    background: @toolbar_background_color;
-    position: sticky;
-    bottom: 0;
-    height: @toolbar_height;
-    display: flex;
-    align-items: stretch;
-
-    button, a:link, a:visited {
-        .toolbar-button;
-        .toolbar-button-text;
-    }
-
-    /* The buttons are packed on the left side of the toolbar */
-    button {
-        flex: none;
-    }
-
-    a:link, a:visited {
-        flex-basis: auto;
-        flex-grow: 0;
-        flex-shrink: 1;
-        align-self: flex-end;
-        margin: 0 0 0 auto; /* right align */
     }
 }

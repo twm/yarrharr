@@ -1,6 +1,8 @@
 import React from 'react';
 import { FeedLink } from "widgets/links.js";
 import { STATE_NEW, STATE_SAVED, STATE_DONE } from 'actions.js';
+import { Outbound } from 'widgets/icons.js';
+import StateToggle from 'widgets/StateToggle.js';
 import "./Article.less";
 
 const Article = React.createClass({
@@ -23,40 +25,25 @@ const Article = React.createClass({
         // Event handlers
         onMark: React.PropTypes.func.isRequired,
     },
-    getDefaultProps() {
-        return {
-            marking: null,
-        };
-    },
-    renderMarkButton(text, targetState) {
-        var className = (this.props.state === targetState) ? "current" : "";
-        if (this.props.marking === targetState) {
-            className += ' progress';
-        }
-        return <button className={className} onClick={(event) => {
-            event.preventDefault();
-            this.props.onMark(this.props.id, targetState);
-        }}>
-            {text}
-        </button>;
-    },
     render() {
-        return <article>
-            <h1><a href={this.props.url}>{this.props.title}</a></h1>
-            {this.props.author
-                ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
-                : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
-            <p className="meta">Posted {this.props.date}</p>
-            <div>
-                <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
-                <footer>
-                    {this.renderMarkButton('New', STATE_NEW)}
-                    {this.renderMarkButton('Saved', STATE_SAVED)}
-                    {this.renderMarkButton('Done', STATE_DONE)}
-                    <a href={this.props.url} target="_blank">View externally</a>
-                </footer>
+        return <div className="article-wrap">
+            <div className="tools">
+                <div className="tool-wrap">
+                    <StateToggle {...this.props} />
+                    <a href={this.props.url} target="_blank" title="View on source site">
+                        <Outbound alt="View on source site" width="32" height="32" />
+                    </a>
+                </div>
             </div>
-        </article>;
+            <article>
+                <h1><a href={this.props.url}>{this.props.title}</a></h1>
+                {this.props.author
+                    ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
+                    : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
+                <p className="meta">Posted {this.props.date}</p>
+                <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
+            </article>
+        </div>;
     }
 });
 
