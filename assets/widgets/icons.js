@@ -29,6 +29,10 @@ function Heart(props) {
     return <img src={window.__webpack_public_path__ + require('../heart.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
+function Outbound(props) {
+    return <img src={window.__webpack_public_path__ + require('../outbound.inkscape.svg')} {...props} />;
+}
+
 module.exports = {
     ArrowLeft,
     ArrowRight,
@@ -37,4 +41,5 @@ module.exports = {
     Star,
     Check,
     Heart,
+    Outbound,
 };
