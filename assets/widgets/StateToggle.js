@@ -1,4 +1,5 @@
 import React from 'react';
+import { Star, Check, Heart } from 'widgets/icons.js';
 import { STATE_NEW, STATE_SAVED, STATE_DONE } from 'actions.js';
 
 const NEXT_STATE = {
@@ -11,11 +12,17 @@ const STATE_TEXT = {
     [STATE_DONE]: "Done",
     [STATE_SAVED]: "Saved",
 };
+const STATE_IMAGE = {
+    [STATE_NEW]: Star,
+    [STATE_DONE]: Check,
+    [STATE_SAVED]: Heart,
+};
 
 const StateToggle = React.createClass({
     propTypes: {
         id: React.PropTypes.number.isRequired,
         state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]).isRequired,
+        // Non-null indicates that a mark operation is in-progress.
         marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_DONE]),
         onMark: React.PropTypes.func.isRequired,
     },
@@ -54,8 +61,10 @@ const StateToggle = React.createClass({
         const displayState = this.getDisplayState();
         const marking = this.state.pendingMark || this.props.marking;
         const className = "state-toggle state-" + displayState + (marking ? " marking " : "");
+        const Image = STATE_IMAGE[displayState];
+        const text = STATE_TEXT[displayState];
         return <button className={className} onClick={this.handleClick} {...this.props}>
-            {STATE_TEXT[displayState]}
+            <Image alt={text} />
         </button>;
     },
 });

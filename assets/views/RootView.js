@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Logo, Star } from 'widgets/icons.js';
+import { Logo, Heart } from 'widgets/icons.js';
 import { FeedLink, LabelLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import './RootView.less';
@@ -67,7 +67,7 @@ function RootView({labelList, feedList}) {
                         </FeedLink>
                         {feed.savedCount
                             ? <FeedLink className="saved-link" feedId={feed.id} filter={FILTER_SAVED}>
-                                <Star alt="" className="star-icon" />
+                                <Heart width="48" height="48" alt="" className="star-icon" />
                                 <span className="saved-count">{feed.savedCount}</span>
                             </FeedLink>
                             : null}

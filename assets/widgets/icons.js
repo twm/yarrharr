@@ -18,7 +18,15 @@ function Logo(props) {
 }
 
 function Star(props) {
-    return <img src={window.__webpack_public_path__ + require('../star.inkscape.svg')} width="48" height="48" {...props} />;
+    return <img src={window.__webpack_public_path__ + require('../star.inkscape.svg')} width="32" height="32" {...props} />;
+}
+
+function Check(props) {
+    return <img src={window.__webpack_public_path__ + require('../check.inkscape.svg')} width="32" height="32" {...props} />;
+}
+
+function Heart(props) {
+    return <img src={window.__webpack_public_path__ + require('../heart.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
 module.exports = {
@@ -27,4 +35,6 @@ module.exports = {
     Eye,
     Logo,
     Star,
+    Check,
+    Heart,
 };
