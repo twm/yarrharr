@@ -4,16 +4,16 @@
     /* Allow space for the floating controls */
     padding: @toolbar_height 0px 4px 0px;
 
-    .content-colors;
-
     .tiles {
-        padding: 0 0 0 4px;
+        padding: 0;
         max-width: 100%;
         display: flex;
         flex-flow: row wrap;
         list-style: none;
 
         li {
+            .content-colors;
+
             flex: 1 1 308px;
             min-width: 0;
             display: flex;
@@ -21,7 +21,8 @@
             align-items: center;
             height: 48px;
             max-width: 100%;
-            padding: 0 8px 0 0;
+            margin: 1px;
+            padding: 0 4px 0 4px;
 
             .new-link {
                 flex: 1 1 100%;
