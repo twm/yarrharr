@@ -13,22 +13,19 @@ function ArticleView(props) {
     const article = articlesById[articleId];
     const feed = feedsById[article.feedId];
     // FIXME: This shouldn't hardcode view-wide
-    return <div className="article-view view-wide">
-        <div className="controls">
-            <RootLink className="toolbar-button" title="Return to feed list">
+    return <div className="article-view">
+        <div className="global-tools">
+            <RootLink title="Return to feed list">
                 <Logo />
             </RootLink>
-            {renderArticleSummary(article, feed)}
-            {!article || article.loading ?  null :
-                <StateToggle
-                    onMark={(articleId, targetState) => dispatch(markArticle(articleId, targetState))}
-                    {...article} />}
         </div>
-        {renderArticle(article, feed)}
+        <div className="view-wide">
+            {renderArticle(article, feed, dispatch)}
+        </div>
     </div>;
 }
 
-function renderArticle(article, feed) {
+function renderArticle(article, feed, dispatch) {
     if (!article || article.loading) {
         return <div className="placeholder"><Loading /></div>;
     }

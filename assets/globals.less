@@ -56,11 +56,23 @@
 }
 
 .button {
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 0 0 4px 0;
+    padding: 0;
     border: 0;
     border-radius: 50%;
     background: linear-gradient(to bottom, @background_color, darken(@background_color, 10%));
     box-shadow: inset  1px  1.0px 3.5px lighten(@background_color, 10%),
                 inset -1px -1.0px 3.5px darken(@background_color, 20%);
+
+    img {
+        display: block;
+        width: 24px;
+        height: 24px;
+        padding: 8px;
+    }
 
     &:focus {
         outline: 1px dotted;

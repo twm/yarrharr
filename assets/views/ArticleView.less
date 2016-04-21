@@ -2,15 +2,17 @@
 
 .article-view {
     /* Allow space for the floating controls */
-    padding: @toolbar_height 0 0 0;
+    padding: 0 0 0 0;
 
-    .controls {
-        .article-toolbar-summary {
-            min-width: 0;
-            flex: 1 1 100%;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
+    .global-tools {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 48px;
+        padding: 4px;
+
+        a {
+            .button;
         }
     }
 }
