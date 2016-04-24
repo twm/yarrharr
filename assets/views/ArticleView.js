@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { setView } from 'actions.js';
+import { setLayout } from 'actions.js';
 import { markArticle } from 'actions.js';
 
 import Article from 'widgets/Article.js';
@@ -13,19 +13,18 @@ import './ArticleView.less';
 
 
 function ArticleView(props) {
-    const { dispatch, view, articlesById, params: { articleId }, feedsById } = props;
+    const { dispatch, layout, articlesById, params: { articleId }, feedsById } = props;
     const article = articlesById[articleId];
     const feed = feedsById[article.feedId];
-    // FIXME: This shouldn't hardcode view-wide
-    return <div className={"article-view view-" + view}>
+    return <div className="article-view">
         <div className="global-tools">
             <RootLink className="text-button">
                 <span className="button"><Logo /></span>
                 Return to Feed List
             </RootLink>
-            <ViewButton onSetView={(view) => dispatch(setView(view))} />
+            <ViewButton onSetLayout={(layout) => dispatch(setLayout(layout))} />
         </div>
-        <div className="view-wide">
+        <div className={"layout-" + layout}>
             {renderArticle(article, feed, dispatch)}
         </div>
     </div>;
@@ -62,6 +61,6 @@ module.exports = connect(state => {
     return {
         articlesById: state.articlesById,
         feedsById: state.feedsById,
-        view: state.view,
+        layout: state.layout,
     };
 }, null)(ArticleView);

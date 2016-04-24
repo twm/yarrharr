@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { routeReducer } from 'redux-simple-router';
 
-import { SET_VIEW, VIEW_NARROW, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
+import { SET_LAYOUT, LAYOUT_NARROW, SET_VIEW, VIEW_LIST, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, RECEIVE_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
@@ -105,9 +105,16 @@ function labelReducer(state = window.props.labelsById, action) {
     return state;
 }
 
-function viewReducer(state = VIEW_NARROW, action) {
+function viewReducer(state = VIEW_LIST, action) {
     if (action.type === SET_VIEW) {
         return action.view;
+    }
+    return state;
+}
+
+function layoutReducer(state = LAYOUT_NARROW, action) {
+    if (action.type === SET_LAYOUT) {
+        return action.layout;
     }
     return state;
 }
@@ -119,5 +126,6 @@ module.exports = combineReducers({
     snapshot: snapshotReducer,
     labelsById: labelReducer,
     view: viewReducer,
+    layout: layoutReducer,
     routing: routeReducer,
 });

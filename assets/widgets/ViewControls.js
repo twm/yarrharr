@@ -1,5 +1,6 @@
 import React from 'react';
-import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
+import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
+import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
@@ -13,11 +14,12 @@ function EyeButton({open}) {
     return <button className={className}><Eye /></button>
 }
 
-function ViewButton(props) {
-    const {onSetView, onSetFilter=null, onSetOrder=null} = props;
+export function ViewButton(props) {
+    const {onSetView=null, onSetLayout=null, onSetFilter=null, onSetOrder=null} = props;
     return <DropButton className="button" trigger={EyeButton}>
         <ViewControls
             onSetView={onSetView}
+            onSetLayout={onSetLayout}
             onSetFilter={onSetFilter}
             onSetOrder={onSetOrder} />
     </DropButton>;
@@ -34,7 +36,7 @@ function TextButton(props) {
     </button>;
 }
 
-function ViewControls({onSetView, onSetFilter=null, onSetOrder=null}) {
+export function ViewControls({onSetView=null, onSetLayout=null, onSetFilter=null, onSetOrder=null}) {
     function callback(func, arg) {
         return (event) => {
             event.preventDefault();
@@ -45,6 +47,20 @@ function ViewControls({onSetView, onSetFilter=null, onSetOrder=null}) {
     // TODO: Select/disable buttons representing the current selection.
 
     const children = [];
+    if (onSetView) {
+        children.push(<h2 key="view-head">How to list articles?</h2>);
+        children.push(<div key="view-group" className="group">
+            <TextButton onClick={callback(onSetView, VIEW_LIST)} text="List" icon={List} />
+            <TextButton onClick={callback(onSetView, VIEW_TEXT)} text="Full Text" icon={Narrow} />
+        </div>);
+    }
+    if (onSetLayout) {
+        children.push(<h2 key="layout-head">Article layout:</h2>);
+        children.push(<div key="layout-group" className="group">
+            <TextButton onClick={callback(onSetLayout, LAYOUT_NARROW)} text="Narrow" icon={Narrow} />
+            <TextButton onClick={callback(onSetLayout, LAYOUT_WIDE)} text="Wide" icon={Wide} />
+        </div>);
+    }
     if (onSetFilter) {
         children.push(<h2 key="filter-head">Show articles of status:</h2>);
         children.push(<div key="filter-group" className="group">
@@ -63,17 +79,6 @@ function ViewControls({onSetView, onSetFilter=null, onSetOrder=null}) {
     }
 
     return <div className="view-picker">
-        <h2>How to display articles?</h2>
-        <div className="group">
-            <TextButton onClick={callback(onSetView, VIEW_LIST)} text="List" icon={List} />
-            <TextButton onClick={callback(onSetView, VIEW_NARROW)} text="Narrow" icon={Narrow} />
-            <TextButton onClick={callback(onSetView, VIEW_WIDE)} text="Wide" icon={Wide} />
-        </div>
         {children}
     </div>;
 }
-
-module.exports = {
-    ViewButton,
-    ViewControls,
-};

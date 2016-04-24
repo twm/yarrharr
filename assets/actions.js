@@ -1,7 +1,6 @@
 export const SET_VIEW = 'SET_VIEW';
 export const VIEW_LIST = 'list';
-export const VIEW_NARROW = 'narrow';
-export const VIEW_WIDE = 'wide';
+export const VIEW_TEXT = 'text';
 export function setView(view) {
     return {
         type: SET_VIEW,
@@ -9,6 +8,15 @@ export function setView(view) {
     };
 }
 
+export const SET_LAYOUT = 'SET_LAYOUT';
+export const LAYOUT_NARROW = 'narrow';
+export const LAYOUT_WIDE = 'wide';
+export function setLayout(layout) {
+    return {
+        type: SET_LAYOUT,
+        layout,
+    };
+}
 
 export const SET_FILTER = 'SET_FILTER';
 export const FILTER_NEW = 'new';

@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
-import { setView, setFilter, setOrder } from 'actions.js';
+import { setView, setLayout, setFilter, setOrder } from 'actions.js';
 import { markArticle } from 'actions.js';
-import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
+import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
 
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
@@ -18,14 +18,13 @@ import './FeedView.less';
 
 const VIEW_TO_WIDGET = {
     [VIEW_LIST]: ListArticle,
-    [VIEW_NARROW]: Article,
-    [VIEW_WIDE]: Article,
+    [VIEW_TEXT]: Article,
 };
 
-function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
+function FeedView({params, feedsById, view, layout, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
-    return <div className={"feed-view view-" + view}>
+    return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
             <RootLink className="text-button">
                 <span className="button"><Logo /></span>
@@ -33,6 +32,7 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
             </RootLink>
             <ViewButton
                 onSetView={(view) => dispatch(setView(view))}
+                onSetLayout={(layout) => dispatch(setLayout(layout))}
                 onSetFilter={(filter) => dispatch(setFilter(filter))}
                 onSetOrder={(order) => dispatch(setOrder(order))} />
         </div>
@@ -52,9 +52,9 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
         return <div className="floater">
-            <p className="floater-content">
+            <div className="floater-content">
                 <Loading />
-            </p>
+            </div>
         </div>;
     }
     if (snapshot.error) {
