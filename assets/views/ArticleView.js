@@ -13,11 +13,11 @@ import './ArticleView.less';
 
 
 function ArticleView(props) {
-    const { dispatch, articlesById, params: { articleId }, feedsById } = props;
+    const { dispatch, view, articlesById, params: { articleId }, feedsById } = props;
     const article = articlesById[articleId];
     const feed = feedsById[article.feedId];
     // FIXME: This shouldn't hardcode view-wide
-    return <div className="article-view">
+    return <div className={"article-view view-" + view}>
         <div className="global-tools">
             <RootLink className="text-button">
                 <span className="button"><Logo /></span>
@@ -62,6 +62,6 @@ module.exports = connect(state => {
     return {
         articlesById: state.articlesById,
         feedsById: state.feedsById,
+        view: state.view,
     };
 }, null)(ArticleView);
-
