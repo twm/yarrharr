@@ -5,13 +5,12 @@ import { setView, setFilter, setOrder } from 'actions.js';
 import { markArticle } from 'actions.js';
 import { VIEW_LIST, VIEW_NARROW, VIEW_WIDE } from 'actions.js';
 
-import DropButton from 'widgets/DropButton.js';
-import { ArrowLeft, Eye } from 'widgets/icons.js';
+import { ViewButton } from 'widgets/ViewControls.js';
+import { Logo } from 'widgets/icons.js';
 import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
-import ViewControls from 'widgets/ViewControls.js';
 import { FeedLink } from 'widgets/links.js';
 import Loading from 'widgets/Loading.js';
 import './FeedView.less';
@@ -23,28 +22,24 @@ const VIEW_TO_WIDGET = {
     [VIEW_WIDE]: Article,
 };
 
-
-function ViewButton({open}) {
-    const className = (open ? "toolbar-button-dropping " : "") + "toolbar-button";
-    return <button className={className}><Eye /></button>
-}
-
-
 function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view view-" + view}>
-        <div className="controls">
-            <RootLink className="toolbar-button" title="Return to feed list">
-                <ArrowLeft />
+        <div className="global-tools">
+            <RootLink className="text-button">
+                <span className="button"><Logo /></span>
+                Return to Feed List
             </RootLink>
-            <div className="expand">{feed.text || feed.title}</div>
-            <DropButton trigger={ViewButton}>
-                <ViewControls snapshot={snapshot}
-                    onSetView={(view) => dispatch(setView(view))}
-                    onSetFilter={(filter) => dispatch(setFilter(filter))}
-                    onSetOrder={(order) => dispatch(setOrder(order))} />
-            </DropButton>
+            <ViewButton
+                onSetView={(view) => dispatch(setView(view))}
+                onSetFilter={(filter) => dispatch(setFilter(filter))}
+                onSetOrder={(order) => dispatch(setOrder(order))} />
+        </div>
+        <div className="floater-wrap">
+            <div className="floater feed-masthead">
+                <h1>{feed.text || feed.title}</h1>
+            </div>
         </div>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
@@ -56,13 +51,21 @@ function FeedView({params, feedsById, view, snapshot, articlesById, dispatch}) {
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
-        return <div className="placeholder"><Loading /></div>;
+        return <div className="floater">
+            <p className="floater-content">
+                <Loading />
+            </p>
+        </div>;
     }
     if (snapshot.error) {
-        return <p className="placeholder">Failed to load (reload to retry)</p>;
+        return <div className="floater">
+            <p className="floater-content">Failed to load (reload to retry)</p>
+        </div>;
     }
     if (snapshot.articleIds.length === 0) {
-        return <p className="placeholder">No articles</p>;
+        return <div className="floater">
+            <p className="floater-content">No articles</p>
+        </div>;
     }
     return <ScrollSpy onNearBottom={onNearBottom}>
         {renderArticles()}

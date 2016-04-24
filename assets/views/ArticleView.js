@@ -1,12 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { setView } from 'actions.js';
+import { markArticle } from 'actions.js';
+
 import Article from 'widgets/Article.js';
 import Loading from 'widgets/Loading.js';
+import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
 import { RootLink, FeedLink } from 'widgets/links.js';
-import { markArticle } from 'actions.js';
 import StateToggle from 'widgets/StateToggle.js';
 import './ArticleView.less';
+
 
 function ArticleView(props) {
     const { dispatch, articlesById, params: { articleId }, feedsById } = props;
@@ -15,9 +19,11 @@ function ArticleView(props) {
     // FIXME: This shouldn't hardcode view-wide
     return <div className="article-view">
         <div className="global-tools">
-            <RootLink title="Return to feed list">
-                <Logo />
+            <RootLink className="text-button">
+                <span className="button"><Logo /></span>
+                Return to Feed List
             </RootLink>
+            <ViewButton onSetView={(view) => dispatch(setView(view))} />
         </div>
         <div className="view-wide">
             {renderArticle(article, feed, dispatch)}

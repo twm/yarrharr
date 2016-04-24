@@ -8,8 +8,6 @@
 @toolbar_height: 40px;
 @toolbar_background_color: darken(@content_background_color, 10%);
 
-@dropdown_background_color: darken(@toolbar_background_color, 10%);
-
 @content_background_color: white;
 @content_text_color: rgb(40, 40, 40);
 
@@ -38,6 +36,10 @@
     /**/
 }
 
+:focus {
+    outline: 1px dotted;
+}
+
 .content-colors() {
     color: @content_text_color;
     background: @content_background_color;
@@ -53,8 +55,27 @@
     a[href]:visited {
         color: @content_text_color;
     }
+    a[href]:focus {
+        outline: 1px dotted;
+    }
 }
 
+/* A "floater" is centered and is horizontally centered.  Mainly used for
+ * mastheads and error messages. */
+.floater-wrap {
+    display: flex;
+    margin: 16px 4px;
+}
+.floater {
+    text-align: center;
+    margin: 0 auto;
+    padding: 8px 16px;
+    color: @content_text_color;
+    background: @content_background_color;
+    max-width: 34em;
+}
+
+/* A button is round, subtly 3D, and features a centered icon. */
 .button {
     display: block;
     width: 40px;
@@ -73,107 +94,47 @@
         height: 24px;
         padding: 8px;
     }
+}
 
-    &:focus {
-        outline: 1px dotted;
-    }
-    &:active {
-        background: linear-gradient(to top, @background_color, darken(@background_color, 10%));
-        box-shadow: inset  1px  1.0px 3.5px darken(@background_color, 20%),
-        inset -1px -1.0px 3.5px lighten(@background_color, 10%);
-        & > * {
-            transform: translate(1px, 1px);
-        }
+.button:active, .button-active {
+    background: linear-gradient(to top, @background_color, darken(@background_color, 10%));
+    box-shadow: inset  1px  1.0px 3.5px darken(@background_color, 20%),
+    inset -1px -1.0px 3.5px lighten(@background_color, 10%);
+    & > * {
+        transform: translate(1px, 1px);
     }
 }
 
-.toolbar-button {
-    display: block;
-    width: auto;
-    height: @toolbar_height;
+/* Due to limitations of <button> it can't be made display: flex.  The
+ * workaround is to stick a <div> inside it.  This just zeros out the button
+ * styles.  See <https://bugzilla.mozilla.org/show_bug.cgi?id=984869#c2>. */
+.invisible-button {
     margin: 0;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 0 4px;
+    padding: 0;
     border: 0;
-    background: inherit;
-    color: @content_text_color;
-    transition: border-top-color 0.1s;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    line-height: (@toolbar_height - 8px); /* less borders */
-
-    &:focus {
-        outline: 1px dotted darken(@content_background_color, 50%);
-    }
-    &:active {
-        animation: button-press;
-    }
-    &.current {
-        border-top-color: @logo_orange;
-    }
-    &.progress {
-        animation: progress-stripe 2s linear infinite;
-    }
+    background: transparent;
 }
 
-.toolbar-button-text {
-    padding: 0 16px;
-}
-
-.toolbar-button-dropping {
-    background: @dropdown_background_color;
-}
-
-@keyframes button-press {
-    0% {
-        background: inherit;
-    }
-    20% {
-        background: @logo_orange;
-        color: white;
-    }
-    100% {
-        background: inherit;
-    }
-}
-
-@keyframes progress-stripe {
-    0% {
-        border-top-color: @logo_orange;
-    }
-    50% {
-        border-top-color: inherit;
-    }
-    100% {
-        border-top-color: @logo_orange;
-    }
-}
-
-/* The top toolbar */
-.controls {
+/* A text-button contains a .button and some text to the right */
+.text-button {
     display: flex;
-    flex-flow: row;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    height: @toolbar_height;
-    color: @content_text_color;
-    background: @toolbar_background_color;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    flex-wrap: nowrap;
+    text-decoration: none !important; /* *sigh* */
+    line-height: 40px;
 
-    .expand {
-        flex: 1 1 auto;
-        line-height: @toolbar_height;
-        padding: 0 0 0 8px;
+    & > .button {
+        flex: none;
+        margin: 0 4px 0 0;
     }
 }
 
-/* Loading text and error messages */
-.placeholder {
-    margin: (2 * @toolbar_height) auto;
-    max-width: 34em;
-    text-align: center;
+.global-tools {
+    display: flex;
+    padding: 4px;
+    justify-content: space-between;
+
+    .view-button {
+        flex: none;
+        align-self: end;
+    }
 }

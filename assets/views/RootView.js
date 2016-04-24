@@ -49,10 +49,11 @@ function sortedFeeds({feedsById}) {
 
 function RootView({labelList, feedList}) {
     return <div className="root-view">
-        <div className="controls">
-            <div className="toolbar-button"><Logo /></div>
-            <div className="expand">Yarrharr Feed Reader</div>
-            {/* TODO: Add useful functionality here */}
+        <div className="floater-wrap">
+            <div className="floater">
+                <Logo width="48" height="48" />
+                <div>Yarrharr Feed Reader</div>
+            </div>
         </div>
         <ul className="tiles">
             {labelList.length

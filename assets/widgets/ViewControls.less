@@ -1,23 +1,18 @@
 @import "../globals.less";
 
 .view-picker {
-    background: @toolbar_background_color;
-
     h2 {
         font: inherit;
-        text-transform: uppercase;
-        color: lighten(@content_text_color, 20%);
-        margin: 12px 0 0 0;
-        padding: 0 0 0 16px;
+        margin: 0;
+        padding: 0;
     }
     .group {
         display: flex;
-        flex-flow: row;
+        flex-flow: row wrap;
         margin: 0 0 12px 0;
 
-        button {
-            .toolbar-button;
-            .toolbar-button-text;
+        & > .invisible-button {
+            margin-right: 8px;
         }
     }
 }

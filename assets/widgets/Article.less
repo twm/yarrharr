@@ -1,28 +1,21 @@
 @import "../globals.less";
 
 .view-narrow .article-wrap {
-    margin: 0 auto @toolbar_height auto;
     max-width: calc(40px + 34em);
-    article {
-        padding: 8px 16px 0 16px;
-    }
 }
 
 .view-wide .article-wrap {
-    margin: 0 0 4px 4px;
-
-    article {
-        padding: 8px 4px 0 4px;
-    }
 }
 
 .article-wrap {
+    margin: 16px auto;
     display: flex;
     flex: row nowrap;
 
     .tools {
         flex: 0 0 auto;
-        width: 48px;
+        width: 44px;
+        margin-left: 4px;
     }
 
     article {
@@ -36,9 +29,11 @@
  * TODO: When there is sufficient space, add text labels to the buttons.
  */
 .tools {
+    padding: 20px 0 0 0;
+
     .tool-wrap {
         position: sticky;
-        top: 8px;
+        top: 4px;
     }
 
     button, a {
@@ -47,7 +42,8 @@
 }
 
 article {
-    position: relative;
+    padding: 0px 16px 16px 16px;
+    margin: 0;
     word-wrap: break-word; /* Don't let long lines break the layout */
 
     .content-colors;
