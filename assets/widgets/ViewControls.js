@@ -15,70 +15,68 @@ function EyeButton({open}) {
 }
 
 export function ViewButton(props) {
-    const {onSetView=null, onSetLayout=null, onSetFilter=null, onSetOrder=null} = props;
     return <DropButton className="button" trigger={EyeButton}>
-        <ViewControls
-            onSetView={onSetView}
-            onSetLayout={onSetLayout}
-            onSetFilter={onSetFilter}
-            onSetOrder={onSetOrder} />
+        <ViewControls {...props} />
     </DropButton>;
 }
 
-function TextButton(props) {
-    const {text, onClick, icon=null} = props;
+function Toggle(props) {
+    const {text, value, callback, current, icon=null} = props;
     const Icon = icon;
+    const isSelected = current === value;
+    const onClick = isSelected ? null : (event) => {
+        event.preventDefault();
+        callback(value);
+    }
     return <button className="invisible-button" onClick={onClick}>
         <div className="text-button">
-            {icon ? <span className="button"><Icon alt="" /></span> : null}
+            {icon ? <span className={"button" + (isSelected ? " button-active" : "")}><Icon alt="" /></span> : null}
             <span className="text">{text}</span>
         </div>
     </button>;
 }
 
-export function ViewControls({onSetView=null, onSetLayout=null, onSetFilter=null, onSetOrder=null}) {
-    function callback(func, arg) {
-        return (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            func(arg);
-        };
-    }
-    // TODO: Select/disable buttons representing the current selection.
-
+export function ViewControls(props) {
+    const {view=null, onSetView=null,
+           layout=null, onSetLayout=null,
+           filter=null, onSetFilter=null,
+           order=null, onSetOrder=null} = props;
     const children = [];
-    if (onSetView) {
+
+    if (view !== null && onSetView) {
         children.push(<h2 key="view-head">How to list articles?</h2>);
         children.push(<div key="view-group" className="group">
-            <TextButton onClick={callback(onSetView, VIEW_LIST)} text="List" icon={List} />
-            <TextButton onClick={callback(onSetView, VIEW_TEXT)} text="Full Text" icon={Narrow} />
+            <Toggle callback={onSetView} current={view} value={VIEW_LIST} text="List" icon={List} />
+            <Toggle callback={onSetView} current={view} value={VIEW_TEXT} text="Full Text" icon={Narrow} />
         </div>);
     }
-    if (onSetLayout) {
+    if (layout !== null && onSetLayout) {
         children.push(<h2 key="layout-head">Article layout:</h2>);
         children.push(<div key="layout-group" className="group">
-            <TextButton onClick={callback(onSetLayout, LAYOUT_NARROW)} text="Narrow" icon={Narrow} />
-            <TextButton onClick={callback(onSetLayout, LAYOUT_WIDE)} text="Wide" icon={Wide} />
+            <Toggle callback={onSetLayout} current={layout} value={LAYOUT_NARROW} text="Narrow" icon={Narrow} />
+            <Toggle callback={onSetLayout} current={layout} value={LAYOUT_WIDE} text="Wide" icon={Wide} />
         </div>);
     }
-    if (onSetFilter) {
+    if (filter !== null && onSetFilter) {
         children.push(<h2 key="filter-head">Show articles of status:</h2>);
         children.push(<div key="filter-group" className="group">
-            <TextButton onClick={callback(onSetFilter, FILTER_NEW)} text="New" icon={Star} />
-            <TextButton onClick={callback(onSetFilter, FILTER_SAVED)} text="Saved" icon={Heart} />
-            <TextButton onClick={callback(onSetFilter, FILTER_DONE)} text="Done" icon={Check} />
-            <TextButton onClick={callback(onSetFilter, FILTER_ALL)} text="All" />
+            <Toggle callback={onSetFilter} current={filter} value={FILTER_NEW} text="New" icon={Star} />
+            <Toggle callback={onSetFilter} current={filter} value={FILTER_SAVED} text="Saved" icon={Heart} />
+            <Toggle callback={onSetFilter} current={filter} value={FILTER_DONE} text="Done" icon={Check} />
+            <Toggle callback={onSetFilter} current={filter} value={FILTER_ALL} text="All" />
         </div>);
     }
-    if (onSetOrder) {
+    if (order !== null && onSetOrder) {
         children.push(<h2 key="sort-head">How to order articles?</h2>);
         children.push(<div key="sort-group" className="group">
-            <TextButton onClick={callback(onSetOrder, ORDER_DATE)} text="Oldest first" />
-            <TextButton onClick={callback(onSetOrder, ORDER_TAIL)} text="Latest first" />
+            <Toggle callback={onSetOrder} current={order} value={ORDER_DATE} text="Oldest first" />
+            <Toggle callback={onSetOrder} current={order} value={ORDER_TAIL} text="Latest first" />
         </div>);
     }
 
-    return <div className="view-picker">
+    return <div className="view-picker" onClick={(event) => {
+        event.stopPropagation(); // Don't close the dropdown when buttons are pressed.
+    }}>
         {children}
     </div>;
 }

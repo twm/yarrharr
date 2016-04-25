@@ -8,6 +8,7 @@ import Loading from 'widgets/Loading.js';
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
 import { RootLink, FeedLink } from 'widgets/links.js';
+import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import StateToggle from 'widgets/StateToggle.js';
 import './ArticleView.less';
 
@@ -22,7 +23,7 @@ function ArticleView(props) {
                 <span className="button"><Logo /></span>
                 Return to Feed List
             </RootLink>
-            <ViewButton onSetLayout={(layout) => dispatch(setLayout(layout))} />
+            <ViewButton layout={layout} onSetLayout={(layout) => dispatch(setLayout(layout))} />
         </div>
         <div className={"layout-" + layout}>
             {renderArticle(article, feed, dispatch)}
@@ -32,7 +33,11 @@ function ArticleView(props) {
 
 function renderArticle(article, feed, dispatch) {
     if (!article || article.loading) {
-        return <div className="placeholder"><Loading /></div>;
+        return <div className="floater">
+            <div className="floater-content">
+                <Loading />
+            </div>
+        </div>;
     }
     return <Article
         feed={feed}
@@ -55,6 +60,7 @@ ArticleView.propTypes = {
     }).isRequired,
     articlesById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
     feedsById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
+    layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
 };
 
 module.exports = connect(state => {

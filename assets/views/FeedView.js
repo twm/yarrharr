@@ -21,7 +21,7 @@ const VIEW_TO_WIDGET = {
     [VIEW_TEXT]: Article,
 };
 
-function FeedView({params, feedsById, view, layout, snapshot, articlesById, dispatch}) {
+function FeedView({params, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -31,9 +31,13 @@ function FeedView({params, feedsById, view, layout, snapshot, articlesById, disp
                 Return to Feed List
             </RootLink>
             <ViewButton
+                view={view}
                 onSetView={(view) => dispatch(setView(view))}
+                layout={layout}
                 onSetLayout={(layout) => dispatch(setLayout(layout))}
+                filter={snapshot.filter}
                 onSetFilter={(filter) => dispatch(setFilter(filter))}
+                order={snapshot.order}
                 onSetOrder={(order) => dispatch(setOrder(order))} />
         </div>
         <div className="floater-wrap">
@@ -82,7 +86,7 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
         const article = articlesById[id];
         if (article) {
             if (article.loading) {
-                elements.push(<Loading />);
+                elements.push(<Loading key="loading" />);
                 break;
             }
             // TODO: Handle errors
