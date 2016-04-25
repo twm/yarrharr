@@ -5,7 +5,7 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
 import DropButton from 'widgets/DropButton.js';
-import { Ascending, Descending, Eye, Star, Check, Heart, List, Narrow, Wide } from 'widgets/icons.js';
+import { Ascending, Descending, Eye, Star, Check, Heart, InfinityIcon, List, Narrow, Wide } from 'widgets/icons.js';
 import './ViewControls.less';
 
 
@@ -63,7 +63,7 @@ export function ViewControls(props) {
             <Toggle callback={onSetFilter} current={filter} value={FILTER_NEW} text="New" icon={Star} />
             <Toggle callback={onSetFilter} current={filter} value={FILTER_SAVED} text="Saved" icon={Heart} />
             <Toggle callback={onSetFilter} current={filter} value={FILTER_DONE} text="Done" icon={Check} />
-            <Toggle callback={onSetFilter} current={filter} value={FILTER_ALL} text="All" />
+            <Toggle callback={onSetFilter} current={filter} value={FILTER_ALL} text="All" icon={InfinityIcon} />
         </div>);
     }
     if (order !== null && onSetOrder) {

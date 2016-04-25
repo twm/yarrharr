@@ -52,3 +52,7 @@ export function Ascending(props) {
 export function Descending(props) {
     return <img src={window.__webpack_public_path__ + require('../ascending.inkscape.svg')} style={{transform: 'rotate(180deg)'}} {...props} />;
 }
+
+export function InfinityIcon(props) {
+    return <img src={window.__webpack_public_path__ + require('../infinity.inkscape.svg')} {...props} />;
+}
