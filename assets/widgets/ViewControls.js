@@ -5,7 +5,7 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
 import DropButton from 'widgets/DropButton.js';
-import { Eye, Star, Check, Heart, List, Narrow, Wide } from 'widgets/icons.js';
+import { Ascending, Descending, Eye, Star, Check, Heart, List, Narrow, Wide } from 'widgets/icons.js';
 import './ViewControls.less';
 
 
@@ -69,8 +69,8 @@ export function ViewControls(props) {
     if (order !== null && onSetOrder) {
         children.push(<h2 key="sort-head">How to order articles?</h2>);
         children.push(<div key="sort-group" className="group">
-            <Toggle callback={onSetOrder} current={order} value={ORDER_DATE} text="Oldest first" />
-            <Toggle callback={onSetOrder} current={order} value={ORDER_TAIL} text="Latest first" />
+            <Toggle callback={onSetOrder} current={order} value={ORDER_DATE} text="Oldest first" icon={Ascending} />
+            <Toggle callback={onSetOrder} current={order} value={ORDER_TAIL} text="Latest first" icon={Descending} />
         </div>);
     }
 

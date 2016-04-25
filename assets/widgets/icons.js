@@ -36,9 +36,19 @@ export function Outbound(props) {
 export function List(props) {
     return <img src={window.__webpack_public_path__ + require('../list.inkscape.svg')} {...props} />;
 }
+
 export function Narrow(props) {
     return <img src={window.__webpack_public_path__ + require('../narrow.inkscape.svg')} {...props} />;
 }
+
 export function Wide(props) {
     return <img src={window.__webpack_public_path__ + require('../wide.inkscape.svg')} {...props} />;
+}
+
+export function Ascending(props) {
+    return <img src={window.__webpack_public_path__ + require('../ascending.inkscape.svg')} {...props} />;
+}
+
+export function Descending(props) {
+    return <img src={window.__webpack_public_path__ + require('../ascending.inkscape.svg')} style={{transform: 'rotate(180deg)'}} {...props} />;
 }
