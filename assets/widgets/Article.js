@@ -36,7 +36,7 @@ const Article = React.createClass({
                 </div>
             </div>
             <article>
-                <h1><a href={this.props.url}>{this.props.title}</a></h1>
+                <h1><a href={this.props.url}>{this.props.title || "Untitled"}</a></h1>
                 {this.props.author
                     ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
                     : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}

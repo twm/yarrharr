@@ -10,7 +10,7 @@ function ListArticle(props) {
         <ArticleLink articleId={props.id} className="view-link">
             <span className="meta">{props.feed.text || props.feed.title} on {props.date}</span>
             <br />
-            {props.title}
+            {props.title || "Untitled"}
         </ArticleLink>
         <a href={props.url} className="button" target="_blank" title="View on source site">
             <Outbound alt="View on source site" width="32" height="32" />
