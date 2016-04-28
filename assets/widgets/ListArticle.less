@@ -1,74 +1,30 @@
 @import "../globals.less";
 
-.article-list {
-    margin: @toolbar_height 0 0 0;
-}
-
 .list-article {
     display: flex;
     flex-flow: row nowrap;
     margin: 4px 0;
-    padding: 4px;
-    .content-colors;
-    white-space: nowrap;
+    align-items: center;
 
-    .state-toggle {
-        flex: 0 0 auto;
-        width: 52px;
-        height: 52px;
-        margin: 0 8px 0 0;
-        .button;
-
-        &.state-new {
-        }
-        &.state-saved {
-        }
-        &.state-done {
-        }
-
-        img {
-            display: block;
-            margin: auto;
-        }
-    }
-
-    .middle {
-        flex: 1 1 auto;
-        width: 0;
-
-        .feed, .external-link {
-            display: block;
-            max-width: 100%; // Allow it to shrink so content ellipsizes.
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    & > .button {
+        margin: 0 4px;
     }
 
     .view-link {
-        flex: 0 0 auto;
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
+        flex: 1 1 100%;
+        min-width: 0;
+        display: block;
+        padding: 4px;
 
-        margin: 0 0 0 4px;
-        text-decoration: none !important;
+        .content-colors;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
 
-        .arrow {
-            margin: 0 0 0 8px;
+        text-decoration: none;
+
+        .meta {
+            color: lighten(@text_color, 40%);
         }
-    }
-}
-
-.date-block {
-    display: flex;
-    flex-flow: column nowrap;
-    line-height: 1;
-    text-align: center;
-
-    .month {
-        text-transform: uppercase;
-    }
-    .day {
-        font-size: 1.2em;
     }
 }
