@@ -48,12 +48,15 @@
         darken(@content_background_color, 5%)
     );
     a[href] {
-        color: darken(@content_text_color, 20%);
+        color: @content_text_color;
         text-decoration: underline;
-        text-decoration-color: lighten(@content_text_color, 40%);
+        text-decoration-color: rgb(28, 140, 199);
     }
     a[href]:visited {
-        color: @content_text_color;
+        text-decoration-color: rgb(199, 68, 28);
+    }
+    a[href]:active {
+        text-decoration-color: rgb(185, 28, 199);
     }
     a[href]:focus {
         outline: 1px dotted;
