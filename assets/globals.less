@@ -16,27 +16,6 @@
 @logo_orange: #fb6500;
 @logo_orange_dark: #da5200;
 
-.grid(@background; @color) {
-    /*
-    @grid_size: 4px;
-    @grid_line: 0.5px;
-    background:
-        repeating-linear-gradient(
-            to bottom,
-            transparent,
-            transparent (@grid_size - @grid_line),
-            @color (@grid_size - @grid_line),
-            @color @grid_size),
-        repeating-linear-gradient(
-            to right,
-            transparent,
-            transparent (@grid_size - @grid_line),
-            @color (@grid_size - @grid_line),
-            @color @grid_size),
-        @background;
-    /**/
-}
-
 :focus {
     outline: 1px dotted;
 }
@@ -44,10 +23,6 @@
 .content-colors() {
     color: @content_text_color;
     background: @content_background_color;
-    .grid(
-        @content_background_color;
-        darken(@content_background_color, 5%)
-    );
     a[href] {
         color: @content_text_color;
         text-decoration: underline;
