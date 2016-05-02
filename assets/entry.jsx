@@ -3,9 +3,8 @@ import { applyMiddleware, createStore, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { Provider, connect } from 'react-redux';
-import { Router, Route, IndexRoute, Link } from 'react-router';
-import { createHistory, useQueries } from 'history';
-import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { syncHistoryWithStore } from 'react-router-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -20,10 +19,7 @@ const middleware = [
     createLogger(),
 ];
 const store = applyMiddleware(...middleware)(createStore)(reducer);
-
-const history = createHistory();
-syncReduxAndRouter(history, store);
-
+const history = syncHistoryWithStore(browserHistory, store);
 
 const Root = React.createClass({
     render() {

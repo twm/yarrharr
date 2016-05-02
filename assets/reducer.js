@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { routeReducer } from 'redux-simple-router';
+import { routerReducer } from 'react-router-redux';
 
 import { SET_LAYOUT, LAYOUT_NARROW, SET_VIEW, VIEW_LIST, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 
@@ -127,5 +127,5 @@ module.exports = combineReducers({
     labelsById: labelReducer,
     view: viewReducer,
     layout: layoutReducer,
-    routing: routeReducer,
+    routing: routerReducer,
 });
