@@ -1,6 +1,6 @@
 // This file is the Webpack entry point to the whole codebase.
 import { applyMiddleware, createStore, combineReducers } from 'redux';
-import thunkMiddleware from 'redux-thunk';
+import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { Provider, connect } from 'react-redux';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
@@ -14,11 +14,7 @@ import FeedView from 'views/FeedView.js';
 import RootView from 'views/RootView.js';
 import reducer from 'reducer.js';
 
-const middleware = [
-    thunkMiddleware,
-    createLogger(),
-];
-const store = applyMiddleware(...middleware)(createStore)(reducer);
+const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
 const history = syncHistoryWithStore(browserHistory, store);
 
 const Root = React.createClass({
