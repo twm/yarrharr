@@ -12,9 +12,9 @@ urlpatterns = patterns(
     url(r'^feed/\d+/$', 'yarrharr.views.index'),
 
     # API
-    url(r'^snapshots/$', 'yarrharr.views.snapshots'),
-    url(r'^articles/$', 'yarrharr.views.articles'),
-    url(r'^state/$', 'yarrharr.views.state'),
+    url(r'^api/snapshots/$', 'yarrharr.views.snapshots'),
+    url(r'^api/articles/$', 'yarrharr.views.articles'),
+    url(r'^api/state/$', 'yarrharr.views.state'),
 
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login'),

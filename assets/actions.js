@@ -164,7 +164,7 @@ export function markArticle(articleId, state) {
 
         dispatch(requestMarkArticle(articleId, state));
 
-        post('/state/', body).then((json) => {
+        post('/api/state/', body).then((json) => {
            dispatch(receiveMarkArticle(articleId, state));
            // TODO: Update counts on affected feeds and labels.
         }).catch((e) => {console.error(e)});
@@ -186,7 +186,7 @@ function fetchSnapshot(feedIds, order, filter) {
     feedIds.forEach((id) => body.append('feeds', String(id)));
     body.append('order', order);
     body.append('filter', filter);
-    return post('/snapshots/', body);
+    return post('/api/snapshots/', body);
 }
 
 
@@ -202,7 +202,7 @@ function fetchSnapshot(feedIds, order, filter) {
 function fetchArticles(articleIds) {
     const body = new FormData();
     articleIds.forEach((id) => body.append('article', String(id)));
-    return post('/articles/', body);
+    return post('/api/articles/', body);
 }
 
 /**
