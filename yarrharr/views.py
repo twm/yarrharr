@@ -9,7 +9,7 @@ import feedparser
 from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotAllowed, HttpResponse
+from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
 
 import yarrharr
 from yarrharr.decorators import debug_only
@@ -37,6 +37,34 @@ def json_for_entry(entry):
         'url': entry.url,
         'iconUrl': urlparse.urljoin(entry.url, '/favicon.ico'),
     }
+
+
+def json_for_feed(feed):
+    return {
+        'id': feed.id,
+        'title': feed.title,
+        'text': feed.text,
+        'newCount': feed.count_unread,
+        'savedCount': feed.count_saved,
+        'totalCount': feed.count_total,
+        'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
+        'labels': sorted(label.id for label in feed.label_set.all()),
+    }
+
+
+def labels_for_user(user):
+    return {label.id: json_for_label(label) for label in user.label_set.all()}
+
+
+def json_for_label(label):
+    return {
+        'id': label.id,
+        'text': label.text,
+    }
+
+
+def feeds_for_user(user):
+    return {feed.id: json_for_feed(feed) for feed in user.feed_set.all()}
 
 
 def entries_for_snapshot(user, params):
@@ -100,33 +128,14 @@ def index(request):
     The user interface.  For the moment this is pre-loaded with basic
     information about all the feeds and articles.
     """
-    labels_by_id = {}
-    for label in request.user.label_set.all():
-        labels_by_id[label.id] = {
-            'id': label.id,
-            'text': label.text,
-        }
-
-    feeds_by_id = {}
-    for feed in request.user.feed_set.all():
-        feeds_by_id[feed.id] = {
-            'id': feed.id,
-            'title': feed.title,
-            'text': feed.text,
-            'newCount': feed.count_unread,
-            'savedCount': feed.count_saved,
-            'totalCount': feed.count_total,
-            'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
-            'labels': sorted(label.id for label in feed.label_set.all()),
-        }
-
+    feeds_by_id = feeds_for_user(request.user)
     snapshot_params = snapshot_params_from_query(request.GET, list(feeds_by_id.keys()))
     entries = entries_for_snapshot(request.user, snapshot_params)
 
     return render(request, 'index.html', {
         'props': json_encoder.encode({
+            'labelsById': labels_for_user(request.user),
             'feedsById': feeds_by_id,
-            'labelsById': labels_by_id,
             'snapshotParams': snapshot_params,
             'snapshot': [entry.id for entry in entries],
             # Pre-load the cache with the first articles in the shapshot.
@@ -203,6 +212,63 @@ def state(request):
     data = {entry.id: json_for_entry(entry) for entry in qs.all()}
     return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')
+
+
+@login_required
+def labels(request):
+    """
+    Create and remove labels.
+
+    On POST, the :param:`text` parameter contains the text of the label to
+    create.  If the text is already in use, 409 Conflict results.
+
+    On DELETE, the :param:`label` holds the ID of the label.  If the label does
+    not exist, 404 results.
+    """
+    if request.method == 'POST':
+        # TODO: Create label
+        data = {'labelsById': labels_for_user(request.user)}
+        return HttpResponse(json_encoder.encode(data),
+                            content_type='application/json')
+    elif request.method == 'DELETE':
+        try:
+            label_id = request.POST['id']
+        except KeyError:
+            return HttpResponseBadRequest()
+        request.user.label_set.get(id=label_id)
+        return HttpResponse(json_encoder.encode(data),
+                            content_type='application/json')
+    else:
+        return HttpResponseNotAllowed(['POST', 'DELETE'])
+
+
+@login_required
+def inventory(request):
+    """
+    Manage feeds and labels.
+
+    On GET, retrieve full feed and label metadata.  On PUT, update the feed and
+    label lists.
+
+    """
+    if request.method == 'GET':
+        data = {
+            'labelsById': labels_for_user(request.user),
+            'feedsById': feeds_for_user(request.user),
+        }
+        return HttpResponse(json_encoder.encode(data),
+                            content_type='application/json')
+    elif request.method == 'POST':
+        for feed_id in request.user.feed_set.all().values_list('id', flat=True):
+            label_ids = request.POST.getlist('labels_{}'.format(feed_id), default=None)
+            if label_ids is not None:
+                feed = request.user.feed_set.get(feed_id)
+                feed.label_set.clear()
+                for label_id in label_ids:
+                    feed.label_set.add(label_id)
+                feed.save()
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 def about(request):

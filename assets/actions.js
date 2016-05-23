@@ -273,3 +273,32 @@ export function loadMore(articleIds) {
         }
     };
 }
+
+export const ADD_LABEL = 'ADD_LABEL';
+export function addLabel(title) {
+    return (dispatch) => {
+        dispatch({
+            type: ADD_LABEL,
+            title,
+        });
+        const body = new FormData();
+        body.append('title', title);
+        return post('/api/labels/', body).then(json => {
+            const { labelsById } = json;
+            dispatch(receiveLabels(labelsById));
+        }).catch(e => {
+            console.error(e);
+            dispatch(failAddLabel(title));
+        });
+    };
+}
+
+export const RECEIVE_LABELS = 'RECEIVE_LABELS';
+export function receiveLabels() {
+}
+
+export const FAIL_ADD_LABEL = 'FAIL_ADD_LABEL';
+export function failAddLabel(title) {
+    // TODO: Do something async?
+    alert("Adding label " + title + " failed.");
+}

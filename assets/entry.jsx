@@ -12,6 +12,7 @@ import './base.less';
 import ArticleView from 'views/ArticleView.js';
 import FeedView from 'views/FeedView.js';
 import RootView from 'views/RootView.js';
+import InventoryView from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 
 const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
@@ -22,8 +23,6 @@ const Root = React.createClass({
         return <div id="yarrharr">{this.props.children}</div>;
     }
 });
-
-
 
 
 function LabelView(props) {
@@ -38,6 +37,7 @@ ReactDOM.render(
         <Router history={history}>
             <Route path="/" component={Root}>
                 <IndexRoute component={RootView} />
+                <Route path="inventory" component={InventoryView} />
                 <Route path="article/:articleId" component={ArticleView} onEnter={(nextState) => {
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />

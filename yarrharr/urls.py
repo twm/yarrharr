@@ -7,6 +7,7 @@ urlpatterns = patterns(
     '',
     # Client-side GUI
     url(r'^$', 'yarrharr.views.index'),
+    url(r'^inventory/$', 'yarrharr.views.index'),
     url(r'^article/\d+/$', 'yarrharr.views.index'),
     url(r'^label/\d+/$', 'yarrharr.views.index'),
     url(r'^feed/\d+/$', 'yarrharr.views.index'),
@@ -15,6 +16,8 @@ urlpatterns = patterns(
     url(r'^api/snapshots/$', 'yarrharr.views.snapshots'),
     url(r'^api/articles/$', 'yarrharr.views.articles'),
     url(r'^api/state/$', 'yarrharr.views.state'),
+    url(r'^api/labels/$', 'yarrharr.views.labels'),
+    url(r'^api/inventory/$', 'yarrharr.views.inventory'),
 
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login'),

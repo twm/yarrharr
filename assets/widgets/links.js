@@ -30,3 +30,7 @@ export function LabelLink(props) {
 export function RootLink(props) {
     return <IndexLink to="/" {...props}>{props.children}</IndexLink>;
 }
+
+export function InventoryLink(props) {
+    return <Link to="/inventory/" {...props}>{props.children}</Link>;
+}

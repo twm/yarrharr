@@ -14,3 +14,6 @@ class Label(models.Model):
     text = models.CharField(unique=True, max_length=64)
     user = models.ForeignKey('auth.User')
     feeds = models.ManyToManyField(Feed)
+
+    class Meta:
+        unique_together = ('user', 'text')
