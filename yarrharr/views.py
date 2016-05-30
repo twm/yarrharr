@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# See COPYING for details.
+
 import urlparse
 
 import simplejson
@@ -219,15 +221,40 @@ def labels(request):
     """
     Create and remove labels.
 
-    On POST, the :param:`text` parameter contains the text of the label to
-    create.  If the text is already in use, 409 Conflict results.
+    On POST, the :param:`action` parameter determines what is done:
+
+    ``"create"`` creates a new label :param:`text` parameter contains the text
+    of the label to create.  If the text is already in use, 409 Conflict
+    results.
+
+    ``"attach"`` associates a label specified by :param:`label` from a feed
+    :param:`feed`
+
+    ``"detach"`` disassociates a label specified by :param:`label` from a feed
+    :param:`feed`
 
     On DELETE, the :param:`label` holds the ID of the label.  If the label does
     not exist, 404 results.
     """
     if request.method == 'POST':
-        # TODO: Create label
-        data = {'labelsById': labels_for_user(request.user)}
+        action = request.POST['action']
+        if action == 'create':
+            label = request.user.label_set.create(text=request.POST['text'])
+            label.save()
+        elif action == 'attach':
+            label = request.user.label_set.get(id=request.POST['label'])
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            label.feeds.add(feed)
+            label.save()
+        elif action == 'detach':
+            label = request.user.label_set.get(id=request.POST['label'])
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            label.feeds.remove(feed)
+            label.save()
+        data = {
+            'labelsById': labels_for_user(request.user),
+            'feedsById': feeds_for_user(request.user),
+        }
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     elif request.method == 'DELETE':
@@ -238,6 +265,38 @@ def labels(request):
         request.user.label_set.get(id=label_id)
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
+    else:
+        return HttpResponseNotAllowed(['POST', 'DELETE'])
+
+
+@login_required
+def label(request, label_id):
+    """
+    Manage a label.
+
+    On POST, the :param:`feed` parameter contains the ID of a feed to associate
+    with the label.
+
+    On DELETE, remove the label.  If the label is still associated with feeds,
+    409 results.  If the label does not exist, 404 results.
+    """
+    label = request.user.label_set.get(id=label_id)
+    if request.method == 'POST':
+        feed = request.user.feed_set.get(id=request.POST['feed'])
+        label.feeds.add(feed)
+        label.save()
+        data = {
+            'feedsById': feeds_for_user(request.user),
+        }
+        return HttpResponse(json_encoder.encode(data),
+                            content_type='application/json')
+    elif request.method == 'DELETE':
+        if label.feed_set.count() != 0:
+            return HttpResponse("Label has associated feeds",
+                                status=409,
+                                content_type='text/plain')
+        label.delete()
+        return HttpResponse('{}', content_type='application/json')
     else:
         return HttpResponseNotAllowed(['POST', 'DELETE'])
 

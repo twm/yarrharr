@@ -274,31 +274,93 @@ export function loadMore(articleIds) {
     };
 }
 
+export const RECEIVE_FEEDS = 'RECEIVE_FEEDS';
+export function receiveFeeds(feedsById) {
+    return {
+        type: RECEIVE_FEEDS,
+        feedsById,
+    };
+}
+
 export const ADD_LABEL = 'ADD_LABEL';
-export function addLabel(title) {
+export function addLabel(text) {
     return (dispatch) => {
         dispatch({
             type: ADD_LABEL,
-            title,
+            text,
         });
         const body = new FormData();
-        body.append('title', title);
+        body.append('action', 'create');
+        body.append('text', text);
         return post('/api/labels/', body).then(json => {
             const { labelsById } = json;
             dispatch(receiveLabels(labelsById));
         }).catch(e => {
             console.error(e);
-            dispatch(failAddLabel(title));
+            dispatch(failAddLabel(text));
         });
     };
 }
 
 export const RECEIVE_LABELS = 'RECEIVE_LABELS';
-export function receiveLabels() {
+export function receiveLabels(labelsById) {
+    return {
+        type: RECEIVE_LABELS,
+        labelsById,
+    };
 }
 
 export const FAIL_ADD_LABEL = 'FAIL_ADD_LABEL';
-export function failAddLabel(title) {
+export function failAddLabel(text) {
     // TODO: Do something async?
-    alert("Adding label " + title + " failed.");
+    alert("Failed to add label " + text + ".");
+}
+
+export function failAttachLabel(feedId, labelId) {
+    // TODO
+    alert("Failed to add label to feed");
+    console.log("Failed to add label", labelId, "to feed", feedId);
+}
+
+export const ATTACH_LABEL = 'ATTACH_LABEL';
+export function attachLabel(feedId, labelId) {
+    return (dispatch) => {
+        dispatch({
+            type: ATTACH_LABEL,
+            feedId,
+            labelId,
+        });
+        const body = new FormData();
+        body.append('action', 'attach');
+        body.append('feed', feedId);
+        body.append('label', labelId);
+        return post('/api/labels/', body).then(json => {
+            dispatch(receiveFeeds(json.feedsById));
+        }).catch(e => {
+            console.error(e);
+            dispatch(failAttachLabel(feedId, labelId));
+        });
+    };
+}
+
+export const DETACH_LABEL = 'DETACH_LABEL';
+export function detachLabel(feedId, labelId) {
+    return (dispatch) => {
+        dispatch({
+            type: DETACH_LABEL,
+            feedId,
+            labelId,
+        });
+        const body = new FormData();
+        body.append('action', 'detach');
+        body.append('feed', feedId);
+        body.append('label', labelId);
+        return post('/api/labels/', body).then(json => {
+            dispatch(receiveFeeds(json.feedsById));
+        }).catch(e => {
+            console.error(e);
+            alert('Failed to remove label');
+            // TODO
+        });
+    }
 }

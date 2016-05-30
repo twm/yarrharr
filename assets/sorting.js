@@ -8,8 +8,8 @@ export function labelsByTitle({labelsById}) {
     labelList.sort((a, b) => {
         var textA = a.text.toLowerCase();
         var textB = b.text.toLowerCase();
-        return (titleA < titleB) ? -1 :
-               (titleA > titleB) ? 1 :
+        return (textA < textB) ? -1 :
+               (textA > textB) ? 1 :
                b.id - a.id;
     });
     return labelList;

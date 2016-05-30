@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
 import { SET_LAYOUT, LAYOUT_NARROW, SET_VIEW, VIEW_LIST, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
-
+import { RECEIVE_FEEDS, RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, RECEIVE_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
 
@@ -47,7 +47,9 @@ function articleReducer(state = window.props.articlesById, action) {
 }
 
 function feedReducer(state = window.props.feedsById, action) {
-    // TODO: Support feed CRUD.
+    if (action.type === RECEIVE_FEEDS) {
+        return action.feedsById;
+    }
     return state;
 }
 
@@ -101,7 +103,9 @@ function snapshotReducer(state = defaultSnapshot, action) {
 }
 
 function labelReducer(state = window.props.labelsById, action) {
-    // TODO: Support label CRUD.
+    if (action.type === RECEIVE_LABELS) {
+        return action.labelsById;
+    }
     return state;
 }
 
