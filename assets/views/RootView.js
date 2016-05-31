@@ -31,7 +31,19 @@ export const RootView = React.createClass({
             </div>
             <ul className="tiles">
                 {labelList.length
-                    ? labelList.map((label) => <li key={"label-" + label.id}><LabelLink labelId={label.id}>{label.text}</LabelLink></li>)
+                    ? labelList.map((label) =>
+                        <li key={"label-" + label.id}>
+                            <LabelLink className="new-link" labelId={label.id} filter={FILTER_NEW}>
+                                <div className="feed-title">{label.text}</div>
+                                <div className="new-count">{label.newCount} new</div>
+                            </LabelLink>
+                            {label.savedCount
+                                ? <LabelLink className="saved-link" labelId={label.id} filter={FILTER_SAVED}>
+                                    <Heart width="48" height="48" alt="" className="star-icon" />
+                                    <span className="saved-count">{label.savedCount}</span>
+                                </LabelLink>
+                                : null}
+                        </li>)
                     : null}
                 {feedList.length
                     ? feedList.map((feed) =>
