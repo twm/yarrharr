@@ -1,6 +1,10 @@
 import React from 'react';
 // TODO: Use minified SVG
 
+export function Add(props) {
+    return <img src={window.__webpack_public_path__ + require('../add.inkscape.svg')} {...props} />;
+}
+
 export function ArrowLeft(props) {
     return <img src={window.__webpack_public_path__ + require('../arrow.inkscape.svg')} width="16" height="32" {...props} />;
 }

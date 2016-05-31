@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Logo, Heart } from 'widgets/icons.js';
+import { Add, Logo, Heart } from 'widgets/icons.js';
 import { FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -33,15 +33,6 @@ export const InventoryView = React.createClass({
             {this.renderFeeds(feedList, labelList)}
         </div>;
     },
-    handleAddLabel(event) {
-        var text = prompt("Label Name:", "");
-        if (text) {
-            this.props.dispatch(addLabel(text));
-        }
-    },
-    handleLabelDragStart(event) {
-        event.dataTransfer.setData(LABEL_DRAG_DROP_TYPE, event.currentTarget.dataset.label);
-    },
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
             return <div className="floater-wrap">
@@ -68,13 +59,14 @@ export const InventoryView = React.createClass({
                             return <Label
                                 key={labelId}
                                 label={label}
-                                onDetach={event => this.handleDetach(feed.id, labelId)}
+                                onDetach={event => this.handleLabelDetach(feed.id, labelId)}
                             />;
                         })
                         : "No labels"}
                     <AttachLabelButton
                         feed={feed}
                         labelList={labelList}
+                        onLabelAdd={this.handleLabelAdd}
                         onLabelPick={(feed, label) => {
                             this.props.dispatch(attachLabel(feed.id, label.id));
                         }}
@@ -86,10 +78,13 @@ export const InventoryView = React.createClass({
             </tbody>
         </table>;
     },
+    handleLabelAdd(text) {
+        this.props.dispatch(addLabel(text));
+    },
     /**
      * Detach the given label from a feed it is currently associated with.
      */
-    handleDetach(feedId, labelId) {
+    handleLabelDetach(feedId, labelId) {
         this.props.dispatch(detachLabel(feedId, labelId));
     },
 });
@@ -132,6 +127,8 @@ export const AttachLabelButton = React.createClass({
     propTypes: {
         labelList: React.PropTypes.array.isRequired,
         feed: React.PropTypes.object.isRequired,
+        // Will be called with the text of the label to add.
+        onLabelAdd: React.PropTypes.func.isRequired,
         // Will be called with the feed and label to associate it with.
         onLabelPick: React.PropTypes.func.isRequired,
     },
@@ -171,6 +168,8 @@ export const LabelPicker = React.createClass({
         }).isRequired,
         // All available labels (only those not associated with the feed will be shown).
         labelList: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+        // Will be called with the text of the label to add.
+        onLabelAdd: React.PropTypes.func.isRequired,
         // Will be called with the feed and label to associate it with.
         onLabelPick: React.PropTypes.func.isRequired,
         // Called with no arguments when the Cancel button is clicked.
@@ -192,16 +191,33 @@ export const LabelPicker = React.createClass({
                 left: '0px',
                 background: 'rgba(0, 0, 0, 0.5)',
             }}>
-            <div className="label-picker">
-                <h1>Add Label to {this.props.feed.text || this.props.feed.title}</h1>
-                <div className="options">
+            <section className="label-picker">
+                <header>
+                    <h1>Attach Label to {this.props.feed.text || this.props.feed.title}</h1>
+                    <button
+                        title="Create Label"
+                        className="button"
+                        onClick={this.handleAdd}>
+                        <Add alt="+" width="32" height="32" />
+                    </button>
+                </header>
+                <div className="center">
                     {this.unappliedLabels().map(label => <div>
-                        <button onClick={e => this.handleLabelClick(label)}>{label.text}</button>
+                        <button className="invisible-button" onClick={e => this.handleLabelClick(label)}>{label.text}</button>
                     </div>)}
                 </div>
-                <button className="cancel" onClick={this.handleCancel}>Cancel</button>
-            </div>
+                <footer>
+                    <button className="invisible-button cancel" onClick={this.handleCancel}>Cancel</button>
+                </footer>
+            </section>
         </div>;
+    },
+    handleAdd(event) {
+        var text = prompt("Label Name:", "");
+        if (text) {
+            this.props.onLabelAdd(text);
+        }
+        event.stopPropagation();
     },
     /**
      * A label was clicked.  Call the associated callback.
