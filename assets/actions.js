@@ -216,6 +216,19 @@ export function showFeed(feedId) {
     };
 }
 
+/**
+ * Display a label to the user.  Load a fresh snapshot if none is cached.
+ */
+export function showLabel(labelId) {
+    return (dispatch, getState) => {
+        const { feedsById, snapshot: { order, filter } } = getState();
+        const feedIds = Object.keys(feedsById)
+            .filter(feedId => feedsById[feedId].labels.indexOf(Number(labelId)) >= 0)
+            .map(Number);
+        return _setSnapshot(feedIds, order, filter, dispatch, getState);
+    };
+}
+
 function _setSnapshot(feedIds, order, filter, dispatch, getState) {
     // TODO: Only load snapshot if not already cached
     dispatch(requestSnapshot(feedIds, order, filter));

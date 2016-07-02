@@ -9,10 +9,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import './base.less';
-import ArticleView from 'views/ArticleView.js';
-import FeedView from 'views/FeedView.js';
-import RootView from 'views/RootView.js';
-import InventoryView from 'views/InventoryView.js';
+import ConnectedArticleView from 'views/ArticleView.js';
+import { ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
+import ConnectedRootView from 'views/RootView.js';
+import ConnectedInventoryView from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 
 const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
@@ -25,30 +25,39 @@ const Root = React.createClass({
 });
 
 
-function LabelView(props) {
-    return <div>Label {props.params.labelId}</div>;
+function filterActionForState(nextState) {
+    // XXX: Icky hack.
+    var search = nextState.location.search;
+    var match = /filter=(new|saved|all)/.exec(search);
+    console.log('search', search, 'match', match);
+    if (match && match[1]) {
+        return setFilter(match[1]);
+    }
+    return null;
 }
-const LabelViewRedux = connect(state => state, null)(LabelView);
 
 
-import { loadMore, showFeed, setFilter } from './actions.js';
+import { loadMore, showFeed, showLabel, setFilter } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
             <Route path="/" component={Root}>
-                <IndexRoute component={RootView} />
-                <Route path="inventory" component={InventoryView} />
-                <Route path="article/:articleId" component={ArticleView} onEnter={(nextState) => {
+                <IndexRoute component={ConnectedRootView} />
+                <Route path="inventory" component={ConnectedInventoryView} />
+                <Route path="article/:articleId" component={ConnectedArticleView} onEnter={(nextState) => {
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />
-                <Route path="label/:labelId" component={LabelViewRedux} />
-                <Route path="feed/:feedId" component={FeedView} onEnter={(nextState) => {
-                    // XXX: Icky hack.
-                    var search = nextState.location.search;
-                    var match = /filter=(new|saved|all)/.exec(search);
-                    console.log('search', search, 'match', match);
-                    if (match[1]) {
-                        store.dispatch(setFilter(match[1]));
+                <Route path="label/:labelId" component={ConnectedLabelView} onEnter={(nextState) => {
+                    var filter;
+                    if (filter = filterActionForState(nextState)) {
+                        store.dispatch(filter);
+                    }
+                    store.dispatch(showLabel(nextState.params.labelId));
+                }} />
+                <Route path="feed/:feedId" component={ConnectedFeedView} onEnter={(nextState) => {
+                    var filter;
+                    if (filter = filterActionForState(nextState)) {
+                        store.dispatch(filter);
                     }
                     store.dispatch(showFeed(nextState.params.feedId));
                 }} />

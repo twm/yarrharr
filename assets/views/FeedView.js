@@ -52,6 +52,36 @@ export function FeedView({params, feedsById, view, layout, filter, order, snapsh
     </div>;
 }
 
+export function LabelView({params, labelsById, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
+    const labelId = params.labelId;
+    const label = labelsById[labelId];
+    return <div className={"feed-view layout-" + layout}>
+        <div className="global-tools">
+            <RootLink className="text-button">
+                <span className="button"><Logo /></span>
+                Return to Feed List
+            </RootLink>
+            <ViewButton
+                view={view}
+                onSetView={(view) => dispatch(setView(view))}
+                layout={layout}
+                onSetLayout={(layout) => dispatch(setLayout(layout))}
+                filter={snapshot.filter}
+                onSetFilter={(filter) => dispatch(setFilter(filter))}
+                order={snapshot.order}
+                onSetOrder={(order) => dispatch(setOrder(order))} />
+        </div>
+        <div className="floater-wrap">
+            <div className="floater feed-masthead">
+                <h1>{label.text}</h1>
+            </div>
+        </div>
+        {renderSnapshot(snapshot,
+            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
+                (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
+            () => dispatch(loadMore(snapshot.articleIds)))}
+    </div>;
+}
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
@@ -102,4 +132,6 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
 }
 
 
-export default connect(state => state, null)(FeedView);
+export const ConnectedFeedView = connect(state => state, null)(FeedView);
+
+export const ConnectedLabelView = connect(state => state, null)(LabelView);
