@@ -13,7 +13,7 @@ import StateToggle from 'widgets/StateToggle.js';
 import './ArticleView.less';
 
 
-function ArticleView(props) {
+export function ArticleView(props) {
     const { dispatch, layout, articlesById, params: { articleId }, feedsById } = props;
     const article = articlesById[articleId];
     const feed = feedsById[article.feedId];
@@ -63,7 +63,7 @@ ArticleView.propTypes = {
     layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
 };
 
-module.exports = connect(state => {
+export default connect(state => {
     return {
         articlesById: state.articlesById,
         feedsById: state.feedsById,

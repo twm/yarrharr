@@ -47,4 +47,4 @@ const Article = React.createClass({
     }
 });
 
-module.exports = Article;
+export default Article;

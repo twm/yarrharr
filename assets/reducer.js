@@ -124,7 +124,7 @@ function layoutReducer(state = LAYOUT_NARROW, action) {
 }
 
 
-module.exports = combineReducers({
+export default combineReducers({
     articlesById: articleReducer,
     feedsById: feedReducer,
     snapshot: snapshotReducer,

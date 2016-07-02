@@ -23,4 +23,4 @@ const DropButton = React.createClass({
     }
 });
 
-module.exports = DropButton;
+export default DropButton;

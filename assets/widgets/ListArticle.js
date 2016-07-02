@@ -4,7 +4,7 @@ import { Outbound } from 'widgets/icons.js';
 import StateToggle from 'widgets/StateToggle.js';
 import "./ListArticle.less";
 
-function ListArticle(props) {
+export default function ListArticle(props) {
     return <div className="list-article">
         <StateToggle className="button" {...props} />
         <ArticleLink articleId={props.id} className="view-link">
@@ -17,5 +17,3 @@ function ListArticle(props) {
         </a>
     </div>;
 }
-
-module.exports = ListArticle;

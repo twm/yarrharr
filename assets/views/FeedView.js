@@ -21,7 +21,7 @@ const VIEW_TO_WIDGET = {
     [VIEW_TEXT]: Article,
 };
 
-function FeedView({params, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
+export function FeedView({params, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -102,4 +102,4 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
 }
 
 
-module.exports = connect(state => state, null)(FeedView);
+export default connect(state => state, null)(FeedView);

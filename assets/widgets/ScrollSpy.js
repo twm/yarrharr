@@ -52,4 +52,4 @@ const ScrollSpy = React.createClass({
     }
 });
 
-module.exports = ScrollSpy;
+export default ScrollSpy;

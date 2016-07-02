@@ -69,4 +69,4 @@ const StateToggle = React.createClass({
     },
 });
 
-module.exports = StateToggle;
+export default StateToggle;
