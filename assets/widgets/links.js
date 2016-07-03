@@ -18,28 +18,28 @@ export function AllLink(props) {
 }
 
 export function ArticleLink(props) {
-    const { articleId, children } = props;
-    return <Link to={`/article/${articleId}/`} {...props}>{children}</Link>;
+    const { articleId } = props;
+    return <Link to={`/article/${articleId}/`} {...props} />;
 }
 
 export function FeedLink(props) {
-    const { feedId, filter=null, children } = props;
+    const { feedId, filter=null } = props;
     var path = `/feed/${feedId}/`;
     if (filter) {
         path += `?filter=${filter}`;
     }
-    return <Link to={path} {...props}>{children}</Link>;
+    return <Link to={path} {...props} />;
 }
 
 export function LabelLink(props) {
-    const { labelId, children } = props;
-    return <Link to={`/label/${labelId}/`} {...props}>{children}</Link>;
+    const { labelId } = props;
+    return <Link to={`/label/${labelId}/`} {...props} />;
 }
 
 export function RootLink(props) {
-    return <IndexLink to="/" {...props}>{props.children}</IndexLink>;
+    return <IndexLink to="/" {...props} />;
 }
 
 export function InventoryLink(props) {
-    return <Link to="/inventory/" {...props}>{props.children}</Link>;
+    return <Link to="/inventory/" {...props} />;
 }
