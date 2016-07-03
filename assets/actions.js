@@ -206,6 +206,19 @@ function fetchArticles(articleIds) {
 }
 
 /**
+ * Display a combined view of all feeds to the user.  Load a fresh snapshot if
+ * none is cached.
+ */
+export function showAll() {
+    return (dispatch, getState) => {
+        const { feedsById } = getState();
+        const feedIds = Object.keys(feedsById).map(Number);
+        const { snapshot: { order, filter } } = getState();
+        return _setSnapshot(feedIds, order, filter, dispatch, getState);
+    };
+}
+
+/**
  * Display a feed to the user.  Load a fresh snapshot if none is cached.
  */
 export function showFeed(feedId) {

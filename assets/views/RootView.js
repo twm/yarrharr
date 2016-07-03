@@ -2,7 +2,7 @@ import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { connect } from 'react-redux';
 import { Logo, Heart } from 'widgets/icons.js';
-import { FeedLink, InventoryLink, LabelLink } from 'widgets/links.js';
+import { AllLink, FeedLink, InventoryLink, LabelLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { labelsByTitle, feedsByNewCount } from 'sorting.js';
 import './RootView.less';
@@ -30,6 +30,11 @@ export const RootView = React.createClass({
                 </div>
             </div>
             <ul className="tiles">
+                <li>
+                    <AllLink className="new-link" filter={FILTER_NEW}>
+                        <div className="feed-title">All Feeds</div>
+                    </AllLink>
+                </li>
                 {labelList.length
                     ? labelList.map((label) =>
                         <li key={"label-" + label.id}>

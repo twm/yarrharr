@@ -8,6 +8,15 @@ import { Link, IndexLink } from 'react-router';
  * the route configuration.
  */
 
+export function AllLink(props) {
+    const { feedId, filter=null } = props;
+    var path = "/all/";
+    if (filter) {
+        path += `?filter=${filter}`;
+    }
+    return <Link to={path} {...props} />;
+}
+
 export function ArticleLink(props) {
     const { articleId, children } = props;
     return <Link to={`/article/${articleId}/`} {...props}>{children}</Link>;

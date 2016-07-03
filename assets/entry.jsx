@@ -10,7 +10,7 @@ import ReactDOM from 'react-dom';
 
 import './base.less';
 import ConnectedArticleView from 'views/ArticleView.js';
-import { ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
+import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
 import ConnectedInventoryView from 'views/InventoryView.js';
 import reducer from 'reducer.js';
@@ -37,7 +37,7 @@ function filterActionForState(nextState) {
 }
 
 
-import { loadMore, showFeed, showLabel, setFilter } from './actions.js';
+import { loadMore, showAll, showFeed, showLabel, setFilter } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
@@ -46,6 +46,13 @@ ReactDOM.render(
                 <Route path="inventory" component={ConnectedInventoryView} />
                 <Route path="article/:articleId" component={ConnectedArticleView} onEnter={(nextState) => {
                     store.dispatch(loadMore([nextState.params.articleId]));
+                }} />
+                <Route path="all" component={ConnectedAllView} onEnter={(nextState) => {
+                    var filter;
+                    if (filter = filterActionForState(nextState)) {
+                        store.dispatch(filter);
+                    }
+                    store.dispatch(showAll());
                 }} />
                 <Route path="label/:labelId" component={ConnectedLabelView} onEnter={(nextState) => {
                     var filter;
