@@ -259,44 +259,16 @@ def labels(request):
                             content_type='application/json')
     elif request.method == 'DELETE':
         try:
-            label_id = request.POST['id']
+            label_id = request.POST['label']
         except KeyError:
             return HttpResponseBadRequest()
         request.user.label_set.get(id=label_id)
-        return HttpResponse(json_encoder.encode(data),
-                            content_type='application/json')
-    else:
-        return HttpResponseNotAllowed(['POST', 'DELETE'])
-
-
-@login_required
-def label(request, label_id):
-    """
-    Manage a label.
-
-    On POST, the :param:`feed` parameter contains the ID of a feed to associate
-    with the label.
-
-    On DELETE, remove the label.  If the label is still associated with feeds,
-    409 results.  If the label does not exist, 404 results.
-    """
-    label = request.user.label_set.get(id=label_id)
-    if request.method == 'POST':
-        feed = request.user.feed_set.get(id=request.POST['feed'])
-        label.feeds.add(feed)
-        label.save()
         data = {
+            'labelsById': labels_for_user(request.user),
             'feedsById': feeds_for_user(request.user),
         }
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
-    elif request.method == 'DELETE':
-        if label.feed_set.count() != 0:
-            return HttpResponse("Label has associated feeds",
-                                status=409,
-                                content_type='text/plain')
-        label.delete()
-        return HttpResponse('{}', content_type='application/json')
     else:
         return HttpResponseNotAllowed(['POST', 'DELETE'])
 
