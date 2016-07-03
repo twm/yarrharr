@@ -13,6 +13,7 @@ import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { FeedLink } from 'widgets/links.js';
 import Loading from 'widgets/Loading.js';
+import Header from 'widgets/Header.js';
 import './FeedView.less';
 
 
@@ -40,11 +41,7 @@ export function AllView({params, feedsById, view, layout, filter, order, snapsho
                 order={snapshot.order}
                 onSetOrder={(order) => dispatch(setOrder(order))} />
         </div>
-        <div className="floater-wrap">
-            <div className="floater feed-masthead">
-                <h1>All Feeds</h1>
-            </div>
-        </div>
+        <Header>All Feeds</Header>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
                 (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
@@ -72,11 +69,7 @@ export function FeedView({params, feedsById, view, layout, filter, order, snapsh
                 order={snapshot.order}
                 onSetOrder={(order) => dispatch(setOrder(order))} />
         </div>
-        <div className="floater-wrap">
-            <div className="floater feed-masthead">
-                <h1>{feed.text || feed.title}</h1>
-            </div>
-        </div>
+        <Header>{feed.text || feed.title}</Header>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
                 (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
@@ -103,11 +96,7 @@ export function LabelView({params, labelsById, feedsById, view, layout, filter, 
                 order={snapshot.order}
                 onSetOrder={(order) => dispatch(setOrder(order))} />
         </div>
-        <div className="floater-wrap">
-            <div className="floater feed-masthead">
-                <h1>{label.text}</h1>
-            </div>
-        </div>
+        <Header>{label.text}</Header>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
                 (articleId, targetState) => dispatch(markArticle(articleId, targetState))),

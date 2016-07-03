@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Add, Logo, Heart } from 'widgets/icons.js';
+import Header from 'widgets/Header.js';
 import { FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -25,11 +26,7 @@ export const InventoryView = React.createClass({
                     Return to Feed List
                 </RootLink>
             </div>
-            <div className="floater-wrap">
-                <div className="floater">
-                    <div>Manage Feeds</div>
-                </div>
-            </div>
+            <Header>Manage Feeds</Header>
             {this.renderFeeds(feedList, labelList)}
         </div>;
     },
