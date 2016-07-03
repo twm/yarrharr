@@ -9,6 +9,7 @@ from yarr.models import Entry
 import django
 import feedparser
 from django.contrib import messages
+from django.db.models import Sum
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
@@ -50,7 +51,7 @@ def json_for_feed(feed):
         'savedCount': feed.count_saved,
         'totalCount': feed.count_total,
         'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
-        'labels': sorted(label.id for label in feed.label_set.all()),
+        'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
     }
 
 
@@ -59,9 +60,18 @@ def labels_for_user(user):
 
 
 def json_for_label(label):
+    counts = label.feeds.all().aggregate(
+        new=Sum('count_unread'),
+        saved=Sum('count_saved'),
+        total=Sum('count_total'),
+    )
     return {
         'id': label.id,
         'text': label.text,
+        'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
+        'newCount': counts['new'] or 0,
+        'savedCount': counts['saved'] or 0,
+        'totalCount': counts['total'] or 0,
     }
 
 
