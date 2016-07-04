@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Add, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
-import { FeedLink, LabelLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
@@ -25,6 +25,12 @@ export const InventoryView = React.createClass({
                     <span className="button"><Logo /></span>
                     Return to Feed List
                 </RootLink>
+                <AddFeedLink className="text-button text-button-left">
+                    Add Feed
+                    <span className="button">
+                        <Add alt="" />
+                    </span>
+                </AddFeedLink>
             </div>
             <Header>Manage Feeds</Header>
             {this.renderFeeds(feedList, labelList)}
@@ -223,4 +229,29 @@ export const LabelPicker = React.createClass({
     },
 });
 
-export default connect(state => state, null)(InventoryView);
+export const ConnectedInventoryView = connect(state => state, null)(InventoryView);
+
+export const AddFeedView = React.createClass({
+    propTypes: {},
+    render() {
+        return <div className="add-feed-view">
+            <div className="global-tools">
+                <RootLink className="text-button">
+                    <span className="button"><Logo /></span>
+                    Return to Feed List
+                </RootLink>
+            </div>
+            <Header>Add Feed</Header>
+            <form onSubmit={this.handleSubmit}>
+                <input type="url" />
+                <input type="submit" value="Add" />
+            </form>
+        </div>;
+    },
+    handleSubmit(event) {
+        console.log('todo', event.target);
+        event.preventDefault();
+    },
+});
+
+export const ConnectedAddFeedView = connect(state => state, null)(AddFeedView);

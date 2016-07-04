@@ -2,7 +2,8 @@ import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { connect } from 'react-redux';
 import { Logo, Heart } from 'widgets/icons.js';
-import { AllLink, FeedLink, InventoryLink, LabelLink } from 'widgets/links.js';
+import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
+import { AddFeedLink, InventoryLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { labelsByTitle, feedsByNewCount } from 'sorting.js';
@@ -26,6 +27,8 @@ export const RootView = React.createClass({
             <div className="floater-wrap">
                 <div className="floater">
                     <InventoryLink>Manage Feeds</InventoryLink>
+                    {" \x1b\x1b "}
+                    <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
             <ul className="tiles">

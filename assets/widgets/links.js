@@ -43,3 +43,7 @@ export function RootLink(props) {
 export function InventoryLink(props) {
     return <Link to="/inventory/" {...props} />;
 }
+
+export function AddFeedLink(props) {
+    return <Link to="/inventory/add/" {...props} />;
+}

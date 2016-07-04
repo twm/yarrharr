@@ -12,7 +12,7 @@ import './base.less';
 import ConnectedArticleView from 'views/ArticleView.js';
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
-import ConnectedInventoryView from 'views/InventoryView.js';
+import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 
 const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
@@ -46,6 +46,7 @@ ReactDOM.render(
                 <Route path="inventory" component={ConnectedInventoryView} onEnter={(nextState) => {
                     store.dispatch(loadFeeds());
                 }} />
+                <Route path="inventory/add" component={ConnectedAddFeedView} />
                 <Route path="article/:articleId" component={ConnectedArticleView} onEnter={(nextState) => {
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />

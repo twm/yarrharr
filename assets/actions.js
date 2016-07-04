@@ -336,6 +336,27 @@ export function loadFeeds() {
     };
 }
 
+export const ADD_FEED = 'ADD_FEED';
+export function addFeed(url) {
+    return (dispatch) => {
+        const body = new FormData();
+        body.append('url', url);
+        return post('/api/inventory/', body).then(json => {
+            const { feedsById } = json;
+            dispatch(receiveFeeds(feedsById));
+        }).catch(e => {
+            console.error("Error adding", url, "->", e);
+            dispatch(failAddFeed(url));
+        });
+    };
+}
+
+export const FAIL_ADD_FEED = 'FAIL_ADD_FEED';
+export function failAddFeed(url) {
+    // TODO: Real error handling.
+    alert('Failed to add feed ' + url + '.');
+}
+
 export const ADD_LABEL = 'ADD_LABEL';
 export function addLabel(text) {
     return (dispatch) => {
