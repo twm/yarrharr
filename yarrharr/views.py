@@ -47,12 +47,23 @@ def json_for_feed(feed):
         'id': feed.id,
         'title': feed.title,
         'text': feed.text,
+        'active': feed.is_active,
         'newCount': feed.count_unread,
         'savedCount': feed.count_saved,
         'totalCount': feed.count_total,
-        'iconUrl': urlparse.urljoin(feed.site_url, '/favicon.ico'),
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
+        'url': feed.feed_url,
+        'added': str(feed.added),
+        'updated': str(feed.last_updated or ''),
+        # 'checked': str(feed.last_checked or ''),
+        # 'nextCheck': str(feed.next_check or ''),
+        'frequency': feed.check_frequency,
+        'error': feed.error,
     }
+
+
+def feeds_for_user(user):
+    return {feed.id: json_for_feed(feed) for feed in user.feed_set.all()}
 
 
 def labels_for_user(user):
@@ -73,10 +84,6 @@ def json_for_label(label):
         'savedCount': counts['saved'] or 0,
         'totalCount': counts['total'] or 0,
     }
-
-
-def feeds_for_user(user):
-    return {feed.id: json_for_feed(feed) for feed in user.feed_set.all()}
 
 
 def entries_for_snapshot(user, params):
@@ -288,18 +295,10 @@ def inventory(request):
     """
     Manage feeds and labels.
 
-    On GET, retrieve full feed and label metadata.  On PUT, update the feed and
-    label lists.
+    On GET, retrieve full feed and label metadata.  On POST, add a feed.
 
     """
-    if request.method == 'GET':
-        data = {
-            'labelsById': labels_for_user(request.user),
-            'feedsById': feeds_for_user(request.user),
-        }
-        return HttpResponse(json_encoder.encode(data),
-                            content_type='application/json')
-    elif request.method == 'POST':
+    if request.method == 'POST':
         for feed_id in request.user.feed_set.all().values_list('id', flat=True):
             label_ids = request.POST.getlist('labels_{}'.format(feed_id), default=None)
             if label_ids is not None:
@@ -308,8 +307,15 @@ def inventory(request):
                 for label_id in label_ids:
                     feed.label_set.add(label_id)
                 feed.save()
-    else:
+    elif request.method != 'GET':
         return HttpResponseNotAllowed(['GET', 'POST'])
+
+    data = {
+        'labelsById': labels_for_user(request.user),
+        'feedsById': feeds_for_user(request.user),
+    }
+    return HttpResponse(json_encoder.encode(data),
+                        content_type='application/json')
 
 
 def about(request):

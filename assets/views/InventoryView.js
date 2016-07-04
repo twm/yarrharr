@@ -36,20 +36,12 @@ export const InventoryView = React.createClass({
                 <div className="floater">No feeds.  Add one?</div>
             </div>;
         }
-        return <table className="feeds">
-            <thead>
-                <tr>
-                    <th>Feed</th>
-                    <th>New</th>
-                    <th>Saved</th>
-                </tr>
-            </thead>
-            <tbody>
-            {feedList.map(feed => <tr key={feed.id}>
-                <td>
-                    <FeedLink className="new-link" feedId={feed.id} filter={FILTER_NEW}>
-                        <div className="feed-title">{feed.text || feed.title}</div>
-                    </FeedLink>
+
+        return <div>
+            {feedList.map(feed => <div key={feed.id} className="feed">
+                <div>
+                    <h2>{feed.text || feed.title} {feed.active ? null : <i>(inactive)</i>}</h2>
+                    <div><a href={feed.url}>{feed.url}</a></div>
                     {feed.labels.length
                         ? feed.labels.map(labelId => {
                             const label = this.props.labelsById[labelId];
@@ -60,20 +52,21 @@ export const InventoryView = React.createClass({
                             />;
                         })
                         : "No labels"}
-                    <AttachLabelButton
-                        feed={feed}
-                        labelList={labelList}
-                        onLabelAdd={this.handleLabelAdd}
-                        onLabelPick={(feed, label) => {
-                            this.props.dispatch(attachLabel(feed.id, label.id));
-                        }}
-                    />
-                </td>
-                <td><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount}</FeedLink></td>
-                <td><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.savedCount}</FeedLink></td>
-            </tr>)}
-            </tbody>
-        </table>;
+                        <AttachLabelButton
+                            feed={feed}
+                            labelList={labelList}
+                            onLabelAdd={this.handleLabelAdd}
+                            onLabelPick={(feed, label) => {
+                                this.props.dispatch(attachLabel(feed.id, label.id));
+                            }}
+                        />
+                </div>
+                <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
+                <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.savedCount} saved</FeedLink></div>
+                <div>Last updated {feed.updated}</div>
+                {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><b>Error:</b> {feed.error}</div> : null}
+            </div>)}
+        </div>;
     },
     handleLabelAdd(text) {
         this.props.dispatch(addLabel(text));
