@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
 import { SET_LAYOUT, LAYOUT_NARROW, SET_VIEW, VIEW_LIST, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
-import { RECEIVE_FEEDS, RECEIVE_LABELS } from './actions.js';
+import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, RECEIVE_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
 
@@ -46,9 +46,20 @@ function articleReducer(state = window.props.articlesById, action) {
     return state;
 }
 
+import { RECEIVE_FEEDS, REQUEST_REMOVE_FEED, FAIL_REMOVE_FEED } from './actions.js';
 function feedReducer(state = window.props.feedsById, action) {
     if (action.type === RECEIVE_FEEDS) {
         return action.feedsById;
+    } else if (action.type === REQUEST_REMOVE_FEED) {
+        const feed = state[action.feedId];
+        return Object.assign({}, state, {
+            [action.feedId]: Object.assign({}, feed, {removing: true}),
+        });
+    } else if (action.type === FAIL_REMOVE_FEED) {
+        const feed = state[action.feedId];
+        return Object.assign({}, state, {
+            [action.feedId]: Object.assign({}, feed, {removing: false}),
+        });
     }
     return state;
 }

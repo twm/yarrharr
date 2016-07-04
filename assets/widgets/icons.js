@@ -5,6 +5,10 @@ export function Add(props) {
     return <img src={window.__webpack_public_path__ + require('../add.inkscape.svg')} {...props} />;
 }
 
+export function Remove(props) {
+return <img src={window.__webpack_public_path__ + require('../add.inkscape.svg')} {...props} style={{transform: 'rotate(45deg)'}} />;
+}
+
 export function ArrowLeft(props) {
     return <img src={window.__webpack_public_path__ + require('../arrow.inkscape.svg')} width="16" height="32" {...props} />;
 }

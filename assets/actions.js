@@ -344,6 +344,7 @@ export function addFeed(url) {
             url,
         });
         const body = new FormData();
+        body.append('action', 'create');
         body.append('url', url);
         return post('/api/inventory/', body).then(json => {
             // TODO: Handle expected error conditions.
@@ -371,6 +372,37 @@ export function failAddFeed(url, error) {
     return {
         type: FAIL_ADD_FEED,
         url,
+        error,
+    };
+}
+
+export const REQUEST_REMOVE_FEED = 'REQUEST_REMOVE_FEED';
+export function removeFeed(feedId) {
+    return (dispatch) => {
+        dispatch({
+            type: REQUEST_REMOVE_FEED,
+            feedId,
+        });
+        const body = new FormData();
+        body.append('action', 'remove');
+        body.append('feed', feedId);
+        return post('/api/inventory/', body).then(json => {
+            // TODO: Handle expected error conditions.
+            const { feedsById, labelsById } = json;
+            dispatch(receiveLabels(labelsById));
+            dispatch(receiveFeeds(feedsById));
+        }).catch(e => {
+            console.error("Error removing", feedId, "->", e);
+            dispatch(failRemoveFeed(feedId, "Unexpected error"));
+        });
+    };
+}
+
+export const FAIL_REMOVE_FEED = 'FAIL_REMOVE_FEED';
+export function failRemoveFeed(feedId, error) {
+    return {
+        type: FAIL_REMOVE_FEED,
+        feedId,
         error,
     };
 }

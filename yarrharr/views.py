@@ -293,23 +293,50 @@ def labels(request):
 @login_required
 def inventory(request):
     """
-    Manage feeds and labels.
+    Manage feeds.
 
-    On GET, retrieve full feed and label metadata.  On POST, add a feed.
+    On GET, retrieve full feed and label metadata.  On POST, the
+    :param:`action` field determines what is done:
 
+    ``"create"`` creates a new feed where :param:`url` is the URL of the feed
+    (and also the initial title).  The ID of the feed is returned in the
+    ``"feedId"`` member of the response.
+
+    ``"remove"`` deletes the feed specified by :param:`feed`.  The operation
+    cascades to all of the articles from the feed.
+
+    ``"activate"`` resumes checking the :param:`feed` if it wasn't active.
+
+    ``"deactivate"`` stops the :param:`feed` from being checked in the future.
+
+    POST returns the full feed and label metadata just like GET, in the
+    ``"labelsById"`` and ``"feedsById"`` members of the JSON response body.
     """
     if request.method == 'POST':
-        feed_url = request.POST['url']
-        feed = request.user.feed_set.create(
-            title=feed_url,
-            feed_url=feed_url,
-        )
-        feed.save()
-        data = {
-            'feedId': feed.id,
-            'labelsById': labels_for_user(request.user),
-            'feedsById': feeds_for_user(request.user),
-        }
+        action = request.POST['action']
+        data = {}
+        if action == 'create':
+            feed_url = request.POST['url']
+            feed = request.user.feed_set.create(
+                title=feed_url,
+                feed_url=feed_url,
+            )
+            feed.save()
+            data['feedId'] = feed.id
+        elif action == 'remove':
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            feed.delete()
+        elif action == 'activate':
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            feed.is_active = False
+            feed.save()
+        elif action == 'deactivate':
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            feed.is_active = True
+            feed.save()
+
+        data['labelsById'] = labels_for_user(request.user)
+        data['feedsById'] = feeds_for_user(request.user)
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     elif request.method == 'GET':

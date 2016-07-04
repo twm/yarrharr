@@ -1,10 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Add, Logo, Heart } from 'widgets/icons.js';
+import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
-import { addFeed, addLabel, attachLabel, detachLabel } from 'actions.js';
+import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
+import { addFeed, removeFeed, addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
@@ -16,6 +17,8 @@ export const InventoryView = React.createClass({
         dispatch: React.PropTypes.func.isRequired,
         labelsById: React.PropTypes.object.isRequired,
         feedsById: React.PropTypes.object.isRequired,
+        layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
+        onRemoveFeed: React.PropTypes.func.isRequired,
     },
     render() {
         const feedList = feedsByTitle(this.props);
@@ -40,13 +43,13 @@ export const InventoryView = React.createClass({
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
             return <div className="floater-wrap">
-                <div className="floater">No feeds.  Add one?</div>
+                <div className="floater">No feeds.  <AddFeedLink>Add one?</AddFeedLink></div>
             </div>;
         }
 
         return <div>
-            {feedList.map(feed => <div key={feed.id} className="feed">
-                <div>
+            {feedList.map(feed => <div key={feed.id} className={`feed-wrap ${this.props.layout}`}>
+                <div className="feed-info">
                     <h2>{feed.text || feed.title} {feed.active ? null : <i>(inactive)</i>}</h2>
                     <div><a href={feed.url}>{feed.url}</a></div>
                     {feed.labels.length
@@ -55,34 +58,39 @@ export const InventoryView = React.createClass({
                             return <Label
                                 key={labelId}
                                 label={label}
-                                onDetach={event => this.handleLabelDetach(feed.id, labelId)}
+                                onDetach={event => this.props.onDetachLabel(feed.id, labelId)}
                             />;
                         })
                         : "No labels"}
                         <AttachLabelButton
                             feed={feed}
                             labelList={labelList}
-                            onLabelAdd={this.handleLabelAdd}
+                            onLabelAdd={this.props.onAddLabel}
                             onLabelPick={(feed, label) => {
-                                this.props.dispatch(attachLabel(feed.id, label.id));
+                                this.props.onAttachLabel(feed.id, label.id);
                             }}
                         />
+                    <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
+                    <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.savedCount} saved</FeedLink></div>
+                    <div>Last updated {feed.updated}</div>
+                    {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
                 </div>
-                <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
-                <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.savedCount} saved</FeedLink></div>
-                <div>Last updated {feed.updated}</div>
-                {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><b>Error:</b> {feed.error}</div> : null}
+                <div className="tools">
+                    <div className="tools-inner">
+                        <button className="button" title="Remove feed" onClick={e => this.handleRemoveFeed(feed.id)}>
+                            <Remove width="40" height="40" alt="Remove feed" />
+                        </button>
+                    </div>
+                </div>
             </div>)}
         </div>;
     },
-    handleLabelAdd(text) {
-        this.props.dispatch(addLabel(text));
-    },
-    /**
-     * Detach the given label from a feed it is currently associated with.
-     */
-    handleLabelDetach(feedId, labelId) {
-        this.props.dispatch(detachLabel(feedId, labelId));
+    handleRemoveFeed(feedId) {
+        const feed = this.props.feedsById[feedId];
+        if (!feed) return;
+        if (confirm("Remove feed " + (feed.text || feed.title) + " and associated articles?")) {
+            this.props.onRemoveFeed(feedId);
+        }
     },
 });
 
@@ -230,7 +238,12 @@ export const LabelPicker = React.createClass({
     },
 });
 
-export const ConnectedInventoryView = connect(state => state, null)(InventoryView);
+export const ConnectedInventoryView = connect(state => state, {
+    onAttachLabel: attachLabel,
+    onAddLabel: addLabel,
+    onDetachLabel: detachLabel,
+    onRemoveFeed: removeFeed,
+})(InventoryView);
 
 export const AddFeedView = React.createClass({
     propTypes: {

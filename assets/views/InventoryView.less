@@ -1,72 +1,94 @@
 @import "../globals.less";
 
 .inventory-view {
-    .feed {
+    .feed-wrap {
+        display: flex;
+        margin: 16px auto;
+    }
+
+    .feed-wrap.narrow {
+        max-width: calc(40px + 34em);
+    }
+
+    .feed-info {
+        flex: 1 1 auto;
+        min-width: 0; /* allow flex to collapse past natural width */
+
+        margin: 0;
+        padding: 16px;
+        word-wrap: break-word;
         .content-colors;
-        margin: 2px;
-        padding: 4px;
 
         h2 {
-            font-size: 1.5rem;
-            margin: 0 0 .5rem 0;
-            padding: 0;
-            font-weight: normal;
+            font: normal 1.25rem / 1.5rem sans-serif;
+            padding: 0 0 1rem 0;
+            margin: 0;
         }
     }
 
-    .label-picker {
-        margin: 40px;
-        .content-colors;
-        flex-flow: column nowrap;
+    .tools {
+        flex: 0 0 auto;
+        width: 44px;
+        margin-right: 4px;
+    }
 
-        header {
-            display: flex;
-            flex: 0 0 auto;
-            height: 40px;
+    .tools-inner {
+        padding: 4px;
+    }
+}
 
-            h1 {
-                flex: 1 1 0;
-                font: inherit;
-                padding: 8px;
-                margin: 0;
-                min-width: 0;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            button {
-                flex: none;
-                width: 40px;
-                height: 40px;
-                margin: 0;
-                padding: 0;
-            }
-        }
+.label-picker {
+    margin: 40px;
+    .content-colors;
+    flex-flow: column nowrap;
 
-        .center {
-            flex: 1 1 auto;
-            min-height: 0;
+    header {
+        display: flex;
+        flex: 0 0 auto;
+        height: 40px;
+
+        h1 {
+            flex: 1 1 0;
+            font: inherit;
+            padding: 8px;
+            margin: 0;
+            min-width: 0;
             overflow: hidden;
-            overflow-y: auto;
-            max-height: calc(100vh - 80px - 80px);
-
-            button {
-                display: block;
-                width: 100%;
-                padding: 8px;
-            }
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
+        button {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            margin: 0;
+            padding: 0;
+        }
+    }
 
-        footer {
-            flex: 0 0 auto;
+    .center {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+        overflow-y: auto;
+        max-height: calc(100vh - 80px - 80px);
 
-            button {
-                display: block;
-                width: 100%;
-                padding: 8px;
-                background: orange;
-                color: white;
-            }
+        button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+        }
+    }
+
+    footer {
+        flex: 0 0 auto;
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            background: orange;
+            color: white;
         }
     }
 }
