@@ -53,6 +53,26 @@ function feedReducer(state = window.props.feedsById, action) {
     return state;
 }
 
+import { REQUEST_ADD_FEED, RECEIVE_ADD_FEED, FAIL_ADD_FEED } from './actions.js';
+function feedAddReducer(state = window.props.feedsById, action) {
+    if (action.type === REQUEST_ADD_FEED) {
+        return {
+            url: action.url,
+        };
+    } else if (action.type === RECEIVE_ADD_FEED) {
+        return {
+            url: action.url,
+            feedId: action.feedId,
+        };
+    } else if (action.type === FAIL_ADD_FEED) {
+        return {
+            url: action.url,
+            error: action.error,
+        };
+    }
+    return state;
+}
+
 import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT } from './actions.js';
 const defaultSnapshot = {
     loading: false,
@@ -127,6 +147,7 @@ function layoutReducer(state = LAYOUT_NARROW, action) {
 export default combineReducers({
     articlesById: articleReducer,
     feedsById: feedReducer,
+    feedAdd: feedAddReducer,
     snapshot: snapshotReducer,
     labelsById: labelReducer,
     view: viewReducer,

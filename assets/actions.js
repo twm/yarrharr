@@ -336,25 +336,43 @@ export function loadFeeds() {
     };
 }
 
-export const ADD_FEED = 'ADD_FEED';
+export const REQUEST_ADD_FEED = 'REQUEST_ADD_FEED';
 export function addFeed(url) {
     return (dispatch) => {
+        dispatch({
+            type: REQUEST_ADD_FEED,
+            url,
+        });
         const body = new FormData();
         body.append('url', url);
         return post('/api/inventory/', body).then(json => {
-            const { feedsById } = json;
+            // TODO: Handle expected error conditions.
+            const { feedId, feedsById } = json;
+            dispatch(receiveAddFeed(url, feedId));
             dispatch(receiveFeeds(feedsById));
         }).catch(e => {
             console.error("Error adding", url, "->", e);
-            dispatch(failAddFeed(url));
+            dispatch(failAddFeed(url, "Unexpected error"));
         });
     };
 }
 
+export const RECEIVE_ADD_FEED = 'RECEIVE_ADD_FEED';
+export function receiveAddFeed(url, feedId) {
+    return {
+        type: RECEIVE_ADD_FEED,
+        url,
+        feedId,
+    };
+}
+
 export const FAIL_ADD_FEED = 'FAIL_ADD_FEED';
-export function failAddFeed(url) {
-    // TODO: Real error handling.
-    alert('Failed to add feed ' + url + '.');
+export function failAddFeed(url, error) {
+    return {
+        type: FAIL_ADD_FEED,
+        url,
+        error,
+    };
 }
 
 export const ADD_LABEL = 'ADD_LABEL';

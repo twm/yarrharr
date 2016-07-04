@@ -4,7 +4,7 @@ import { Add, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
-import { addLabel, attachLabel, detachLabel } from 'actions.js';
+import { addFeed, addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
@@ -13,6 +13,7 @@ export const LABEL_DRAG_DROP_TYPE = 'yarrharr/label';
 
 export const InventoryView = React.createClass({
     propTypes: {
+        dispatch: React.PropTypes.func.isRequired,
         labelsById: React.PropTypes.object.isRequired,
         feedsById: React.PropTypes.object.isRequired,
     },
@@ -232,7 +233,23 @@ export const LabelPicker = React.createClass({
 export const ConnectedInventoryView = connect(state => state, null)(InventoryView);
 
 export const AddFeedView = React.createClass({
-    propTypes: {},
+    propTypes: {
+        /**
+         * Pre-fill the URL field with this value.
+         */
+        defaultUrl: React.PropTypes.string,
+        /**
+         * The current feed add operation (if one is ongoing).
+         */
+        feedAdd: React.PropTypes.object.isRequired,
+        /**
+         * A superficially valid URL has been entered by the user.  Attempt to add
+         * it as a feed.
+         *
+         * @param url String Something that looks like a URL.
+         */
+        onSubmit: React.PropTypes.func.isRequired,
+    },
     render() {
         return <div className="add-feed-view">
             <div className="global-tools">
@@ -242,16 +259,55 @@ export const AddFeedView = React.createClass({
                 </RootLink>
             </div>
             <Header>Add Feed</Header>
-            <form onSubmit={this.handleSubmit}>
-                <input type="url" />
-                <input type="submit" value="Add" />
-            </form>
+            <div className="form">
+                <p>Enter the URL of Atom or RSS feed:</p>
+                <UrlForm onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
+                {this.renderAdd()}
+            </div>
         </div>;
     },
-    handleSubmit(event) {
-        console.log('todo', event.target);
-        event.preventDefault();
+    renderAdd() {
+        const { url=null, error=null, feedId=null } = this.props.feedAdd;
+        if (!url) {
+            return null;
+        }
+        if (error) {
+            return <div>
+                <p>Error adding {url}</p>
+            </div>;
+        }
+        if (feedId) {
+            return <div>
+                <p>Added feed <FeedLink feedId={feedId}>{url}</FeedLink></p>
+            </div>;
+        }
+        return <p>Adding feed {url}</p>;
     },
 });
 
-export const ConnectedAddFeedView = connect(state => state, null)(AddFeedView);
+const UrlForm = React.createClass({
+    propTypes: {
+        onSubmit: React.PropTypes.func.isRequired,
+        defaultUrl: React.PropTypes.string,
+    },
+    getInitialState() {
+        return {url: ''};
+    },
+    render() {
+        return <form onSubmit={this.handleSubmit}>
+            <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
+            <input type="submit" value="Add" />
+        </form>;
+    },
+    handleUrlChange(event) {
+        this.setState({url: event.target.value});
+    },
+    handleSubmit(event) {
+        event.preventDefault();
+        this.props.onSubmit(this.state.url);
+    },
+});
+
+export const ConnectedAddFeedView = connect(state => state, {
+    onSubmit: addFeed,
+})(AddFeedView);

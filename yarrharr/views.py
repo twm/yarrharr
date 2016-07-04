@@ -299,23 +299,28 @@ def inventory(request):
 
     """
     if request.method == 'POST':
-        for feed_id in request.user.feed_set.all().values_list('id', flat=True):
-            label_ids = request.POST.getlist('labels_{}'.format(feed_id), default=None)
-            if label_ids is not None:
-                feed = request.user.feed_set.get(feed_id)
-                feed.label_set.clear()
-                for label_id in label_ids:
-                    feed.label_set.add(label_id)
-                feed.save()
-    elif request.method != 'GET':
+        feed_url = request.POST['url']
+        feed = request.user.feed_set.create(
+            title=feed_url,
+            feed_url=feed_url,
+        )
+        feed.save()
+        data = {
+            'feedId': feed.id,
+            'labelsById': labels_for_user(request.user),
+            'feedsById': feeds_for_user(request.user),
+        }
+        return HttpResponse(json_encoder.encode(data),
+                            content_type='application/json')
+    elif request.method == 'GET':
+        data = {
+            'labelsById': labels_for_user(request.user),
+            'feedsById': feeds_for_user(request.user),
+        }
+        return HttpResponse(json_encoder.encode(data),
+                            content_type='application/json')
+    else:
         return HttpResponseNotAllowed(['GET', 'POST'])
-
-    data = {
-        'labelsById': labels_for_user(request.user),
-        'feedsById': feeds_for_user(request.user),
-    }
-    return HttpResponse(json_encoder.encode(data),
-                        content_type='application/json')
 
 
 def about(request):
