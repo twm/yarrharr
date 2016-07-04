@@ -134,6 +134,23 @@ function failMarkArticle(articleId, state, error) {
     };
 }
 
+function get(path) {
+    return fetch(path, {
+        method: 'GET',
+        headers: new Headers({
+            // Pass the Django CSRF token (or the request will be rejected).
+            'X-CSRFToken': document.cookie.match(/csrftoken=([^\s;]+)/)[1],
+        }),
+        // Pass cookies (or the request will be rejected).
+        credentials: 'same-origin',
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(response);
+        }
+        return response.json();
+    });
+}
+
 function post(path, body) {
     return fetch(path, {
         method: 'POST', // a.k.a. "RPC"
@@ -305,6 +322,17 @@ export function receiveFeeds(feedsById) {
     return {
         type: RECEIVE_FEEDS,
         feedsById,
+    };
+}
+
+export function loadFeeds() {
+    return (dispatch) => {
+        get('/api/inventory/').then(json => {
+            dispatch(receiveFeeds(json.feedsById));
+        }).catch(e => {
+            console.error(e);
+            // TODO: Error handling
+        });
     };
 }
 

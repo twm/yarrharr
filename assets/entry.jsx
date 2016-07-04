@@ -37,13 +37,15 @@ function filterActionForState(nextState) {
 }
 
 
-import { loadMore, showAll, showFeed, showLabel, setFilter } from './actions.js';
+import { loadFeeds, loadMore, showAll, showFeed, showLabel, setFilter } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
             <Route path="/" component={Root}>
                 <IndexRoute component={ConnectedRootView} />
-                <Route path="inventory" component={ConnectedInventoryView} />
+                <Route path="inventory" component={ConnectedInventoryView} onEnter={(nextState) => {
+                    store.dispatch(loadFeeds());
+                }} />
                 <Route path="article/:articleId" component={ConnectedArticleView} onEnter={(nextState) => {
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />
