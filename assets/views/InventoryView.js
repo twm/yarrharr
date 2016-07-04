@@ -1,10 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
+import { ViewButton } from 'widgets/ViewControls.js';
 import Header from 'widgets/Header.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
-import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
+import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { addFeed, removeFeed, addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
@@ -19,6 +20,7 @@ export const InventoryView = React.createClass({
         feedsById: React.PropTypes.object.isRequired,
         layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         onRemoveFeed: React.PropTypes.func.isRequired,
+        onSetLayout: React.PropTypes.func.isRequired,
     },
     render() {
         const feedList = feedsByTitle(this.props);
@@ -29,12 +31,13 @@ export const InventoryView = React.createClass({
                     <span className="button"><Logo /></span>
                     Return to Feed List
                 </RootLink>
-                <AddFeedLink className="text-button text-button-left">
+                <AddFeedLink className="text-button text-button-left" style={{margin: '0 4px 0 auto'}}>
                     Add Feed
                     <span className="button">
                         <Add alt="" />
                     </span>
                 </AddFeedLink>
+                <ViewButton layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             </div>
             <Header>Manage Feeds</Header>
             {this.renderFeeds(feedList, labelList)}
@@ -243,6 +246,7 @@ export const ConnectedInventoryView = connect(state => state, {
     onAddLabel: addLabel,
     onDetachLabel: detachLabel,
     onRemoveFeed: removeFeed,
+    onSetLayout: setLayout,
 })(InventoryView);
 
 export const AddFeedView = React.createClass({
