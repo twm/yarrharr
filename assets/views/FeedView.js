@@ -37,7 +37,7 @@ export function AllView({params, feedsById, view, layout, filter, order, snapsho
                 filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
-        <Header>All Feeds</Header>
+        <Header text="All Feeds"></Header>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
@@ -59,7 +59,8 @@ export function FeedView({params, feedsById, view, layout, filter, order, snapsh
                 filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
-        <Header>{feed.text || feed.title}</Header>
+        <Header text={feed.text || feed.title}>
+        </Header>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
@@ -81,7 +82,8 @@ export function LabelView({params, labelsById, feedsById, view, layout, filter, 
                 filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
-        <Header>{label.text}</Header>
+        <Header text={label.text}>
+        </Header>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}

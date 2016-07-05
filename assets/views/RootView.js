@@ -20,10 +20,7 @@ export const RootView = React.createClass({
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByNewCount(this.props);
         return <div className="root-view">
-            <Header>
-                <Logo width="48" height="48" />
-                <div>Yarrharr Feed Reader</div>
-            </Header>
+            <Header icon={<Logo width="48" height="48" />} text="Yarrharr Feed Reader" />
             <div className="floater-wrap">
                 <div className="floater">
                     <InventoryLink>Manage Feeds</InventoryLink>

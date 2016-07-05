@@ -39,7 +39,7 @@ export const InventoryView = React.createClass({
                 </AddFeedLink>
                 <ViewButton layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             </div>
-            <Header>Manage Feeds</Header>
+            <Header text="Manage Feeds" />
             {this.renderFeeds(feedList, labelList)}
         </div>;
     },
