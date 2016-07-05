@@ -22,7 +22,7 @@ const VIEW_TO_WIDGET = {
     [VIEW_TEXT]: Article,
 };
 
-export function AllView({params, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
+export function AllView({params, feedsById, view, layout, filter, order, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onLoadMore}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -32,25 +32,19 @@ export function AllView({params, feedsById, view, layout, filter, order, snapsho
                 Return to Feed List
             </RootLink>
             <ViewButton
-                view={view}
-                onSetView={(view) => dispatch(setView(view))}
-                layout={layout}
-                onSetLayout={(layout) => dispatch(setLayout(layout))}
-                filter={snapshot.filter}
-                onSetFilter={(filter) => dispatch(setFilter(filter))}
-                order={snapshot.order}
-                onSetOrder={(order) => dispatch(setOrder(order))} />
+                view={view} onSetView={onSetView}
+                layout={layout} onSetLayout={onSetLayout}
+                filter={snapshot.filter} onSetFilter={onSetFilter}
+                order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header>All Feeds</Header>
         {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
-                (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
-            () => dispatch(loadMore(snapshot.articleIds)))}
+            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
+            () => onLoadMore(snapshot.articleIds))}
     </div>;
 }
 
-
-export function FeedView({params, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
+export function FeedView({params, feedsById, view, layout, filter, order, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onLoadMore}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -60,24 +54,19 @@ export function FeedView({params, feedsById, view, layout, filter, order, snapsh
                 Return to Feed List
             </RootLink>
             <ViewButton
-                view={view}
-                onSetView={(view) => dispatch(setView(view))}
-                layout={layout}
-                onSetLayout={(layout) => dispatch(setLayout(layout))}
-                filter={snapshot.filter}
-                onSetFilter={(filter) => dispatch(setFilter(filter))}
-                order={snapshot.order}
-                onSetOrder={(order) => dispatch(setOrder(order))} />
+                view={view} onSetView={onSetView}
+                layout={layout} onSetLayout={onSetLayout}
+                filter={snapshot.filter} onSetFilter={onSetFilter}
+                order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header>{feed.text || feed.title}</Header>
         {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
-                (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
-            () => dispatch(loadMore(snapshot.articleIds)))}
+            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
+            () => onLoadMore(snapshot.articleIds))}
     </div>;
 }
 
-export function LabelView({params, labelsById, feedsById, view, layout, filter, order, snapshot, articlesById, dispatch}) {
+export function LabelView({params, labelsById, feedsById, view, layout, filter, order, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onLoadMore}) {
     const labelId = params.labelId;
     const label = labelsById[labelId];
     return <div className={"feed-view layout-" + layout}>
@@ -87,22 +76,29 @@ export function LabelView({params, labelsById, feedsById, view, layout, filter, 
                 Return to Feed List
             </RootLink>
             <ViewButton
-                view={view}
-                onSetView={(view) => dispatch(setView(view))}
-                layout={layout}
-                onSetLayout={(layout) => dispatch(setLayout(layout))}
-                filter={snapshot.filter}
-                onSetFilter={(filter) => dispatch(setFilter(filter))}
-                order={snapshot.order}
-                onSetOrder={(order) => dispatch(setOrder(order))} />
+                view={view} onSetView={onSetView}
+                layout={layout} onSetLayout={onSetLayout}
+                filter={snapshot.filter} onSetFilter={onSetFilter}
+                order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header>{label.text}</Header>
         {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById,
-                (articleId, targetState) => dispatch(markArticle(articleId, targetState))),
-            () => dispatch(loadMore(snapshot.articleIds)))}
+            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
+            () => onLoadMore(snapshot.articleIds))}
     </div>;
 }
+
+const mapDispatchToProps = {
+    onSetView: setView,
+    onSetLayout: setLayout,
+    onSetFilter: setFilter,
+    onSetOrder: setOrder,
+    onMarkArticle: markArticle,
+    onLoadMore: loadMore,
+};
+export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
+export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);
+export const ConnectedLabelView = connect(state => state, mapDispatchToProps)(LabelView);
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
@@ -151,8 +147,3 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
     }
     return elements;
 }
-
-
-export const ConnectedAllView = connect(state => state, null)(AllView);
-export const ConnectedFeedView = connect(state => state, null)(FeedView);
-export const ConnectedLabelView = connect(state => state, null)(LabelView);
