@@ -182,6 +182,6 @@ def read_yarrharr_conf(files, namespace):
 
     # Yarr stuff.
     namespace['YARR_LAYOUT_FIXED'] = False
-    namespace['YARR_ITEM_EXPIRY'] = 365
+    namespace['YARR_ITEM_EXPIRY'] = 365 * 5
 
     return conf
