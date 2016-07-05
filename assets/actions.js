@@ -251,12 +251,19 @@ export function showLabel(labelId) {
         const feedIds = Object.keys(feedsById)
             .filter(feedId => feedsById[feedId].labels.indexOf(Number(labelId)) >= 0)
             .map(Number);
+        feedIds.sort();
         return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
 
 function _setSnapshot(feedIds, order, filter, dispatch, getState) {
-    // TODO: Only load snapshot if not already cached
+    const { snapshot: { feedIds: oldFeedIds=[], order: oldOrder='', filter: oldFilter='' } } = getState();
+
+    if (oldFeedIds.join() === feedIds.join() && oldOrder === order && oldFilter === filter) {
+        // The current snapshot has the same parameters, so we can just use it.
+        return;
+    }
+
     dispatch(requestSnapshot(feedIds, order, filter));
 
     return fetchSnapshot(feedIds, order, filter).then(
