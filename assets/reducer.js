@@ -25,6 +25,12 @@ function articleReducer(state = window.props.articlesById, action) {
         return Object.assign({}, state, patch);
     } else if (action.type === REQUEST_MARK_ARTICLE) {
         const article = state[action.articleId];
+        if (!article) {
+            // It is possible to mark an article that has not been loaded via
+            // markArticles() (which only requires the ID).  Ignore this as we
+            // don't want to create partially-initialized objects.
+            return state;
+        }
         return Object.assign({}, state, {
             [action.articleId]: Object.assign({}, article, {marking: action.state}),
         });
