@@ -12,7 +12,7 @@ Some day there will be packages available.  For now, see HACKING.rst
 License
 =======
 
-Copyright © 2013, 2014 Tom Most
+Copyright © 2013, 2014, 2015, 2016 Tom Most
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
