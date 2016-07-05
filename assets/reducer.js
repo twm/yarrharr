@@ -4,7 +4,7 @@ import { routerReducer } from 'react-router-redux';
 import { SET_LAYOUT, LAYOUT_NARROW, SET_VIEW, VIEW_LIST, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
-import { REQUEST_MARK_ARTICLE, RECEIVE_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
+import { REQUEST_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
 
 function articleReducer(state = window.props.articlesById, action) {
     if (action.type === REQUEST_ARTICLES) {
@@ -27,14 +27,6 @@ function articleReducer(state = window.props.articlesById, action) {
         const article = state[action.articleId];
         return Object.assign({}, state, {
             [action.articleId]: Object.assign({}, article, {marking: action.state}),
-        });
-    } else if (action.type === RECEIVE_MARK_ARTICLE) {
-        const article = state[action.articleId];
-        return Object.assign({}, state, {
-            [action.articleId]: Object.assign({}, article, {
-                state: action.state,
-                marking: null,
-            }),
         });
     } else if (action.type === FAIL_MARK_ARTICLE) {
         // TODO: Communicate the error to the user somehow.

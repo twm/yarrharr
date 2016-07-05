@@ -115,15 +115,6 @@ function requestMarkArticle(articleId, state) {
     };
 }
 
-export const RECEIVE_MARK_ARTICLE = 'RECEIVE_MARK_ARTICLE';
-function receiveMarkArticle(articleId, state) {
-    return {
-        type: RECEIVE_MARK_ARTICLE,
-        articleId,
-        state,
-    };
-}
-
 export const FAIL_MARK_ARTICLE = 'FAIL_MARK_ARTICLE';
 function failMarkArticle(articleId, state, error) {
     return {
@@ -170,21 +161,26 @@ function post(path, body) {
 }
 
 
-/**
- * Thunk action which asynchronously alters the state of an article.
- */
 export function markArticle(articleId, state) {
+    return markArticles([articleId], state);
+}
+
+export function markArticles(articleIds, state) {
     return (dispatch) => {
         const body = new FormData();
-        body.append('article', String(articleId));
         body.append('state', state);
 
-        dispatch(requestMarkArticle(articleId, state));
+        articleIds.forEach(articleId => {
+            body.append('article', String(articleId))
+            dispatch(requestMarkArticle(articleId, state));
+        });
 
-        post('/api/state/', body).then((json) => {
-           dispatch(receiveMarkArticle(articleId, state));
-           // TODO: Update counts on affected feeds and labels.
-        }).catch((e) => {console.error(e)});
+        post('/api/state/', body).then(json => {
+            const { articlesById } = json;
+            dispatch(receiveArticles(articlesById));
+        }).catch(e => {
+            console.error('Failed to mark articles', articleIds, state, '->', e);
+        });
     };
 }
 

@@ -228,7 +228,9 @@ def state(request):
     state = {'new': 0, 'done': 1, 'saved': 2}[request.POST['state']]
     qs = articles_for_request(request)
     qs.update(state=state)
-    data = {entry.id: json_for_entry(entry) for entry in qs.all()}
+    data = {
+        'articlesById': {entry.id: json_for_entry(entry) for entry in qs.all()},
+    }
     return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')
 

@@ -2,8 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setFilter, setOrder } from 'actions.js';
-import { markArticle } from 'actions.js';
+import { markArticle, markArticles } from 'actions.js';
 import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
+import { FILTER_DONE } from 'actions.js';
 
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
@@ -22,7 +23,7 @@ const VIEW_TO_WIDGET = {
     [VIEW_TEXT]: Article,
 };
 
-export function AllView({params, feedsById, view, layout, filter, order, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onLoadMore}) {
+export function AllView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -37,14 +38,15 @@ export function AllView({params, feedsById, view, layout, filter, order, snapsho
                 filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
-        <Header text="All Feeds"></Header>
+        <Header text="All Feeds" />
+        {renderTools(snapshot, onMarkArticles)}
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
     </div>;
 }
 
-export function FeedView({params, feedsById, view, layout, filter, order, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onLoadMore}) {
+export function FeedView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -59,15 +61,15 @@ export function FeedView({params, feedsById, view, layout, filter, order, snapsh
                 filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
-        <Header text={feed.text || feed.title}>
-        </Header>
+        <Header text={feed.text || feed.title} />
+        {renderTools(snapshot, onMarkArticles)}
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
     </div>;
 }
 
-export function LabelView({params, labelsById, feedsById, view, layout, filter, order, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onLoadMore}) {
+export function LabelView({params, labelsById, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const labelId = params.labelId;
     const label = labelsById[labelId];
     return <div className={"feed-view layout-" + layout}>
@@ -82,8 +84,8 @@ export function LabelView({params, labelsById, feedsById, view, layout, filter, 
                 filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
-        <Header text={label.text}>
-        </Header>
+        <Header text={label.text} />
+        {renderTools(snapshot, onMarkArticles)}
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
@@ -96,11 +98,33 @@ const mapDispatchToProps = {
     onSetFilter: setFilter,
     onSetOrder: setOrder,
     onMarkArticle: markArticle,
+    onMarkArticles: markArticles,
     onLoadMore: loadMore,
 };
 export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);
 export const ConnectedLabelView = connect(state => state, mapDispatchToProps)(LabelView);
+
+function renderTools(snapshot, onMarkArticles) {
+    // Stuff is still loading.
+    if (!snapshot || snapshot.loading) {
+        return null;
+    }
+    // There is no point in marking zero articles anything.
+    if (!snapshot.articleIds.length || snapshot.filter === FILTER_DONE) {
+        return null;
+    }
+    return <div className="floater-wrap">
+        <div className="floater">
+            <a href="#" onClick={e => {
+                e.preventDefault();
+                if (confirm("Mark " + snapshot.articleIds.length + " articles done?")) {
+                    onMarkArticles(snapshot.articleIds, FILTER_DONE);
+                }
+            }}>Mark all done</a>
+        </div>
+    </div>;
+}
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
