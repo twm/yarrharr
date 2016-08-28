@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
-import { SET_LAYOUT, LAYOUT_NARROW, SET_VIEW, VIEW_LIST, SET_FILTER, FILTER_NEW, SET_ORDER, ORDER_DATE } from './actions.js';
 import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
@@ -83,15 +82,35 @@ function feedAddReducer(state = window.props.feedsById, action) {
 }
 
 import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT } from './actions.js';
+import { SET_FILTER, FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from './actions.js';
+import { SET_ORDER, ORDER_DATE, ORDER_TAIL } from './actions.js';
 const defaultSnapshot = {
     loading: false,
     error: false,
-    order: ORDER_DATE,
-    filter: FILTER_NEW,
+    order: window.localStorage.getItem('order') || ORDER_DATE,
+    filter: window.localStorage.getItem('filter') || FILTER_NEW,
     feedIds: [],
     articleIds: [],
 };
-function snapshotReducer(state = defaultSnapshot, action) {
+function snapshotReducer(state, action) {
+    if (!state) {
+        var order = window.localStorage.getItem('order');
+        if (!(order === ORDER_DATE || order === ORDER_TAIL)) {
+            order = ORDER_TAIL;
+        }
+        var filter = window.localStorage.getItem('filter');
+        if (!(filter === FILTER_NEW || filter === FILTER_SAVED || filter === FILTER_DONE || filter === FILTER_DONE)) {
+            filter = FILTER_NEW;
+        }
+        return {
+            loading: false,
+            error: false,
+            order,
+            filter,
+            feedIds: [],
+            articleIds: [],
+        };
+    }
     if (action.type === REQUEST_SNAPSHOT) {
         return Object.assign({}, state, {
             loading: true,
@@ -138,14 +157,32 @@ function labelReducer(state = window.props.labelsById, action) {
     return state;
 }
 
-function viewReducer(state = VIEW_LIST, action) {
+import { SET_VIEW, VIEW_LIST, VIEW_TEXT } from './actions.js';
+function viewReducer(state, action) {
+    if (!state) {
+        state = window.sessionStorage.getItem('view');
+    }
+    if (!(state === VIEW_LIST || state === VIEW_TEXT)) {
+        if (state) {  // Don't log if fresh load
+            window.console.log("unknown view ", state, ": falling back to default");
+        }
+        state = VIEW_LIST;  // Default
+    }
     if (action.type === SET_VIEW) {
         return action.view;
     }
     return state;
 }
 
-function layoutReducer(state = LAYOUT_NARROW, action) {
+import { SET_LAYOUT, LAYOUT_NARROW, LAYOUT_WIDE } from './actions.js';
+function layoutReducer(state, action) {
+    if (!state) {
+        state = window.sessionStorage.getItem('layout');
+    }
+    if (!(state === LAYOUT_NARROW || state === LAYOUT_WIDE)) {
+        window.console.log("unknown layout ", state, ": falling back to default");
+        state = LAYOUT_NARROW;  // Default
+    }
     if (action.type === SET_LAYOUT) {
         return action.layout;
     }

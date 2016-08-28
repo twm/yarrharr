@@ -15,7 +15,22 @@ import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 
-const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
+const saveToLocalStorage = store => next => action => {
+    const result = next(action);
+    const state = store.getState();
+    // XXX: TODO: Don't set this every state change?
+    if (state) {
+        window.localStorage.setItem('view', state.view);
+        window.localStorage.setItem('layout', state.layout);
+        if (state.snapshot) {
+            window.localStorage.setItem('order', state.snapshot.order);
+            window.localStorage.setItem('filter', state.snapshot.filter);
+        }
+    }
+    return result;
+};
+
+const store = createStore(reducer, applyMiddleware(thunk, createLogger(), saveToLocalStorage));
 const history = syncHistoryWithStore(browserHistory, store);
 
 const Root = React.createClass({
