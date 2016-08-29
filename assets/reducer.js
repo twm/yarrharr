@@ -5,6 +5,8 @@ import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
 
+const __debug__ = process.env.NODE_ENV !== 'production';
+
 function articleReducer(state = window.props.articlesById, action) {
     if (action.type === REQUEST_ARTICLES) {
         const patch = {};
@@ -87,30 +89,12 @@ import { SET_ORDER, ORDER_DATE, ORDER_TAIL } from './actions.js';
 const defaultSnapshot = {
     loading: false,
     error: false,
-    order: window.localStorage.getItem('order') || ORDER_DATE,
-    filter: window.localStorage.getItem('filter') || FILTER_NEW,
+    order: ORDER_TAIL,
+    filter: FILTER_NEW,
     feedIds: [],
     articleIds: [],
 };
-function snapshotReducer(state, action) {
-    if (!state) {
-        var order = window.localStorage.getItem('order');
-        if (!(order === ORDER_DATE || order === ORDER_TAIL)) {
-            order = ORDER_TAIL;
-        }
-        var filter = window.localStorage.getItem('filter');
-        if (!(filter === FILTER_NEW || filter === FILTER_SAVED || filter === FILTER_DONE || filter === FILTER_DONE)) {
-            filter = FILTER_NEW;
-        }
-        return {
-            loading: false,
-            error: false,
-            order,
-            filter,
-            feedIds: [],
-            articleIds: [],
-        };
-    }
+function snapshotReducer(state = defaultSnapshot, action) {
     if (action.type === REQUEST_SNAPSHOT) {
         return Object.assign({}, state, {
             loading: true,
@@ -157,33 +141,23 @@ function labelReducer(state = window.props.labelsById, action) {
     return state;
 }
 
-import { SET_VIEW, VIEW_LIST, VIEW_TEXT } from './actions.js';
-function viewReducer(state, action) {
-    if (!state) {
-        state = window.sessionStorage.getItem('view');
-    }
-    if (!(state === VIEW_LIST || state === VIEW_TEXT)) {
-        if (state) {  // Don't log if fresh load
-            window.console.log("unknown view ", state, ": falling back to default");
-        }
-        state = VIEW_LIST;  // Default
-    }
+import { SET_VIEW, VIEW_LIST, validView } from './actions.js';
+function viewReducer(state = VIEW_LIST, action) {
     if (action.type === SET_VIEW) {
+        if (__debug__ && !validView(action.view)) {
+            throw new Error('invalid view ' + action.view);
+        }
         return action.view;
     }
     return state;
 }
 
-import { SET_LAYOUT, LAYOUT_NARROW, LAYOUT_WIDE } from './actions.js';
-function layoutReducer(state, action) {
-    if (!state) {
-        state = window.sessionStorage.getItem('layout');
-    }
-    if (!(state === LAYOUT_NARROW || state === LAYOUT_WIDE)) {
-        window.console.log("unknown layout ", state, ": falling back to default");
-        state = LAYOUT_NARROW;  // Default
-    }
+import { SET_LAYOUT, LAYOUT_NARROW, validLayout } from './actions.js';
+function layoutReducer(state = LAYOUT_NARROW, action) {
     if (action.type === SET_LAYOUT) {
+        if (__debug__ && !validLayout(action.layout)) {
+            throw new Error("invalid layout " + action.layout);
+        }
         return action.layout;
     }
     return state;

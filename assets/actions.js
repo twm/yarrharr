@@ -7,6 +7,14 @@ export function setView(view) {
         view,
     };
 }
+export function validView(view) {
+    switch (view) {
+        case VIEW_LIST:
+        case VIEW_TEXT:
+            return true;
+    }
+    return false;
+}
 
 export const SET_LAYOUT = 'SET_LAYOUT';
 export const LAYOUT_NARROW = 'narrow';
@@ -16,6 +24,14 @@ export function setLayout(layout) {
         type: SET_LAYOUT,
         layout,
     };
+}
+export function validLayout(layout) {
+    switch (layout) {
+        case LAYOUT_NARROW:
+        case LAYOUT_WIDE:
+            return true;
+    }
+    return false;
 }
 
 export const SET_FILTER = 'SET_FILTER';
@@ -29,7 +45,19 @@ export function setFilter(filter) {
         return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
-
+/**
+ * Is `filter` a valid filter?
+ */
+export function validFilter(filter) {
+    switch (filter) {
+        case FILTER_NEW:
+        case FILTER_SAVED:
+        case FILTER_DONE:
+        case FILTER_ALL:
+            return true;
+    }
+    return false;
+}
 
 export const SET_ORDER = 'SET_ORDER';
 export const ORDER_DATE = 'date';
@@ -40,7 +68,17 @@ export function setOrder(order) {
         return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
-
+/**
+ * Is `order` a valid order?
+ */
+export function validOrder(order) {
+    switch (order) {
+        case ORDER_DATE:
+        case ORDER_TAIL:
+            return true;
+    }
+    return false;
+}
 
 export const REQUEST_SNAPSHOT = 'REQUEST_SNAPSHOT';
 function requestSnapshot(feedIds, order, filter) {

@@ -9,29 +9,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import './base.less';
+import syncViewOptions from './syncViewOptions.js';
 import ConnectedArticleView from 'views/ArticleView.js';
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 
-const saveToLocalStorage = store => next => action => {
-    const result = next(action);
-    const state = store.getState();
-    // XXX: TODO: Don't set this every state change?
-    if (state) {
-        window.localStorage.setItem('view', state.view);
-        window.localStorage.setItem('layout', state.layout);
-        if (state.snapshot) {
-            window.localStorage.setItem('order', state.snapshot.order);
-            window.localStorage.setItem('filter', state.snapshot.filter);
-        }
-    }
-    return result;
-};
 
-const store = createStore(reducer, applyMiddleware(thunk, createLogger(), saveToLocalStorage));
+const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
+
 const history = syncHistoryWithStore(browserHistory, store);
+syncViewOptions(store, window.localStorage);
 
 const Root = React.createClass({
     render() {
@@ -40,6 +29,7 @@ const Root = React.createClass({
 });
 
 
+import { setFilter } from './actions.js';
 function filterActionForState(nextState) {
     // XXX: Icky hack.
     var search = nextState.location.search;
@@ -52,7 +42,7 @@ function filterActionForState(nextState) {
 }
 
 
-import { loadFeeds, loadMore, showAll, showFeed, showLabel, setFilter } from './actions.js';
+import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
