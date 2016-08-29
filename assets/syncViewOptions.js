@@ -1,6 +1,8 @@
 import { setView, setLayout, setOrder, setFilter } from './actions.js';
 import { validView, validLayout, validOrder, validFilter } from './actions.js';
 
+const __debug__ = process.env.NODE_ENV !== 'production';
+
 /**
  * Persist portions of the store to localStorage so that page reloads don't
  * cause things to shift about.
@@ -46,10 +48,17 @@ export default function syncViewOptions(store, storage) {
             layout = state.layout;
             order = state.snapshot.order;
             filter = state.snapshot.filter;
-            storage.setItem('view', view);
-            storage.setItem('layout', layout);
-            storage.setItem('order', order);
-            storage.setItem('filter', filter);
+            try {
+                storage.setItem('view', view);
+                storage.setItem('layout', layout);
+                storage.setItem('order', order);
+                storage.setItem('filter', filter);
+            } catch(e) {
+                // Safari in private browsing mode?  Oh well.
+                if (__debug__) {
+                    window.console.log('sync failed: ' + e);
+                }
+            }
         }
     });
 }
