@@ -23,7 +23,7 @@ const VIEW_TO_WIDGET = {
     [VIEW_TEXT]: Article,
 };
 
-export function AllView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+export function AllView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -35,7 +35,6 @@ export function AllView({params, feedsById, view, layout, snapshot, articlesById
             <ViewButton
                 view={view} onSetView={onSetView}
                 layout={layout} onSetLayout={onSetLayout}
-                filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header text="All Feeds" />
@@ -46,7 +45,7 @@ export function AllView({params, feedsById, view, layout, snapshot, articlesById
     </div>;
 }
 
-export function FeedView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+export function FeedView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const feedId = params.feedId;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
@@ -58,7 +57,6 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
             <ViewButton
                 view={view} onSetView={onSetView}
                 layout={layout} onSetLayout={onSetLayout}
-                filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header text={feed.text || feed.title} />
@@ -69,7 +67,7 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
     </div>;
 }
 
-export function LabelView({params, labelsById, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetFilter, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+export function LabelView({params, labelsById, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const labelId = params.labelId;
     const label = labelsById[labelId];
     return <div className={"feed-view layout-" + layout}>
@@ -81,7 +79,6 @@ export function LabelView({params, labelsById, feedsById, view, layout, snapshot
             <ViewButton
                 view={view} onSetView={onSetView}
                 layout={layout} onSetLayout={onSetLayout}
-                filter={snapshot.filter} onSetFilter={onSetFilter}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header text={label.text} />
@@ -95,7 +92,6 @@ export function LabelView({params, labelsById, feedsById, view, layout, snapshot
 const mapDispatchToProps = {
     onSetView: setView,
     onSetLayout: setLayout,
-    onSetFilter: setFilter,
     onSetOrder: setOrder,
     onMarkArticle: markArticle,
     onMarkArticles: markArticles,

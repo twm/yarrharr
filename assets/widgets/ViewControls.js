@@ -1,7 +1,6 @@
 import React from 'react';
 import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
 import DropButton from 'widgets/DropButton.js';
@@ -39,7 +38,6 @@ function Toggle(props) {
 export function ViewControls(props) {
     const {view=null, onSetView=null,
            layout=null, onSetLayout=null,
-           filter=null, onSetFilter=null,
            order=null, onSetOrder=null} = props;
     const children = [];
 
@@ -55,15 +53,6 @@ export function ViewControls(props) {
         children.push(<div key="layout-group" className="group">
             <Toggle callback={onSetLayout} current={layout} value={LAYOUT_NARROW} text="Narrow" icon={Narrow} />
             <Toggle callback={onSetLayout} current={layout} value={LAYOUT_WIDE} text="Wide" icon={Wide} />
-        </div>);
-    }
-    if (filter !== null && onSetFilter) {
-        children.push(<h2 key="filter-head">Show articles of status:</h2>);
-        children.push(<div key="filter-group" className="group">
-            <Toggle callback={onSetFilter} current={filter} value={FILTER_NEW} text="New" icon={Star} />
-            <Toggle callback={onSetFilter} current={filter} value={FILTER_SAVED} text="Saved" icon={Heart} />
-            <Toggle callback={onSetFilter} current={filter} value={FILTER_ARCHIVED} text="Archived" icon={Check} />
-            <Toggle callback={onSetFilter} current={filter} value={FILTER_ALL} text="All" icon={InfinityIcon} />
         </div>);
     }
     if (order !== null && onSetOrder) {
