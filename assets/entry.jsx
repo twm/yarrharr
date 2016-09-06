@@ -45,11 +45,20 @@ ReactDOM.render(
                 <Route path="all/:filter" component={ConnectedAllView} onEnter={(nextState) => {
                     store.dispatch(showAll(nextState.params.filter));
                 }} />
+                <Route path="all/:filter/:articleId" component={ConnectedAllView} onEnter={(nextState) => {
+                    store.dispatch(showAll(nextState.params.filter, nextState.params.articleId));
+                }} />
                 <Route path="label/:labelId/:filter" component={ConnectedLabelView} onEnter={(nextState) => {
                     store.dispatch(showLabel(nextState.params.labelId, nextState.params.filter));
                 }} />
+                <Route path="label/:labelId/:filter/:articleId" component={ConnectedLabelView} onEnter={(nextState) => {
+                    store.dispatch(showLabel(nextState.params.labelId, nextState.params.filter, nextState.params.articleId));
+                }} />
                 <Route path="feed/:feedId/:filter" component={ConnectedFeedView} onEnter={(nextState) => {
                     store.dispatch(showFeed(nextState.params.feedId, nextState.params.filter));
+                }} />
+                <Route path="feed/:feedId/:filter/:articleId" component={ConnectedFeedView} onEnter={(nextState) => {
+                    store.dispatch(showFeed(nextState.params.feedId, nextState.params.filter, nextState.params.articleId));
                 }} />
             </Route>
         </Router>

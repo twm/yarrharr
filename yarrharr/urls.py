@@ -11,8 +11,11 @@ urlpatterns = patterns(
     url(r'^inventory/add/$', 'yarrharr.views.index'),
     url(r'^article/\d+/$', 'yarrharr.views.index'),
     url(r'^all/[^/]+/$', 'yarrharr.views.index'),
+    url(r'^all/[^/]+/\d+/$', 'yarrharr.views.index'),
     url(r'^label/\d+/[^/]+/$', 'yarrharr.views.index'),
+    url(r'^label/\d+/[^/]+/\d+/$', 'yarrharr.views.index'),
     url(r'^feed/\d+/[^/]+/$', 'yarrharr.views.index'),
+    url(r'^feed/\d+/[^/]+/\d+/$', 'yarrharr.views.index'),
 
     # API
     url(r'^api/snapshots/$', 'yarrharr.views.snapshots'),
