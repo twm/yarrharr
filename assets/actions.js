@@ -37,7 +37,7 @@ export function validLayout(layout) {
 export const SET_FILTER = 'SET_FILTER';
 export const FILTER_NEW = 'new';
 export const FILTER_SAVED = 'saved';
-export const FILTER_DONE = 'done';
+export const FILTER_ARCHIVED = 'archived';
 export const FILTER_ALL = 'all';
 export function setFilter(filter) {
     return (dispatch, getState) => {
@@ -52,7 +52,7 @@ export function validFilter(filter) {
     switch (filter) {
         case FILTER_NEW:
         case FILTER_SAVED:
-        case FILTER_DONE:
+        case FILTER_ARCHIVED:
         case FILTER_ALL:
             return true;
     }
@@ -144,7 +144,7 @@ function failArticles(articleIds) {
 export const REQUEST_MARK_ARTICLE = 'REQUEST_MARK_ARTICLE';
 export const STATE_NEW = 'new';
 export const STATE_SAVED = 'saved';
-export const STATE_DONE = 'done';
+export const STATE_ARCHIVED = 'archived';
 function requestMarkArticle(articleId, state) {
     return {
         type: REQUEST_MARK_ARTICLE,

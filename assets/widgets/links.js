@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
-import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from '../actions.js';
+import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from '../actions.js';
 
 /**
  * This module contains wrappers around react-router's <Link> component that
@@ -43,7 +43,7 @@ export function AddFeedLink(props) {
 }
 
 if (process.env.NODE_ENV !== 'production') {
-    const filter = React.PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL]).isRequired;
+    const filter = React.PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL]).isRequired;
     AllLink.propTypes = {
         filter,
     };

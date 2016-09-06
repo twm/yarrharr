@@ -1,7 +1,7 @@
 import React from 'react';
 import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from 'actions.js';
+import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
 import DropButton from 'widgets/DropButton.js';
@@ -62,7 +62,7 @@ export function ViewControls(props) {
         children.push(<div key="filter-group" className="group">
             <Toggle callback={onSetFilter} current={filter} value={FILTER_NEW} text="New" icon={Star} />
             <Toggle callback={onSetFilter} current={filter} value={FILTER_SAVED} text="Saved" icon={Heart} />
-            <Toggle callback={onSetFilter} current={filter} value={FILTER_DONE} text="Done" icon={Check} />
+            <Toggle callback={onSetFilter} current={filter} value={FILTER_ARCHIVED} text="Archived" icon={Check} />
             <Toggle callback={onSetFilter} current={filter} value={FILTER_ALL} text="All" icon={InfinityIcon} />
         </div>);
     }

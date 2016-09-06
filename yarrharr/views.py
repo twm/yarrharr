@@ -30,7 +30,7 @@ def json_for_entry(entry):
         'id': entry.id,
         'state': {
             0: "new",
-            1: "done",
+            1: "archived",
             2: "saved",
         }[entry.state],
         'title': entry.title,
@@ -93,7 +93,7 @@ def entries_for_snapshot(user, params):
     qs = Entry.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
     if params['filter'] == 'new':
         qs = qs.filter(state=0)
-    elif params['filter'] == 'done':
+    elif params['filter'] == 'archived':
         qs = qs.filter(state=1)
     elif params['filter'] == 'saved':
         qs = qs.filter(state=2)
@@ -135,7 +135,7 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
     return {
         'feeds': sorted(feeds),
-        'filter': oneof('filter', ['new', 'done', 'saved', 'all']),
+        'filter': oneof('filter', ['new', 'archived', 'saved', 'all']),
         'order': oneof('order', ['date', 'tail']),
         'view': oneof('view', ['text', 'list']),
     }
@@ -220,12 +220,12 @@ def state(request):
     """
     Change the state of articles.
 
-    :query status: One of "new", "saved", or "done".
+    :query status: One of "new", "saved", or "archived".
     :query article: One or more article IDs.
     """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
-    state = {'new': 0, 'done': 1, 'saved': 2}[request.POST['state']]
+    state = {'new': 0, 'archived': 1, 'saved': 2}[request.POST['state']]
     qs = articles_for_request(request)
     qs.update(state=state)
     data = {

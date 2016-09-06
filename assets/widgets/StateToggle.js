@@ -1,29 +1,29 @@
 import React from 'react';
 import { Star, Check, Heart } from 'widgets/icons.js';
-import { STATE_NEW, STATE_SAVED, STATE_DONE } from 'actions.js';
+import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
 
 const NEXT_STATE = {
-    [STATE_NEW]: STATE_DONE,
-    [STATE_DONE]: STATE_SAVED,
+    [STATE_NEW]: STATE_ARCHIVED,
+    [STATE_ARCHIVED]: STATE_SAVED,
     [STATE_SAVED]: STATE_NEW,
 };
 const STATE_TEXT = {
     [STATE_NEW]: "New",
-    [STATE_DONE]: "Done",
+    [STATE_ARCHIVED]: "Archived",
     [STATE_SAVED]: "Saved",
 };
 const STATE_IMAGE = {
     [STATE_NEW]: Star,
-    [STATE_DONE]: Check,
+    [STATE_ARCHIVED]: Check,
     [STATE_SAVED]: Heart,
 };
 
 const StateToggle = React.createClass({
     propTypes: {
         id: React.PropTypes.number.isRequired,
-        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]).isRequired,
+        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
         // Non-null indicates that a mark operation is in-progress.
-        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_DONE]),
+        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
         onMark: React.PropTypes.func.isRequired,
     },
     getDefaultProps() {

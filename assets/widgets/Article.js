@@ -1,6 +1,6 @@
 import React from 'react';
 import { FeedLink } from "widgets/links.js";
-import { STATE_NEW, STATE_SAVED, STATE_DONE } from 'actions.js';
+import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
 import { Outbound } from 'widgets/icons.js';
 import StateToggle from 'widgets/StateToggle.js';
 import "./Article.less";
@@ -19,9 +19,9 @@ const Article = React.createClass({
             text: React.PropTypes.string,
             title: React.PropTypes.string.isRequired,
         }).isRequired,
-        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_DONE]).isRequired,
+        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
         // Non-null indicates that a mark operation is in-progress.
-        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_DONE]),
+        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
         // Event handlers
         onMark: React.PropTypes.func.isRequired,
     },

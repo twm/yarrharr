@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setFilter, setOrder } from 'actions.js';
 import { markArticle, markArticles } from 'actions.js';
-import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
-import { FILTER_DONE } from 'actions.js';
+import { VIEW_LIST, VIEW_TEXT, STATE_ARCHIVED } from 'actions.js';
+import { FILTER_ARCHIVED } from 'actions.js';
 
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
@@ -111,17 +111,17 @@ function renderTools(snapshot, onMarkArticles) {
         return null;
     }
     // There is no point in marking zero articles anything.
-    if (!snapshot.articleIds.length || snapshot.filter === FILTER_DONE) {
+    if (!snapshot.articleIds.length || snapshot.filter === FILTER_ARCHIVED) {
         return null;
     }
     return <div className="floater-wrap">
         <div className="floater">
             <a href="#" onClick={e => {
                 e.preventDefault();
-                if (confirm("Mark " + snapshot.articleIds.length + " articles done?")) {
-                    onMarkArticles(snapshot.articleIds, FILTER_DONE);
+                if (confirm("Archive " + snapshot.articleIds.length + " articles?")) {
+                    onMarkArticles(snapshot.articleIds, STATE_ARCHIVED);
                 }
-            }}>Mark all done</a>
+            }}>Archive all</a>
         </div>
     </div>;
 }

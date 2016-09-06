@@ -84,7 +84,7 @@ function feedAddReducer(state = window.props.feedsById, action) {
 }
 
 import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT } from './actions.js';
-import { SET_FILTER, FILTER_NEW, FILTER_SAVED, FILTER_DONE, FILTER_ALL } from './actions.js';
+import { SET_FILTER, FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
 import { SET_ORDER, ORDER_DATE, ORDER_TAIL } from './actions.js';
 const defaultSnapshot = {
     loading: false,
