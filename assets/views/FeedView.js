@@ -4,7 +4,7 @@ import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setFilter, setOrder } from 'actions.js';
 import { markArticle, markArticles } from 'actions.js';
 import { VIEW_LIST, VIEW_TEXT, STATE_ARCHIVED } from 'actions.js';
-import { FILTER_ARCHIVED } from 'actions.js';
+import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
@@ -12,7 +12,7 @@ import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
-import { FeedLink } from 'widgets/links.js';
+import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import Loading from 'widgets/Loading.js';
 import Header from 'widgets/Header.js';
 import './FeedView.less';
@@ -38,7 +38,17 @@ export function AllView({params, feedsById, view, layout, snapshot, articlesById
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header text="All Feeds" />
-        {renderTools(snapshot, onMarkArticles)}
+        <div className="floater-wrap">
+            <div className="floater">
+                {joinLinks([
+                    renderArchiveAllLink(snapshot, onMarkArticles),
+                    snapshot.filter !== FILTER_NEW ? <AllLink key={FILTER_NEW} filter={FILTER_NEW}>New</AllLink> : null,
+                    snapshot.filter !== FILTER_SAVED ? <AllLink key={FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink> : null,
+                    snapshot.filter !== FILTER_ARCHIVED ? <AllLink key={FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink> : null,
+                    snapshot.filter !== FILTER_ALL ? <AllLink key={FILTER_ALL} filter={FILTER_ALL}>All</AllLink> : null,
+                ])}
+            </div>
+        </div>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
@@ -60,7 +70,17 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header text={feed.text || feed.title} />
-        {renderTools(snapshot, onMarkArticles)}
+        <div className="floater-wrap">
+            <div className="floater">
+                {joinLinks([
+                    renderArchiveAllLink(snapshot, onMarkArticles),
+                    snapshot.filter !== FILTER_NEW ? <FeedLink key={FILTER_NEW} feedId={feedId} filter={FILTER_NEW}>New</FeedLink> : null,
+                    snapshot.filter !== FILTER_SAVED ? <FeedLink key={FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink> : null,
+                    snapshot.filter !== FILTER_ARCHIVED ? <FeedLink key={FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink> : null,
+                    snapshot.filter !== FILTER_ALL ? <FeedLink key={FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink> : null,
+                ])}
+            </div>
+        </div>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
@@ -82,7 +102,17 @@ export function LabelView({params, labelsById, feedsById, view, layout, snapshot
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         <Header text={label.text} />
-        {renderTools(snapshot, onMarkArticles)}
+        <div className="floater-wrap">
+            <div className="floater">
+                {joinLinks([
+                    renderArchiveAllLink(snapshot, onMarkArticles),
+                    snapshot.filter !== FILTER_NEW ? <LabelLink key={FILTER_NEW} labelId={labelId} filter={FILTER_NEW}>New</LabelLink> : null,
+                    snapshot.filter !== FILTER_SAVED ? <LabelLink key={FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink> : null,
+                    snapshot.filter !== FILTER_ARCHIVED ? <LabelLink key={FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink> : null,
+                    snapshot.filter !== FILTER_ALL ? <LabelLink key={FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink> : null,
+                ])}
+            </div>
+        </div>
         {renderSnapshot(snapshot,
             () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
             () => onLoadMore(snapshot.articleIds))}
@@ -101,25 +131,42 @@ export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllV
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);
 export const ConnectedLabelView = connect(state => state, mapDispatchToProps)(LabelView);
 
-function renderTools(snapshot, onMarkArticles) {
+/**
+ * Given a list of components, filter out null ones and insert non-breaking
+ * spaces between those remaining.
+ */
+function joinLinks(maybeLinks) {
+    const links = [];
+    for (var i = 0; i < maybeLinks.length; i++) {
+        if (maybeLinks[i]) {
+            links.push(maybeLinks[i]);
+            if (i !== maybeLinks.length - 1) {
+                links.push(" \x1b\x1b ");
+            }
+        }
+    }
+    return links;
+}
+
+function renderArchiveAllLink(snapshot, onMarkArticles) {
     // Stuff is still loading.
     if (!snapshot || snapshot.loading) {
         return null;
     }
-    // There is no point in marking zero articles anything.
-    if (!snapshot.articleIds.length || snapshot.filter === FILTER_ARCHIVED) {
+
+    if (snapshot.articleIds.length < 1) {
         return null;
     }
-    return <div className="floater-wrap">
-        <div className="floater">
-            <a href="#" onClick={e => {
-                e.preventDefault();
-                if (confirm("Archive " + snapshot.articleIds.length + " articles?")) {
-                    onMarkArticles(snapshot.articleIds, STATE_ARCHIVED);
-                }
-            }}>Archive all</a>
-        </div>
-    </div>;
+    if (snapshot.filter === FILTER_ARCHIVED) {
+        return null;
+    }
+
+    return <a key="archive-all" href="#" onClick={e => {
+        e.preventDefault();
+        if (confirm("Archive " + snapshot.articleIds.length + " articles?")) {
+            onMarkArticles(snapshot.articleIds, STATE_ARCHIVED);
+        }
+    }}>Archive all</a>;
 }
 
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
