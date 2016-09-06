@@ -29,20 +29,7 @@ const Root = React.createClass({
 });
 
 
-import { setFilter } from './actions.js';
-function filterActionForState(nextState) {
-    // XXX: Icky hack.
-    var search = nextState.location.search;
-    var match = /filter=(new|saved|all)/.exec(search);
-    console.log('search', search, 'match', match);
-    if (match && match[1]) {
-        return setFilter(match[1]);
-    }
-    return null;
-}
-
-
-import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
+import { loadFeeds, loadMore, setFilter, showAll, showFeed, showLabel } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
@@ -55,25 +42,16 @@ ReactDOM.render(
                 <Route path="article/:articleId" component={ConnectedArticleView} onEnter={(nextState) => {
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />
-                <Route path="all" component={ConnectedAllView} onEnter={(nextState) => {
-                    var filter;
-                    if (filter = filterActionForState(nextState)) {
-                        store.dispatch(filter);
-                    }
+                <Route path="all/:filter" component={ConnectedAllView} onEnter={(nextState) => {
+                    store.dispatch(setFilter(nextState.params.filter));
                     store.dispatch(showAll());
                 }} />
-                <Route path="label/:labelId" component={ConnectedLabelView} onEnter={(nextState) => {
-                    var filter;
-                    if (filter = filterActionForState(nextState)) {
-                        store.dispatch(filter);
-                    }
+                <Route path="label/:labelId/:filter" component={ConnectedLabelView} onEnter={(nextState) => {
+                    store.dispatch(setFilter(nextState.params.filter));
                     store.dispatch(showLabel(nextState.params.labelId));
                 }} />
-                <Route path="feed/:feedId" component={ConnectedFeedView} onEnter={(nextState) => {
-                    var filter;
-                    if (filter = filterActionForState(nextState)) {
-                        store.dispatch(filter);
-                    }
+                <Route path="feed/:feedId/:filter" component={ConnectedFeedView} onEnter={(nextState) => {
+                    store.dispatch(setFilter(nextState.params.filter));
                     store.dispatch(showFeed(nextState.params.feedId));
                 }} />
             </Route>

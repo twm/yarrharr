@@ -295,7 +295,7 @@ export const AddFeedView = React.createClass({
         }
         if (feedId) {
             return <div>
-                <p>Added feed <FeedLink feedId={feedId}>{url}</FeedLink></p>
+                <p>Added feed <FeedLink feedId={feedId} filter={FILTER_NEW}>{url}</FeedLink></p>
             </div>;
         }
         return <p>Adding feed {url}</p>;

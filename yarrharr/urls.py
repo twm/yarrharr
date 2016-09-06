@@ -10,9 +10,9 @@ urlpatterns = patterns(
     url(r'^inventory/$', 'yarrharr.views.index'),
     url(r'^inventory/add/$', 'yarrharr.views.index'),
     url(r'^article/\d+/$', 'yarrharr.views.index'),
-    url(r'^all/$', 'yarrharr.views.index'),
-    url(r'^label/\d+/$', 'yarrharr.views.index'),
-    url(r'^feed/\d+/$', 'yarrharr.views.index'),
+    url(r'^all/[^/]+/$', 'yarrharr.views.index'),
+    url(r'^label/\d+/[^/]+/$', 'yarrharr.views.index'),
+    url(r'^feed/\d+/[^/]+/$', 'yarrharr.views.index'),
 
     # API
     url(r'^api/snapshots/$', 'yarrharr.views.snapshots'),
