@@ -20,7 +20,6 @@ export default function syncViewOptions(store, storage) {
     var view = storage.getItem('view');
     var layout = storage.getItem('layout');
     var order = storage.getItem('order');
-    var filter = storage.getItem('order');
 
     // If the key is not present in the Storage then we will get null, which
     // will fail the validity check.
@@ -33,26 +32,20 @@ export default function syncViewOptions(store, storage) {
     if (validOrder(order)) {
         store.dispatch(setOrder(order));
     }
-    if (validFilter(filter)) {
-        store.dispatch(setFilter(filter));
-    }
 
     return store.subscribe(function saveToLocalStorage() {
         const state = store.getState();
         if (state.view !== view
                 || state.layout !== layout
                 || state.snapshot.order !== order
-                || state.snapshot.filter !== filter
         ) {
             view = state.view;
             layout = state.layout;
             order = state.snapshot.order;
-            filter = state.snapshot.filter;
             try {
                 storage.setItem('view', view);
                 storage.setItem('layout', layout);
                 storage.setItem('order', order);
-                storage.setItem('filter', filter);
             } catch(e) {
                 // Safari in private browsing mode?  Oh well.
                 if (__debug__) {
