@@ -9,7 +9,7 @@ from yarr.models import Entry
 import django
 import feedparser
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
@@ -91,13 +91,24 @@ def entries_for_snapshot(user, params):
     Return a queryset containing entries which match the given params.
     """
     qs = Entry.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
+
     if params['filter'] == 'new':
-        qs = qs.filter(state=0)
+        filt = Q(state=0)
     elif params['filter'] == 'archived':
-        qs = qs.filter(state=1)
+        filt = Q(state=1)
     elif params['filter'] == 'saved':
-        qs = qs.filter(state=2)
-    # else 'all'
+        filt = Q(state=2)
+    else:
+        filt = None
+
+    # The include param allows inclusion of a single article which would
+    # otherwise be filtered out.  This is so that the page can be reloaded
+    # after the state is changed without getting a 404.
+    if filt is not None and params['include'] is not None:
+        filt |= Q(id=params['include'])
+
+    if filt is not None:
+        qs = qs.filter(filt)
 
     if params['order'] == 'date':
         qs = qs.order_by('date')
@@ -133,11 +144,17 @@ def snapshot_params_from_query(query_dict, user_feeds):
             return value
         return values[0]
 
+    try:
+        include = int(query_dict['include'])
+    except (KeyError, ValueError):
+        include = None
+
     return {
         'feeds': sorted(feeds),
         'filter': oneof('filter', ['new', 'archived', 'saved', 'all']),
         'order': oneof('order', ['date', 'tail']),
         'view': oneof('view', ['text', 'list']),
+        'include': include,
     }
 
 

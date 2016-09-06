@@ -58,8 +58,8 @@ export const ORDER_DATE = 'date';
 export const ORDER_TAIL = 'tail';
 export function setOrder(order) {
     return (dispatch, getState) => {
-        const { snapshot: { feedIds, filter } } = getState();
-        return _setSnapshot(feedIds, order, filter, dispatch, getState);
+        const { snapshot: { feedIds, filter, articleId } } = getState();
+        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
     };
 }
 /**
@@ -75,35 +75,38 @@ export function validOrder(order) {
 }
 
 export const REQUEST_SNAPSHOT = 'REQUEST_SNAPSHOT';
-function requestSnapshot(feedIds, order, filter) {
+function requestSnapshot(feedIds, order, filter, articleId) {
     return {
         type: REQUEST_SNAPSHOT,
         feedIds,
         order,
         filter,
+        articleId,
     };
 }
 
 
 export const RECEIVE_SNAPSHOT = 'RECEIVE_SNAPSHOT';
-function receiveSnapshot(feedIds, order, filter, articleIds) {
+function receiveSnapshot(feedIds, order, filter, articleId, articleIds) {
     return {
         type: RECEIVE_SNAPSHOT,
         feedIds,
         order,
         filter,
+        articleId,
         articleIds,
     };
 }
 
 
 export const FAIL_SNAPSHOT = 'FAIL_SNAPSHOT';
-function failSnapshot(feedIds, order, filter) {
+function failSnapshot(feedIds, order, filter, articleId) {
     return {
         type: FAIL_SNAPSHOT,
         feedIds,
         order,
         filter,
+        articleId,
     };
 }
 
@@ -226,11 +229,14 @@ export function markArticles(articleIds, state) {
  *         articlesById: Object<articleId, *>,
  *     }
  */
-function fetchSnapshot(feedIds, order, filter) {
+function fetchSnapshot(feedIds, order, filter, includeArticleId) {
     const body = new FormData();
     feedIds.forEach((id) => body.append('feeds', String(id)));
     body.append('order', order);
     body.append('filter', filter);
+    if (includeArticleId !== null) {
+        body.append('include', includeArticleId);
+    }
     return post('/api/snapshots/', body);
 }
 
@@ -254,66 +260,86 @@ function fetchArticles(articleIds) {
  * Display a combined view of all feeds to the user.  Load a fresh snapshot if
  * none is cached.
  */
-export function showAll(filter) {
+export function showAll(filter, articleId) {
     return (dispatch, getState) => {
         const { feedsById } = getState();
         const feedIds = Object.keys(feedsById).map(Number);
         const { snapshot: { order } } = getState();
-        return _setSnapshot(feedIds, order, filter, dispatch, getState);
+        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
     };
 }
 
 /**
  * Display a feed to the user.  Load a fresh snapshot if none is cached.
  */
-export function showFeed(feedId, filter) {
+export function showFeed(feedId, filter, articleId) {
     return (dispatch, getState) => {
-        const feedIds = [feedId];
+        const feedIds = [Number(feedId)];
         const { snapshot: { order } } = getState();
-        return _setSnapshot(feedIds, order, filter, dispatch, getState);
+        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
     };
 }
 
 /**
  * Display a label to the user.  Load a fresh snapshot if none is cached.
  */
-export function showLabel(labelId, filter) {
+export function showLabel(labelId, filter, articleId) {
     return (dispatch, getState) => {
         const { feedsById, snapshot: { order } } = getState();
         const feedIds = Object.keys(feedsById)
             .filter(feedId => feedsById[feedId].labels.indexOf(Number(labelId)) >= 0)
             .map(Number);
         feedIds.sort();
-        return _setSnapshot(feedIds, order, filter, dispatch, getState);
+        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
     };
 }
 
-function _setSnapshot(feedIds, order, filter, dispatch, getState) {
-    const { snapshot: { feedIds: oldFeedIds=[], order: oldOrder='', filter: oldFilter='' } } = getState();
+/**
+ * Display an article within a snapshot.
+ */
+export const SHOW_ARTICLE = 'SHOW_ARTICLE';
+export function showArticle(articleId) {
+    return {
+        type: SHOW_ARTICLE,
+        articleId,
+    };
+}
+
+function _setSnapshot(feedIds, order, filter, articleId, dispatch, getState) {
+    const {
+        snapshot: {
+            feedIds: oldFeedIds=[],
+            order: oldOrder='',
+            filter: oldFilter='',
+            includeArticleId: oldIncludeArticleId=null,
+            articleId: oldArticleId=null,
+            articleIds: oldArticleIds=[],
+        },
+    } = getState();
 
     if (!validFilter(filter)) {
         // TODO: Handle somehow?  This could be anything since it came from the URL.
     }
 
-    if (oldFeedIds.join() === feedIds.join() && oldOrder === order && oldFilter === filter) {
-        // The current snapshot has the same parameters, so we can just use it.
+    if (oldFeedIds.join() === feedIds.join() && oldOrder === order && oldFilter === filter && (oldIncludeArticleId === articleId || oldArticleIds.includes(Number(articleId)))) {
+        // The current snapshot has the same parameters and can display the requested article, so we can just use it.
+        if (oldArticleId !== articleId) {
+            dispatch(showArticle(articleId));
+        }
         return;
     }
 
-    dispatch(requestSnapshot(feedIds, order, filter));
+    dispatch(requestSnapshot(feedIds, order, filter, articleId));
 
-    return fetchSnapshot(feedIds, order, filter).then(
+    return fetchSnapshot(feedIds, order, filter, articleId).then(
         json => {
             // Updated articles are always welcome.
             dispatch(receiveArticles(json.articlesById));
-            // TODO: Check if the desired snapshot parameters have
-            // changed since the request was sent.
-            // FIXME (race condition)
-            dispatch(receiveSnapshot(feedIds, order, filter, json.snapshot));
+            dispatch(receiveSnapshot(feedIds, order, filter, articleId, json.snapshot));
         },
         err => {
             console.error(err);
-            dispatch(failSnapshot(feedIds, order, filter))
+            dispatch(failSnapshot(feedIds, order, filter, articleId))
         });
 }
 

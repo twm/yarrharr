@@ -43,22 +43,22 @@ ReactDOM.render(
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />
                 <Route path="all/:filter" component={ConnectedAllView} onEnter={(nextState) => {
-                    store.dispatch(showAll(nextState.params.filter));
+                    store.dispatch(showAll(nextState.params.filter, null));
                 }} />
                 <Route path="all/:filter/:articleId" component={ConnectedAllView} onEnter={(nextState) => {
-                    store.dispatch(showAll(nextState.params.filter, nextState.params.articleId));
+                    store.dispatch(showAll(nextState.params.filter, Number(nextState.params.articleId)));
                 }} />
                 <Route path="label/:labelId/:filter" component={ConnectedLabelView} onEnter={(nextState) => {
-                    store.dispatch(showLabel(nextState.params.labelId, nextState.params.filter));
+                    store.dispatch(showLabel(Number(nextState.params.labelId), nextState.params.filter, null));
                 }} />
                 <Route path="label/:labelId/:filter/:articleId" component={ConnectedLabelView} onEnter={(nextState) => {
-                    store.dispatch(showLabel(nextState.params.labelId, nextState.params.filter, nextState.params.articleId));
+                    store.dispatch(showLabel(Number(nextState.params.labelId), nextState.params.filter, Number(nextState.params.articleId)));
                 }} />
                 <Route path="feed/:feedId/:filter" component={ConnectedFeedView} onEnter={(nextState) => {
-                    store.dispatch(showFeed(nextState.params.feedId, nextState.params.filter));
+                    store.dispatch(showFeed(Number(nextState.params.feedId), nextState.params.filter, null));
                 }} />
                 <Route path="feed/:feedId/:filter/:articleId" component={ConnectedFeedView} onEnter={(nextState) => {
-                    store.dispatch(showFeed(nextState.params.feedId, nextState.params.filter, nextState.params.articleId));
+                    store.dispatch(showFeed(Number(nextState.params.feedId), nextState.params.filter, Number(nextState.params.articleId)));
                 }} />
             </Route>
         </Router>

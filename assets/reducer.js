@@ -83,7 +83,7 @@ function feedAddReducer(state = window.props.feedsById, action) {
     return state;
 }
 
-import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT } from './actions.js';
+import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT, SHOW_ARTICLE } from './actions.js';
 import { SET_FILTER, FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
 import { SET_ORDER, ORDER_DATE, ORDER_TAIL } from './actions.js';
 const defaultSnapshot = {
@@ -92,6 +92,7 @@ const defaultSnapshot = {
     order: ORDER_TAIL,
     filter: FILTER_NEW,
     feedIds: [],
+    articleId: null,  // Currently displayed article.
     articleIds: [],
 };
 function snapshotReducer(state = defaultSnapshot, action) {
@@ -102,33 +103,46 @@ function snapshotReducer(state = defaultSnapshot, action) {
             order: action.order,
             filter: action.filter,
             feedIds: action.feedIds,
+            articleId: action.articleId,
             articleIds: [],
         });
     } else if (action.type === RECEIVE_SNAPSHOT) {
         if (state.order !== action.order
                 || state.filter !== action.filter
                 /* NB: Should be equal by identity due to coming from the same closure */
-                || state.feedIds !== action.feedIds) {
+                || state.feedIds !== action.feedIds
+                || state.articleId !== action.articleId) {
             return state;
         }
-        return Object.assign({}, state, {
+        const newState = Object.assign({}, state, {
             loading: false,
             error: false,
             order: action.order,
             filter: action.filter,
             feedIds: action.feedIds,
+            articleId: action.articleId,
             articleIds: action.articleIds,
         });
+        if (!action.articleIds.includes(action.articleId)) {
+            // XXX: Mutating this here may cause the URL to be mismatched.
+            newState.articleId = null;
+        }
+        return newState;
     } else if (action.type === FAIL_SNAPSHOT) {
         if (state.order !== action.order
                 || state.filter !== action.filter
                 /* NB: Should be equal by identity due to coming from the same closure */
-                || state.feedIds !== action.feedIds) {
+                || state.feedIds !== action.feedIds
+                || state.articleId !== action.articleId) {
             return state;
         }
         return Object.assign({}, state, {
             loading: false,
             error: true,
+        });
+    } else if (action.type === SHOW_ARTICLE) {
+        return Object.assign({}, state, {
+            articleId: action.articleId,
         });
     }
     return state;

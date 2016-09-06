@@ -88,7 +88,7 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
 }
 
 export function LabelView({params, labelsById, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
-    const labelId = params.labelId;
+    const labelId = Number(params.labelId);
     const label = labelsById[labelId];
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
