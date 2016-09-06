@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
-import { setView, setLayout, setFilter, setOrder } from 'actions.js';
+import { setView, setLayout, setOrder } from 'actions.js';
 import { markArticle, markArticles } from 'actions.js';
 import { VIEW_LIST, VIEW_TEXT, STATE_ARCHIVED } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';

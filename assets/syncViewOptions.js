@@ -1,4 +1,4 @@
-import { setView, setLayout, setOrder, setFilter } from './actions.js';
+import { setView, setLayout, setOrder } from './actions.js';
 import { validView, validLayout, validOrder, validFilter } from './actions.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';

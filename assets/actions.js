@@ -39,12 +39,6 @@ export const FILTER_NEW = 'new';
 export const FILTER_SAVED = 'saved';
 export const FILTER_ARCHIVED = 'archived';
 export const FILTER_ALL = 'all';
-export function setFilter(filter) {
-    return (dispatch, getState) => {
-        const { snapshot: { feedIds, order } } = getState();
-        return _setSnapshot(feedIds, order, filter, dispatch, getState);
-    };
-}
 /**
  * Is `filter` a valid filter?
  */
@@ -260,11 +254,11 @@ function fetchArticles(articleIds) {
  * Display a combined view of all feeds to the user.  Load a fresh snapshot if
  * none is cached.
  */
-export function showAll() {
+export function showAll(filter) {
     return (dispatch, getState) => {
         const { feedsById } = getState();
         const feedIds = Object.keys(feedsById).map(Number);
-        const { snapshot: { order, filter } } = getState();
+        const { snapshot: { order } } = getState();
         return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
@@ -272,10 +266,10 @@ export function showAll() {
 /**
  * Display a feed to the user.  Load a fresh snapshot if none is cached.
  */
-export function showFeed(feedId) {
+export function showFeed(feedId, filter) {
     return (dispatch, getState) => {
         const feedIds = [feedId];
-        const { snapshot: { order, filter } } = getState();
+        const { snapshot: { order } } = getState();
         return _setSnapshot(feedIds, order, filter, dispatch, getState);
     };
 }
@@ -283,9 +277,9 @@ export function showFeed(feedId) {
 /**
  * Display a label to the user.  Load a fresh snapshot if none is cached.
  */
-export function showLabel(labelId) {
+export function showLabel(labelId, filter) {
     return (dispatch, getState) => {
-        const { feedsById, snapshot: { order, filter } } = getState();
+        const { feedsById, snapshot: { order } } = getState();
         const feedIds = Object.keys(feedsById)
             .filter(feedId => feedsById[feedId].labels.indexOf(Number(labelId)) >= 0)
             .map(Number);
@@ -296,6 +290,10 @@ export function showLabel(labelId) {
 
 function _setSnapshot(feedIds, order, filter, dispatch, getState) {
     const { snapshot: { feedIds: oldFeedIds=[], order: oldOrder='', filter: oldFilter='' } } = getState();
+
+    if (!validFilter(filter)) {
+        // TODO: Handle somehow?  This could be anything since it came from the URL.
+    }
 
     if (oldFeedIds.join() === feedIds.join() && oldOrder === order && oldFilter === filter) {
         // The current snapshot has the same parameters, so we can just use it.

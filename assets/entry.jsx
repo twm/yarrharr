@@ -29,7 +29,7 @@ const Root = React.createClass({
 });
 
 
-import { loadFeeds, loadMore, setFilter, showAll, showFeed, showLabel } from './actions.js';
+import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
 ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
@@ -43,16 +43,13 @@ ReactDOM.render(
                     store.dispatch(loadMore([nextState.params.articleId]));
                 }} />
                 <Route path="all/:filter" component={ConnectedAllView} onEnter={(nextState) => {
-                    store.dispatch(setFilter(nextState.params.filter));
-                    store.dispatch(showAll());
+                    store.dispatch(showAll(nextState.params.filter));
                 }} />
                 <Route path="label/:labelId/:filter" component={ConnectedLabelView} onEnter={(nextState) => {
-                    store.dispatch(setFilter(nextState.params.filter));
-                    store.dispatch(showLabel(nextState.params.labelId));
+                    store.dispatch(showLabel(nextState.params.labelId, nextState.params.filter));
                 }} />
                 <Route path="feed/:feedId/:filter" component={ConnectedFeedView} onEnter={(nextState) => {
-                    store.dispatch(setFilter(nextState.params.filter));
-                    store.dispatch(showFeed(nextState.params.feedId));
+                    store.dispatch(showFeed(nextState.params.feedId, nextState.params.filter));
                 }} />
             </Route>
         </Router>
