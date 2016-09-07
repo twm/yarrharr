@@ -1,5 +1,6 @@
 import React from 'react';
 import { FeedLink } from "widgets/links.js";
+import { FILTER_ALL } from 'actions.js';
 import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
 import { Outbound } from 'widgets/icons.js';
 import StateToggle from 'widgets/StateToggle.js';
@@ -39,7 +40,7 @@ const Article = React.createClass({
                 <h1><a href={this.props.url}>{this.props.title || "Untitled"}</a></h1>
                 {this.props.author
                     ? <p className="meta">By {this.props.author} from {this.props.feed.text || this.props.feed.title}</p>
-                    : <p className="meta">From <FeedLink feedId={this.props.feedId}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
+                    : <p className="meta">From <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
                 <p className="meta">Posted {this.props.date}</p>
                 <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
             </article>
