@@ -118,5 +118,5 @@ class ConfTests(unittest.TestCase):
             'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
             'YARR_LAYOUT_FIXED': False,
-            'YARR_ITEM_EXPIRY': 365,
+            'YARR_ITEM_EXPIRY': 1825,
         })
