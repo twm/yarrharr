@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'django-yarr',
         'Django < 1.7',
-        'Twisted >= 13.1.0',
+        'Twisted >= 16.5.0',
         'South >= 0.8.1',
         'pytz',
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
