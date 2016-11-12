@@ -1,5 +1,7 @@
 # Yarrharr
 
+[![Build Status](https://travis-ci.org/twm/yarrharr.svg?branch=master)](https://travis-ci.org/twm/yarrharr)
+
 Yarrharr is a simple web-based feed reader intended for self-hosting.
 
 ## Development
