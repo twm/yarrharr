@@ -3,7 +3,7 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-    <form method=post action="{% url 'django.contrib.auth.views.login' %}" class="yarrharr_login small_form">
+    <form method=post action="{% url 'login' %}" class="yarrharr_login small_form">
         <h1>Login</h1>
 
         {{ form.as_p }}

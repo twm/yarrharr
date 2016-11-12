@@ -148,9 +148,9 @@ def read_yarrharr_conf(files, namespace):
     namespace['SERVER_ENDPOINT'] = conf.get('yarrharr', 'server_endpoint')
 
     namespace['ROOT_URLCONF'] = 'yarrharr.urls'
-    namespace['LOGIN_URL'] = '/login/'
-    namespace['LOGIN_REDIRECT_URL'] = '/'
-    namespace['LOGOUT_URL'] = '/logout/'
+    namespace['LOGIN_URL'] = 'login'
+    namespace['LOGIN_REDIRECT_URL'] = 'home'
+    namespace['LOGOUT_URL'] = 'logout'
 
     namespace['LANGUAGE_CODE'] = 'en-us'
     namespace['USE_I18N'] = True

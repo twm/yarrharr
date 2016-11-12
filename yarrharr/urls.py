@@ -31,7 +31,7 @@ import yarrharr.views
 app_name = 'yarrharr'
 urlpatterns = (
     # Client-side GUI
-    url(r'^$', yarrharr.views.index),
+    url(r'^$', yarrharr.views.index, name='home'),
     url(r'^inventory/$', yarrharr.views.index),
     url(r'^inventory/add/$', yarrharr.views.index),
     url(r'^article/\d+/$', yarrharr.views.index),
@@ -49,8 +49,8 @@ urlpatterns = (
     url(r'^api/labels/$', yarrharr.views.labels),
     url(r'^api/inventory/$', yarrharr.views.inventory),
 
-    url(r'^login/$', auth_views.login, {'template_name': 'login.html'}),
-    url(r'^logout/$', auth_views.logout_then_login),
+    url(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
+    url(r'^logout/$', auth_views.logout_then_login, name='logout'),
     url(r'^about/$', yarrharr.views.about, name='about'),
     url(r'^debug/messages$', yarrharr.views.debug_messages, name='debug-messages'),
 )
