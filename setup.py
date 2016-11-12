@@ -2,21 +2,17 @@ from setuptools import setup, find_packages
 
 setup(
     name='yarrharr',
-    version='0.1.0a0',
+    version='0.2.0',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
-        'django-yarr',
-        'Django < 1.7',
+        'Django >= 1.10.3',
         'Twisted >= 16.5.0',
-        'South >= 0.8.1',
         'pytz',
+        'feedparser >= 5.2.1',
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
-    ],
-    dependency_links=[
-        'https://github.com/twm/django-yarr/tarball/v0.4.6-twm.1#egg=django-yarr',
     ],
     tests_require=[
         'mock',

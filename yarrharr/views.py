@@ -27,8 +27,6 @@
 import urlparse
 
 import simplejson
-import yarr
-from yarr.models import Entry
 import django
 import feedparser
 from django.contrib import messages
@@ -38,6 +36,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
 
 import yarrharr
+from yarrharr.models import Article
 from yarrharr.decorators import debug_only
 
 
@@ -113,7 +112,7 @@ def entries_for_snapshot(user, params):
     """
     Return a queryset containing entries which match the given params.
     """
-    qs = Entry.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
+    qs = Article.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
 
     if params['filter'] == 'new':
         filt = Q(state=0)
@@ -236,7 +235,7 @@ def articles_for_request(request):
     :returns: A QuerySet for Entry model instances
     """
     article_ids = map(int, request.POST.getlist('article'))
-    qs = Entry.objects.filter(feed__in=request.user.feed_set.all())
+    qs = Article.objects.filter(feed__in=request.user.feed_set.all())
     return qs.filter(id__in=article_ids)
 
 
@@ -399,7 +398,6 @@ def about(request):
     """
     return render(request, 'about.html', {
         'yarrharr_version': yarrharr.__version__,
-        'yarr_version': yarr.__version__,
         'django_version': django.get_version(),
         'feedparser_version': feedparser.__version__,
     })

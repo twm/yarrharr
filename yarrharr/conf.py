@@ -123,7 +123,6 @@ def read_yarrharr_conf(files, namespace):
         raise UnreadableConfError(files_unread)
 
     namespace['DEBUG'] = conf.getboolean('yarrharr', 'debug')
-    namespace['TEMPLATE_DEBUG'] = namespace['DEBUG']
 
     namespace['DATABASES'] = {
         'default': {
@@ -156,12 +155,7 @@ def read_yarrharr_conf(files, namespace):
     namespace['LANGUAGE_CODE'] = 'en-us'
     namespace['USE_I18N'] = True
     namespace['USE_L10N'] = True
-
-    # This must be False, because django-yarr supports Django 1.3. :'(  We set
-    # the timezone to UTC so that non-timezone-aware databases (i.e.
-    # everything but PostgreSQL) will store UTC dates, which will magically be
-    # correct when we set USE_TZ=True later.
-    namespace['USE_TZ'] = False
+    namespace['USE_TZ'] = True
     namespace['TIME_ZONE'] = 'UTC'
 
     namespace['STATIC_ROOT'] = conf.get('yarrharr', 'static_root')
@@ -169,8 +163,14 @@ def read_yarrharr_conf(files, namespace):
     namespace['STATICFILES_FINDERS'] = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',)
 
-    namespace['TEMPLATE_LOADERS'] = (
-        'django.template.loaders.app_directories.Loader',)
+    namespace['TEMPLATES'] = [{
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': namespace['DEBUG'],
+        },
+    }]
 
     namespace['SECRET_KEY'] = conf.get('secrets', 'secret_key')
     namespace['X_FRAME_OPTIONS'] = 'DENY'
@@ -192,10 +192,7 @@ def read_yarrharr_conf(files, namespace):
         'django.contrib.sessions',
         'django.contrib.messages',  # Used by yarr.
         'django.contrib.staticfiles',
-        'django.contrib.admin',  # For user admin.
-        'south',
         'yarrharr',
-        'yarr',
     )
 
     namespace['LOG_ACCESS'] = conf.get('logging', 'access') or None
@@ -203,9 +200,5 @@ def read_yarrharr_conf(files, namespace):
     namespace['LOG_UPDATE'] = conf.get('logging', 'update') or None
     # Disable Django's logging configuration stuff.
     namespace['LOGGING_CONFIG'] = None
-
-    # Yarr stuff.
-    namespace['YARR_LAYOUT_FIXED'] = False
-    namespace['YARR_ITEM_EXPIRY'] = 365 * 5
 
     return conf
