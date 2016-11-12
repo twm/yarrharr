@@ -24,16 +24,15 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-import urlparse
-
 import simplejson
 import django
 import feedparser
 from django.contrib import messages
-from django.db.models import Sum, Q
+from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
+from django.utils import timezone
 
 import yarrharr
 from yarrharr.models import Article
@@ -47,39 +46,39 @@ def json_for_entry(entry):
     """
     Translate a Yarr feed entry into the JSON data for an article.
     """
+    if entry.fave:
+        state = "saved"
+    elif entry.read:
+        state = "archived"
+    else:
+        state = "new"
     return {
         'feedId': entry.feed.id,
         'id': entry.id,
-        'state': {
-            0: "new",
-            1: "archived",
-            2: "saved",
-        }[entry.state],
+        'state': state,
         'title': entry.title,
         'content': entry.content,
         'author': entry.author,
         'date': str(entry.date),
         'url': entry.url,
-        'iconUrl': urlparse.urljoin(entry.url, '/favicon.ico'),
     }
 
 
 def json_for_feed(feed):
     return {
         'id': feed.id,
-        'title': feed.title,
-        'text': feed.text,
-        'active': feed.is_active,
-        'newCount': feed.count_unread,
-        'savedCount': feed.count_saved,
-        'totalCount': feed.count_total,
+        'title': feed.feed_title,
+        'text': feed.user_title,
+        'active': feed.next_check is not None,
+        'newCount': 0,
+        'savedCount': 0,
+        'totalCount': 0,
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
-        'url': feed.feed_url,
+        'url': feed.url,
         'added': str(feed.added),
         'updated': str(feed.last_updated or ''),
         # 'checked': str(feed.last_checked or ''),
         # 'nextCheck': str(feed.next_check or ''),
-        'frequency': feed.check_frequency,
         'error': feed.error,
     }
 
@@ -93,18 +92,13 @@ def labels_for_user(user):
 
 
 def json_for_label(label):
-    counts = label.feeds.all().aggregate(
-        new=Sum('count_unread'),
-        saved=Sum('count_saved'),
-        total=Sum('count_total'),
-    )
     return {
         'id': label.id,
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
-        'newCount': counts['new'] or 0,
-        'savedCount': counts['saved'] or 0,
-        'totalCount': counts['total'] or 0,
+        'newCount': 0,
+        'savedCount': 0,
+        'totalCount': 0,
     }
 
 
@@ -115,11 +109,11 @@ def entries_for_snapshot(user, params):
     qs = Article.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
 
     if params['filter'] == 'new':
-        filt = Q(state=0)
+        filt = Q(read=False)
     elif params['filter'] == 'archived':
-        filt = Q(state=1)
+        filt = Q(read=True)
     elif params['filter'] == 'saved':
-        filt = Q(state=2)
+        filt = Q(fave=True)
     else:
         filt = None
 
@@ -369,11 +363,11 @@ def inventory(request):
             feed.delete()
         elif action == 'activate':
             feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.is_active = False
+            feed.next_check = timezone.now()
             feed.save()
         elif action == 'deactivate':
             feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.is_active = True
+            feed.next_check = None
             feed.save()
 
         data['labelsById'] = labels_for_user(request.user)
