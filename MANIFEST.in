@@ -1,5 +1,4 @@
-include README.rst
-include HACKING.rst
+include README.md
 include yarrharr/tests/test_config.ini
 recursive-include yarrharr/static *
 recursive-include yarrharr/templates *.html

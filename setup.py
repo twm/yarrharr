@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='yarrharr',
-    version='0.1.0-alpha.0',  # per semver.org
+    version='0.1.0a0',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
