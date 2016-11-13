@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2015, 2016 Tom Most <twm@freecog.net>; GPLv3+
 # Yarrharr development Makefile.  This file contains recipes useful during
 # development, but isn't part of the sdist release.
 
@@ -45,12 +45,9 @@ devserver:
 webpack:
 	$(WEBPACK) --watch --progress
 
-check-feeds:
-	tox -e run -- django-admin.py check_feeds
-
 clean:
 	-rm -rf yarrharr/static
 	-rm -rf .tox
 	-find -name '*.pyc' -delete
 
-.PHONY: static-assets release test devserver check-feeds clean
+.PHONY: static-assets release test devserver clean

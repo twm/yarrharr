@@ -46,9 +46,10 @@ In another terminal, run the [Webpack](http://webpack.github.io/) build process 
 
     $ make webpack
 
-Feed checks are not done automatically in this mode, but must be triggered manually:
+If you make changes to the Django models you can generate migrations by running `django-admin.py` under Tox::
 
-    $ make check-feeds
+    $ tox -e run -- django-admin.py makemigrations
+    $ git add yarrharr/migrations/*.py
 
 ## Releasing Yarrharr
 
