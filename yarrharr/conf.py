@@ -41,10 +41,10 @@ DEFAULT_CONF = """\
 [yarrharr]
 debug = no
 ; Per twisted.internet.endpoints.serverFromString
-server_endpoint = tcp:8888:interface=localhost
+server_endpoint = tcp:8888:interface=127.0.0.1
 ; Must be kept in sync with server_endpoint, or may vary if proxying is in
 ; effect.
-external_url = http://localhost:8888
+external_url = http://127.0.0.1:8888
 static_root = /var/lib/yarrharr/static/
 ; URL of the files at static_root.  Normally this should only be overridden in
 ; development mode.
