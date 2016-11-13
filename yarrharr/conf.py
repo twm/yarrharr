@@ -195,10 +195,11 @@ def read_yarrharr_conf(files, namespace):
         'yarrharr',
     )
 
-    namespace['LOG_ACCESS'] = conf.get('logging', 'access') or None
-    namespace['LOG_SERVER'] = conf.get('logging', 'server') or None
-    namespace['LOG_UPDATE'] = conf.get('logging', 'update') or None
-    # Disable Django's logging configuration stuff.
-    namespace['LOGGING_CONFIG'] = None
+    if not namespace['DEBUG']:
+        namespace['LOG_ACCESS'] = conf.get('logging', 'access') or None
+        namespace['LOG_SERVER'] = conf.get('logging', 'server') or None
+        namespace['LOG_UPDATE'] = conf.get('logging', 'update') or None
+        # Disable Django's logging configuration stuff.
+        namespace['LOGGING_CONFIG'] = None
 
     return conf

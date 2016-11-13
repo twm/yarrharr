@@ -30,6 +30,7 @@ from tempfile import NamedTemporaryFile
 from ConfigParser import NoOptionError
 
 import mock
+import pkg_resources
 
 from yarrharr.conf import (find_conf_files, read_yarrharr_conf,
                            NoConfError, UnreadableConfError)
@@ -79,7 +80,7 @@ class ConfTests(unittest.TestCase):
         """
         # This will fail in Windows.  I'm okay with that for now.
         with NamedTemporaryFile() as f:
-            f.write("[secrets]\nsecret_key = sarlona\n")
+            f.write(b"[secrets]\nsecret_key = sarlona\n")
             f.seek(0)
 
             settings = {}
@@ -141,4 +142,70 @@ class ConfTests(unittest.TestCase):
             'LOG_SERVER': '/var/log/yarrharr/server.log',
             'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
+        })
+
+    def test_read_test_config(self):
+        """
+        Once ``secret_key`` is defined, the read succeeds and gives settings
+        appropriate for the app installed globally on a Debian system.
+        """
+        f = pkg_resources.resource_stream('yarrharr.tests', 'test_config.ini')
+        settings = {}
+        try:
+            read_yarrharr_conf([f.name], settings)
+        finally:
+            f.close()
+
+        self.assertEqual(settings, {
+            'DEBUG': True,
+            'DATABASES': {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'testdb.sqlite',
+                    'USER': '',
+                    'PASSWORD': '',
+                    'HOST': '',
+                    'PORT': '',
+                },
+            },
+            'ALLOWED_HOSTS': ['127.0.0.1'],
+            'SERVER_ENDPOINT': 'tcp:8888:interface=127.0.0.1',
+            'ROOT_URLCONF': 'yarrharr.urls',
+            'LOGIN_URL': 'login',
+            'LOGIN_REDIRECT_URL': 'home',
+            'LOGOUT_URL': 'logout',
+            'LANGUAGE_CODE': 'en-us',
+            'USE_I18N': True,
+            'USE_L10N': True,
+            'USE_TZ': True,
+            'TIME_ZONE': 'UTC',
+            'STATIC_ROOT': 'static/',
+            'STATIC_URL': '/static/',
+            'STATICFILES_FINDERS': (
+                'django.contrib.staticfiles.finders.AppDirectoriesFinder',),
+            'TEMPLATES': [{
+                'APP_DIRS': True,
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [],
+                'OPTIONS': {'debug': True},
+            }],
+            'SECRET_KEY': 'supersekrit',
+            'X_FRAME_OPTIONS': 'DENY',
+            'MIDDLEWARE_CLASSES': (
+                'django.middleware.common.CommonMiddleware',
+                'django.contrib.sessions.middleware.SessionMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+                'django.contrib.auth.middleware.AuthenticationMiddleware',
+                'django.contrib.messages.middleware.MessageMiddleware',
+                'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            ),
+            'WSGI_APPLICATION': 'yarrharr.wsgi.application',
+            'INSTALLED_APPS': (
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.messages',
+                'django.contrib.staticfiles',
+                'yarrharr',
+            ),
         })
