@@ -87,7 +87,6 @@ class ConfTests(unittest.TestCase):
 
         self.assertEqual(settings, {
             'DEBUG': False,
-            'TEMPLATE_DEBUG': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -101,20 +100,24 @@ class ConfTests(unittest.TestCase):
             'ALLOWED_HOSTS': ['localhost'],
             'SERVER_ENDPOINT': 'tcp:8888:interface=localhost',
             'ROOT_URLCONF': 'yarrharr.urls',
-            'LOGIN_URL': '/login/',
-            'LOGIN_REDIRECT_URL': '/',
-            'LOGOUT_URL': '/logout/',
+            'LOGIN_URL': 'login',
+            'LOGIN_REDIRECT_URL': 'home',
+            'LOGOUT_URL': 'logout',
             'LANGUAGE_CODE': 'en-us',
             'USE_I18N': True,
             'USE_L10N': True,
-            'USE_TZ': False,
+            'USE_TZ': True,
             'TIME_ZONE': 'UTC',
             'STATIC_ROOT': '/var/lib/yarrharr/static/',
             'STATIC_URL': '/static/',
             'STATICFILES_FINDERS': (
                 'django.contrib.staticfiles.finders.AppDirectoriesFinder',),
-            'TEMPLATE_LOADERS': (
-                'django.template.loaders.app_directories.Loader',),
+            'TEMPLATES': [{
+                'APP_DIRS': True,
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [],
+                'OPTIONS': {'debug': False},
+            }],
             'SECRET_KEY': 'sarlona',
             'X_FRAME_OPTIONS': 'DENY',
             'MIDDLEWARE_CLASSES': (
@@ -132,15 +135,10 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.sessions',
                 'django.contrib.messages',
                 'django.contrib.staticfiles',
-                'django.contrib.admin',
-                'south',
                 'yarrharr',
-                'yarr',
             ),
             'LOG_ACCESS': '/var/log/yarrharr/access.log',
             'LOG_SERVER': '/var/log/yarrharr/server.log',
             'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
-            'YARR_LAYOUT_FIXED': False,
-            'YARR_ITEM_EXPIRY': 1825,
         })
