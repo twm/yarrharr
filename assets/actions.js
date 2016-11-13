@@ -203,7 +203,17 @@ export function markArticle(articleId, state) {
 export function markArticles(articleIds, state) {
     return (dispatch) => {
         const body = new FormData();
-        body.append('state', state);
+        // FIXME: Stop pretending these states are mutually exclusive.
+        if (state === STATE_NEW) {
+            body.append('read', 'false');
+            body.append('fave', 'false');
+        } else if (state === STATE_ARCHIVED) {
+            body.append('read', 'true');
+            body.append('fave', 'false');
+        } else {
+            body.append('read', 'false');
+            body.append('fave', 'true');
+        }
 
         articleIds.forEach(articleId => {
             body.append('article', String(articleId))

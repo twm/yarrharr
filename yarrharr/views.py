@@ -258,9 +258,18 @@ def state(request):
     """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
-    state = {'new': 0, 'archived': 1, 'saved': 2}[request.POST['state']]
+    updates = {}
+    if request.POST['read'] == 'true':
+        updates['read'] = True
+    elif request.POST['read'] == 'false':
+        updates['read'] = False
+    if request.POST['fave'] == 'true':
+        updates['fave'] = True
+    elif request.POST['fave'] == 'false':
+        updates['fave'] = False
     qs = articles_for_request(request)
-    qs.update(state=state)
+    if updates:
+        qs.update(**updates)
     data = {
         'articlesById': {entry.id: json_for_entry(entry) for entry in qs.all()},
     }
