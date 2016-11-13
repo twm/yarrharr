@@ -9,7 +9,10 @@ Yarrharr 0.1.0a0::
     # Prerequisite: Copy /var/lib/yarrharr/db.sqlite to testdb.sqlite in
     # this git checkout.
     git checkout f15d9f013efb5904008f1ca4402bedc826deda89
-    tox -e run -- django-admin.py dumpdata > yarrharr1.json
+    tox -e run --recreate -- true
+    export DJANGO_SETTINGS_MODULE=yarrharr.settings
+    export YARRHARR_CONF=yarrharr/tests/test_config.ini
+    .tox/run/bin/django-admin.py dumpdata --format=json > yarrharr1.json
 
 Then process it with this script::
 
@@ -22,12 +25,13 @@ called articles) and message the data so that it will import cleanly.
 .. note::
 
     This process has only been tested with databases which contain a single
-    user. It is unknown whether the process will work with additional users.
+    user of ID 1. It is unknown whether the process will work with additional
+    users.
 
 Now create a *fresh* Yarrharr 0.2.0 database and import the dump::
 
     rm testdb.sqlite
-    tox -e run -- django-admin.py migrate
+    tox -e run --recreate -- django-admin.py migrate
     tox -e run -- django-admin.py loaddata yarrharr2.json
 
 You can now upgrade to Yarrharr 0.2.0. Copy testdb.sqlite to
