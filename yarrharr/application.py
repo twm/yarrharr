@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ import os
 import signal
 import logging
 
-from yarr.models import Feed
 from django.conf import settings
 from twisted.python import log
 from twisted.internet import task
@@ -41,10 +40,10 @@ from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.resource import Resource
 from twisted.python.logfile import LogFile
-from twisted.internet.threads import deferToThread
 from twisted.internet.endpoints import serverFromString
 
 from . import __version__
+from .fetch import poll
 from .wsgi import application
 
 
@@ -105,27 +104,16 @@ class EndlingWrapper(object):
 
 def updateFeeds(reactor):
     """
-    Run django-yarr's update command in a thread.
+    Poll any feeds due for a check.
     """
-    log.msg('Checking feeds for updates')
-    logfile = None
-    if settings.LOG_UPDATE is not None:
-        try:
-            logfile = LogFile.fromFullPath(settings.LOG_UPDATE,
-                                           maxRotatedFiles=10)
-        except IOError:
-            log.err()
-
     start = reactor.seconds()
 
     def logTiming(result):
-        if logfile is not None:
-            logfile.close()
         duration = reactor.seconds() - start
         log.msg('Checking feeds took {:.2f} sec'.format(duration))
         return result
 
-    d = deferToThread(Feed.objects.check, logfile=EndlingWrapper(logfile))
+    d = poll()
     d.addErrback(log.err)
     d.addBoth(logTiming)
     return d
@@ -147,7 +135,8 @@ def run(sigstop=False, logPath=None):
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 
     updateLoop = task.LoopingCall(updateFeeds, reactor)
-    loopEndD = updateLoop.start(15 * 60)
+    # TODO: Adjust the loop period dynamically according to the time the next check is due.
+    loopEndD = updateLoop.start(15)
 
     def stopUpdateLoop():
         updateLoop.stop()

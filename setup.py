@@ -8,6 +8,7 @@ setup(
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
+        'attrs == 16.2.0',
         'Django >= 1.10.3',
         'Twisted >= 16.5.0',
         'pytz',
