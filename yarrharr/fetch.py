@@ -29,7 +29,7 @@ Feed fetcher based on Twisted Web
 """
 
 from cStringIO import StringIO
-import datetime
+from datetime import datetime, timedelta
 
 import attr
 from django.utils import timezone
@@ -53,12 +53,23 @@ class BadStatus(object):
     """
     code = attr.ib()
 
+    def apply(self, feed):
+        feed.last_checked = timezone.now()
+        feed.error = u'Fetch failed: HTTP status {}'.format(self.code)
+        schedule(feed)
+        feed.save()
+
 
 @attr.s(slots=True, frozen=True)
 class Unchanged(object):
     """
     A poll determined that the feed has not changed, perhaps due to a HTTP 304 response.
     """
+    def apply(self, feed):
+        feed.last_checked = timezone.now()
+        feed.error = u''
+        schedule(feed)
+        feed.save()
 
 
 @attr.s(slots=True, frozen=True)
@@ -66,6 +77,11 @@ class Gone(object):
     """
     HTTP 410 Gone was returned, so the feed should not be checked anymore.
     """
+    def apply(self, feed):
+        feed.last_checked = timezone.now()
+        feed.error = u'Feed is no longer available: automatically deactivated'
+        feed.next_check = None
+        feed.save()
 
 
 @attr.s(slots=True, frozen=True)
@@ -77,6 +93,11 @@ class MaybeUpdated(object):
     feed_title = attr.ib()
     site_url = attr.ib()
     articles = attr.ib()
+
+    def apply(self, feed):
+        # TODO: Save articles
+        schedule(feed)
+        feed.save()
 
 
 @attr.s(slots=True, frozen=True)
@@ -96,6 +117,13 @@ class BozoError(object):
     """
     error = attr.ib()
 
+    def apply(self, feed):
+        feed.last_checked = timezone.now()
+        feed.error = self.error
+        feed.schedule()
+        schedule(feed)
+        feed.save()
+
 
 @attr.s(slots=True, frozen=True)
 class PollError(object):
@@ -106,6 +134,11 @@ class PollError(object):
         a :class:`twisted.internet.failure.Failure` object
     """
     failure = attr.ib(default=attr.Factory(Failure))
+
+    def apply(self, feed):
+        feed.last_checked = timezone.now()
+        schedule(feed)
+        feed.save()
 
 
 @defer.inlineCallbacks
@@ -126,7 +159,7 @@ def poll():
             log.err()
             outcomes.append((feed, PollError()))
 
-    # TODO: Apply outcomes to the database
+    yield deferToThread(apply_to_database, outcomes)
 
 
 @defer.inlineCallbacks
@@ -185,12 +218,33 @@ def poll_feed(feed, client=treq):
         ))
 
 
+def apply_to_database(outcomes):
+    """
+    This function is called in a thread to update the database after a poll.
+
+    :param outcomes:
+    """
+    for feed, outcome in outcomes:
+        outcome.apply(feed)
+
+
+def schedule(feed):
+    """
+    Update the `next_check` timestamp on a feed.
+    """
+    if feed.next_check is None:
+        # The feed was disabled while we were checking it. Do not schedule
+        # another check.
+        return
+    feed.next_check = timezone.now() + timedelta(days=1)
+
+
 def as_datetime(t):
     """
     Convert a UTC 9-tuple in the style of the Python :mod:`time` module to
     a timezone-aware :class:`datetime.datetime`.
     """
-    return datetime.datetime(
+    return datetime(
         year=t[0],
         month=t[1],
         day=t[2],
