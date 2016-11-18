@@ -64,7 +64,7 @@ class Feed(models.Model):
     user = models.ForeignKey('auth.User')
     url = models.URLField()
     added = models.DateTimeField()
-    added = models.DateTimeField(null=True, default=None)
+    deleted = models.DateTimeField(null=True, default=None)
 
     next_check = models.DateTimeField(null=True)
     last_checked = models.DateTimeField(null=True)
