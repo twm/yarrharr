@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2016 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class BadStatus(object):
     """
     code = attr.ib()
 
-    def apply(self, feed):
+    def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u'Fetch failed: HTTP status {}'.format(self.code)
         schedule(feed)
@@ -65,7 +65,7 @@ class Unchanged(object):
     """
     A poll determined that the feed has not changed, perhaps due to a HTTP 304 response.
     """
-    def apply(self, feed):
+    def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u''
         schedule(feed)
@@ -77,7 +77,7 @@ class Gone(object):
     """
     HTTP 410 Gone was returned, so the feed should not be checked anymore.
     """
-    def apply(self, feed):
+    def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u'Feed is no longer available: automatically deactivated'
         feed.next_check = None
@@ -94,7 +94,7 @@ class MaybeUpdated(object):
     site_url = attr.ib()
     articles = attr.ib()
 
-    def apply(self, feed):
+    def persist(self, feed):
         # TODO: Save articles
         schedule(feed)
         feed.save()
@@ -117,7 +117,7 @@ class BozoError(object):
     """
     error = attr.ib()
 
-    def apply(self, feed):
+    def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = self.error
         feed.schedule()
@@ -135,7 +135,7 @@ class PollError(object):
     """
     failure = attr.ib(default=attr.Factory(Failure))
 
-    def apply(self, feed):
+    def persist(self, feed):
         feed.last_checked = timezone.now()
         schedule(feed)
         feed.save()
@@ -159,7 +159,7 @@ def poll():
             log.err()
             outcomes.append((feed, PollError()))
 
-    yield deferToThread(apply_to_database, outcomes)
+    yield deferToThread(persist_outcomes, outcomes)
 
 
 @defer.inlineCallbacks
@@ -218,14 +218,14 @@ def poll_feed(feed, client=treq):
         ))
 
 
-def apply_to_database(outcomes):
+def persist_outcomes(outcomes):
     """
     This function is called in a thread to update the database after a poll.
 
     :param outcomes:
     """
     for feed, outcome in outcomes:
-        outcome.apply(feed)
+        outcome.persist(feed)
 
 
 def schedule(feed):
