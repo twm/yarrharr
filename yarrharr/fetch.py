@@ -161,8 +161,6 @@ def poll(reactor):
     if not feeds_to_check:
         return
 
-    log.debug('feeds_to_check = {feeds}', feeds=feeds_to_check)
-
     outcomes = []
     for feed in feeds_to_check:
         try:
@@ -170,8 +168,6 @@ def poll(reactor):
         except Exception:
             log.failure("Failed to poll {feed}", feed=feed)
             outcomes.append((feed, PollError()))
-
-    log.debug('outcomes = {outcomes!r}', outcomes=outcomes)
 
     yield deferToThread(persist_outcomes, outcomes)
 
