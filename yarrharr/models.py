@@ -25,8 +25,10 @@
 # OpenSSL used as well as that of the covered work.
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
+@python_2_unicode_compatible
 class Feed(models.Model):
     """
     An Atom or RSS feed to check for new articles periodically.
@@ -82,10 +84,11 @@ class Feed(models.Model):
 
     title = property(lambda self: self.user_title or self.feed_title)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
 
 
+@python_2_unicode_compatible
 class Article(models.Model):
     """
     Checking a :class:`Feed` produces articles for the entries within it.
@@ -118,10 +121,11 @@ class Article(models.Model):
     raw_content = models.TextField()
     content = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
 
 
+@python_2_unicode_compatible
 class Label(models.Model):
     """
     Labels may be applied to feeds to group them logically.  Each has a unique
@@ -135,7 +139,7 @@ class Label(models.Model):
     user = models.ForeignKey('auth.User')
     feeds = models.ManyToManyField(Feed)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     class Meta:

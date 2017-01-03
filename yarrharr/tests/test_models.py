@@ -45,11 +45,11 @@ class FeedTests(TestCase):
             url='https://feed.example/',
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u'Example Feed',
+            feed_title=u'Example Feed‽',
             user_title=u'',
         )
-        self.assertEqual(u'Example Feed', f.title)
-        self.assertEqual(u'Example Feed <https://feed.example/>',
+        self.assertEqual(u'Example Feed‽', f.title)
+        self.assertEqual(u'Example Feed‽ <https://feed.example/>',
                          u'{}'.format(f))
 
     def test_str_user_title(self):
