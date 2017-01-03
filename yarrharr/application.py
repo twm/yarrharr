@@ -30,21 +30,24 @@ Yarrharr production server via Twisted Web
 
 import os
 import signal
+import sys
 import logging
 
 from django.conf import settings
-from twisted.python import log
+from twisted.logger import globalLogBeginner
+from twisted.logger import Logger, STDLibLogObserver
 from twisted.internet import task
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.resource import Resource
-from twisted.python.logfile import LogFile
 from twisted.internet.endpoints import serverFromString
 
 from . import __version__
-from .fetch import poll
 from .wsgi import application
+
+
+log = Logger()
 
 
 class FallbackResource(Resource):
@@ -106,15 +109,17 @@ def updateFeeds(reactor):
     """
     Poll any feeds due for a check.
     """
+    from .fetch import poll
+
     start = reactor.seconds()
 
     def logTiming(result):
-        duration = reactor.seconds() - start
-        log.msg('Checking feeds took {:.2f} sec'.format(duration))
+        log.info('Checking feeds took {duration:.2f} sec',
+                 duration=reactor.seconds() - start)
         return result
 
-    d = poll()
-    d.addErrback(log.err)
+    d = poll(reactor)
+    d.addErrback(log.failure, "Unexpected failure")
     d.addBoth(logTiming)
     return d
 
@@ -122,15 +127,14 @@ def updateFeeds(reactor):
 def run(sigstop=False, logPath=None):
     from twisted.internet import reactor
 
-    logging.basicConfig(level=logging.ERROR)
-    if settings.LOG_SERVER is not None:
-        # TODO: Reopen on SIGHUP so logrotate can handle compression.
-        logfile = LogFile.fromFullPath(settings.LOG_SERVER)
-        log.startLogging(logfile)
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG if settings.DEBUG else logging.INFO)
+    root.addHandler(logging.StreamHandler(sys.stdout))
+    globalLogBeginner.beginLoggingTo([STDLibLogObserver()])
 
-    log.msg("Yarrharr {} starting".format(__version__))
+    log.info("Yarrharr {} starting".format(__version__))
 
-    factory = Site(Root(reactor), logPath=settings.LOG_ACCESS)
+    factory = Site(Root(reactor), logPath=None)
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 

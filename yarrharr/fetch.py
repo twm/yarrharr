@@ -33,8 +33,12 @@ from datetime import datetime, timedelta
 
 import attr
 from django.utils import timezone
-import feedparser.http
-from twisted.python import log
+import feedparser
+try:
+    from feedparser.http import ACCEPT_HEADER
+except ImportError:
+    from feedparser import ACCEPT_HEADER
+from twisted.logger import Logger
 from twisted.python.failure import Failure
 from twisted.internet import defer
 from twisted.internet.threads import deferToThread
@@ -42,6 +46,9 @@ import treq
 import pytz
 
 from .models import Feed
+
+
+log = Logger()
 
 
 @attr.s(slots=True, frozen=True)
@@ -96,6 +103,8 @@ class MaybeUpdated(object):
 
     def persist(self, feed):
         # TODO: Save articles
+        feed.last_checked = timezone.now()
+        feed.error = u''
         schedule(feed)
         feed.save()
 
@@ -103,7 +112,7 @@ class MaybeUpdated(object):
 @attr.s(slots=True, frozen=True)
 class Article(object):
     author = attr.ib()
-    title = attr.i()
+    title = attr.ib()
     url = attr.ib()
     date = attr.ib()
     guid = attr.ib()
@@ -137,27 +146,32 @@ class PollError(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
+        feed.error = u''
         schedule(feed)
         feed.save()
 
 
 @defer.inlineCallbacks
-def poll():
+def poll(reactor):
     """
     Fetch any feeds which need checking.
     """
     feeds_to_check = yield deferToThread(
-        lambda: list(Feed.objects.filter(next_check__gte=timezone.now())))
+        lambda: list(Feed.objects.filter(next_check__lte=timezone.now())))
     if not feeds_to_check:
         return
+
+    log.debug('feeds_to_check = {feeds}', feeds=feeds_to_check)
 
     outcomes = []
     for feed in feeds_to_check:
         try:
             outcomes.append((feed, (yield poll_feed(feed))))
         except Exception:
-            log.err()
+            log.failure("Failed to poll {feed}", feed=feed)
             outcomes.append((feed, PollError()))
+
+    log.debug('outcomes = {outcomes!r}', outcomes=outcomes)
 
     yield deferToThread(persist_outcomes, outcomes)
 
@@ -173,17 +187,18 @@ def poll_feed(feed, client=treq):
     """
     # TODO: Etag and Last-Modified support
     response = yield client.get(feed.url, timeout=30, headers={
-        'accept': feedparser.http.ACCEPT_HEADER,
+        'accept': ACCEPT_HEADER,
     })
     raw_bytes = yield response.content()
 
+    if response.code == 410:
+        defer.returnValue(Gone())
+
     if response.code != 200:
-        defer.returnValue([BadStatus(response.code)])
+        defer.returnValue(BadStatus(response.code))
 
     # TODO: To avoid unnecessary processing, check if the bytes of the feed
     # haven't changed in case the server doesn't support Etags/Last-Modified.
-
-    # TODO: Detect permanent redirects and return Moved.
 
     # Convert headers to the format expected by feedparser.
     # TODO: feedparser appears to use native strings for headers, so these will
@@ -199,12 +214,14 @@ def poll_feed(feed, client=treq):
 
     articles = []
     for entry in parsed['entries']:
+        pubdate = entry.get('published_parsed')
         articles.append(Article(
             author=entry.get('author', u''),
             title=entry.get('title', u''),
             url=entry.get('link', u''),
-            # XXX: publication date can be missing?
-            date=as_datetime(entry.get('published_parsed')),
+            date=as_datetime(pubdate) if pubdate else None,
+            guid=entry.get('id', u''),
+            raw_content=extract_content(entry),
         ))
 
     feed = parsed.get('feed')
@@ -236,6 +253,8 @@ def schedule(feed):
         # The feed was disabled while we were checking it. Do not schedule
         # another check.
         return
+    # TODO: Schedule the next check according to how frequently new articles
+    # are posted.
     feed.next_check = timezone.now() + timedelta(days=1)
 
 
@@ -253,3 +272,20 @@ def as_datetime(t):
         second=t[5],
         tzinfo=pytz.utc,
     )
+
+
+def extract_content(entry):
+    """
+    Get the raw HTML for a feedparser entry object.
+
+    :param entry: `A feedparser entry
+        <https://pythonhosted.org/feedparser/reference-entry-content.html>`_.
+
+    :returns: HTML string
+    """
+    content = entry.get('content', [])
+    if not content:
+        return entry.get('summary', u'')
+    # TODO: extract the most appropriate entry if there are multiples (does
+    # anyone actually ever provide more than one in the real world?)
+    return content[0].value

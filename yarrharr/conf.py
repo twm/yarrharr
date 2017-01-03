@@ -60,15 +60,6 @@ port =
 
 [secrets]
 ; The secret_key key must be present and non-empty.
-
-[logging]
-; Set any of these to empty to disable.
-; HTTP access log, in standard format.
-access = /var/log/yarrharr/access.log
-; General server messages; startup, shutdown, errors, etc.
-server = /var/log/yarrharr/server.log
-; Feed update logging.
-update = /var/log/yarrharr/update.log
 """
 
 
@@ -195,11 +186,7 @@ def read_yarrharr_conf(files, namespace):
         'yarrharr',
     )
 
-    if not namespace['DEBUG']:
-        namespace['LOG_ACCESS'] = conf.get('logging', 'access') or None
-        namespace['LOG_SERVER'] = conf.get('logging', 'server') or None
-        namespace['LOG_UPDATE'] = conf.get('logging', 'update') or None
-        # Disable Django's logging configuration stuff.
-        namespace['LOGGING_CONFIG'] = None
+    # Disable Django's logging configuration stuff.
+    namespace['LOGGING_CONFIG'] = None
 
     return conf

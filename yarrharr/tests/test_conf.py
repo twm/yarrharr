@@ -138,9 +138,6 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.staticfiles',
                 'yarrharr',
             ),
-            'LOG_ACCESS': '/var/log/yarrharr/access.log',
-            'LOG_SERVER': '/var/log/yarrharr/server.log',
-            'LOG_UPDATE': '/var/log/yarrharr/update.log',
             'LOGGING_CONFIG': None,
         })
 
@@ -208,4 +205,5 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.staticfiles',
                 'yarrharr',
             ),
+            'LOGGING_CONFIG': None,
         })
