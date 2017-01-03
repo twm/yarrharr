@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,8 +44,11 @@ class Feed(models.Model):
     :ivar next_check:
         Next time we should try checking the feed. To stop checking the feed,
         set this to None.
-    :ivar last_checked: When did we last try to check the feed?
-    :ivar last_updated: When did a check find an updated feed?
+    :ivar last_checked:
+        When did we last try to check the feed? None if never checked.
+    :ivar last_updated:
+        When did a check find an updated feed? None if the feed has never been
+        successfully checked.
     :ivar error: String error message from the last check.
     :ivar etag:
         HTTP ETag from the last check. None when the feed does set the header.
@@ -67,17 +70,20 @@ class Feed(models.Model):
     deleted = models.DateTimeField(null=True, default=None)
 
     next_check = models.DateTimeField(null=True)
-    last_checked = models.DateTimeField(null=True)
-    last_updated = models.DateTimeField(null=True)
-    error = models.TextField(blank=True)
-    etag = models.TextField(null=True)
-    last_modified = models.DateTimeField(null=True)
+    last_checked = models.DateTimeField(null=True, default=None)
+    last_updated = models.DateTimeField(null=True, default=None)
+    error = models.TextField(blank=True, default=u'')
+    etag = models.TextField(null=True, default=None)
+    last_modified = models.DateTimeField(null=True, default=None)
 
     feed_title = models.TextField()
     user_title = models.TextField(default='', blank=True)
     site_url = models.URLField(default='', blank=True)
 
     title = property(lambda self: self.user_title or self.feed_title)
+
+    def __unicode__(self):
+        return u'{} <{}>'.format(self.title, self.url)
 
 
 class Article(models.Model):
@@ -112,6 +118,9 @@ class Article(models.Model):
     raw_content = models.TextField()
     content = models.TextField()
 
+    def __unicode__(self):
+        return u'{} <{}>'.format(self.title, self.url)
+
 
 class Label(models.Model):
     """
@@ -125,6 +134,9 @@ class Label(models.Model):
     text = models.CharField(unique=True, max_length=64)
     user = models.ForeignKey('auth.User')
     feeds = models.ManyToManyField(Feed)
+
+    def __unicode__(self):
+        return self.text
 
     class Meta:
         unique_together = ('user', 'text')

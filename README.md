@@ -46,9 +46,9 @@ In another terminal, run the [Webpack](http://webpack.github.io/) build process 
 
     $ make webpack
 
-If you make changes to the Django models you can generate migrations by running `django-admin.py` under Tox::
+If you make changes to the Django models you can generate migrations by running `django-admin` under Tox::
 
-    $ tox -e run -- django-admin.py makemigrations
+    $ tox -e run -- django-admin makemigrations
     $ git add yarrharr/migrations/*.py
 
 ## Releasing Yarrharr
@@ -59,7 +59,7 @@ If you make changes to the Django models you can generate migrations by running 
 
 ## License
 
-Copyright © 2013, 2014, 2015, 2016 Tom Most
+Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the [GNU General Public License](./COPYING) as published by the Free Software
