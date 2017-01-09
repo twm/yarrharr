@@ -28,6 +28,8 @@
 Feed fetcher based on Twisted Web
 """
 
+from __future__ import unicode_literals, print_function
+
 from cStringIO import StringIO
 from datetime import datetime, timedelta
 
@@ -99,18 +101,67 @@ class MaybeUpdated(object):
     """
     feed_title = attr.ib()
     site_url = attr.ib()
-    articles = attr.ib()
+    articles = attr.ib(repr=False)
 
     def persist(self, feed):
         # TODO: Save articles
         feed.last_checked = timezone.now()
         feed.error = u''
+        log.debug("Upserting {upsert_count} articles to {feed}",
+                  upsert_count=len(self.articles), feed=feed)
+
+        for upsert in self.articles:
+            try:
+                self._upsert_article(feed, upsert)
+            except Exception:
+                log.failure("Failed to upsert {upsert}", upsert=upsert)
+
         schedule(feed)
         feed.save()
 
+    def _upsert_article(self, feed, upsert):
+        if not upsert.guid:
+            log.error("No GUID; cannot match {upsert}", upsert=upsert)
+            return
+
+        log.debug("Matching by GUID {guid}", guid=upsert.guid)
+        try:
+            match = feed.articles.filter(guid=upsert.guid)[0]
+        except IndexError:
+            created = feed.articles.create(
+                read=False,
+                fave=False,
+                author=upsert.author,
+                title=upsert.title,
+                url=upsert.url,
+                # Sometimes feeds lack dates on entries; in this case use the
+                # latest date specified.
+                date=upsert.date or timezone.now(),
+                guid=upsert.guid or None,
+                raw_content=upsert.raw_content,
+                content=upsert.raw_content,
+            )
+            created.save()
+            print("  created", created, type(upsert.title), type(created.title))
+            log.debug("  created {created}", created=created)
+        else:
+            match.author = upsert.author
+            match.title = upsert.title
+            match.url = upsert.url
+            if upsert.date:
+                # The feed may not give a date. In that case leave the date
+                # that was assigned when the entry was first discovered.
+                match.date = upsert.date
+            match.guid = upsert.guid
+            match.raw_content = upsert.raw_content
+            match.content = upsert.raw_content
+            match.save()
+            print("  updated", match, type(upsert.title), type(match.title))
+            log.debug("  updated {updated}", updated=match)
+
 
 @attr.s(slots=True, frozen=True)
-class Article(object):
+class ArticleUpsert(object):
     author = attr.ib()
     title = attr.ib()
     url = attr.ib()
@@ -152,24 +203,30 @@ class PollError(object):
 
 
 @defer.inlineCallbacks
-def poll(reactor):
+def poll(reactor, max_fetch=5):
     """
     Fetch any feeds which need checking.
     """
     feeds_to_check = yield deferToThread(
-        lambda: list(Feed.objects.filter(next_check__lte=timezone.now())))
+        lambda: list(Feed.objects.filter(next_check__isnull=False).filter(
+            next_check__lte=timezone.now())[:max_fetch]))
     if not feeds_to_check:
         return
 
     outcomes = []
     for feed in feeds_to_check:
         try:
-            outcomes.append((feed, (yield poll_feed(feed))))
+            outcome = (yield poll_feed(feed))
+            outcomes.append((feed, outcome))
+            log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
         except Exception:
             log.failure("Failed to poll {feed}", feed=feed)
             outcomes.append((feed, PollError()))
 
-    yield deferToThread(persist_outcomes, outcomes)
+    try:
+        yield deferToThread(persist_outcomes, outcomes)
+    except Exception:
+        log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
 
 @defer.inlineCallbacks
@@ -210,12 +267,11 @@ def poll_feed(feed, client=treq):
 
     articles = []
     for entry in parsed['entries']:
-        pubdate = entry.get('published_parsed')
-        articles.append(Article(
+        articles.append(ArticleUpsert(
             author=entry.get('author', u''),
             title=entry.get('title', u''),
             url=entry.get('link', u''),
-            date=as_datetime(pubdate) if pubdate else None,
+            date=extract_date(entry),
             guid=entry.get('id', u''),
             raw_content=extract_content(entry),
         ))
@@ -268,6 +324,23 @@ def as_datetime(t):
         second=t[5],
         tzinfo=pytz.utc,
     )
+
+
+def extract_date(entry):
+    """
+    Attempt to extract the publication date from a feedparser entry.
+
+    :returns:
+        A timezone-aware :class:`datetime.datetime` instance, or `None` if the
+        entry lacks a date.
+    """
+    update = entry.get('updated_parsed')
+    if update:
+        return as_datetime(update)
+    pubdate = entry.get('published_parsed')
+    if pubdate:
+        return as_datetime(pubdate)
+    return None
 
 
 def extract_content(entry):

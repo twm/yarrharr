@@ -128,11 +128,12 @@ def run(sigstop=False, logPath=None):
     from twisted.internet import reactor
 
     root = logging.getLogger()
+    logging.getLogger('django').setLevel(logging.INFO)
     root.setLevel(logging.DEBUG if settings.DEBUG else logging.INFO)
     root.addHandler(logging.StreamHandler(sys.stdout))
     globalLogBeginner.beginLoggingTo([STDLibLogObserver()])
 
-    log.info("Yarrharr {} starting".format(__version__))
+    log.info("Yarrharr {version} starting", version=__version__)
 
     factory = Site(Root(reactor), logPath=None)
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
