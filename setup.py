@@ -9,9 +9,9 @@ setup(
     license='GPLv3+',
     install_requires=[
         'attrs == 16.2.0',
-        'Django >= 1.10.3',
-        'Twisted >= 16.5.0',
-        'treq >= 16.12.0',
+        'Django == 1.10',
+        'Twisted == 16.6',
+        'treq == 16.12',
         'pytz',
         # Note: feedparser master has been refactored into a package and
         # is not compatible.
