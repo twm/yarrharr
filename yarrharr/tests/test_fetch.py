@@ -24,7 +24,10 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+import hashlib
+
 import attr
+import mock
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.web import http, static
 from twisted.web.resource import ErrorPage, IResource
@@ -47,6 +50,7 @@ class FetchFeed(object):
     url = attr.ib(default=u'http://an.example/feed.xml')
     last_modified = attr.ib(default=None)
     etag = attr.ib(default=None)
+    digest = attr.ib(default=None)
 
 
 def examples():
@@ -62,6 +66,33 @@ def examples():
         '.atom': 'application/atom+xml',
     }
     return examples
+
+
+@implementer(IResource)
+@attr.s
+class StaticResource(object):
+    """
+    `StaticLastModifiedResource` implements :class:`~twisted.web.resource.IResource`.
+    It produces a static response for all requests.
+    """
+    content = attr.ib()
+
+    isLeaf = True
+
+    def putChild(self, path, child):
+        raise NotImplementedError()
+
+    def render(self, request):
+        return self.content
+
+
+class StaticResourceTests(SynchronousTestCase):
+    def test_no_match(self):
+        client = StubTreq(StaticResource(content=b'abcd'))
+        response = self.successResultOf(client.get('http://an.example/'))
+        self.assertEqual(200, response.code)
+        body = self.successResultOf(response.content())
+        self.assertEqual(b'abcd', body)
 
 
 @implementer(IResource)
@@ -186,6 +217,18 @@ class FetchTests(SynchronousTestCase):
 
         self.assertEqual(BadStatus(404), result)
 
+    def test_content_unchanged(self):
+        """
+        If the bytes of the response don't change, the feed is considered Unchanged.
+        """
+        digest = hashlib.sha256(EMPTY_RSS).digest()
+        feed = FetchFeed(digest=digest)
+        client = StubTreq(StaticResource(EMPTY_RSS))
+
+        result = self.successResultOf(poll_feed(feed, client))
+
+        self.assertEqual(Unchanged(), result)
+
     def test_etag_304(self):
         """
         The ``If-None-Match`` header is sent when there is a stored Etag. If
@@ -214,6 +257,7 @@ class FetchTests(SynchronousTestCase):
             site_url=u'http://an.example/',
             etag=u'"1234"',
             last_modified=None,
+            digest=mock.ANY,
             articles=[],
         ), result)
 
@@ -251,5 +295,6 @@ class FetchTests(SynchronousTestCase):
             site_url=u'http://an.example/',
             etag=None,
             last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT',
+            digest=mock.ANY,
             articles=[],
         ), result)

@@ -77,6 +77,7 @@ class Feed(models.Model):
     error = models.TextField(blank=True, default=u'')
     etag = models.TextField(null=True, default=None)
     last_modified = models.DateTimeField(null=True, default=None)
+    digest = models.BinaryField(null=True, default=None, max_length=32)
 
     feed_title = models.TextField()
     user_title = models.TextField(default='', blank=True)

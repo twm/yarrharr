@@ -32,6 +32,7 @@ from __future__ import unicode_literals, print_function
 
 from cStringIO import StringIO
 from datetime import datetime, timedelta
+import hashlib
 
 import attr
 from django.utils import timezone
@@ -104,6 +105,7 @@ class MaybeUpdated(object):
     articles = attr.ib(repr=False)
     etag = attr.ib(default=None)
     last_modified = attr.ib(default=None)
+    digest = attr.ib(default=None)
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
@@ -276,8 +278,9 @@ def poll_feed(feed, client=treq):
     if response.code != 200:
         defer.returnValue(BadStatus(response.code))
 
-    # TODO: To avoid unnecessary processing, check if the bytes of the feed
-    # haven't changed in case the server doesn't support Etags/Last-Modified.
+    digest = hashlib.sha256(raw_bytes).digest()
+    if feed.digest is not None and feed.digest == digest:
+        defer.returnValue(Unchanged())
 
     # Convert headers to the format expected by feedparser.
     # TODO: feedparser appears to use native strings for headers, so these will
@@ -309,6 +312,7 @@ def poll_feed(feed, client=treq):
         defer.returnValue(MaybeUpdated(
             feed_title=feed.get('title', u''),
             site_url=feed.get('link', u''),
+            digest=digest,
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
             articles=articles,
