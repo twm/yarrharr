@@ -230,6 +230,24 @@ def poll(reactor, max_fetch=5):
         log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
 
+def extract_etag(headers):
+    try:
+        etag = headers.getRawHeaders('Etag', [])[-1]
+    except IndexError:
+        etag = None
+    # TODO: Perform sanity checks to reject empty or excessively large headers.
+    return etag
+
+
+def extract_last_modified(headers):
+    try:
+        lm = headers.getRawHeaders('Last-Modified', [])[-1]
+    except IndexError:
+        lm = None
+    # TODO: Perform sanity checks on the format and reject absurd results.
+    return lm
+
+
 @defer.inlineCallbacks
 def poll_feed(feed, client=treq):
     """
@@ -256,16 +274,6 @@ def poll_feed(feed, client=treq):
 
     if response.code != 200:
         defer.returnValue(BadStatus(response.code))
-
-    try:
-        etag = response.headers.getRawHeaders('Etag', [])[-1]
-    except IndexError:
-        etag = None
-
-    try:
-        last_modified = response.headers.getRawHeaders('Last-Modified', [])[-1]
-    except IndexError:
-        last_modified = None
 
     # TODO: To avoid unnecessary processing, check if the bytes of the feed
     # haven't changed in case the server doesn't support Etags/Last-Modified.
@@ -300,8 +308,8 @@ def poll_feed(feed, client=treq):
         defer.returnValue(MaybeUpdated(
             feed_title=feed.get('title', u''),
             site_url=feed.get('link', u''),
-            etag=etag,
-            last_modified=last_modified,
+            etag=extract_etag(response.headers),
+            last_modified=extract_last_modified(response.headers),
             articles=articles,
         ))
 
