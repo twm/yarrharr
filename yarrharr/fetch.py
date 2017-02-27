@@ -239,24 +239,40 @@ def poll_feed(feed, client=treq):
     :param feed: The :class:`~yarrharr.models.Feed` to poll
     :param str url: URL to retrieve
     """
-    # TODO: Etag and Last-Modified support
-    response = yield client.get(feed.url, timeout=30, headers={
-        'accept': ACCEPT_HEADER,
-    })
+    headers = {
+        'accept': [ACCEPT_HEADER],
+    }
+    if feed.etag is not None:
+        headers['if-none-match'] = [feed.etag]
+    # TODO: Last-Modified support
+    response = yield client.get(feed.url, timeout=30, headers=headers)
     raw_bytes = yield response.content()
 
     if response.code == 410:
         defer.returnValue(Gone())
 
+    if response.code == 304:
+        defer.returnValue(Unchanged())
+
     if response.code != 200:
         defer.returnValue(BadStatus(response.code))
+
+    try:
+        etag = response.headers.getRawHeaders('Etag', [])[-1]
+    except IndexError:
+        etag = None
+
+    try:
+        last_modified = response.headers.getRawHeaders('Last-Modified', [])[-1]
+    except IndexError:
+        last_modified = None
 
     # TODO: To avoid unnecessary processing, check if the bytes of the feed
     # haven't changed in case the server doesn't support Etags/Last-Modified.
 
     # Convert headers to the format expected by feedparser.
     # TODO: feedparser appears to use native strings for headers, so these will
-    # need to be encoded under Python 3.
+    # need to be decoded under Python 3.
     h = {'content-location': response.request.absoluteURI}
     h.update({k.lower(): b', '.join(v) for (k, v) in response.headers.getAllRawHeaders()})
 
@@ -284,6 +300,8 @@ def poll_feed(feed, client=treq):
         defer.returnValue(MaybeUpdated(
             feed_title=feed.get('title', u''),
             site_url=feed.get('link', u''),
+            etag=etag,
+            last_modified=last_modified,
             articles=articles,
         ))
 
