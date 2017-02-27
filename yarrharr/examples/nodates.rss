@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>RSS feed lacking item dates</title>
-        <link>https://datefree.example/</link>
+        <link>http://an.example/</link>
         <description>
             This feed has items in reverse-chronological order but doesn't include the actual dates.
             Based on https://eklitzke.org/index.rss

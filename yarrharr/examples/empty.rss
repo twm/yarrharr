@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+    <channel>
+        <title>Empty RSS feed</title>
+        <link>http://an.example/</link>
+        <description>
+            This feed lacks any &lt;item&gt; elements.
+        </description>
+    </channel>
+</rss>

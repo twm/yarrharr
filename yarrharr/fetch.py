@@ -102,9 +102,10 @@ class MaybeUpdated(object):
     feed_title = attr.ib()
     site_url = attr.ib()
     articles = attr.ib(repr=False)
+    etag = attr.ib(default=None)
+    last_modified = attr.ib(default=None)
 
     def persist(self, feed):
-        # TODO: Save articles
         feed.last_checked = timezone.now()
         feed.error = u''
         log.debug("Upserting {upsert_count} articles to {feed}",
