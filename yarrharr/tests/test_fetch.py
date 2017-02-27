@@ -66,6 +66,63 @@ def examples():
 
 @implementer(IResource)
 @attr.s
+class StaticLastModifiedResource(object):
+    """
+    `StaticLastModifiedResource` implements
+    :class:`~twisted.web.resource.IResource`.  It produces a static response
+    for all requests, except that it supports conditional match based on
+    ``If-Modified-Since``. The handling of ``If-Modified-Since`` is an exact
+    string match on the header value rather than a more correct comparison
+    because Yarrharr should echo the exact date back to the server to allow for
+    brittle implementations (rumor says this is necessary).
+    """
+    content = attr.ib()
+    last_modified = attr.ib(convert=str)
+
+    isLeaf = True
+
+    def putChild(self, path, child):
+        raise NotImplementedError()
+
+    def render(self, request):
+        request.responseHeaders.setRawHeaders(b'Last-Modified', [self.last_modified])
+        if request.requestHeaders.getRawHeaders('If-Modified-Since') == [self.last_modified]:
+            request.setResponseCode(304)
+            return b''
+        request.setResponseCode(200)
+        return self.content
+
+
+class StaticLastModifiedResourceTests(SynchronousTestCase):
+    def test_no_match(self):
+        client = StubTreq(StaticLastModifiedResource(
+            content=b'abcd',
+            last_modified=u'Mon, 6 Feb 2017 00:00:00 GMT',
+        ))
+        response = self.successResultOf(client.get('http://an.example/'))
+        self.assertEqual(200, response.code)
+        self.assertEqual([u'Mon, 6 Feb 2017 00:00:00 GMT'],
+                         response.headers.getRawHeaders(u'Last-Modified'))
+        body = self.successResultOf(response.content())
+        self.assertEqual(b'abcd', body)
+
+    def test_match(self):
+        client = StubTreq(StaticLastModifiedResource(
+            content=b'abcd',
+            last_modified=u'Mon, 6 Feb 2017 00:00:00 GMT',
+        ))
+        response = self.successResultOf(client.get('http://an.example/', headers={
+            'if-modified-since': [u'Mon, 6 Feb 2017 00:00:00 GMT'],
+        }))
+        self.assertEqual(304, response.code)
+        self.assertEqual([u'Mon, 6 Feb 2017 00:00:00 GMT'],
+                         response.headers.getRawHeaders(u'Last-Modified'))
+        body = self.successResultOf(response.content())
+        self.assertEqual(b'', body)
+
+
+@implementer(IResource)
+@attr.s
 class StaticEtagResource(object):
     """
     `StaticEtagResource` implements :class:`~twisted.web.resource.IResource`.
@@ -98,7 +155,7 @@ class StaticEtagResourceTests(SynchronousTestCase):
     def test_match(self):
         client = StubTreq(StaticEtagResource(b'abcd', b'"abcd"'))
         response = self.successResultOf(client.get('http://an.example/', headers={
-            'if-none-match': '"abcd"',
+            'if-none-match': ['"abcd"'],
         }))
         self.assertEqual(304, response.code)
         self.assertEqual(['"abcd"'], response.headers.getRawHeaders('Etag'))
@@ -157,5 +214,42 @@ class FetchTests(SynchronousTestCase):
             site_url=u'http://an.example/',
             etag=u'"1234"',
             last_modified=None,
+            articles=[],
+        ), result)
+
+    def test_last_modified_304(self):
+        """
+        The ``If-Modified-Since`` header is sent when there is a stored date.
+        When this produces a 304 Not Modified response, the feed is regarded as
+        Unchanged.
+        """
+        feed = FetchFeed(last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT')
+        client = StubTreq(StaticLastModifiedResource(
+            content=EMPTY_RSS,
+            last_modified='Tue, 7 Feb 2017 10:25:00 GMT',
+        ))
+
+        result = self.successResultOf(poll_feed(feed, client))
+
+        self.assertEqual(Unchanged(), result)
+
+    def test_last_modified_200(self):
+        """
+        When the ``If-Modified-Since`` header does not match, a 200 response is
+        processed normally.
+        """
+        feed = FetchFeed(last_modified=u'Mon, 6 Feb 2017 00:00:00 GMT')
+        client = StubTreq(StaticLastModifiedResource(
+            content=EMPTY_RSS,
+            last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT',
+        ))
+
+        result = self.successResultOf(poll_feed(feed, client))
+
+        self.assertEqual(MaybeUpdated(
+            feed_title=u'Empty RSS feed',
+            site_url=u'http://an.example/',
+            etag=None,
+            last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT',
             articles=[],
         ), result)
