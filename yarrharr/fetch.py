@@ -260,9 +260,10 @@ def poll_feed(feed, client=treq):
     headers = {
         'accept': [ACCEPT_HEADER],
     }
-    if feed.etag is not None:
+    if feed.etag:
         headers['if-none-match'] = [feed.etag]
-    # TODO: Last-Modified support
+    elif feed.last_modified:
+        headers['if-modified-since'] = [feed.last_modified]
     response = yield client.get(feed.url, timeout=30, headers=headers)
     raw_bytes = yield response.content()
 
