@@ -79,9 +79,6 @@ class StaticResource(object):
 
     isLeaf = True
 
-    def putChild(self, path, child):
-        raise NotImplementedError()
-
     def render(self, request):
         return self.content
 
@@ -111,9 +108,6 @@ class StaticLastModifiedResource(object):
     last_modified = attr.ib(convert=str)
 
     isLeaf = True
-
-    def putChild(self, path, child):
-        raise NotImplementedError()
 
     def render(self, request):
         request.responseHeaders.setRawHeaders(b'Last-Modified', [self.last_modified])
@@ -164,9 +158,6 @@ class StaticEtagResource(object):
     etag = attr.ib()
 
     isLeaf = True
-
-    def putChild(self, path, child):
-        raise NotImplementedError()
 
     def render(self, request):
         if request.setETag(self.etag) == http.CACHED:
