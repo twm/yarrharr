@@ -8,10 +8,10 @@ setup(
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
-        'attrs == 16.2.0',
+        'attrs == 16.2',
         'Django == 1.10',
-        'Twisted == 16.6',
-        'treq == 16.12',
+        'Twisted[tls] == 17.1.0',
+        'treq == 17.3.1',
         'pytz',
         # Note: feedparser master has been refactored into a package and
         # is not compatible.
