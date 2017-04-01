@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,8 +28,6 @@
 Yarrharr production server via Twisted Web
 """
 
-import os
-import signal
 import sys
 import logging
 
@@ -124,7 +122,7 @@ def updateFeeds(reactor):
     return d
 
 
-def run(sigstop=False, logPath=None):
+def run():
     from twisted.internet import reactor
 
     root = logging.getLogger()
@@ -148,14 +146,5 @@ def run(sigstop=False, logPath=None):
         return loopEndD
 
     reactor.addSystemEventTrigger('before', 'shutdown', stopUpdateLoop)
-
-    if sigstop:
-        def sendSigstop():
-            """
-            Tell Upstart we've successfully started.
-            """
-            os.kill(os.getpid(), signal.SIGSTOP)
-
-        reactor.addSystemEventTrigger('after', 'startup', sendSigstop)
 
     reactor.run()

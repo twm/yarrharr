@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2014, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,9 @@ import argparse
 
 def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Yarrharr feed reader')
-    parser.add_argument('--sigstop', action='store_true', default=False,
-                        help='Send SIGSTOP to self on startup')
-    args = parser.parse_args(argv)
+    # Parse to disallow all args, allowing for future changes.
+    parser.parse_args(argv)
 
     os.environ['DJANGO_SETTINGS_MODULE'] = 'yarrharr.settings'
     from yarrharr.application import run
-    run(args.sigstop)
+    run()
