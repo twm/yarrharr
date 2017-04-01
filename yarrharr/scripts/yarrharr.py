@@ -30,10 +30,13 @@ import os
 import sys
 import argparse
 
+from pkg_resources import get_distribution
+
 
 def main(argv=sys.argv[1:]):
+    dist = get_distribution('Yarrharr')
     parser = argparse.ArgumentParser(description='Yarrharr feed reader')
-    # Parse to disallow all args, allowing for future changes.
+    parser.add_argument('--version', action='version', version=dist.version)
     parser.parse_args(argv)
 
     os.environ['DJANGO_SETTINGS_MODULE'] = 'yarrharr.settings'
