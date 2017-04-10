@@ -27,6 +27,9 @@
 import hashlib
 
 import attr
+from django.contrib.auth.models import User
+from django.test import TestCase as DjangoTestCase
+from django.utils import timezone
 import mock
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.web import http, static
@@ -35,6 +38,7 @@ from treq.testing import StubTreq
 from pkg_resources import resource_filename, resource_string
 from zope.interface import implementer
 
+from ..models import Feed
 from ..fetch import poll_feed, BadStatus, Gone, MaybeUpdated, Unchanged
 
 
@@ -289,3 +293,54 @@ class FetchTests(SynchronousTestCase):
             digest=mock.ANY,
             articles=[],
         ), result)
+
+
+class MaybeUpdatedTests(DjangoTestCase):
+    """
+    `fetch()` returns `MaybeUpdated` when it successfully retrieves a feed. Its
+    `persist()` method is called to update the database.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='user',
+            email='someone@example.net',
+            password='sesame',
+        )
+        self.feed = Feed.objects.create(
+            user=self.user,
+            url='https://example.com/feed',
+            site_url=u'',
+            added=timezone.now(),
+            next_check=timezone.now(),
+            feed_title=u'Before',
+            user_title=u'',
+            etag=b'',
+            last_modified=b'',
+        )
+
+    def test_persist_update_meta(self):
+        """
+        When no articles are present, only feed metadata is refreshed.
+        """
+        MaybeUpdated(
+            feed_title=u'After',
+            site_url=u'https://example.com/',
+            articles=[],
+        ).persist(self.feed)
+
+        self.assertEqual(u'', self.feed.error)
+        self.assertEqual(u'After', self.feed.feed_title)
+        self.assertEqual(u'https://example.com/', self.feed.site_url)
+
+    def test_persist_update_etag(self):
+        MaybeUpdated(
+            feed_title=u'After',
+            site_url=u'https://example.com/',
+            articles=[],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+        ).persist(self.feed)
+
+        self.assertEqual(b'"etag"', self.feed.etag)
+        self.assertEqual(b'Tue, 15 Nov 1994 12:45:26 GMT', self.feed.last_modified)

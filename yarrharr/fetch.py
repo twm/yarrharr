@@ -103,13 +103,17 @@ class MaybeUpdated(object):
     feed_title = attr.ib()
     site_url = attr.ib()
     articles = attr.ib(repr=False)
-    etag = attr.ib(default=None)
-    last_modified = attr.ib(default=None)
+    etag = attr.ib(default=b'')
+    last_modified = attr.ib(default=b'')
     digest = attr.ib(default=None)
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u''
+        feed.feed_title = self.feed_title
+        feed.site_url = self.site_url
+        feed.etag = self.etag
+        feed.last_modified = self.last_modified
         log.debug("Upserting {upsert_count} articles to {feed}",
                   upsert_count=len(self.articles), feed=feed)
 
@@ -137,8 +141,9 @@ class MaybeUpdated(object):
                 author=upsert.author,
                 title=upsert.title,
                 url=upsert.url,
-                # Sometimes feeds lack dates on entries; in this case use the
-                # latest date specified.
+                # Sometimes feeds lack dates on entries (e.g.
+                # <http://antirez.com/rss>); in this case default to the
+                # current date so that they get the date the feed was fetched.
                 date=upsert.date or timezone.now(),
                 guid=upsert.guid or None,
                 raw_content=upsert.raw_content,
@@ -234,19 +239,23 @@ def poll(reactor, max_fetch=5):
 
 def extract_etag(headers):
     try:
-        etag = headers.getRawHeaders('Etag', [])[-1]
+        etag = headers.getRawHeaders(b'etag', [])[-1]
     except IndexError:
         etag = None
-    # TODO: Perform sanity checks to reject empty or excessively large headers.
+    if etag is not None and len(etag) > 1024:
+        log.debug('Ignoring oversizzed ETag header ({count} bytes)', count=len(etag))
+        etag = None
     return etag
 
 
 def extract_last_modified(headers):
     try:
-        lm = headers.getRawHeaders('Last-Modified', [])[-1]
+        lm = headers.getRawHeaders(b'last-modified', [])[-1]
     except IndexError:
         lm = None
-    # TODO: Perform sanity checks on the format and reject absurd results.
+    if lm is not None and len(lm) > 45:
+        log.debug('Ignoring oversized Last-Modified header ({count} bytes)', count=len(lm))
+        lm = None
     return lm
 
 
@@ -260,12 +269,12 @@ def poll_feed(feed, client=treq):
     :param str url: URL to retrieve
     """
     headers = {
-        'accept': [ACCEPT_HEADER],
+        b'accept': [ACCEPT_HEADER],
     }
     if feed.etag:
-        headers['if-none-match'] = [feed.etag]
+        headers[b'if-none-match'] = [feed.etag]
     elif feed.last_modified:
-        headers['if-modified-since'] = [feed.last_modified]
+        headers[b'if-modified-since'] = [feed.last_modified]
     response = yield client.get(feed.url, timeout=30, headers=headers)
     raw_bytes = yield response.content()
 

@@ -53,10 +53,18 @@ class Feed(models.Model):
         successfully checked.
     :ivar error: String error message from the last check.
     :ivar etag:
-        HTTP ETag from the last check. None when the feed does set the header.
+        HTTP ETag from the last check. Empty when the feed does set the header.
+
+        This is the exact bytes sent by the server, though values larger than
+        a kibibyte are disallowed.
     :ivar last_modified:
-        HTTP Last-Modified header from the last check. None when the feed does
+        HTTP Last-Modified header from the last check. Empty when the feed does
         not set the header.
+
+        This is the exact bytes sent by the server. It is a `HTTP date
+        <https://tools.ietf.org/html/rfc7231#section-7.1.1.1>`_ like ``b'Tue,
+        15 Nov 1994 12:45:26 GMT'``, but the length limit is set slightly
+        higher to allow for obsolete or non-compliant servers.
 
     The feed title is taken from the feed itself by default, but may be
     overridden by the user:
@@ -75,8 +83,8 @@ class Feed(models.Model):
     last_checked = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(null=True, default=None)
     error = models.TextField(blank=True, default=u'')
-    etag = models.TextField(null=True, default=None)
-    last_modified = models.DateTimeField(null=True, default=None)
+    etag = models.BinaryField(default=b'', max_length=1024)
+    last_modified = models.BinaryField(default=b'', max_length=45)
     digest = models.BinaryField(null=True, default=None, max_length=32)
 
     feed_title = models.TextField()
