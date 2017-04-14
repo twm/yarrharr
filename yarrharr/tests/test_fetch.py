@@ -24,9 +24,11 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from datetime import datetime, timedelta
 import hashlib
 
 import attr
+from attr.validators import instance_of
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
@@ -39,7 +41,8 @@ from pkg_resources import resource_filename, resource_string
 from zope.interface import implementer
 
 from ..models import Feed
-from ..fetch import poll_feed, BadStatus, Gone, MaybeUpdated, Unchanged
+from ..fetch import poll_feed, ArticleUpsert, BadStatus, Gone, MaybeUpdated
+from ..fetch import Unchanged
 
 
 EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
@@ -52,9 +55,9 @@ class FetchFeed(object):
     fetching works.
     """
     url = attr.ib(default=u'http://an.example/feed.xml')
-    last_modified = attr.ib(default=None)
-    etag = attr.ib(default=None)
-    digest = attr.ib(default=None)
+    last_modified = attr.ib(default=b'', validator=instance_of(bytes))
+    etag = attr.ib(default=b'', validator=instance_of(bytes))
+    digest = attr.ib(default=b'', validator=instance_of(bytes))
 
 
 def examples():
@@ -230,8 +233,8 @@ class FetchTests(SynchronousTestCase):
         this results in a 304 Not Modified response, the feed is regarded as
         Unchanged.
         """
-        feed = FetchFeed(etag=u'"abcd"')
-        client = StubTreq(StaticEtagResource(EMPTY_RSS, '"abcd"'))
+        feed = FetchFeed(etag=b'"abcd"')
+        client = StubTreq(StaticEtagResource(EMPTY_RSS, b'"abcd"'))
 
         result = self.successResultOf(poll_feed(feed, client))
 
@@ -242,7 +245,7 @@ class FetchTests(SynchronousTestCase):
         When the ``If-None-Match`` header does not match, a 200 response is
         processed normally.
         """
-        feed = FetchFeed(etag=u'"abcd"')
+        feed = FetchFeed(etag=b'"abcd"')
         client = StubTreq(StaticEtagResource(EMPTY_RSS, '"1234"'))
 
         result = self.successResultOf(poll_feed(feed, client))
@@ -250,8 +253,8 @@ class FetchTests(SynchronousTestCase):
         self.assertEqual(MaybeUpdated(
             feed_title=u'Empty RSS feed',
             site_url=u'http://an.example/',
-            etag=u'"1234"',
-            last_modified=None,
+            etag=b'"1234"',
+            last_modified=b'',
             digest=mock.ANY,
             articles=[],
         ), result)
@@ -262,7 +265,7 @@ class FetchTests(SynchronousTestCase):
         When this produces a 304 Not Modified response, the feed is regarded as
         Unchanged.
         """
-        feed = FetchFeed(last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT')
+        feed = FetchFeed(last_modified=b'Tue, 7 Feb 2017 10:25:00 GMT')
         client = StubTreq(StaticLastModifiedResource(
             content=EMPTY_RSS,
             last_modified='Tue, 7 Feb 2017 10:25:00 GMT',
@@ -277,7 +280,7 @@ class FetchTests(SynchronousTestCase):
         When the ``If-Modified-Since`` header does not match, a 200 response is
         processed normally.
         """
-        feed = FetchFeed(last_modified=u'Mon, 6 Feb 2017 00:00:00 GMT')
+        feed = FetchFeed(last_modified=b'Mon, 6 Feb 2017 00:00:00 GMT')
         client = StubTreq(StaticLastModifiedResource(
             content=EMPTY_RSS,
             last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT',
@@ -288,8 +291,8 @@ class FetchTests(SynchronousTestCase):
         self.assertEqual(MaybeUpdated(
             feed_title=u'Empty RSS feed',
             site_url=u'http://an.example/',
-            etag=None,
-            last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT',
+            etag=b'',
+            last_modified=b'Tue, 7 Feb 2017 10:25:00 GMT',
             digest=mock.ANY,
             articles=[],
         ), result)
@@ -300,6 +303,11 @@ class MaybeUpdatedTests(DjangoTestCase):
     `fetch()` returns `MaybeUpdated` when it successfully retrieves a feed. Its
     `persist()` method is called to update the database.
     """
+    def assertFields(self, o, **expected):
+        actual = {}
+        for key in expected:
+            actual[key] = getattr(o, key)
+        self.assertEqual(expected, actual)
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -317,30 +325,152 @@ class MaybeUpdatedTests(DjangoTestCase):
             user_title=u'',
             etag=b'',
             last_modified=b'',
+            digest=b'',
         )
 
-    def test_persist_update_meta(self):
+    def test_persist_update_feed_meta(self):
         """
         When no articles are present, only feed metadata is refreshed.
         """
-        MaybeUpdated(
-            feed_title=u'After',
-            site_url=u'https://example.com/',
-            articles=[],
-        ).persist(self.feed)
-
-        self.assertEqual(u'', self.feed.error)
-        self.assertEqual(u'After', self.feed.feed_title)
-        self.assertEqual(u'https://example.com/', self.feed.site_url)
-
-    def test_persist_update_etag(self):
-        MaybeUpdated(
+        mu = MaybeUpdated(
             feed_title=u'After',
             site_url=u'https://example.com/',
             articles=[],
             etag=b'"etag"',
             last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
-        ).persist(self.feed)
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
 
+        mu.persist(self.feed)
+
+        self.assertEqual(u'', self.feed.error)
+        self.assertEqual(u'After', self.feed.feed_title)
+        self.assertEqual(u'https://example.com/', self.feed.site_url)
         self.assertEqual(b'"etag"', self.feed.etag)
         self.assertEqual(b'Tue, 15 Nov 1994 12:45:26 GMT', self.feed.last_modified)
+        self.assertEqual(b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', self.feed.digest)
+        # Right now scheduling is naïve, but this will need to be changed
+        # when that does.
+        self.assertGreater(self.feed.next_check,
+                           timezone.now() + timedelta(hours=12))
+
+    def test_persist_new_article(self):
+        """
+        An article which does not match any in the database is inserted.
+        """
+        mu = MaybeUpdated(
+            feed_title=u'After',
+            site_url=u'https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author=u'Joe Bloggs',
+                    title=u'Blah Blah',
+                    url=u'https://example.com/blah-blah',
+                    date=timezone.now(),
+                    guid=u'doesnotexist',
+                    raw_content=u'<p>Hello, world!</p>',
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=False,
+            fave=False,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            url=u'https://example.com/blah-blah',
+            raw_content=u'<p>Hello, world!</p>',
+            content=u'<p>Hello, world!</p>',
+        )
+
+    def test_persist_article_lacking_date(self):
+        """
+        The current date is assigned to articles which did not include one in
+        the feed. When checking for updates this gives a decent approximation
+        of when the article was actually posted, though it does mean that all
+        articles in the feed when it is first added have the same date.
+        """
+        lower_bound = timezone.now()
+        mu = MaybeUpdated(
+            feed_title=u'After',
+            site_url=u'https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author=u'Joe Bloggs',
+                    title=u'Blah Blah',
+                    url=u'https://example.com/blah-blah',
+                    date=None,
+                    guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
+                    raw_content=u'<p>Hello, world!</p>',
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        upper_bound = timezone.now()
+        [article] = self.feed.articles.all()
+        self.assertTrue(lower_bound <= article.date <= upper_bound)
+
+    def test_persist_article_guid_match(self):
+        """
+        An article which matches by GUID is updated in place.
+        """
+        self.feed.articles.create(
+            read=True,
+            fave=False,
+            author=u'???',
+            title=u'???',
+            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            url=u'http://example.com/blah-blah',
+            guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
+            raw_content=b'',
+            content=b'',
+        )
+        mu = MaybeUpdated(
+            feed_title=u'After',
+            site_url=u'https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author=u'Joe Bloggs',
+                    title=u'Blah Blah',
+                    url=u'https://example.com/blah-blah',
+                    date=timezone.now(),
+                    guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
+                    raw_content=u'<p>Hello, world!</p>',
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=False,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            url=u'https://example.com/blah-blah',
+            raw_content=u'<p>Hello, world!</p>',
+            content=u'<p>Hello, world!</p>',
+        )
+
+    def test_persist_article_sanitize(self):
+        """
+        The HTML associated with an article is sanitized when it is persisted.
+        """
+        # TODO

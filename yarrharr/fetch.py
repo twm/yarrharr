@@ -103,9 +103,9 @@ class MaybeUpdated(object):
     feed_title = attr.ib()
     site_url = attr.ib()
     articles = attr.ib(repr=False)
-    etag = attr.ib(default=b'')
-    last_modified = attr.ib(default=b'')
-    digest = attr.ib(default=None)
+    etag = attr.ib()
+    last_modified = attr.ib()
+    digest = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
@@ -114,6 +114,7 @@ class MaybeUpdated(object):
         feed.site_url = self.site_url
         feed.etag = self.etag
         feed.last_modified = self.last_modified
+        feed.digest = self.digest
         log.debug("Upserting {upsert_count} articles to {feed}",
                   upsert_count=len(self.articles), feed=feed)
 
@@ -150,7 +151,6 @@ class MaybeUpdated(object):
                 content=upsert.raw_content,
             )
             created.save()
-            print("  created", created, type(upsert.title), type(created.title))
             log.debug("  created {created}", created=created)
         else:
             match.author = upsert.author
@@ -164,7 +164,6 @@ class MaybeUpdated(object):
             match.raw_content = upsert.raw_content
             match.content = upsert.raw_content
             match.save()
-            print("  updated", match, type(upsert.title), type(match.title))
             log.debug("  updated {updated}", updated=match)
 
 
@@ -241,10 +240,10 @@ def extract_etag(headers):
     try:
         etag = headers.getRawHeaders(b'etag', [])[-1]
     except IndexError:
-        etag = None
-    if etag is not None and len(etag) > 1024:
+        etag = b''
+    if len(etag) > 1024:
         log.debug('Ignoring oversizzed ETag header ({count} bytes)', count=len(etag))
-        etag = None
+        etag = b''
     return etag
 
 
@@ -252,10 +251,10 @@ def extract_last_modified(headers):
     try:
         lm = headers.getRawHeaders(b'last-modified', [])[-1]
     except IndexError:
-        lm = None
-    if lm is not None and len(lm) > 45:
+        lm = b''
+    if len(lm) > 45:
         log.debug('Ignoring oversized Last-Modified header ({count} bytes)', count=len(lm))
-        lm = None
+        lm = b''
     return lm
 
 
@@ -321,9 +320,9 @@ def poll_feed(feed, client=treq):
         defer.returnValue(MaybeUpdated(
             feed_title=feed.get('title', u''),
             site_url=feed.get('link', u''),
-            digest=digest,
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
+            digest=digest,
             articles=articles,
         ))
 
