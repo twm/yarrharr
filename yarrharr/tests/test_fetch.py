@@ -359,7 +359,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         An article which does not match any in the database is inserted.
         """
         mu = MaybeUpdated(
-            feed_title=u'After',
+            feed_title=u'Example',
             site_url=u'https://example.com/',
             articles=[
                 ArticleUpsert(
@@ -399,7 +399,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         """
         lower_bound = timezone.now()
         mu = MaybeUpdated(
-            feed_title=u'After',
+            feed_title=u'Example',
             site_url=u'https://example.com/',
             articles=[
                 ArticleUpsert(
@@ -473,4 +473,29 @@ class MaybeUpdatedTests(DjangoTestCase):
         """
         The HTML associated with an article is sanitized when it is persisted.
         """
-        # TODO
+        mu = MaybeUpdated(
+            feed_title=u'Example',
+            site_url=u'https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author=u'Joe Bloggs',
+                    title=u'Blah Blah',
+                    url=u'https://example.com/blah-blah',
+                    date=timezone.now(),
+                    guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
+                    raw_content=u'<p>Hello, world!',
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            raw_content=u'<p>Hello, world!',
+            content=u'<p>Hello, world!</p>',
+        )
