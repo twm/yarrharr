@@ -387,7 +387,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             title=u'Blah Blah',
             url=u'https://example.com/blah-blah',
             raw_content=u'<p>Hello, world!</p>',
-            content=u'<p>Hello, world!</p>',
+            content=u'<p>Hello, world!',
         )
 
     def test_persist_article_lacking_date(self):
@@ -466,7 +466,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             title=u'Blah Blah',
             url=u'https://example.com/blah-blah',
             raw_content=u'<p>Hello, world!</p>',
-            content=u'<p>Hello, world!</p>',
+            content=u'<p>Hello, world!',
         )
 
     def test_persist_article_sanitize(self):
@@ -474,16 +474,17 @@ class MaybeUpdatedTests(DjangoTestCase):
         The HTML associated with an article is sanitized when it is persisted.
         """
         mu = MaybeUpdated(
-            feed_title=u'Example',
+            feed_title=u'<b>Example</b>',
             site_url=u'https://example.com/',
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah Blah',
+                    title=u'Blah <i>Blah</i>',
                     url=u'https://example.com/blah-blah',
                     date=timezone.now(),
                     guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
-                    raw_content=u'<p>Hello, world!',
+                    raw_content=u'<p>Hello, <style>...</style>world'
+                                u'<script type="text/javascript">alert("lololol")</script>!',
                 ),
             ],
             etag=b'"etag"',
@@ -493,9 +494,12 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
+        self.assertEqual(u'Example', self.feed.title)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
-            raw_content=u'<p>Hello, world!',
-            content=u'<p>Hello, world!</p>',
+            title=u'Blah Blah',
+            raw_content=u'<p>Hello, <style>...</style>world'
+                        u'<script type="text/javascript">alert("lololol")</script>!',
+            content=u'<p>Hello, world!',
         )

@@ -17,6 +17,7 @@ setup(
         # is not compatible.
         'feedparser == 5.2.1',
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
+        'html5lib == 0.999999999',
     ],
     tests_require=[
         'mock',

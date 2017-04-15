@@ -35,6 +35,7 @@ from datetime import datetime, timedelta
 import hashlib
 
 import attr
+from django.db import transaction
 from django.utils import timezone
 import feedparser
 try:
@@ -49,9 +50,15 @@ import treq
 import pytz
 
 from .models import Feed
+from .sanitize import html_to_text, sanitize_html
 
 
 log = Logger()
+
+
+# Disable feedparser's HTML sanitization, as it drops important information
+# (like YouTube embeds). We do our own sanitization with html5lib.
+feedparser.SANITIZE_HTML = False
 
 
 @attr.s(slots=True, frozen=True)
@@ -110,7 +117,7 @@ class MaybeUpdated(object):
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u''
-        feed.feed_title = self.feed_title
+        feed.feed_title = html_to_text(self.feed_title)
         feed.site_url = self.site_url
         feed.etag = self.etag
         feed.last_modified = self.last_modified
@@ -140,7 +147,7 @@ class MaybeUpdated(object):
                 read=False,
                 fave=False,
                 author=upsert.author,
-                title=upsert.title,
+                title=html_to_text(upsert.title),
                 url=upsert.url,
                 # Sometimes feeds lack dates on entries (e.g.
                 # <http://antirez.com/rss>); in this case default to the
@@ -148,13 +155,13 @@ class MaybeUpdated(object):
                 date=upsert.date or timezone.now(),
                 guid=upsert.guid or None,
                 raw_content=upsert.raw_content,
-                content=upsert.raw_content,
+                content=sanitize_html(upsert.raw_content),
             )
             created.save()
             log.debug("  created {created}", created=created)
         else:
             match.author = upsert.author
-            match.title = upsert.title
+            match.title = html_to_text(upsert.title)
             match.url = upsert.url
             if upsert.date:
                 # The feed may not give a date. In that case leave the date
@@ -162,7 +169,7 @@ class MaybeUpdated(object):
                 match.date = upsert.date
             match.guid = upsert.guid
             match.raw_content = upsert.raw_content
-            match.content = upsert.raw_content
+            match.content = sanitize_html(upsert.raw_content)
             match.save()
             log.debug("  updated {updated}", updated=match)
 
@@ -228,7 +235,7 @@ def poll(reactor, max_fetch=5):
             log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
         except Exception:
             log.failure("Failed to poll {feed}", feed=feed)
-            outcomes.append((feed, PollError()))
+            outcomes.append((feed.id, PollError()))
 
     try:
         yield deferToThread(persist_outcomes, outcomes)
@@ -332,9 +339,18 @@ def persist_outcomes(outcomes):
     This function is called in a thread to update the database after a poll.
 
     :param outcomes:
+        :class:`list` of (feed_id, outcome) tuples, where each `outcome` is an
+        object with a ``persist(feed)`` method.
     """
-    for feed, outcome in outcomes:
-        outcome.persist(feed)
+    for feed_id, outcome in outcomes:
+        with transaction.atomic():
+            try:
+                feed = Feed.objects.get(id=feed_id)
+            except Feed.DoesNotExist:
+                # The feed was deleted while we were polling it. Discard
+                # any update as it doesn't matter any more.
+                continue
+            outcome.persist(feed)
 
 
 def schedule(feed):
