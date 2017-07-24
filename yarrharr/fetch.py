@@ -320,13 +320,13 @@ def poll_feed(feed, client=treq):
             raw_content=extract_content(entry),
         ))
 
-    feed = parsed.get('feed')
-    if not feed and feed['bozo']:
-        defer.returnValue(BozoError(error=str(feed['bozo_exception'])))
+    parsed_feed = parsed.get('feed')
+    if not parsed_feed and parsed['bozo']:
+        defer.returnValue(BozoError(error=str(parsed['bozo_exception'])))
     else:
         defer.returnValue(MaybeUpdated(
-            feed_title=feed.get('title', u''),
-            site_url=feed.get('link', u''),
+            feed_title=parsed_feed.get('title', u''),
+            site_url=parsed_feed.get('link', u''),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
             digest=digest,
