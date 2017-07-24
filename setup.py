@@ -19,9 +19,11 @@ setup(
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
         'html5lib == 0.999999999',
     ],
-    tests_require=[
-        'mock',
-    ],
+    extras_require={
+        'dev': [
+            'mock',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'yarrharr=yarrharr.scripts.yarrharr:main',
