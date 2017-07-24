@@ -46,12 +46,19 @@ from twisted.logger import Logger
 from twisted.python.failure import Failure
 from twisted.internet import defer
 from twisted.internet.threads import deferToThread
+from twisted.web import client
 import treq
 import pytz
 
 from .models import Feed
 from .sanitize import html_to_text, sanitize_html
 
+try:
+    # Seriously STFU this is not helpful.
+    client._HTTP11ClientFactory.noisy = False
+except:
+    # Oh hey whatever. No promises.
+    pass
 
 log = Logger()
 
