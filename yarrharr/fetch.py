@@ -211,7 +211,11 @@ class PollError(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u''
+        # TODO: Whitelist failure types which can have a helpful message rather
+        # than a raw traceback like twisted.internet.error.DNSLookupError (many
+        # things can cause DNS resolution to fail) or  ConnectionLost (TCP
+        # connection failure).
+        feed.error = self.failure.getTraceback()
         schedule(feed)
         feed.save()
 
@@ -235,7 +239,7 @@ def poll(reactor, max_fetch=5):
             log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
         except Exception:
             log.failure("Failed to poll {feed}", feed=feed)
-            outcomes.append((feed.id, PollError()))
+            outcomes.append((feed, PollError()))
 
     try:
         yield deferToThread(persist_outcomes, outcomes)
@@ -339,13 +343,16 @@ def persist_outcomes(outcomes):
     This function is called in a thread to update the database after a poll.
 
     :param outcomes:
-        :class:`list` of (feed_id, outcome) tuples, where each `outcome` is an
-        object with a ``persist(feed)`` method.
+        :class:`list` of (:class:`~yarrharr.models.Feed`, outcome) tuples,
+        where each `outcome` is an object with a ``persist(feed)`` method.
+
+        The :class:`~yarrharr.models.Feed` objects are not reused, as they may
+        be stale.
     """
-    for feed_id, outcome in outcomes:
+    for feed, outcome in outcomes:
         with transaction.atomic():
             try:
-                feed = Feed.objects.get(id=feed_id)
+                feed = Feed.objects.get(id=feed.id)
             except Feed.DoesNotExist:
                 # The feed was deleted while we were polling it. Discard
                 # any update as it doesn't matter any more.
