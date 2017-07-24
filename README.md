@@ -51,6 +51,10 @@ If you make changes to the Django models you can generate migrations by running 
     $ tox -e run -- django-admin makemigrations
     $ git add yarrharr/migrations/*.py
 
+If you wish to check feeds for updates:
+
+    # tox -e run -- django-amdin pollfeeds
+
 ## Releasing Yarrharr
 
  1. Bump the version number in ``setup.py``.
