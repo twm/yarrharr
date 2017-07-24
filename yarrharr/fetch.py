@@ -139,7 +139,7 @@ class MaybeUpdated(object):
             log.error("No GUID; cannot match {upsert}", upsert=upsert)
             return
 
-        log.debug("Matching by GUID {guid}", guid=upsert.guid)
+        # log.debug("Matching by GUID {guid}", guid=upsert.guid)
         try:
             match = feed.articles.filter(guid=upsert.guid)[0]
         except IndexError:
@@ -158,7 +158,7 @@ class MaybeUpdated(object):
                 content=sanitize_html(upsert.raw_content),
             )
             created.save()
-            log.debug("  created {created}", created=created)
+            log.debug("Created {created} (No match for GUID {guid})", guid=upsert.guid, created=created)
         else:
             match.author = upsert.author
             match.title = html_to_text(upsert.title)
@@ -213,8 +213,8 @@ class PollError(object):
         feed.last_checked = timezone.now()
         # TODO: Whitelist failure types which can have a helpful message rather
         # than a raw traceback like twisted.internet.error.DNSLookupError (many
-        # things can cause DNS resolution to fail) or  ConnectionLost (TCP
-        # connection failure).
+        # things can cause DNS resolution to fail) or ConnectionLost (TCP
+        # connection failure) or ConnectingCancelledError (timeout).
         feed.error = self.failure.getTraceback()
         schedule(feed)
         feed.save()
