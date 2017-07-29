@@ -38,7 +38,17 @@ release: static-assets
 	python setup.py sdist
 
 devserver:
-	tox -e runserver -- 127.0.0.1:8888
+	tox -e run -- django-admin collectstatic -l --noinput
+	tox -e run -- django-admin migrate
+	tox -e run -- django-admin runserver 127.0.0.1:8888
+
+.PHONY: poll-feeds
+poll-feeds:
+	tox -e run -- django-admin pollfeeds
+
+.PHONY: force-poll
+force-poll:
+	tox -e run -- django-admin forcepoll
 
 webpack:
 	$(WEBPACK) --watch --progress

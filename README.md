@@ -53,7 +53,12 @@ If you make changes to the Django models you can generate migrations by running 
 
 If you wish to check feeds for updates:
 
-    # tox -e run -- django-amdin pollfeeds
+    $ make poll-feeds
+
+By default, polling for feeds will only poll feeds that have been scheduled to be checked.
+To schedule an immediate check of all feeds:
+
+    $ make force-poll
 
 ## Releasing Yarrharr
 
