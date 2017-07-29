@@ -103,7 +103,7 @@ class EndlingWrapper(object):
         self.logfile.write(s)
 
 
-def updateFeeds(reactor):
+def updateFeeds(reactor, max_fetch=5):
     """
     Poll any feeds due for a check.
     """
@@ -116,7 +116,7 @@ def updateFeeds(reactor):
                  duration=reactor.seconds() - start)
         return result
 
-    d = poll(reactor)
+    d = poll(reactor, max_fetch)
     d.addErrback(log.failure, "Unexpected failure")
     d.addBoth(logTiming)
     return d

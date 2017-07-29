@@ -228,9 +228,19 @@ class PollError(object):
 
 
 @defer.inlineCallbacks
-def poll(reactor, max_fetch=5):
+def poll(reactor, max_fetch):
     """
     Fetch any feeds which need checking.
+
+    :param int max_fetch:
+        Limit on the number of feeds to fetch concurrently. This is the
+        increment of batching and aggregation: up to `max_fetch` feeds will be
+        fetched concurrently and any updates applied to the database in
+        a single transaction.
+
+        Increasing this number will increase memory use, as feed content is
+        held in memory before commit, but may also make checking feeds faster
+        if many require checking.
     """
     feeds_to_check = yield deferToThread(
         lambda: list(Feed.objects.filter(next_check__isnull=False).filter(
