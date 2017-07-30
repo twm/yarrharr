@@ -33,7 +33,9 @@ from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
 import mock
+from twisted.internet import defer, error
 from twisted.trial.unittest import SynchronousTestCase
+from twisted.python.failure import Failure
 from twisted.web import http, static
 from twisted.web.resource import ErrorPage, IResource
 from treq.testing import StubTreq
@@ -42,7 +44,7 @@ from zope.interface import implementer
 
 from ..models import Feed
 from ..fetch import poll_feed, ArticleUpsert, BadStatus, Gone, MaybeUpdated
-from ..fetch import Unchanged
+from ..fetch import Unchanged, NetworkError
 
 
 EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
@@ -192,7 +194,34 @@ class StaticEtagResourceTests(SynchronousTestCase):
         self.assertEqual(b'', body)
 
 
+@attr.s
+class ErrorTreq(object):
+    """
+    A treq-alike mock which only supports GET requests. Calling the
+    :meth:`.get()` method results in a failed Deferred.
+    """
+    _error = attr.ib(validator=attr.validators.instance_of(Exception))
+
+    def get(self, *a, **kw):
+        return defer.fail(Failure(self._error))
+
+
 class FetchTests(SynchronousTestCase):
+    def test_connection_refused(self):
+        """
+        An expected error type when connecting produces a NetworkError.
+        """
+        feed = FetchFeed()
+        client = ErrorTreq(error.ConnectionRefusedError(
+            '111: Connection refused'))
+
+        result = self.successResultOf(poll_feed(feed, client))
+
+        self.assertEqual(
+            NetworkError('Connection was refused by other side: 111: Connection refused.'),
+            result,
+        )
+
     def test_410_gone(self):
         """
         A 410 HTTP status code translates to a Gone result.

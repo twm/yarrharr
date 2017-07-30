@@ -44,7 +44,7 @@ except ImportError:
     from feedparser import ACCEPT_HEADER
 from twisted.logger import Logger
 from twisted.python.failure import Failure
-from twisted.internet import defer
+from twisted.internet import error, defer
 from twisted.internet.threads import deferToThread
 from twisted.web import client
 import treq
@@ -211,6 +211,22 @@ class BozoError(object):
 
 
 @attr.s(slots=True, frozen=True)
+class NetworkError(object):
+    """
+    Fetching or processing the feed content failed due to a known networking
+    issue. This represents an expected error case (for an unexpected error
+    case, see :class:`~.PollError`).
+    """
+    error = attr.ib()
+
+    def persist(self, feed):
+        feed.last_checked = timezone.now()
+        feed.error = self.error
+        schedule(feed)
+        feed.save()
+
+
+@attr.s(slots=True, frozen=True)
 class PollError(object):
     """
     Fetching or processing the feed content failed.
@@ -222,10 +238,6 @@ class PollError(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        # TODO: Whitelist failure types which can have a helpful message rather
-        # than a raw traceback like twisted.internet.error.DNSLookupError (many
-        # things can cause DNS resolution to fail) or ConnectionLost (TCP
-        # connection failure) or ConnectingCancelledError (timeout).
         feed.error = self.failure.getTraceback()
         schedule(feed)
         feed.save()
@@ -310,8 +322,30 @@ def poll_feed(feed, client=treq):
         conditional_get = Unchanged('last-modified')
     else:
         conditional_get = None
-    response = yield client.get(feed.url, timeout=30, headers=headers)
-    raw_bytes = yield response.content()
+
+    try:
+        response = yield client.get(feed.url, timeout=30, headers=headers)
+        raw_bytes = yield response.content()
+    except (
+        # DNS resolution failed. I'm not sure how exactly this is distinct from
+        # UnknownHostError which is a subclass of ConnectError, but this is the
+        # what I have observed. Perhaps this is what HostnameEndpoint produces.
+        error.DNSLookupError,
+        # Failed to establish a TCP connection (includes refused, etc.).
+        error.ConnectError,
+        # TCP connection failed halfway. This is safe to retry on as we only
+        # make GET requests.
+        error.ConnectionLost,
+        # Making the connection timed out (probably something is dropping traffic):
+        error.ConnectingCancelledError,
+    ) as e:
+        # TODO # A TLS cert error looks like:
+        #   Traceback (most recent call last):
+        #       Failure: twisted.web._newclient.ResponseNeverReceived:
+        #       [<twisted.python.failure.Failure OpenSSL.SSL.Error: [('SSL
+        #       routines', 'tls_process_server_certificate', 'certificate
+        #       verify failed')]>]
+        defer.returnValue(NetworkError(str(e)))
 
     if response.code == 410:
         defer.returnValue(Gone())
