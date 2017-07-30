@@ -33,7 +33,7 @@ import logging
 
 from django.conf import settings
 from twisted.logger import globalLogBeginner
-from twisted.logger import Logger, STDLibLogObserver
+from twisted.logger import Logger, textFileLogObserver
 from twisted.internet import task
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
@@ -129,7 +129,7 @@ def run():
     logging.getLogger('django').setLevel(logging.INFO)
     root.setLevel(logging.DEBUG if settings.DEBUG else logging.INFO)
     root.addHandler(logging.StreamHandler(sys.stdout))
-    globalLogBeginner.beginLoggingTo([STDLibLogObserver()])
+    globalLogBeginner.beginLoggingTo([textFileLogObserver(sys.stdout)], redirectStandardIO=False)
 
     log.info("Yarrharr {version} starting", version=__version__)
 
