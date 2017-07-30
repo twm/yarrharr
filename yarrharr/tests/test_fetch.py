@@ -85,20 +85,31 @@ class StaticResource(object):
     It produces a static response for all requests.
     """
     content = attr.ib()
+    content_type = attr.ib(default=b'application/xml')
 
     isLeaf = True
 
     def render(self, request):
+        request.responseHeaders.setRawHeaders(b'Content-Type', [self.content_type])
         return self.content
 
 
 class StaticResourceTests(SynchronousTestCase):
-    def test_no_match(self):
+    def test_content(self):
         client = StubTreq(StaticResource(content=b'abcd'))
         response = self.successResultOf(client.get('http://an.example/'))
         self.assertEqual(200, response.code)
+        self.assertEqual([b'application/xml'], response.headers.getRawHeaders(b'Content-Type'))
         body = self.successResultOf(response.content())
         self.assertEqual(b'abcd', body)
+
+    def test_content_type(self):
+        client = StubTreq(StaticResource(content=b'hello', content_type='text/plain'))
+        response = self.successResultOf(client.get('http://an.example/'))
+        self.assertEqual(200, response.code)
+        self.assertEqual([b'text/plain'], response.headers.getRawHeaders(b'Content-Type'))
+        body = self.successResultOf(response.content())
+        self.assertEqual(b'hello', body)
 
 
 @implementer(IResource)
@@ -115,11 +126,13 @@ class StaticLastModifiedResource(object):
     """
     content = attr.ib()
     last_modified = attr.ib(convert=str)
+    content_type = attr.ib(default=b'application/xml')
 
     isLeaf = True
 
     def render(self, request):
         request.responseHeaders.setRawHeaders(b'Last-Modified', [self.last_modified])
+        request.responseHeaders.setRawHeaders(b'Content-Type', [self.content_type])
         if request.requestHeaders.getRawHeaders('If-Modified-Since') == [self.last_modified]:
             request.setResponseCode(304)
             return b''
@@ -165,10 +178,12 @@ class StaticEtagResource(object):
     """
     content = attr.ib()
     etag = attr.ib()
+    content_type = attr.ib(default='application/xml')
 
     isLeaf = True
 
     def render(self, request):
+        request.responseHeaders.setRawHeaders(b'Content-Type', [self.content_type])
         if request.setETag(self.etag) == http.CACHED:
             return b''
         return self.content
@@ -179,6 +194,7 @@ class StaticEtagResourceTests(SynchronousTestCase):
         client = StubTreq(StaticEtagResource(b'abcd', b'"abcd"'))
         response = self.successResultOf(client.get('http://an.example/'))
         self.assertEqual(200, response.code)
+        self.assertEqual(['application/xml'], response.headers.getRawHeaders('Content-Type'))
         self.assertEqual(['"abcd"'], response.headers.getRawHeaders('Etag'))
         body = self.successResultOf(response.content())
         self.assertEqual(b'abcd', body)
@@ -189,6 +205,7 @@ class StaticEtagResourceTests(SynchronousTestCase):
             'if-none-match': ['"abcd"'],
         }))
         self.assertEqual(304, response.code)
+        self.assertEqual(['application/xml'], response.headers.getRawHeaders('Content-Type'))
         self.assertEqual(['"abcd"'], response.headers.getRawHeaders('Etag'))
         body = self.successResultOf(response.content())
         self.assertEqual(b'', body)
