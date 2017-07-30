@@ -88,21 +88,6 @@ class Root(FallbackResource):
         self.putChild('static', File(settings.STATIC_ROOT))
 
 
-class EndlingWrapper(object):
-    def __init__(self, logfile):
-        """
-        Wrap a Twisted LogFile to apply the weird behavior of Django's
-        management command ``stdout`` attribute: it automatically appends
-        newlines if not present.
-        """
-        self.logfile = logfile
-
-    def write(self, s, ending='\n'):
-        if not s.endswith('\n'):
-            s = s + ending
-        self.logfile.write(s)
-
-
 def updateFeeds(reactor, max_fetch=5):
     """
     Poll any feeds due for a check.
