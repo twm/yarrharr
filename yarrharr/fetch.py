@@ -199,13 +199,24 @@ class ArticleUpsert(object):
 class BozoError(object):
     """
     feedparser rejected the feed and wasn't able to extract anything useful.
+
+    :ivar int code: HTTP status code
+    :ivar str content_type:
+        Value of the Content-Type HTTP header. This is frequently a useful
+        hint.
+    :ivar str error: The feedparser "bozo exception".
     """
+    code = attr.ib()
+    content_type = attr.ib()
     error = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = self.error
-        feed.schedule()
+        feed.etag = b''
+        feed.last_modified = b''
+        feed.digest = b''
+        feed.error = u'Fetch failed: processing HTTP {} {} response produced error: {}'.format(
+            self.code, self.content_type, self.error)
         schedule(feed)
         feed.save()
 
@@ -321,7 +332,8 @@ def poll_feed(feed, client=treq):
         headers[b'if-modified-since'] = [bytes(feed.last_modified)]
         conditional_get = Unchanged('last-modified')
     else:
-        conditional_get = None
+        # 304 is not expected unless we issued a conditional get.
+        conditional_get = BadStatus(304)
 
     try:
         response = yield client.get(feed.url, timeout=30, headers=headers)
@@ -350,7 +362,7 @@ def poll_feed(feed, client=treq):
     if response.code == 410:
         defer.returnValue(Gone())
 
-    if conditional_get and response.code == 304:
+    if response.code == 304:
         defer.returnValue(conditional_get)
 
     if response.code != 200:
@@ -385,9 +397,21 @@ def poll_feed(feed, client=treq):
             raw_content=extract_content(entry),
         ))
 
+    # feedparser can manage to extract feed metadata from HTML documents like
+    # the redirect pages used by domain parkers, so we must use a heuristic to
+    # determine if we got anything of use.
+    #
+    # feedparser probably got something worthwhile if it managed to extract
+    # a feed title or entries (which we call articles). If there are articles
+    # then the bozo bit is probably set for something the end user doesn't need
+    # to know about, like XML served as text/html.
     parsed_feed = parsed.get('feed')
-    if not parsed_feed and parsed['bozo']:
-        defer.returnValue(BozoError(error=str(parsed['bozo_exception'])))
+    if not parsed_feed.get('title') or (parsed['bozo'] and not articles):
+        defer.returnValue(BozoError(
+            code=response.code,
+            content_type=u', '.join(response.headers.getRawHeaders(u'content-type')),
+            error=str(parsed['bozo_exception'])
+        ))
     else:
         defer.returnValue(MaybeUpdated(
             feed_title=parsed_feed.get('title', u''),

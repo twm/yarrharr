@@ -44,10 +44,11 @@ from zope.interface import implementer
 
 from ..models import Feed
 from ..fetch import poll_feed, ArticleUpsert, BadStatus, Gone, MaybeUpdated
-from ..fetch import Unchanged, NetworkError
+from ..fetch import Unchanged, NetworkError, BozoError
 
 
 EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
+SOME_HTML = resource_string('yarrharr', 'examples/nofeed.html')
 
 
 @attr.s
@@ -71,6 +72,7 @@ def examples():
     """
     examples = static.File(resource_filename('yarrharr', 'examples'))
     examples.contentTypes = {
+        '.html': 'text/html',
         '.rss': 'application/rss+xml',
         '.atom': 'application/atom+xml',
     }
@@ -343,6 +345,19 @@ class FetchTests(SynchronousTestCase):
             articles=[],
         ), result)
 
+    def test_bozo_html(self):
+        """
+        When feedparser sets the bozo bit and fails to extract anything useful
+        from the document, BozoError results. In this case a HTML document
+        provides nothing useful.
+        """
+        feed = FetchFeed('http://an.example/nofeed.html')
+        client = StubTreq(StaticResource(SOME_HTML, b'text/html'))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertEqual(BozoError(code=200, content_type=u'text/html', error=mock.ANY), outcome)
+
 
 class MaybeUpdatedTests(DjangoTestCase):
     """
@@ -549,3 +564,41 @@ class MaybeUpdatedTests(DjangoTestCase):
                         u'<script type="text/javascript">alert("lololol")</script>!',
             content=u'<p>Hello, world!',
         )
+
+
+class BozoErrorTests(DjangoTestCase):
+    def test_persist(self):
+        """
+        The attributes of BozoError are used to form a message for the feed's
+        error field.
+        """
+        user = User.objects.create_user(
+            username='user',
+            email='someone@example.net',
+            password='sesame',
+        )
+        feed = Feed.objects.create(
+            user=user,
+            url='https://example.com/feed',
+            site_url=u'',
+            added=timezone.now(),
+            next_check=timezone.now(),
+            feed_title=u'Before',
+            user_title=u'',
+            etag=b'',
+            last_modified=b'',
+            digest=b'',
+        )
+        be = BozoError(
+            code=201,
+            content_type=u'text/plain',
+            error='Not XML',
+        )
+
+        be.persist(feed)
+
+        # XXX Should we store the conditional get values and digest on error too?
+        self.assertEqual(feed.etag, b'')
+        self.assertEqual(feed.last_modified, b'')
+        self.assertEqual(feed.digest, b'')
+        self.assertEqual(u'Fetch failed: processing HTTP 201 text/plain response produced error: Not XML', feed.error)
