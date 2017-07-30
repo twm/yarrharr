@@ -57,7 +57,7 @@ class FetchFeed(object):
     url = attr.ib(default=u'http://an.example/feed.xml')
     last_modified = attr.ib(default=b'', validator=instance_of(bytes))
     etag = attr.ib(default=b'', validator=instance_of(bytes))
-    digest = attr.ib(default=b'', validator=instance_of(bytes))
+    digest = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
 
 
 def examples():

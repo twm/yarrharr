@@ -323,7 +323,9 @@ def poll_feed(feed, client=treq):
         defer.returnValue(BadStatus(response.code))
 
     digest = hashlib.sha256(raw_bytes).digest()
-    if feed.digest is not None and feed.digest == digest:
+    # NOTE: the feed.digest attribute is buffer (on Python 2) which means that
+    # it doesn't implement __eq__(), hence the conversion.
+    if feed.digest is not None and bytes(feed.digest) == digest:
         defer.returnValue(Unchanged('digest'))
 
     # Convert headers to the format expected by feedparser.
