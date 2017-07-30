@@ -225,7 +225,7 @@ class FetchTests(SynchronousTestCase):
 
         result = self.successResultOf(poll_feed(feed, client))
 
-        self.assertEqual(Unchanged(), result)
+        self.assertEqual(Unchanged(u'digest'), result)
 
     def test_etag_304(self):
         """
@@ -238,7 +238,7 @@ class FetchTests(SynchronousTestCase):
 
         result = self.successResultOf(poll_feed(feed, client))
 
-        self.assertEqual(Unchanged(), result)
+        self.assertEqual(Unchanged(u'etag'), result)
 
     def test_etag_200(self):
         """
@@ -273,7 +273,7 @@ class FetchTests(SynchronousTestCase):
 
         result = self.successResultOf(poll_feed(feed, client))
 
-        self.assertEqual(Unchanged(), result)
+        self.assertEqual(Unchanged(u'last-modified'), result)
 
     def test_last_modified_200(self):
         """

@@ -88,7 +88,11 @@ class BadStatus(object):
 class Unchanged(object):
     """
     A poll determined that the feed has not changed, perhaps due to a HTTP 304 response.
+
+    :ivar str reason: String describing how the feed was unchanged.
     """
+    reason = attr.ib()
+
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u''
@@ -300,23 +304,27 @@ def poll_feed(feed, client=treq):
     }
     if feed.etag:
         headers[b'if-none-match'] = [bytes(feed.etag)]
+        conditional_get = Unchanged('etag')
     elif feed.last_modified:
         headers[b'if-modified-since'] = [bytes(feed.last_modified)]
+        conditional_get = Unchanged('last-modified')
+    else:
+        conditional_get = None
     response = yield client.get(feed.url, timeout=30, headers=headers)
     raw_bytes = yield response.content()
 
     if response.code == 410:
         defer.returnValue(Gone())
 
-    if response.code == 304:
-        defer.returnValue(Unchanged())
+    if conditional_get and response.code == 304:
+        defer.returnValue(conditional_get)
 
     if response.code != 200:
         defer.returnValue(BadStatus(response.code))
 
     digest = hashlib.sha256(raw_bytes).digest()
     if feed.digest is not None and feed.digest == digest:
-        defer.returnValue(Unchanged())
+        defer.returnValue(Unchanged('digest'))
 
     # Convert headers to the format expected by feedparser.
     # TODO: feedparser appears to use native strings for headers, so these will
