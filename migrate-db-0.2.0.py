@@ -109,8 +109,9 @@ def convert_feed(o):
             'last_checked': utc(f['last_checked']),  # may be null
             'next_check': utc(f['next_check'] or NOW) if f['is_active'] else None,  # may be null in yarr
             'last_updated': utc(f['last_updated']),  # may be null
-            'etag': None,
-            'last_modified': None,
+            'etag': '',
+            'last_modified': '',
+            'digest': '',
             'error': f['error'],
         },
     }
