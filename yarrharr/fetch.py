@@ -44,9 +44,8 @@ except ImportError:
     from feedparser import ACCEPT_HEADER
 from twisted.logger import Logger
 from twisted.python.failure import Failure
-from twisted.internet import defer
+from twisted.internet import error, defer
 from twisted.internet.threads import deferToThread
-from twisted.internet.error import DNSLookupError
 from twisted.web import client
 import treq
 import pytz
@@ -327,12 +326,20 @@ def poll_feed(feed, client=treq):
     try:
         response = yield client.get(feed.url, timeout=30, headers=headers)
         raw_bytes = yield response.content()
-    except DNSLookupError as e:
-        # TODO: Whitelist more failure types which produce a helpful message
-        # rather than a raw traceback ConnectionRefused, ConnectionLost (TCP
-        # connection failure) or ConnectingCancelledError (timeout).
-        #
-        # A TLS cert error looks like:
+    except (
+        # DNS resolution failed. I'm not sure how exactly this is distinct from
+        # UnknownHostError which is a subclass of ConnectError, but this is the
+        # what I have observed. Perhaps this is what HostnameEndpoint produces.
+        error.DNSLookupError,
+        # Failed to establish a TCP connection (includes refused, etc.).
+        error.ConnectError,
+        # TCP connection failed halfway. This is safe to retry on as we only
+        # make GET requests.
+        error.ConnectionLost,
+        # Making the connection timed out (probably something is dropping traffic):
+        error.ConnectingCancelledError,
+    ) as e:
+        # TODO # A TLS cert error looks like:
         #   Traceback (most recent call last):
         #       Failure: twisted.web._newclient.ResponseNeverReceived:
         #       [<twisted.python.failure.Failure OpenSSL.SSL.Error: [('SSL
