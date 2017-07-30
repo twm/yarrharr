@@ -128,4 +128,6 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<img>`` tags are safe and pass right through.
         """
         html = u'<img alt="" src="https://example.com/baz.png">'
-        self.assertEqual(html, sanitize_html(html))
+        html2 = u'<img src="https://example.com/baz.png" alt="">'
+        # FIXME: the order of the attributes varies as dicts aren't ordered...
+        self.assertIn(sanitize_html(html), (html, html2))
