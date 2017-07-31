@@ -226,6 +226,37 @@ class ErrorTreq(object):
 
 
 class FetchTests(SynchronousTestCase):
+    def test_title_html(self):
+        """
+        HTML in feed and article titles is sanitized.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/html-title.atom')
+        client = StubTreq(StaticResource(xml))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual(u'Feed with HTML <title/>', outcome.feed_title)
+        self.assertEqual(u'<b>Entry with Escaped HTML &lt;title/&gt;</b>',
+                         outcome.articles[0].title)
+
+    def test_title_htmlish(self):
+        """
+        Sometimes feeds have plain text titles which resemble HTML. feedparser
+        may translate such a title into plain text. When it does this we must
+        pass through the result without attempting to remove HTML tags.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/htmlish-title.rss')
+        client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual(u'<notreallyhtml>', outcome.feed_title)
+        self.assertEqual(u'It goes <bing>', outcome.articles[0].title)
+
     def test_connection_refused(self):
         """
         An expected error type when connecting produces a NetworkError.
@@ -590,7 +621,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah <i>Blah</i>',
+                    title=u'Blah Blah',
                     url=u'https://example.com/blah-blah',
                     date=timezone.now(),
                     guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
@@ -605,7 +636,7 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
-        self.assertEqual(u'Example', self.feed.title)
+        self.assertEqual(u'<b>Example</b>', self.feed.title)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
