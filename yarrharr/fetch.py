@@ -128,7 +128,7 @@ class MaybeUpdated(object):
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u''
-        feed.feed_title = html_to_text(self.feed_title)
+        feed.feed_title = self.feed_title
         feed.site_url = self.site_url
         feed.etag = self.etag
         feed.last_modified = self.last_modified
@@ -184,7 +184,7 @@ class MaybeUpdated(object):
                 read=False,
                 fave=False,
                 author=upsert.author,
-                title=html_to_text(upsert.title),
+                title=upsert.title,
                 url=upsert.url,
                 # Sometimes feeds lack dates on entries (e.g.
                 # <http://antirez.com/rss>); in this case default to the
@@ -200,14 +200,13 @@ class MaybeUpdated(object):
             return
 
         # Check if we need to update.
-        title_text = html_to_text(upsert.title)
         if (match.author != upsert.author or
-                match.title != title_text or
+                match.title != upsert.title or
                 match.url != match.url or
                 (upsert.date and match.date != upsert.date) or
                 match.raw_content != upsert.raw_content):
             match.author = upsert.author
-            match.title = title_text
+            match.title = upsert.title
             match.url = upsert.url
             if upsert.date:
                 # The feed may not give a date. In that case leave the date
@@ -425,7 +424,7 @@ def poll_feed(feed, client=treq):
     for entry in parsed['entries']:
         articles.append(ArticleUpsert(
             author=entry.get('author', u''),
-            title=entry.get('title', u''),
+            title=extract_title(entry['title_detail']),
             url=entry.get('link', u''),
             date=extract_date(entry),
             guid=entry.get('id', u''),
@@ -449,7 +448,7 @@ def poll_feed(feed, client=treq):
         ))
     else:
         defer.returnValue(MaybeUpdated(
-            feed_title=parsed_feed.get('title', u''),
+            feed_title=extract_title(parsed_feed['title_detail']),
             site_url=parsed_feed.get('link', u''),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
@@ -507,6 +506,19 @@ def as_datetime(t):
         second=t[5],
         tzinfo=pytz.utc,
     )
+
+
+def extract_title(title_detail):
+    """
+    Given a feedparser `title_detail object`_, return a plain text version of
+    the title.
+
+    .. _title_detail object: https://pythonhosted.org/feedparser/reference-feed-title_detail.html
+    """
+    if title_detail['type'] == u'text/plain':
+        return title_detail['value']
+    else:
+        return html_to_text(title_detail['value'])
 
 
 def extract_date(entry):
