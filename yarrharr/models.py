@@ -126,7 +126,7 @@ class Article(models.Model):
     title = models.TextField(blank=True)
     url = models.TextField(blank=True)
     date = models.DateTimeField()
-    guid = models.TextField(null=True)
+    guid = models.TextField(blank=True, default='')
     raw_content = models.TextField()
     content = models.TextField()
 
