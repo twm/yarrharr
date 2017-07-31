@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title type="html">&lt;b&gt;Feed with HTML &amp;lt;title/&amp;gt;&lt;/b&gt;</title>
+  <entry>
+    <title type="text">&lt;b&gt;Entry with Escaped HTML &amp;lt;title/&amp;gt;&lt;/b&gt;</title>
+    <id>tag:example.org,2017:1</id>
+    <link rel="alternate" type="text/html" href="https://example.org/1"/>
+  </entry>
+</feed>

@@ -1,0 +1,28 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+  <title>
+    &lt;notreallyhtml&gt;
+  </title>
+  <link>http://example.com/rss</link>
+  <description>
+    This file is based on http://antirez.com/rss which was served with
+    Content-Type: text/xml;charset=utf-8.
+
+    I've no idea what the Atom namespace is in here for, as this is clearly
+    a RSS feed.
+  </description>
+  <item>
+    <guid>
+      http://example.com/news/1
+    </guid>
+    <title>
+      It goes &lt;bing&gt;
+    </title>
+    <link>
+      http://example.com/news/1
+    </link>
+    <description><![CDATA[<p>
+      Blah blah
+    ]]></description>
+  </item>
+</channel>
