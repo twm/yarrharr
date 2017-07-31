@@ -28,18 +28,25 @@ import simplejson
 import django
 import feedparser
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
 from django.utils import timezone
+from twisted.logger import Logger
 
 import yarrharr
 from yarrharr.models import Article
 from yarrharr.decorators import debug_only
 
 
+log = Logger()
 json_encoder = simplejson.JSONEncoderForHTML()
+
+
+def log_query(qs):
+    log.debug('qs.query = {query}', query=qs.query)
+    return qs
 
 
 def json_for_entry(entry):
@@ -88,7 +95,8 @@ def feeds_for_user(user):
 
 
 def labels_for_user(user):
-    return {label.id: json_for_label(label) for label in user.label_set.all()}
+    labels = user.label_set.all()
+    return {label.id: json_for_label(label) for label in labels}
 
 
 def json_for_label(label):
@@ -96,9 +104,9 @@ def json_for_label(label):
         'id': label.id,
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
-        'newCount': 0,
-        'savedCount': 0,
-        'totalCount': 0,
+        'newCount': Article.objects.filter(read=False).filter(feed__in=label.feeds.all()).count(),
+        'savedCount': Article.objects.filter(fave=True).filter(feed__in=label.feeds.all()).count(),
+        'totalCount': Article.objects.filter(feed__in=label.feeds.all()).count(),
     }
 
 
