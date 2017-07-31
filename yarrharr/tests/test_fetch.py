@@ -530,6 +530,56 @@ class MaybeUpdatedTests(DjangoTestCase):
             content=u'<p>Hello, world!',
         )
 
+    def test_persist_article_url_match(self):
+        """
+        An article which matches by URL when no GUID is available is updated in
+        place.
+        """
+        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+        self.feed.articles.create(
+            read=True,
+            fave=False,
+            author=u'???',
+            title=u'???',
+            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            url=u'https://example.com/blah-blah',
+            guid=u'',  # Must not have a GUID to match by URL
+            raw_content=b'',
+            content=b'',
+        )
+        mu = MaybeUpdated(
+            feed_title=u'Blah Blah',
+            site_url=u'https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author=u'Joe Bloggs',
+                    title=u'Blah Blah',
+                    date=new_date,
+                    url=u'https://example.com/blah-blah',
+                    guid=u'',
+                    raw_content=u'<p>Hello, world!</p>'
+                ),
+            ],
+            etag=b'',
+            last_modified=b'',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=False,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            date=new_date,
+            url=u'https://example.com/blah-blah',
+            raw_content=u'<p>Hello, world!</p>',
+            content=u'<p>Hello, world!',
+        )
+
     def test_persist_article_sanitize(self):
         """
         The HTML associated with an article is sanitized when it is persisted.

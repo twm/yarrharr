@@ -145,15 +145,41 @@ class MaybeUpdated(object):
         schedule(feed)
         feed.save()
 
-    def _upsert_article(self, feed, upsert):
-        if not upsert.guid:
-            log.error("No GUID; cannot match {upsert}", upsert=upsert)
-            return
+    def _match_article(self, feed, upsert):
+        """
+        Attempt to match the given upsert to an existing article in the feed.
 
-        # log.debug("Matching by GUID {guid}", guid=upsert.guid)
-        try:
-            match = feed.articles.filter(guid=upsert.guid)[0]
-        except IndexError:
+        :param feed: :class:`yarrharr.models.Feed` to match against
+        :param upsert: :class:`ArticleUpsert` instance
+        :returns: two-tuple (:class:`yarrharr.models.Article`, :class:`str`),
+            where the string is ``'guid'`` or ``'url'`` to indicate the nature
+            of the match.
+
+            If the match fails, returns ``(None, None)``.
+        """
+        if upsert.guid:
+            try:
+                match = feed.articles.filter(guid=upsert.guid)[0]
+            except IndexError:
+                pass
+            else:
+                return match, 'guid'
+
+        # Fall back to the item link if no GUID is provided.
+        if upsert.url:
+            try:
+                match = feed.articles.filter(guid=u'').filter(url=upsert.url)[0]
+            except IndexError:
+                pass
+            else:
+                return match, 'url'
+
+        return None, None
+
+    def _upsert_article(self, feed, upsert):
+        match, match_type = self._match_article(feed, upsert)
+
+        if not match:
             created = feed.articles.create(
                 read=False,
                 fave=False,
@@ -169,20 +195,29 @@ class MaybeUpdated(object):
                 content=sanitize_html(upsert.raw_content),
             )
             created.save()
-            log.debug("Created {created} (No match for GUID {guid})", guid=upsert.guid, created=created)
-        else:
+            log.debug("  created {created} (No match for GUID {guid} or URL {url})",
+                      created=created, guid=upsert.guid, url=upsert.url)
+            return
+
+        # Check if we need to update.
+        title_text = html_to_text(upsert.title)
+        if (match.author != upsert.author or
+                match.title != title_text or
+                match.url != match.url or
+                (upsert.date and match.date != upsert.date) or
+                match.raw_content != upsert.raw_content):
             match.author = upsert.author
-            match.title = html_to_text(upsert.title)
+            match.title = title_text
             match.url = upsert.url
             if upsert.date:
                 # The feed may not give a date. In that case leave the date
                 # that was assigned when the entry was first discovered.
                 match.date = upsert.date
-            match.guid = upsert.guid
             match.raw_content = upsert.raw_content
             match.content = sanitize_html(upsert.raw_content)
             match.save()
-            log.debug("  updated {updated}", updated=match)
+            log.debug("  updated {updated} based on {match_type}",
+                      updated=match, match_type=match_type)
 
 
 @attr.s(slots=True, frozen=True)
