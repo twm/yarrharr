@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,9 +70,9 @@ def json_for_feed(feed):
         'title': feed.feed_title,
         'text': feed.user_title,
         'active': feed.next_check is not None,
-        'newCount': 0,
-        'savedCount': 0,
-        'totalCount': 0,
+        'newCount': feed.articles.filter(read=False).count(),
+        'savedCount': feed.articles.filter(fave=True).count(),
+        'totalCount': feed.articles.all().count(),
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
         'added': str(feed.added),
