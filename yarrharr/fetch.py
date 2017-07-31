@@ -166,9 +166,12 @@ class MaybeUpdated(object):
                 return match, 'guid'
 
         # Fall back to the item link if no GUID is provided.
+        # Note that we permit a match by link to match an article with a GUID.
+        # This is because of databases migrated from django-yarr, which used
+        # the link as a default GUID when one was not present.
         if upsert.url:
             try:
-                match = feed.articles.filter(guid=u'').filter(url=upsert.url)[0]
+                match = feed.articles.filter(url=upsert.url)[0]
             except IndexError:
                 pass
             else:
@@ -190,12 +193,12 @@ class MaybeUpdated(object):
                 # <http://antirez.com/rss>); in this case default to the
                 # current date so that they get the date the feed was fetched.
                 date=upsert.date or timezone.now(),
-                guid=upsert.guid or None,
+                guid=upsert.guid,
                 raw_content=upsert.raw_content,
                 content=sanitize_html(upsert.raw_content),
             )
             created.save()
-            log.debug("  created {created} (No match for GUID {guid} or URL {url})",
+            log.debug("  created {created} (No match for GUID {guid!r} or URL {url!r})",
                       created=created, guid=upsert.guid, url=upsert.url)
             return
 
@@ -203,11 +206,13 @@ class MaybeUpdated(object):
         if (match.author != upsert.author or
                 match.title != upsert.title or
                 match.url != match.url or
+                match.guid != match.guid or
                 (upsert.date and match.date != upsert.date) or
                 match.raw_content != upsert.raw_content):
             match.author = upsert.author
             match.title = upsert.title
             match.url = upsert.url
+            match.guid = upsert.guid
             if upsert.date:
                 # The feed may not give a date. In that case leave the date
                 # that was assigned when the entry was first discovered.
