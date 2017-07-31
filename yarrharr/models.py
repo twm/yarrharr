@@ -25,7 +25,20 @@
 # OpenSSL used as well as that of the covered work.
 
 from django.db import models
+from django.db.backends.signals import connection_created
 from django.utils.encoding import python_2_unicode_compatible
+
+
+# Enable sqlite WAL mode so that readers don't block writers. See:
+# https://www.sqlite.org/wal.html
+# https://code.djangoproject.com/ticket/24018
+def _set_sqlite_wal_mode(sender, connection, **kwargs):
+    assert connection.vendor == 'sqlite'
+    cursor = connection.cursor()
+    cursor.execute('PRAGMA journal_mode=wal;')
+    cursor.close()
+
+connection_created.connect(_set_sqlite_wal_mode)
 
 
 @python_2_unicode_compatible
