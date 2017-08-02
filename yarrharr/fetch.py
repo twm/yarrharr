@@ -308,6 +308,8 @@ def poll(reactor, max_fetch):
         held in memory before commit, but may also make checking feeds faster
         if many require checking.
     """
+    start = reactor.seconds()
+
     feeds_to_check = yield deferToThread(
         lambda: list(Feed.objects.filter(next_check__isnull=False).filter(
             next_check__lte=timezone.now())[:max_fetch]))
@@ -328,6 +330,9 @@ def poll(reactor, max_fetch):
         yield deferToThread(persist_outcomes, outcomes)
     except Exception:
         log.failure("Failed to persist {count} outcomes", count=len(outcomes))
+    else:
+        log.info('Checking {count} feeds took {duration:.2f} sec',
+                 count=len(outcomes), duration=reactor.seconds() - start)
 
 
 def extract_etag(headers):
