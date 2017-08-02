@@ -1,4 +1,6 @@
 *.sqlite
+*.sqlite-wal
+*.sqlite-shm
 *.pyc
 __pycache__
 

@@ -94,16 +94,9 @@ def updateFeeds(reactor, max_fetch=5):
     """
     from .fetch import poll
 
-    start = reactor.seconds()
-
-    def logTiming(result):
-        log.info('Checking feeds took {duration:.2f} sec',
-                 duration=reactor.seconds() - start)
-        return result
-
     d = poll(reactor, max_fetch)
-    d.addErrback(log.failure, "Unexpected failure")
-    d.addBoth(logTiming)
+    # Last gasp error handler to avoid terminating the LoopingCall.
+    d.addErrback(log.failure, "Unexpected failure polling feeds")
     return d
 
 
@@ -125,6 +118,7 @@ def run():
     updateLoop = task.LoopingCall(updateFeeds, reactor)
     # TODO: Adjust the loop period dynamically according to the time the next check is due.
     loopEndD = updateLoop.start(15)
+    loopEndD.addErrback(log.failure, "Polling loop broke")
 
     def stopUpdateLoop():
         updateLoop.stop()
