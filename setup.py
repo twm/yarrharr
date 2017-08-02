@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='yarrharr',
-    version='0.2.0',
+    version='0.3.0-dev.0',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
