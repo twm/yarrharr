@@ -1,19 +1,8 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en_US">
-    <head>
-        <title>Yarrharr</title>
-        <meta name="viewport" content="width=device-width, user-scalable=no">
-        <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="{% static 'icon.ico' %}">
-        <link rel="icon" sizes="152x152" type="image/png" href="{% static 'icon.touch.png' %}">
-        <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static 'icon.touch.png' %}">
-    </head>
-    <body>
-        <div id="app"></div>
-        <script>
-            var __webpack_public_path__ = "{% static '' %}";
-            var props = {{ props|safe }};
-        </script>
-        <script src="{% static 'bundle.js' %}"></script>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+    <div id="app"></div>
+    <script>
+        var props = {{ props|safe }};
+    </script>
+{% endblock %}

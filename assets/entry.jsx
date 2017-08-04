@@ -16,7 +16,6 @@ import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 
-
 const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
 
 const history = syncHistoryWithStore(browserHistory, store);
@@ -30,7 +29,13 @@ const Root = React.createClass({
 
 
 import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
-ReactDOM.render(
+
+// Only render the app on pages that are run by JS (not, say, login pages).
+//
+// XXX Apologies for the ternary operator, I didn't want to trash the blame for
+// a temporary hack...
+const appElement = document.getElementById("app");
+appElement ? ReactDOM.render(
     <Provider store={store}>
         <Router history={history}>
             <Route path="/" component={Root}>
@@ -63,5 +68,5 @@ ReactDOM.render(
             </Route>
         </Router>
     </Provider>,
-    document.getElementById("app")
-);
+    appElement
+) : null;

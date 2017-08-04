@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015, 2016 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>; GPLv3+
 # Yarrharr development Makefile.  This file contains recipes useful during
 # development, but isn't part of the sdist release.
 
@@ -29,7 +29,6 @@ webpack-prod:
 	@echo "WEBPACK"
 	$(V)NODE_ENV=production $(WEBPACK)
 
-include tools/symbolic-icons.mk
 include tools/yarrharr-icon.mk
 
 static-assets: $(STATIC_TARGETS) webpack-prod
