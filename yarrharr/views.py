@@ -370,8 +370,9 @@ def inventory(request):
         if action == 'create':
             feed_url = request.POST['url']
             feed = request.user.feed_set.create(
-                title=feed_url,
-                feed_url=feed_url,
+                feed_title=feed_url,
+                url=feed_url,
+                added=timezone.now(),
             )
             feed.save()
             data['feedId'] = feed.id
