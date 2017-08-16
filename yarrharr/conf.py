@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import glob
 from urlparse import urlparse
 from cStringIO import StringIO
 from ConfigParser import RawConfigParser
+import sys
 
 
 USER_CONF_GLOB = '/etc/yarrharr/*.ini'
@@ -186,7 +187,9 @@ def read_yarrharr_conf(files, namespace):
         'yarrharr',
     )
 
-    # Disable Django's logging configuration stuff.
-    namespace['LOGGING_CONFIG'] = None
+    # Disable Django's logging configuration stuff (except when running under
+    # the dev server).
+    if 'runserver' not in sys.argv:
+        namespace['LOGGING_CONFIG'] = None
 
     return conf
