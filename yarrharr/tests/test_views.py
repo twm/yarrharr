@@ -24,8 +24,13 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from django.test import Client, TestCase
+import datetime
+
 from django.contrib.auth.models import User
+from django.test import Client, TestCase
+from django.utils import timezone
+
+# from ..models import Feed
 
 
 class InventoryViewTests(TestCase):
@@ -48,12 +53,66 @@ class InventoryViewTests(TestCase):
         self.assertEqual(url, feed.url)
         self.assertEqual(url, feed.feed_title)
         self.assertIsNotNone(feed.added)
+        self.assertIsNotNone(feed.next_check)  # scheduled for poll
 
     def test_remove(self):
-        pass  # TODO
+        feed = self.user.feed_set.create(
+            url='http://example.com/feed2.xml',
+            feed_title='Feed 2',
+            added=timezone.now() - datetime.timedelta(days=1),
+        )
+        c = Client()
+        c.force_login(self.user)
+
+        response = c.post('/api/inventory/', {
+            'action': 'remove',
+            'feed': feed.id,
+        })
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, self.user.feed_set.count())
 
     def test_activate(self):
-        pass  # TODO
+        """
+        A feed is scheduled to be checked by the activate action.
+        """
+        feed = self.user.feed_set.create(
+            url='http://example.com/feed1.xml',
+            feed_title='Feed 1',
+            added=timezone.now(),
+            next_check=None,
+        )
+        c = Client()
+        c.force_login(self.user)
+
+        response = c.post('/api/inventory/', {
+            'action': 'activate',
+            'feed': feed.id,
+        })
+
+        self.assertEqual(200, response.status_code)
+        [feed] = self.user.feed_set.all()
+        self.assertIsNotNone(feed.next_check)
 
     def test_deactivate(self):
-        pass  # TODO
+        """
+        A feed is no longer scheduled to be checked following the deactivate
+        action.
+        """
+        feed = self.user.feed_set.create(
+            url='http://example.com/feed1.xml',
+            feed_title='Feed 1',
+            added=timezone.now(),
+            next_check=None,
+        )
+        c = Client()
+        c.force_login(self.user)
+
+        response = c.post('/api/inventory/', {
+            'action': 'deactivate',
+            'feed': feed.id,
+        })
+
+        self.assertEqual(200, response.status_code)
+        [feed] = self.user.feed_set.all()
+        self.assertIsNone(feed.next_check)

@@ -373,6 +373,7 @@ def inventory(request):
                 feed_title=feed_url,
                 url=feed_url,
                 added=timezone.now(),
+                next_check=timezone.now(),  # check ASAP
             )
             feed.save()
             data['feedId'] = feed.id
