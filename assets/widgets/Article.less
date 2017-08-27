@@ -48,10 +48,6 @@ article {
 
     .content-colors;
 
-    h1, h2, h3, h4, h5, h6, p, blockquote {
-        margin: 0;
-        padding: 0;
-    }
     h1 {
         font: normal 24px / 32px sans-serif;
         padding: 10px 0 2px 0;
@@ -60,29 +56,37 @@ article {
             text-decoration: none;
         }
     }
-    h2, h3, h4, h5, h6 {
-        font: inherit;
-        font-weight: bold;
-        margin: 12px 0;
-    }
     .meta {
         color: @quiet_text_color;
     }
-    p {
-        margin: 12px 0;
-    }
 
-    blockquote {
-        margin: 12px;
-    }
+    .content {
+        h1, h2, h3, h4, h5, h6, p, blockquote {
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font: inherit;
+            font-weight: bold;
+            margin: 12px 0;
+        }
 
-    img {
-        max-width: 100%;
-        height: auto;
-    }
+        p {
+            margin: 12px 0;
+        }
 
-    hr {
-        margin: 16px 32px;
-        border: 0.5px solid @quiet_text_color;
+        blockquote {
+            margin: 12px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        hr {
+            margin: 16px 32px;
+            border: 0.5px solid @quiet_text_color;
+        }
     }
 }

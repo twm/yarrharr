@@ -1,4 +1,5 @@
 {% load static %}
+{% load static_glob %}
 <!DOCTYPE html>
 <html lang="en_US">
     <head>
@@ -8,12 +9,17 @@
         <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="{% static 'icon.ico' %}">
         <link rel="icon" sizes="152x152" type="image/png" href="{% static 'icon.touch.png' %}">
         <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static 'icon.touch.png' %}">
-        {# <link rel="stylesheet" type="text/css" href="{% static 'yarrharr.css' %}"> #}
+        {% for path in 'main.*.css'|static_glob %}
+        <link rel="stylesheet" type="text/css" href="{% static path %}">
+        {% endfor %}
         <script>
             var __webpack_public_path__ = "{% static '' %}";
             {# FIXME This stub prevents JS errors caused by loading the bundle on pages it doesn't render. #}
             var props = {articlesById: {}, feedsById: {}, labelsById: {}};
         </script>
+        {% for path in 'main.*.js'|static_glob %}
+        <script src="{% static path %}" defer></script>
+        {% endfor %}
     </head>
     <body>
         <main role=main>
@@ -29,7 +35,5 @@
         <footer>
             <p>Yarrharr Feed Reader ∙ © 2013–2017 Tom Most ∙ GPLv3+ ∙ <a href="{% url 'about' %}">About</a>
         </footer>
-        {# FIXME Extract the CSS from this bundle to avoid FOUC. #}
-        <script src="{% static 'bundle.js' %}"></script>
     </body>
 </html>

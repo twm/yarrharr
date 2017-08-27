@@ -27,7 +27,7 @@ yarrharr/static/yarrharr.css: assets/yarrharr.less
 webpack-prod:
 	$(V)mkdir -p "$(dir $@)"
 	@echo "WEBPACK"
-	$(V)NODE_ENV=production $(WEBPACK)
+	$(V)NODE_ENV=production $(WEBPACK) --bail
 
 include tools/yarrharr-icon.mk
 

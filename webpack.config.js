@@ -1,32 +1,58 @@
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+const extractLESS = new ExtractTextPlugin({
+    filename: "[name].[contenthash:base32:20].css",
+    // disable: process.env.NODE_ENV !== 'production',
+});
 
 module.exports = {
     entry: [
-        './assets/entry.jsx',
+        path.join(__dirname, 'assets/entry.jsx'),
     ],
     resolve: {
-        root: __dirname + '/assets',
-    },
-    output: {
-        path: __dirname + '/yarrharr/static',
-        filename: 'bundle.js',
+        modules: [
+            path.join(__dirname, 'assets'),
+            'node_modules',
+        ],
     },
     module: {
-        preLoaders: [
-            {test: /\.jsx?$/, loaders: ['eslint'], exclude: /node_modules/},
-        ],
-        loaders: [
-            {test: /\.less$/, loaders: ['style', 'css', 'less?strictMath&noIeCompat']},
-            {test: /\.css$/, loaders: ['style', 'css']},
-            {test: /\.jsx?$/, loaders: ['babel'], exclude: /node_modules/},
-            {test: /\.svg$/, loaders: ['file']},
-        ],
+        rules: [{
+            test: /\.jsx?$/,
+            enforce: 'pre',
+            loaders: ['eslint-loader'],
+            exclude: /node_modules/,
+        }, {
+            test: /\.less$/,
+            use: extractLESS.extract({
+                use: [{
+                    loader: 'css-loader',
+                }, {
+                    loader: 'less-loader',
+                    options: {strictMath: true, noIeCompat: true},
+                }],
+                // Used when disabled above (for compatibility with HMR?):
+                fallback: 'style-loader',
+            }),
+        }, {
+            test: /\.jsx?$/,
+            loaders: ['babel-loader'],
+            exclude: /node_modules/,
+        }, {
+            test: /\.svg$/,
+            loaders: ['file-loader'],
+        }],
+    },
+    output: {
+        path: path.join(__dirname, 'yarrharr/static'),
+        filename: '[name].[hash].js',
     },
     plugins: [
-        new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.NoErrorsPlugin(),
+        new webpack.NoEmitOnErrorsPlugin(),
+        new CleanWebpackPlugin([path.join(__dirname, 'yarrharr/static')]),
+        extractLESS,
     ],
     devtool: 'source-map',
 };
