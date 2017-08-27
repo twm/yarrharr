@@ -4,7 +4,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const extractLESS = new ExtractTextPlugin({
-    filename: "[name].css",
+    filename: "[name].[contenthash:base32:20].css",
     // disable: process.env.NODE_ENV !== 'production',
 });
 
@@ -33,6 +33,7 @@ module.exports = {
                     loader: 'less-loader',
                     options: {strictMath: true, noIeCompat: true},
                 }],
+                // Used when disabled above (for compatibility with HMR?):
                 fallback: 'style-loader',
             }),
         }, {
@@ -46,7 +47,7 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, 'yarrharr/static'),
-        filename: '[name].js',
+        filename: '[name].[hash].js',
     },
     plugins: [
         new webpack.NoEmitOnErrorsPlugin(),
