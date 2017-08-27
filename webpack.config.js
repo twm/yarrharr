@@ -3,10 +3,11 @@ const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const MinifyPlugin = require("babel-minify-webpack-plugin");
+const production = process.env.NODE_ENV === 'production';
 
 const extractLESS = new ExtractTextPlugin({
     filename: "[name].[contenthash:base32:20].css",
-    // disable: process.env.NODE_ENV !== 'production',
+    // disable: production,
 });
 
 module.exports = {
@@ -32,6 +33,7 @@ module.exports = {
             use: extractLESS.extract({
                 use: [{
                     loader: 'css-loader',
+                    options: {minimize: production},
                 }, {
                     loader: 'less-loader',
                     options: {strictMath: true, noIeCompat: true},
@@ -62,7 +64,7 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+                NODE_ENV: JSON.stringify(production ? 'production' : 'development'),
             },
         }),
     ],
