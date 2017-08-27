@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MinifyPlugin = require("babel-minify-webpack-plugin");
 
 const extractLESS = new ExtractTextPlugin({
     filename: "[name].[contenthash:base32:20].css",
@@ -9,9 +10,11 @@ const extractLESS = new ExtractTextPlugin({
 });
 
 module.exports = {
-    entry: [
-        path.join(__dirname, 'assets/entry.jsx'),
-    ],
+    entry: {
+        main: path.join(__dirname, 'assets/entry.jsx'),
+        vendor: ['react', 'react-addons-pure-render-mixin', 'react-dom',
+                 'react-router', 'react-redux'],
+    },
     resolve: {
         modules: [
             path.join(__dirname, 'assets'),
@@ -53,6 +56,15 @@ module.exports = {
         new webpack.NoEmitOnErrorsPlugin(),
         new CleanWebpackPlugin([path.join(__dirname, 'yarrharr/static')]),
         extractLESS,
+        new MinifyPlugin({}, {sourceMap: true}),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'vendor',
+        }),
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+            },
+        }),
     ],
     devtool: 'source-map',
 };

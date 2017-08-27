@@ -17,6 +17,9 @@
             {# FIXME This stub prevents JS errors caused by loading the bundle on pages it doesn't render. #}
             var props = {articlesById: {}, feedsById: {}, labelsById: {}};
         </script>
+        {% for path in 'vendor.*.js'|static_glob %}
+        <script src="{% static path %}" defer></script>
+        {% endfor %}
         {% for path in 'main.*.js'|static_glob %}
         <script src="{% static path %}" defer></script>
         {% endfor %}
