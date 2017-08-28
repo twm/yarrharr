@@ -1,20 +1,21 @@
 import { combineReducers } from 'redux';
 
-import { SET_LOCATION } from './actions.js';
+const __debug__ = process.env.NODE_ENV !== 'production';
 
-function locationReducer(state = {}, action) {
-    if (action.type === SET_LOCATION) {
-        const { pathname, search, hash } = action;
-        if (state.pathname !== pathname ||
-            state.search !== search ||
-            state.hash !== hash) {
-            return {
-                pathname,
-                search,
-                hash,
-            };
-        } else {
+import { SET_PATH, matchPath } from './actions.js';
+
+function routeReducer(state = {path: '/', params: {}}, action) {
+    if (action.type === SET_PATH) {
+        if (state.path === action.path) {
             return state;
+        }
+        var newState = matchPath(action.path);
+        if (newState) {
+            return newState;
+        } else if (__debug__) {
+            throw new Error(`invalid path ${action.path}`);
+        } else {
+            return state; // Ignore in production
         }
     }
     return state;
@@ -24,9 +25,6 @@ function locationReducer(state = {}, action) {
 import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
-
-const __debug__ = process.env.NODE_ENV !== 'production';
-
 function articleReducer(state = window.props.articlesById, action) {
     if (action.type === REQUEST_ARTICLES) {
         const patch = {};
@@ -199,7 +197,7 @@ function layoutReducer(state = LAYOUT_NARROW, action) {
 
 
 export default combineReducers({
-    location: locationReducer,
+    route: routeReducer,
     articlesById: articleReducer,
     feedsById: feedReducer,
     feedAdd: feedAddReducer,

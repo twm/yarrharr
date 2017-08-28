@@ -1,12 +1,3 @@
-export const SET_LOCATION = 'SET_LOCATION';
-export function setLocation(location) {
-    return {
-        type: SET_LOCATION,
-        pathname: location.pathname,
-        search: location.search,
-        hash: location.hash,
-    };
-}
 export const SET_VIEW = 'SET_VIEW';
 export const VIEW_LIST = 'list';
 export const VIEW_TEXT = 'text';
@@ -572,4 +563,93 @@ export function detachLabel(feedId, labelId) {
             // TODO
         });
     }
+}
+
+export const SET_PATH = 'SET_PATH';
+/**
+ * Navigate to a new URL path (relative to the Yarrharr root path).
+ */
+export function setPath(path) {
+    // TODO: thunk out 
+    return {
+        type: SET_PATH,
+        path: path,
+    };
+}
+
+export const ROUTES = [
+    '',
+    'inventory',
+    'inventory/add',
+    'article/:articleId',
+    'all/:filter',
+    'all/:filter/:articleId',
+    'label/:labelId/:filter',
+    'label/:labelId/:filter/:articleId',
+    'feed/:feedId/:filter',
+    'feed/:feedId/:filter/:articleId',
+];
+
+export const PARAM_TYPES = {
+    'articleId': '(\\d+)',
+    'labelId': '(\\d+)',
+    'feedId': '(\\d+)',
+    'filter': '(' + [FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL].join('|') + ')',
+};
+
+const PATH_MATCHERS = ROUTES.map(route => {
+    var pattern = '^/';
+    const paramNames = [];
+    if (route) {
+        route.split('/').forEach(label => {
+            if (label.charAt(0) === ':') {
+                const paramName = label.slice(1);
+                paramNames.push(paramName);
+                pattern += PARAM_TYPES[paramName];
+            } else {
+                pattern += label;
+            }
+            pattern += '/';
+        });
+    }
+    pattern += '?$'
+    console.log(`route ${route} => regexp ${pattern}`);
+    const regex = new RegExp(pattern);
+    return path => {
+        var match = regex.exec(path);
+        if (!match) {
+            console.log(`path ${path} does not match regexp ${regex}`);
+            return null;
+        }
+        var params = {};
+        for (var i = 1; i < match.length; i++) {
+            params[paramNames[i - 1]] = match[i];
+        }
+        return {path, route, params};
+    };
+});
+
+/**
+ * Match the given URL path against the configured routes.
+ *
+ * @param String path
+ *
+ * If a route matches the path an object describing the match is returned:
+ *
+ *     {
+ *         path: 'article/:articleId',
+ *         route: '/article/1234/',
+ *         params: {articleId: '1234'},
+ *     }
+ *
+ * Otherwise <code>null</code>.
+ */
+export function matchPath(path) {
+    for (var i = 0; i < PATH_MATCHERS.length; i++) {
+        var match = PATH_MATCHERS[i](path);
+        if (match) {
+            return match;
+        }
+    }
+    return null;
 }

@@ -14,19 +14,22 @@ import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/F
 import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
 import reducer from 'reducer.js';
-import { setLocation, loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
+import { setPath, ROUTES } from './actions.js';
+import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
+
+const __debug__ = process.env.NODE_ENV !== 'production';
 
 const history = createHistory();
 const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
 
 syncViewOptions(store, window.localStorage);
 
-store.dispatch(setLocation(history.location));
+store.dispatch(setPath(history.location.pathname));
 history.listen((location, action) => {
-    store.dispatch(setLocation(location));
+    store.dispatch(setPath(location.pathname));
 });
 
-const ROUTES = [{
+const _ROUTES = [{
     pattern: /^$/,
     render: () => <ConnectedRootView />,
 }, {
@@ -66,44 +69,53 @@ const ROUTES = [{
     onEnter: (feedId, filter, articleId) => showLabel(Number(feedId), filter, Number(articleId)),
 }];
 
+const routeToView = {
+    '': ConnectedRootView,
+    'inventory': ConnectedInventoryView,
+    'inventory/add': ConnectedAddFeedView,
+    'article/:articleId': ConnectedArticleView,
+    'all/:filter': ConnectedAllView,
+    'all/:filter/:articleId': ConnectedAllView,
+    'label/:labelId/:filter': ConnectedLabelView,
+    'label/:labelId/:filter/:articleId': ConnectedLabelView,
+    'feed/:feedId/:filter': ConnectedFeedView,
+    'feed/:feedId/:filter/:articleId': ConnectedFeedView,
+};
+
 // FIXME PureRenderingMixin?
 /**
  * Component which selects its sub-component based on the URL path.
  */
 const Router = React.createClass({
     propTypes: {
-        location: React.PropTypes.shape({
-            pathname: React.PropTypes.string,
-            search: React.PropTypes.string,
-            hash: React.PropTypes.string,
-        }),
+        path: React.PropTypes.string.isRequired,
+        route: React.PropTypes.string.isRequired,
+        params: React.PropTypes.object.isRequired,
     },
     render() {
-        const { pathname: fullpath, search, hash } = this.props.location;
-        const pathname = fullpath.slice(1); // Remove leading slash
-        console.log("routing", pathname);
-        for (var i = 0; i < ROUTES.length; i++) {
-            var {pattern, render, onEnter} = ROUTES[i];
-            var m = pattern.exec(pathname);
-            if (m) {
-                console.log('route match:', m);
-                var params = m.slice(1);
-                if (onEnter) {
-                    var action = onEnter.apply(null, params);
-                    if (action) {
-                        console.log(m, 'onEnter ->', action);
-                        store.dispatch(action);
-                    }
-                }
-                return render.apply(null, params);
-            }
+        const { path, route, params } = this.props;
+        const Component = routeToView[route];
+        if (Component) {
+            return <Component params={params} />;
         }
-        // FIXME better 404 page
-        return <p>Client-side 404: The location {pathname} {search} {hash} did not match a route.</p>;
+        return <p>Client-side 404: The location {path} {route} did not match a route.</p>;
     },
 });
 
-const ConnectedRouter = connect(state => state, null)(Router);
+const ConnectedRouter = connect(state => state.route, null)(Router);
+
+if (__debug__) {
+    ROUTES.forEach(route => {
+        if (!routeToView[route]) {
+            throw new Error(`The route pattern '${route}' is present in ROUTES but not in routeToView`);
+        }
+    });
+    Object.keys(routeToView).forEach(route => {
+        if (ROUTES.indexOf(route) < 0) {
+            throw new Error(`The route pattern '${route}' is present in routeToView but not in ROUTES`);
+        }
+    });
+}
 
 
 // Only render the app on pages that are run by JS (not, say, login pages).
