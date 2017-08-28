@@ -4,19 +4,16 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 
 import { SET_PATH, matchPath } from './actions.js';
 
-function routeReducer(state = {path: '/', params: {}}, action) {
+function routeReducer(state = {}, action) {
     if (action.type === SET_PATH) {
-        if (state.path === action.path) {
-            return state;
+        if (state && state.path === action.path) {
+            return state; // Nothing changed.
         }
-        var newState = matchPath(action.path);
-        if (newState) {
-            return newState;
-        } else if (__debug__) {
-            throw new Error(`invalid path ${action.path}`);
-        } else {
-            return state; // Ignore in production
-        }
+        return {
+            path: action.path,
+            route: action.route,
+            params: action.params,
+        };
     }
     return state;
 }

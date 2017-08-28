@@ -570,24 +570,32 @@ export const SET_PATH = 'SET_PATH';
  * Navigate to a new URL path (relative to the Yarrharr root path).
  */
 export function setPath(path) {
-    // TODO: thunk out 
+    // TODO: actually update history.
+    // TODO: thunk out for loading necessary data.
+    const match = matchPath(path);
+    if (!match) {
+        throw new Error(`path ${path} does not match a known route`);
+    }
+    const {route, params} = match;
     return {
         type: SET_PATH,
-        path: path,
+        path,
+        route,
+        params,
     };
 }
 
 export const ROUTES = [
-    '',
-    'inventory',
-    'inventory/add',
-    'article/:articleId',
-    'all/:filter',
-    'all/:filter/:articleId',
-    'label/:labelId/:filter',
-    'label/:labelId/:filter/:articleId',
-    'feed/:feedId/:filter',
-    'feed/:feedId/:filter/:articleId',
+    '/',
+    '/inventory',
+    '/inventory/add',
+    '/article/:articleId',
+    '/all/:filter',
+    '/all/:filter/:articleId',
+    '/label/:labelId/:filter',
+    '/label/:labelId/:filter/:articleId',
+    '/feed/:feedId/:filter',
+    '/feed/:feedId/:filter/:articleId',
 ];
 
 export const PARAM_TYPES = {
@@ -598,34 +606,33 @@ export const PARAM_TYPES = {
 };
 
 const PATH_MATCHERS = ROUTES.map(route => {
-    var pattern = '^/';
+    var pattern = '^';
     const paramNames = [];
-    if (route) {
-        route.split('/').forEach(label => {
-            if (label.charAt(0) === ':') {
-                const paramName = label.slice(1);
-                paramNames.push(paramName);
-                pattern += PARAM_TYPES[paramName];
-            } else {
-                pattern += label;
-            }
-            pattern += '/';
-        });
-    }
+    route.split('/').forEach(label => {
+        if (label.charAt(0) === ':') {
+            const paramName = label.slice(1);
+            paramNames.push(paramName);
+            pattern += PARAM_TYPES[paramName];
+        } else {
+            pattern += label;
+        }
+        pattern += '/';
+    });
     pattern += '?$'
-    console.log(`route ${route} => regexp ${pattern}`);
+    // console.log(`route ${route} => regexp ${pattern}`);
     const regex = new RegExp(pattern);
     return path => {
         var match = regex.exec(path);
         if (!match) {
-            console.log(`path ${path} does not match regexp ${regex}`);
+            // console.log(`path ${path} does not match regexp ${regex}`);
             return null;
         }
         var params = {};
         for (var i = 1; i < match.length; i++) {
             params[paramNames[i - 1]] = match[i];
         }
-        return {path, route, params};
+        console.log(`path ${path} matches route ${route}`);
+        return {route, params};
     };
 });
 
@@ -637,12 +644,11 @@ const PATH_MATCHERS = ROUTES.map(route => {
  * If a route matches the path an object describing the match is returned:
  *
  *     {
- *         path: 'article/:articleId',
- *         route: '/article/1234/',
+ *         route: 'article/:articleId',
  *         params: {articleId: '1234'},
  *     }
  *
- * Otherwise <code>null</code>.
+ * Otherwise null.
  */
 export function matchPath(path) {
     for (var i = 0; i < PATH_MATCHERS.length; i++) {

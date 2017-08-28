@@ -70,16 +70,16 @@ const _ROUTES = [{
 }];
 
 const routeToView = {
-    '': ConnectedRootView,
-    'inventory': ConnectedInventoryView,
-    'inventory/add': ConnectedAddFeedView,
-    'article/:articleId': ConnectedArticleView,
-    'all/:filter': ConnectedAllView,
-    'all/:filter/:articleId': ConnectedAllView,
-    'label/:labelId/:filter': ConnectedLabelView,
-    'label/:labelId/:filter/:articleId': ConnectedLabelView,
-    'feed/:feedId/:filter': ConnectedFeedView,
-    'feed/:feedId/:filter/:articleId': ConnectedFeedView,
+    '/': ConnectedRootView,
+    '/inventory': ConnectedInventoryView,
+    '/inventory/add': ConnectedAddFeedView,
+    '/article/:articleId': ConnectedArticleView,
+    '/all/:filter': ConnectedAllView,
+    '/all/:filter/:articleId': ConnectedAllView,
+    '/label/:labelId/:filter': ConnectedLabelView,
+    '/label/:labelId/:filter/:articleId': ConnectedLabelView,
+    '/feed/:feedId/:filter': ConnectedFeedView,
+    '/feed/:feedId/:filter/:articleId': ConnectedFeedView,
 };
 
 // FIXME PureRenderingMixin?
