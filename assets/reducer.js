@@ -1,5 +1,25 @@
 import { combineReducers } from 'redux';
-import { routerReducer } from 'react-router-redux';
+
+import { SET_LOCATION } from './actions.js';
+
+function locationReducer(state = {}, action) {
+    if (action.type === SET_LOCATION) {
+        const { pathname, search, hash } = action;
+        if (state.pathname !== pathname ||
+            state.search !== search ||
+            state.hash !== hash) {
+            return {
+                pathname,
+                search,
+                hash,
+            };
+        } else {
+            return state;
+        }
+    }
+    return state;
+}
+
 
 import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
@@ -179,6 +199,7 @@ function layoutReducer(state = LAYOUT_NARROW, action) {
 
 
 export default combineReducers({
+    location: locationReducer,
     articlesById: articleReducer,
     feedsById: feedReducer,
     feedAdd: feedAddReducer,
@@ -186,5 +207,4 @@ export default combineReducers({
     labelsById: labelReducer,
     view: viewReducer,
     layout: layoutReducer,
-    routing: routerReducer,
 });

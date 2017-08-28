@@ -1,3 +1,12 @@
+export const SET_LOCATION = 'SET_LOCATION';
+export function setLocation(location) {
+    return {
+        type: SET_LOCATION,
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+    };
+}
 export const SET_VIEW = 'SET_VIEW';
 export const VIEW_LIST = 'list';
 export const VIEW_TEXT = 'text';
