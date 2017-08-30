@@ -9,6 +9,7 @@ import createHistory from 'history/createBrowserHistory';
 
 import './base.less';
 import syncViewOptions from './syncViewOptions.js';
+import syncLocation from './syncLocation.js';
 import ConnectedArticleView from 'views/ArticleView.js';
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
@@ -19,15 +20,10 @@ import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js'
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-const history = createHistory();
 const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
 
 syncViewOptions(store, window.localStorage);
-
-store.dispatch(setPath(history.location.pathname));
-history.listen((location, action) => {
-    store.dispatch(setPath(location.pathname));
-});
+syncLocation(store, window);
 
 const _ROUTES = [{
     pattern: /^$/,

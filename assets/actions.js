@@ -570,20 +570,34 @@ export const SET_PATH = 'SET_PATH';
  * Navigate to a new URL path (relative to the Yarrharr root path).
  */
 export function setPath(path) {
-    // TODO: actually update history.
-    // TODO: thunk out for loading necessary data.
     const match = matchPath(path);
     if (!match) {
         throw new Error(`path ${path} does not match a known route`);
     }
     const {route, params} = match;
-    return {
-        type: SET_PATH,
-        path,
-        route,
-        params,
-    };
+    return dispatch => {
+        if (ROUTE_LOADERS[route]) {
+            dispatch(ROUTE_LOADERS[route](params));
+        }
+        dispatch({
+            type: SET_PATH,
+            path,
+            route,
+            params,
+        });
+    }
 }
+
+const ROUTE_LOADERS = {
+    '/inventory': _ => loadFeeds(),
+    '/article/:articleId': params => loadMore([params.articleId]),
+    '/all/:filter': params => showAll(params.filter, null),
+    '/all/:filter/:articleId': params => showAll(params.filter, Number(params.articleId)),
+    '/label/:labelId/:filter': params => showLabel(Number(params.labelId), params.filter, null),
+    '/label/:labelId/:filter': params => showLabel(Number(params.labelId), params.filter, Number(params.articleId)),
+    '/feed/:feedId/:filter': params => showLabel(Number(params.feedId), params.filter, null),
+    '/feed/:feedId/:filter/:articleId': params => showLabel(Number(params.feedId), params.filter, Number(params.articleId)),
+};
 
 export const ROUTES = [
     '/',
@@ -632,7 +646,7 @@ const PATH_MATCHERS = ROUTES.map(route => {
             params[paramNames[i - 1]] = match[i];
         }
         console.log(`path ${path} matches route ${route}`);
-        return {route, params};
+        return {path, route, params};
     };
 });
 
@@ -644,7 +658,8 @@ const PATH_MATCHERS = ROUTES.map(route => {
  * If a route matches the path an object describing the match is returned:
  *
  *     {
- *         route: 'article/:articleId',
+ *         path: '/article/1234/',
+ *         route: '/article/:articleId',
  *         params: {articleId: '1234'},
  *     }
  *
