@@ -44,25 +44,24 @@ const routeToView = {
     '/feed/:feedId/:filter/:articleId': ConnectedFeedView,
 };
 
-// FIXME PureRenderingMixin?
 /**
  * Component which selects its sub-component based on the URL path.
  */
-const Router = React.createClass({
-    propTypes: {
+function Router({ path, route, params }) {
+    const Component = routeToView[route];
+    if (Component) {
+        return <Component params={params} />;
+    }
+    return <p>Client-side 404: The location {path} {route} did not match a route.</p>;
+}
+
+if (__debug__) {
+    Router.propTypes = {
         path: PropTypes.string.isRequired,
         route: PropTypes.string.isRequired,
         params: PropTypes.object.isRequired,
-    },
-    render() {
-        const { path, route, params } = this.props;
-        const Component = routeToView[route];
-        if (Component) {
-            return <Component params={params} />;
-        }
-        return <p>Client-side 404: The location {path} {route} did not match a route.</p>;
-    },
-});
+    };
+}
 
 const ConnectedRouter = connect(state => state.route, null)(Router);
 
