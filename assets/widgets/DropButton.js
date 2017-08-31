@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './DropButton.less';
 
 const DropButton = React.createClass({
     propTypes: {
         // XXX: How to express that it must be an element class?
-        trigger: React.PropTypes.any.isRequired,
-        children: React.PropTypes.element.isRequired,
+        trigger: PropTypes.any.isRequired,
+        children: PropTypes.element.isRequired,
     },
     getInitialState() {
         return {open: false};

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setLayout } from 'actions.js';
 import { markArticle } from 'actions.js';
@@ -52,12 +53,12 @@ function renderArticleSummary(article, feed) {
 }
 
 ArticleView.propTypes = {
-    params: React.PropTypes.shape({
-        articleId: React.PropTypes.string.isRequired,
+    params: PropTypes.shape({
+        articleId: PropTypes.string.isRequired,
     }).isRequired,
-    articlesById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
-    feedsById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
-    layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
+    articlesById: PropTypes.objectOf(PropTypes.object).isRequired,
+    feedsById: PropTypes.objectOf(PropTypes.object).isRequired,
+    layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
 };
 
 export default connect(state => {

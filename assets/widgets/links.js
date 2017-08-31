@@ -1,5 +1,6 @@
 'use strict';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { setPath } from '../actions.js';
@@ -67,21 +68,21 @@ export function AddFeedLink(props) {
 
 if (process.env.NODE_ENV !== 'production') {
     A.propTypes = {
-        path: React.PropTypes.string,
+        path: PropTypes.string,
     };
-    const filter = React.PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL]).isRequired;
+    const filter = PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL]).isRequired;
     AllLink.propTypes = {
         filter,
     };
     ArticleLink.propTypes = {
-        articleId: React.PropTypes.number.isRequired,
+        articleId: PropTypes.number.isRequired,
     };
     FeedLink.propTypes = {
-        feedId: React.PropTypes.number.isRequired,
+        feedId: PropTypes.number.isRequired,
         filter,
     };
     LabelLink.propTypes = {
-        labelId: React.PropTypes.number.isRequired,
+        labelId: PropTypes.number.isRequired,
         filter,
     };
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import { ViewButton } from 'widgets/ViewControls.js';
@@ -15,12 +16,12 @@ export const LABEL_DRAG_DROP_TYPE = 'yarrharr/label';
 
 export const InventoryView = React.createClass({
     propTypes: {
-        dispatch: React.PropTypes.func.isRequired,
-        labelsById: React.PropTypes.object.isRequired,
-        feedsById: React.PropTypes.object.isRequired,
-        layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
-        onRemoveFeed: React.PropTypes.func.isRequired,
-        onSetLayout: React.PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        labelsById: PropTypes.object.isRequired,
+        feedsById: PropTypes.object.isRequired,
+        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
+        onRemoveFeed: PropTypes.func.isRequired,
+        onSetLayout: PropTypes.func.isRequired,
     },
     render() {
         const feedList = feedsByTitle(this.props);
@@ -99,8 +100,8 @@ export const InventoryView = React.createClass({
 
 export const Label = React.createClass({
     propTypes: {
-        label: React.PropTypes.object.isRequired,
-        onDetach: React.PropTypes.func.isRequired,
+        label: PropTypes.object.isRequired,
+        onDetach: PropTypes.func.isRequired,
     },
     render() {
         return <span style={{
@@ -133,12 +134,12 @@ export const Label = React.createClass({
 
 export const AttachLabelButton = React.createClass({
     propTypes: {
-        labelList: React.PropTypes.array.isRequired,
-        feed: React.PropTypes.object.isRequired,
+        labelList: PropTypes.array.isRequired,
+        feed: PropTypes.object.isRequired,
         // Will be called with the text of the label to add.
-        onLabelAdd: React.PropTypes.func.isRequired,
+        onLabelAdd: PropTypes.func.isRequired,
         // Will be called with the feed and label to associate it with.
-        onLabelPick: React.PropTypes.func.isRequired,
+        onLabelPick: PropTypes.func.isRequired,
     },
     getInitialState() {
         return {open: false};
@@ -170,18 +171,18 @@ export const AttachLabelButton = React.createClass({
 export const LabelPicker = React.createClass({
     propTypes: {
         // Feed object
-        feed: React.PropTypes.shape({
-            text: React.PropTypes.string.isRequired,
-            labels: React.PropTypes.arrayOf(React.PropTypes.number).isRequired,
+        feed: PropTypes.shape({
+            text: PropTypes.string.isRequired,
+            labels: PropTypes.arrayOf(PropTypes.number).isRequired,
         }).isRequired,
         // All available labels (only those not associated with the feed will be shown).
-        labelList: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+        labelList: PropTypes.arrayOf(PropTypes.object).isRequired,
         // Will be called with the text of the label to add.
-        onLabelAdd: React.PropTypes.func.isRequired,
+        onLabelAdd: PropTypes.func.isRequired,
         // Will be called with the feed and label to associate it with.
-        onLabelPick: React.PropTypes.func.isRequired,
+        onLabelPick: PropTypes.func.isRequired,
         // Called with no arguments when the Cancel button is clicked.
-        onCancel: React.PropTypes.func.isRequired,
+        onCancel: PropTypes.func.isRequired,
     },
     unappliedLabels() {
         return this.props.labelList.filter(function(label) {
@@ -254,18 +255,18 @@ export const AddFeedView = React.createClass({
         /**
          * Pre-fill the URL field with this value.
          */
-        defaultUrl: React.PropTypes.string,
+        defaultUrl: PropTypes.string,
         /**
          * The current feed add operation (if one is ongoing).
          */
-        feedAdd: React.PropTypes.object.isRequired,
+        feedAdd: PropTypes.object.isRequired,
         /**
          * A superficially valid URL has been entered by the user.  Attempt to add
          * it as a feed.
          *
          * @param url String Something that looks like a URL.
          */
-        onSubmit: React.PropTypes.func.isRequired,
+        onSubmit: PropTypes.func.isRequired,
     },
     render() {
         return <div className="add-feed-view">
@@ -304,8 +305,8 @@ export const AddFeedView = React.createClass({
 
 const UrlForm = React.createClass({
     propTypes: {
-        onSubmit: React.PropTypes.func.isRequired,
-        defaultUrl: React.PropTypes.string,
+        onSubmit: PropTypes.func.isRequired,
+        defaultUrl: PropTypes.string,
     },
     getInitialState() {
         return {url: ''};

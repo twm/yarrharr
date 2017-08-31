@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { Provider, connect } from 'react-redux';
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 
 import './base.less';
@@ -43,9 +44,9 @@ const routeToView = {
  */
 const Router = React.createClass({
     propTypes: {
-        path: React.PropTypes.string.isRequired,
-        route: React.PropTypes.string.isRequired,
-        params: React.PropTypes.object.isRequired,
+        path: PropTypes.string.isRequired,
+        route: PropTypes.string.isRequired,
+        params: PropTypes.object.isRequired,
     },
     render() {
         const { path, route, params } = this.props;

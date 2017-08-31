@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { FeedLink } from "widgets/links.js";
 import { FILTER_ALL } from 'actions.js';
 import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
@@ -9,22 +10,22 @@ import "./Article.less";
 const Article = React.createClass({
     propTypes: {
         // Data attributes
-        id: React.PropTypes.number.isRequired,
-        url: React.PropTypes.string.isRequired,
-        title: React.PropTypes.string.isRequired,
-        author: React.PropTypes.string,
-        content: React.PropTypes.string.isRequired,
-        date: React.PropTypes.string.isRequired,
-        feed: React.PropTypes.shape({
-            id: React.PropTypes.number.isRequired,
-            text: React.PropTypes.string,
-            title: React.PropTypes.string.isRequired,
+        id: PropTypes.number.isRequired,
+        url: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+        author: PropTypes.string,
+        content: PropTypes.string.isRequired,
+        date: PropTypes.string.isRequired,
+        feed: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            text: PropTypes.string,
+            title: PropTypes.string.isRequired,
         }).isRequired,
-        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
+        state: PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
         // Non-null indicates that a mark operation is in-progress.
-        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
+        marking: PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
         // Event handlers
-        onMark: React.PropTypes.func.isRequired,
+        onMark: PropTypes.func.isRequired,
     },
     render() {
         return <div className="article-wrap">
