@@ -1,7 +1,7 @@
 // This file is the Webpack entry point to the whole codebase.
 import { applyMiddleware, createStore, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import createLogger from 'redux-logger';
+import { logger } from 'redux-logger';
 import { Provider, connect } from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -20,7 +20,7 @@ import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js'
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
+const store = createStore(reducer, applyMiddleware(thunk, logger));
 
 syncViewOptions(store, window.localStorage);
 syncLocation(store, window);
