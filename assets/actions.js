@@ -34,7 +34,6 @@ export function validLayout(layout) {
     return false;
 }
 
-export const SET_FILTER = 'SET_FILTER';
 export const FILTER_NEW = 'new';
 export const FILTER_SAVED = 'saved';
 export const FILTER_ARCHIVED = 'archived';
