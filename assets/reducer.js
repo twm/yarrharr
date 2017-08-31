@@ -184,7 +184,6 @@ function snapshotReducer(state = defaultSnapshot, action) {
         // Ignore the snapshot if it does not satisfy the current request parameters.
         if (state.order !== action.order
                 || state.filter !== action.filter
-                /* NB: Should be equal by identity due to coming from the same closure */
                 || state.feedIds.join(',') !== action.feedIds.join(',')
                 || !(state.include === action.include
                      || state.include == null
@@ -210,7 +209,6 @@ function snapshotReducer(state = defaultSnapshot, action) {
         // Ignore the failure if it doesn't apply to the last request made.
         if (state.request.params.order !== action.order
                 || state.request.params.filter !== action.filter
-                /* NB: Should be equal by identity due to coming from the same closure */
                 || state.response.params.feedIds.join(',') !== action.feedIds.join(',')
                 || state.response.params.include !== action.include) {
             return state;
