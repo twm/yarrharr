@@ -42,6 +42,9 @@ if (__debug__) {
  * Component which selects its sub-component based on the URL path.
  */
 export function Router({ path, route, params }) {
+    if (route == null) {
+        return null;  // Can't render yet.
+    }
     const Component = routeToView[route];
     if (Component) {
         return <Component params={params} />;

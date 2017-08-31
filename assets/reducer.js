@@ -4,10 +4,10 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 
 import { SET_PATH, matchPath } from './actions.js';
 
-const defaultRoute = matchPath(window.location.pathname);
+const defaultRoute = {path: null, route: null, params: {}};
 function routeReducer(state = defaultRoute, action) {
     if (action.type === SET_PATH) {
-        if (state && state.path === action.path) {
+        if (state.path === action.path) {
             return state; // Nothing changed.
         }
         return {
