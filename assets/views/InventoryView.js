@@ -109,7 +109,7 @@ export const Label = React.createClass({
         }}>
             <span style={{
                 'padding': '0 0.25em 0 0.5em',
-                'background': 'no-repeat -0.25em 50% url(' + window.__webpack_public_path__ + require('../label.inkscape.svg') + ')',
+                'background': 'no-repeat -0.25em 50% url(' + window.__webpack_public_path__ + require('../art/label.inkscape.svg') + ')',
             }}>
                 {this.props.label.text}
             </span>
