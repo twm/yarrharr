@@ -80,7 +80,7 @@ function feedReducer(state = window.props.feedsById, action) {
 }
 
 import { REQUEST_ADD_FEED, RECEIVE_ADD_FEED, FAIL_ADD_FEED } from './actions.js';
-function feedAddReducer(state = window.props.feedsById, action) {
+function feedAddReducer(state = {}, action) {
     if (action.type === REQUEST_ADD_FEED) {
         return {
             url: action.url,
