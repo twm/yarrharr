@@ -20,7 +20,13 @@ import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js'
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-const store = createStore(reducer, applyMiddleware(thunk, logger));
+const middleware = [
+    thunk,
+];
+if (__debug__) {
+    middleware.push(logger);
+}
+const store = createStore(reducer, applyMiddleware.apply(null, middleware));
 
 syncViewOptions(store, window.localStorage);
 syncLocation(store, window);
