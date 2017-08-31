@@ -48,9 +48,9 @@ export function AllView({params, feedsById, view, layout, snapshot, articlesById
                 ])}
             </div>
         </div>
-        {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
-            () => onLoadMore(snapshot.articleIds))}
+        {renderSnapshot(snapshot.response,
+            () => renderArticles(view, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle),
+            () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
@@ -80,9 +80,9 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
                 ])}
             </div>
         </div>
-        {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
-            () => onLoadMore(snapshot.articleIds))}
+        {renderSnapshot(snapshot.response,
+            () => renderArticles(view, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle),
+            () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
@@ -112,9 +112,9 @@ export function LabelView({params, labelsById, feedsById, view, layout, snapshot
                 ])}
             </div>
         </div>
-        {renderSnapshot(snapshot,
-            () => renderArticles(view, snapshot.articleIds, articlesById, feedsById, onMarkArticle),
-            () => onLoadMore(snapshot.articleIds))}
+        {renderSnapshot(snapshot.response,
+            () => renderArticles(view, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle),
+            () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
@@ -148,38 +148,40 @@ function joinLinks(maybeLinks) {
 }
 
 function renderArchiveAllLink(snapshot, onMarkArticles) {
-    // Stuff is still loading.
-    if (!snapshot || snapshot.loading) {
-        return null;
-    }
+    const { loaded, params, articleIds } = snapshot.response;
 
-    if (snapshot.articleIds.length < 1) {
+    // Stuff is still loading.
+    if (!loaded) {
         return null;
     }
-    if (snapshot.filter === FILTER_ARCHIVED) {
+    // No articles present.
+    if (articleIds.length < 1) {
+        return null;
+    }
+    if (params.filter === FILTER_ARCHIVED) {
         return null;
     }
 
     return <a key="archive-all" href="#" onClick={e => {
         e.preventDefault();
-        if (confirm("Archive " + snapshot.articleIds.length + " articles?")) {
-            onMarkArticles(snapshot.articleIds, STATE_ARCHIVED);
+        if (confirm("Archive " + articleIds.length + " articles?")) {
+            onMarkArticles(articleIds, STATE_ARCHIVED);
         }
     }}>Archive all</a>;
 }
 
-function renderSnapshot(snapshot, renderArticles, onNearBottom) {
-    if (!snapshot || snapshot.loading) {
+function renderSnapshot(snapshotResponse, renderArticles, onNearBottom) {
+    if (!snapshotResponse.loaded) {
         return <div className="floater">
-            <p className="floater-content">No articles</p>
+            <p className="floater-content">Loading</p>
         </div>;
     }
-    if (snapshot.error) {
+    if (snapshotResponse.error) {
         return <div className="floater">
             <p className="floater-content">Failed to load (reload to retry)</p>
         </div>;
     }
-    if (snapshot.articleIds.length === 0) {
+    if (snapshotResponse.articleIds.length === 0) {
         return <div className="floater">
             <p className="floater-content">No articles</p>
         </div>;
