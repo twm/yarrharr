@@ -16,7 +16,6 @@ export const LABEL_DRAG_DROP_TYPE = 'yarrharr/label';
 
 export const InventoryView = React.createClass({
     propTypes: {
-        dispatch: PropTypes.func.isRequired,
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
         layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
