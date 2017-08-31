@@ -4,7 +4,6 @@ import { setLayout } from 'actions.js';
 import { markArticle } from 'actions.js';
 
 import Article from 'widgets/Article.js';
-import Loading from 'widgets/Loading.js';
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
 import { RootLink, FeedLink } from 'widgets/links.js';
@@ -34,9 +33,7 @@ export function ArticleView(props) {
 function renderArticle(article, feed, dispatch) {
     if (!article || article.loading) {
         return <div className="floater">
-            <div className="floater-content">
-                <Loading />
-            </div>
+            <p className="floater-content">Loading</p>
         </div>;
     }
     return <Article

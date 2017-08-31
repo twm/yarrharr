@@ -13,7 +13,6 @@ import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
-import Loading from 'widgets/Loading.js';
 import Header from 'widgets/Header.js';
 import './FeedView.less';
 
@@ -172,9 +171,7 @@ function renderArchiveAllLink(snapshot, onMarkArticles) {
 function renderSnapshot(snapshot, renderArticles, onNearBottom) {
     if (!snapshot || snapshot.loading) {
         return <div className="floater">
-            <div className="floater-content">
-                <Loading />
-            </div>
+            <p className="floater-content">No articles</p>
         </div>;
     }
     if (snapshot.error) {
