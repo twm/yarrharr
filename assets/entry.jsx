@@ -25,46 +25,6 @@ const store = createStore(reducer, applyMiddleware(thunk, createLogger()));
 syncViewOptions(store, window.localStorage);
 syncLocation(store, window);
 
-const _ROUTES = [{
-    pattern: /^$/,
-    render: () => <ConnectedRootView />,
-}, {
-    pattern: /^inventory\/$/,
-    render: () => <ConnectedInventoryView />,
-    onEnter: _ => loadFeeds(),
-}, {
-    pattern: /^inventory\/add\/$/,
-    render: () => <ConnectedAddFeedView />,
-}, {
-    pattern: /^article\/(\d+)\/$/,
-    render: articleId => <ConnectedArticleView params={{articleId}} />,
-    onEnter: articleId => loadMore([articleId]),
-}, {
-    pattern: /^all\/([^\/]+)\/$/,
-    render: filter => <ConnectedAllView params={{filter}} />,
-    onEnter: filter => showAll(filter, null),
-}, {
-    pattern: /^all\/([^\/]+)\/(\d+)\/$/,
-    render: (filter, articleId) => <ConnectedAllView params={{filter, articleId}} />,
-    onEnter: (filter, articleId) => showAll(filter, Number(articleId)),
-}, {
-    pattern: /^label\/(\d+)\/([^\/]+)\/$/,
-    render: (labelId, filter) => <ConnectedLabelView params={{labelId, filter}} />,
-    onEnter: (labelId, filter) => showLabel(Number(labelId), filter, null),
-}, {
-    pattern: /^label\/(\d+)\/([^\/]+)\/(\d+)\/$/,
-    render: (labelId, filter, articleId) => <ConnectedLabelView params={{labelId, filter, articleId}} />,
-    onEnter: (labelId, filter, articleId) => showLabel(Number(labelId), filter, Number(articleId)),
-}, {
-    pattern: /^feed\/(\d+)\/([^\/]+)\/$/,
-    render: (feedId, filter) => <ConnectedFeedView params={{feedId, filter}} />,
-    onEnter: (feedId, filter) => showLabel(Number(feedId), filter, null),
-}, {
-    pattern: /^feed\/(\d+)\/([^\/]+)\/(\d+)\/$/,
-    render: (feedId, filter, articleId) => <ConnectedFeedView params={{feedId, filter, articleId}} />,
-    onEnter: (feedId, filter, articleId) => showLabel(Number(feedId), filter, Number(articleId)),
-}];
-
 const routeToView = {
     '/': ConnectedRootView,
     '/inventory': ConnectedInventoryView,
