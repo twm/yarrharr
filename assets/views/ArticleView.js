@@ -1,10 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setLayout } from 'actions.js';
 import { markArticle } from 'actions.js';
 
 import Article from 'widgets/Article.js';
-import Loading from 'widgets/Loading.js';
 import { ViewButton } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
 import { RootLink, FeedLink } from 'widgets/links.js';
@@ -34,9 +34,7 @@ export function ArticleView(props) {
 function renderArticle(article, feed, dispatch) {
     if (!article || article.loading) {
         return <div className="floater">
-            <div className="floater-content">
-                <Loading />
-            </div>
+            <p className="floater-content">Loading</p>
         </div>;
     }
     return <Article
@@ -55,12 +53,12 @@ function renderArticleSummary(article, feed) {
 }
 
 ArticleView.propTypes = {
-    params: React.PropTypes.shape({
-        articleId: React.PropTypes.string.isRequired,
+    params: PropTypes.shape({
+        articleId: PropTypes.string.isRequired,
     }).isRequired,
-    articlesById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
-    feedsById: React.PropTypes.objectOf(React.PropTypes.object).isRequired,
-    layout: React.PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
+    articlesById: PropTypes.objectOf(PropTypes.object).isRequired,
+    feedsById: PropTypes.objectOf(PropTypes.object).isRequired,
+    layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
 };
 
 export default connect(state => {

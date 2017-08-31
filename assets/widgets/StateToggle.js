@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Star, Check, Heart } from 'widgets/icons.js';
 import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
 
@@ -20,11 +21,11 @@ const STATE_IMAGE = {
 
 const StateToggle = React.createClass({
     propTypes: {
-        id: React.PropTypes.number.isRequired,
-        state: React.PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
+        id: PropTypes.number.isRequired,
+        state: PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
         // Non-null indicates that a mark operation is in-progress.
-        marking: React.PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
-        onMark: React.PropTypes.func.isRequired,
+        marking: PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
+        onMark: PropTypes.func.isRequired,
     },
     getDefaultProps() {
         return {marking: null};

@@ -10,11 +10,28 @@ const extractLESS = new ExtractTextPlugin({
     // disable: production,
 });
 
+const plugins = [
+    new webpack.NoEmitOnErrorsPlugin(),
+    new CleanWebpackPlugin([path.join(__dirname, 'yarrharr/static')]),
+    extractLESS,
+    new webpack.DefinePlugin({
+        'process.env': {
+            NODE_ENV: JSON.stringify(production ? 'production' : 'development'),
+        },
+    }),
+]
+
+if (production) {
+    plugins.push(new webpack.optimize.CommonsChunkPlugin({
+        name: 'vendor',
+    }));
+    plugins.push(new MinifyPlugin({}, {sourceMap: true}));
+}
+
 module.exports = {
     entry: {
         main: path.join(__dirname, 'assets/entry.jsx'),
-        vendor: ['react', 'react-addons-pure-render-mixin', 'react-dom',
-                 'react-router', 'react-redux'],
+        vendor: ['react', 'react-addons-pure-render-mixin', 'react-dom', 'react-redux'],
     },
     resolve: {
         modules: [
@@ -54,19 +71,6 @@ module.exports = {
         path: path.join(__dirname, 'yarrharr/static'),
         filename: '[name].[hash].js',
     },
-    plugins: [
-        new webpack.NoEmitOnErrorsPlugin(),
-        new CleanWebpackPlugin([path.join(__dirname, 'yarrharr/static')]),
-        extractLESS,
-        new MinifyPlugin({}, {sourceMap: true}),
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-        }),
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: JSON.stringify(production ? 'production' : 'development'),
-            },
-        }),
-    ],
+    plugins: plugins,
     devtool: 'source-map',
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * A component which watches the window scroll position and fires an event when
@@ -11,7 +12,7 @@ import React from 'react';
  */
 const ScrollSpy = React.createClass({
     propTypes: {
-        onNearBottom: React.PropTypes.func.isRequired,
+        onNearBottom: PropTypes.func.isRequired,
     },
     componentDidMount() {
         window.addEventListener('scroll', this.handleChange, false);

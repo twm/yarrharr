@@ -1,12 +1,28 @@
 import { combineReducers } from 'redux';
-import { routerReducer } from 'react-router-redux';
+
+const __debug__ = process.env.NODE_ENV !== 'production';
+
+import { SET_PATH, matchPath } from './actions.js';
+
+const defaultRoute = {path: null, route: null, params: {}};
+function routeReducer(state = defaultRoute, action) {
+    if (action.type === SET_PATH) {
+        if (state.path === action.path) {
+            return state; // Nothing changed.
+        }
+        return {
+            path: action.path,
+            route: action.route,
+            params: action.params,
+        };
+    }
+    return state;
+}
+
 
 import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
-
-const __debug__ = process.env.NODE_ENV !== 'production';
-
 function articleReducer(state = window.props.articlesById, action) {
     if (action.type === REQUEST_ARTICLES) {
         const patch = {};
@@ -64,7 +80,7 @@ function feedReducer(state = window.props.feedsById, action) {
 }
 
 import { REQUEST_ADD_FEED, RECEIVE_ADD_FEED, FAIL_ADD_FEED } from './actions.js';
-function feedAddReducer(state = window.props.feedsById, action) {
+function feedAddReducer(state = {}, action) {
     if (action.type === REQUEST_ADD_FEED) {
         return {
             url: action.url,
@@ -83,66 +99,132 @@ function feedAddReducer(state = window.props.feedsById, action) {
     return state;
 }
 
+import { SET_SNAPSHOT_PARAMS } from './actions.js';
+import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
+import { ORDER_DATE, ORDER_TAIL } from './actions.js';
 import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT, SHOW_ARTICLE } from './actions.js';
-import { SET_FILTER, FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
-import { SET_ORDER, ORDER_DATE, ORDER_TAIL } from './actions.js';
 const defaultSnapshot = {
-    loading: false,
-    error: false,
+    /**
+     * The current desired sort order.
+     */
     order: ORDER_TAIL,
+    /**
+     * The current desired filter.
+     */
     filter: FILTER_NEW,
+    /**
+     * An array of feed IDs which are currently desired to be displayed.
+     * An empty array indicates that no snapshot is currently desired.
+     */
     feedIds: [],
-    articleId: null,  // Currently displayed article.
-    articleIds: [],
+    /**
+     * An article ID to include in the response regardless of whether it is
+     * excluded by the filter.
+     *
+     * This is null when no particular article is to be included.
+     */
+    include: null,
+
+    response: {
+        /**
+         * The parameters of the snapshot request. This is set when a snapshot
+         * request is issued or received.
+         *
+         * The zero-value is indicated by an empty feedIds member.
+         */
+        params: {
+            order: ORDER_TAIL,
+            filter: FILTER_NEW,
+            feedIds: [],
+            include: null,
+        },
+        /**
+         * Has the snapshot loaded? Set to false at page load and when snapshot
+         * request is issued. Set to true on snapshot receipt.
+         *
+         * When true, either error is true or articleIds represents a valid
+         * server response.
+         */
+        loaded: false,
+        /**
+         * Did the snapshot request fail? A true value indicates that an error
+         * occurred and should be presented to the user.
+         */
+        error: false,
+        /**
+         * A list of article IDs representing the articles to be displayed to
+         * the user. May be empty.
+         */
+        articleIds: [],
+    },
 };
 function snapshotReducer(state = defaultSnapshot, action) {
-    if (action.type === REQUEST_SNAPSHOT) {
+    if (action.type === SET_SNAPSHOT_PARAMS) {
         return Object.assign({}, state, {
-            loading: true,
-            error: false,
             order: action.order,
             filter: action.filter,
             feedIds: action.feedIds,
-            articleId: action.articleId,
-            articleIds: [],
+            include: action.include,
+        });
+    } else if (action.type === REQUEST_SNAPSHOT) {
+        return Object.assign({}, state, {
+            response: {
+                params: {
+                    order: action.order,
+                    filter: action.filter,
+                    feedIds: action.feedIds,
+                    include: action.include,
+                },
+                loaded: false,
+                error: false,
+                articleIds: [],
+            },
         });
     } else if (action.type === RECEIVE_SNAPSHOT) {
+        // Ignore the snapshot if it does not satisfy the current request parameters.
         if (state.order !== action.order
                 || state.filter !== action.filter
-                /* NB: Should be equal by identity due to coming from the same closure */
-                || state.feedIds !== action.feedIds
-                || state.articleId !== action.articleId) {
+                || state.feedIds.join(',') !== action.feedIds.join(',')
+                || !(state.include === action.include
+                     || state.include == null
+                     || action.articleIds.includes(state.include))) {
+            console.log("Ignoring incoming snapshot as it doesn't match current params");
             return state;
         }
         const newState = Object.assign({}, state, {
-            loading: false,
-            error: false,
-            order: action.order,
-            filter: action.filter,
-            feedIds: action.feedIds,
-            articleId: action.articleId,
-            articleIds: action.articleIds,
+            response: {
+                params: {
+                    order: action.order,
+                    filter: action.filter,
+                    feedIds: action.feedIds,
+                    include: action.include,
+                },
+                loaded: true,
+                error: false,
+                articleIds: action.articleIds,
+            },
         });
-        if (!action.articleIds.includes(action.articleId)) {
-            // XXX: Mutating this here may cause the URL to be mismatched.
-            newState.articleId = null;
-        }
         return newState;
     } else if (action.type === FAIL_SNAPSHOT) {
-        if (state.order !== action.order
-                || state.filter !== action.filter
-                /* NB: Should be equal by identity due to coming from the same closure */
-                || state.feedIds !== action.feedIds
-                || state.articleId !== action.articleId) {
+        // Ignore the failure if it doesn't apply to the last request made.
+        if (state.request.params.order !== action.order
+                || state.request.params.filter !== action.filter
+                || state.response.params.feedIds.join(',') !== action.feedIds.join(',')
+                || state.response.params.include !== action.include) {
             return state;
         }
         return Object.assign({}, state, {
-            loading: false,
-            error: true,
-        });
-    } else if (action.type === SHOW_ARTICLE) {
-        return Object.assign({}, state, {
-            articleId: action.articleId,
+            response: {
+                params: {
+                    order: action.order,
+                    filter: action.filter,
+                    feedIds: action.feedIds,
+                    include: action.include,
+                },
+                loading: false,
+                error: true,
+                articleIds: action.articleIds,
+            },
         });
     }
     return state;
@@ -179,6 +261,7 @@ function layoutReducer(state = LAYOUT_NARROW, action) {
 
 
 export default combineReducers({
+    route: routeReducer,
     articlesById: articleReducer,
     feedsById: feedReducer,
     feedAdd: feedAddReducer,
@@ -186,5 +269,4 @@ export default combineReducers({
     labelsById: labelReducer,
     view: viewReducer,
     layout: layoutReducer,
-    routing: routerReducer,
 });

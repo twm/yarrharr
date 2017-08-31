@@ -1,5 +1,6 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Logo, Heart } from 'widgets/icons.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
@@ -13,8 +14,8 @@ import './RootView.less';
 export const RootView = React.createClass({
     mixins: [PureRenderMixin],
     propTypes: {
-        labelsById: React.PropTypes.object.isRequired,
-        feedsById: React.PropTypes.object.isRequired,
+        labelsById: PropTypes.object.isRequired,
+        feedsById: PropTypes.object.isRequired,
     },
     render() {
         const labelList = labelsByTitle(this.props);

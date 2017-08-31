@@ -1,3 +1,5 @@
+const __debug__ = process.env.NODE_ENV !== 'production';
+
 export const SET_VIEW = 'SET_VIEW';
 export const VIEW_LIST = 'list';
 export const VIEW_TEXT = 'text';
@@ -34,7 +36,8 @@ export function validLayout(layout) {
     return false;
 }
 
-export const SET_FILTER = 'SET_FILTER';
+export const SET_SNAPSHOT_PARAMS = 'SET_SNAPSHOT_PARAMS';
+
 export const FILTER_NEW = 'new';
 export const FILTER_SAVED = 'saved';
 export const FILTER_ARCHIVED = 'archived';
@@ -53,13 +56,22 @@ export function validFilter(filter) {
     return false;
 }
 
-export const SET_ORDER = 'SET_ORDER';
 export const ORDER_DATE = 'date';
 export const ORDER_TAIL = 'tail';
 export function setOrder(order) {
+    if (__debug__ && !validOrder(order)) {
+        throw new Error(`Invalid order '${order}'`);
+    }
     return (dispatch, getState) => {
-        const { snapshot: { feedIds, filter, articleId } } = getState();
-        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
+        const { snapshot } = getState();
+        const action = {
+            type: SET_SNAPSHOT_PARAMS,
+            order,
+            filter: snapshot.filter,
+            feedIds: snapshot.feedIds,
+            include: snapshot.include,
+        };
+        return _setSnapshot(action, dispatch, getState);
     };
 }
 /**
@@ -75,38 +87,38 @@ export function validOrder(order) {
 }
 
 export const REQUEST_SNAPSHOT = 'REQUEST_SNAPSHOT';
-function requestSnapshot(feedIds, order, filter, articleId) {
+function requestSnapshot(order, filter, feedIds, include) {
     return {
         type: REQUEST_SNAPSHOT,
-        feedIds,
         order,
         filter,
-        articleId,
+        feedIds,
+        include,
     };
 }
 
 
 export const RECEIVE_SNAPSHOT = 'RECEIVE_SNAPSHOT';
-function receiveSnapshot(feedIds, order, filter, articleId, articleIds) {
+function receiveSnapshot(order, filter, feedIds, include, articleIds) {
     return {
         type: RECEIVE_SNAPSHOT,
-        feedIds,
         order,
         filter,
-        articleId,
+        feedIds,
+        include,
         articleIds,
     };
 }
 
 
 export const FAIL_SNAPSHOT = 'FAIL_SNAPSHOT';
-function failSnapshot(feedIds, order, filter, articleId) {
+function failSnapshot(order, filter, feedIds, include) {
     return {
         type: FAIL_SNAPSHOT,
-        feedIds,
         order,
         filter,
-        articleId,
+        feedIds,
+        include,
     };
 }
 
@@ -239,13 +251,13 @@ export function markArticles(articleIds, state) {
  *         articlesById: Object<articleId, *>,
  *     }
  */
-function fetchSnapshot(feedIds, order, filter, includeArticleId) {
+function fetchSnapshot(order, filter, feedIds, include) {
     const body = new FormData();
     feedIds.forEach((id) => body.append('feeds', String(id)));
     body.append('order', order);
     body.append('filter', filter);
-    if (includeArticleId !== null) {
-        body.append('include', includeArticleId);
+    if (include != null) {
+        body.append('include', include);
     }
     return post('/api/snapshots/', body);
 }
@@ -271,11 +283,19 @@ function fetchArticles(articleIds) {
  * none is cached.
  */
 export function showAll(filter, articleId) {
+    if (__debug__ && !(articleId === null || Number.isInteger(articleId))) {
+        throw new Error(`invalid articleId: '${articleId}'`);
+    }
     return (dispatch, getState) => {
-        const { feedsById } = getState();
+        const { snapshot, feedsById } = getState();
         const feedIds = Object.keys(feedsById).map(Number);
-        const { snapshot: { order } } = getState();
-        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
+        feedIds.sort();
+        const newSnapshot = Object.assign({}, snapshot, {
+            filter,
+            feedIds,
+            include: articleId
+        });
+        return _setSnapshot(newSnapshot, dispatch, getState);
     };
 }
 
@@ -283,10 +303,22 @@ export function showAll(filter, articleId) {
  * Display a feed to the user.  Load a fresh snapshot if none is cached.
  */
 export function showFeed(feedId, filter, articleId) {
+    if (__debug__ && !Number.isInteger(feedId)) {
+        throw new Error(`invalid feedId: ${feedId}`);
+    }
+    if (__debug__ && !(articleId === null || Number.isInteger(articleId))) {
+        throw new Error(`invalid articleId: ${articleId}`);
+    }
     return (dispatch, getState) => {
-        const feedIds = [Number(feedId)];
-        const { snapshot: { order } } = getState();
-        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
+        const { snapshot } = getState();
+        const action = {
+            type: SET_SNAPSHOT_PARAMS,
+            order: snapshot.order,
+            filter,
+            feedIds: [feedId],
+            include: articleId,
+        };
+        return _setSnapshot(action, dispatch, getState);
     };
 }
 
@@ -294,63 +326,97 @@ export function showFeed(feedId, filter, articleId) {
  * Display a label to the user.  Load a fresh snapshot if none is cached.
  */
 export function showLabel(labelId, filter, articleId) {
+    if (__debug__ && !Number.isInteger(labelId)) {
+        throw new Error(`invalid labelId: '${labelId}'`);
+    }
+    if (__debug__ && !(articleId === null || Number.isInteger(articleId))) {
+        throw new Error(`invalid articleId: '${articleId}'`);
+    }
     return (dispatch, getState) => {
-        const { feedsById, snapshot: { order } } = getState();
+        const { feedsById, snapshot } = getState();
         const feedIds = Object.keys(feedsById)
             .filter(feedId => feedsById[feedId].labels.indexOf(Number(labelId)) >= 0)
             .map(Number);
         feedIds.sort();
-        return _setSnapshot(feedIds, order, filter, articleId, dispatch, getState);
+        const action = {
+            type: SET_SNAPSHOT_PARAMS,
+            order: snapshot.order,
+            filter,
+            feedIds,
+            include: articleId,
+        };
+        return _setSnapshot(action, dispatch, getState);
     };
 }
 
-/**
- * Display an article within a snapshot.
- */
-export const SHOW_ARTICLE = 'SHOW_ARTICLE';
-export function showArticle(articleId) {
-    return {
-        type: SHOW_ARTICLE,
-        articleId,
-    };
-}
+// Adopting the new snapshot parameters requires no changes (most likely the
+// parameters have not changed).
+const NOTHING = 1;
+// A new snapshot must be requested to satisfy the new parameters.
+const LOAD = 2;
+// The new parameters only change the order parameter, so they may be satisfied
+// by reversing the order of the articleIds array.
+const FLIP = 3;
 
-function _setSnapshot(feedIds, order, filter, articleId, dispatch, getState) {
-    const {
-        snapshot: {
-            feedIds: oldFeedIds=[],
-            order: oldOrder='',
-            filter: oldFilter='',
-            includeArticleId: oldIncludeArticleId=null,
-            articleId: oldArticleId=null,
-            articleIds: oldArticleIds=[],
-        },
-    } = getState();
-
-    if (!validFilter(filter)) {
-        // TODO: Handle somehow?  This could be anything since it came from the URL.
+function _setSnapshot(action, dispatch, getState) {
+    if (__debug__ && !validFilter(action.filter)) {
+        throw new Error(`Invalid filter ${filter}`);
     }
 
-    if (oldFeedIds.join() === feedIds.join() && oldOrder === order && oldFilter === filter && (oldIncludeArticleId === articleId || oldArticleIds.includes(Number(articleId)))) {
-        // The current snapshot has the same parameters and can display the requested article, so we can just use it.
-        if (oldArticleId !== articleId) {
-            dispatch(showArticle(articleId));
-        }
+    const snapshot = getState().snapshot;
+    dispatch(action);
+
+    if (transitionRequires(snapshot, action) === NOTHING) {
+        console.log('No snapshot load required');
         return;
     }
+    // TODO special case for FLIP
 
-    dispatch(requestSnapshot(feedIds, order, filter, articleId));
+    const {order, filter, feedIds, include} = action;
+    dispatch(requestSnapshot(order, filter, feedIds, include));
 
-    return fetchSnapshot(feedIds, order, filter, articleId).then(
+    return fetchSnapshot(order, filter, feedIds, include).then(
         json => {
             // Updated articles are always welcome.
             dispatch(receiveArticles(json.articlesById));
-            dispatch(receiveSnapshot(feedIds, order, filter, articleId, json.snapshot));
+            dispatch(receiveSnapshot(order, filter, feedIds, include, json.snapshot));
         },
         err => {
             console.error(err);
-            dispatch(failSnapshot(feedIds, order, filter, articleId))
+            dispatch(failSnapshot(order, filter, feedIds, include))
         });
+}
+
+/**
+ * Compare the parameters in the SET_SNAPSHOT_PARAMS action with the current
+ * snapshot and determine what action is required to adopt the new parameters.
+ */
+function transitionRequires(snapshot, action) {
+    if (action.feedIds.length === 0) {
+        return NOTHING;
+    }
+    if (snapshot.filter !== action.filter) {
+        return LOAD;
+    }
+    if (snapshot.feedIds.join(',') !== action.feedIds.join(',')) {
+        return LOAD;
+    }
+    // If the "include" articleId wasn't either requested, or is already in the
+    // response, we'll need to make a request to ensure it's present.
+    if (action.include != null) {
+        // Key optimization: when we've already loaded a snapshot, clicking on
+        // the link to display the article text should not trigger a reload of
+        // the snapshot.
+        if (snapshot.include !== action.include
+            && !snapshot.response.articleIds.includes(action.include)) {
+            return LOAD;
+        }
+    }
+    if ((snapshot.order === ORDER_TAIL && action.order == ORDER_DATE)
+        || (snapshot.order === ORDER_DATE && action.order == ORDER_TAIL)) {
+        return FLIP;
+    }
+    return NOTHING;
 }
 
 
@@ -563,4 +629,122 @@ export function detachLabel(feedId, labelId) {
             // TODO
         });
     }
+}
+
+export const SET_PATH = 'SET_PATH';
+/**
+ * Navigate to a new URL path (relative to the Yarrharr root path).
+ */
+export function setPath(path) {
+    const match = matchPath(path);
+    if (!match) {
+        throw new Error(`path ${path} does not match a known route`);
+    }
+    const {route, params} = match;
+    return dispatch => {
+        if (ROUTE_LOADERS[route]) {
+            dispatch(ROUTE_LOADERS[route](params));
+        }
+        dispatch({
+            type: SET_PATH,
+            path,
+            route,
+            params,
+        });
+    }
+}
+
+const ROUTE_LOADERS = {
+    '/inventory': _ => loadFeeds(),
+    '/article/:articleId': params => loadMore([params.articleId]),
+    '/all/:filter': params => showAll(params.filter, null),
+    '/all/:filter/:articleId': params => showAll(params.filter, params.articleId),
+    '/label/:labelId/:filter': params => showLabel(params.labelId, params.filter, null),
+    '/label/:labelId/:filter/:articleId': params => showLabel(params.labelId, params.filter, params.articleId),
+    '/feed/:feedId/:filter': params => showFeed(params.feedId, params.filter, null),
+    '/feed/:feedId/:filter/:articleId': params => showFeed(params.feedId, params.filter, params.articleId),
+};
+
+export const ROUTES = [
+    '/',
+    '/inventory',
+    '/inventory/add',
+    '/article/:articleId',
+    '/all/:filter',
+    '/all/:filter/:articleId',
+    '/label/:labelId/:filter',
+    '/label/:labelId/:filter/:articleId',
+    '/feed/:feedId/:filter',
+    '/feed/:feedId/:filter/:articleId',
+];
+
+const PARAM_TYPES = {
+    'articleId': '(\\d+)',
+    'labelId': '(\\d+)',
+    'feedId': '(\\d+)',
+    'filter': '(' + [FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL].join('|') + ')',
+};
+
+const PARAM_CONVERT = {
+    'articleId': Number,
+    'labelId': Number,
+    'feedId': Number,
+    'filter': String,
+};
+
+const PATH_MATCHERS = ROUTES.map(route => {
+    var pattern = '^';
+    const paramNames = [];
+    route.split('/').forEach(label => {
+        if (label.charAt(0) === ':') {
+            const paramName = label.slice(1);
+            paramNames.push(paramName);
+            pattern += PARAM_TYPES[paramName];
+        } else {
+            pattern += label;
+        }
+        pattern += '/';
+    });
+    pattern += '?$'
+    // console.log(`route ${route} => regexp ${pattern}`);
+    const regex = new RegExp(pattern);
+    return path => {
+        var match = regex.exec(path);
+        if (!match) {
+            // console.log(`path ${path} does not match regexp ${regex}`);
+            return null;
+        }
+        var params = {};
+        for (var i = 1; i < match.length; i++) {
+            var paramName = paramNames[i - 1];
+            params[paramName] = PARAM_CONVERT[paramName](match[i]);
+        }
+        console.log(`path ${path} matches route ${route}`);
+        return {path, route, params};
+    };
+});
+
+/**
+ * Match the given URL path against the configured routes.
+ *
+ * @param String path
+ *
+ * If a route matches the path an object describing the match is returned:
+ *
+ *     {
+ *         path: '/article/1234/',
+ *         route: '/article/:articleId',
+ *         params: {articleId: '1234'},
+ *     }
+ *
+ * Otherwise null.
+ */
+export function matchPath(path) {
+    for (var i = 0; i < PATH_MATCHERS.length; i++) {
+        var match = PATH_MATCHERS[i](path);
+        if (match) {
+            return match;
+        }
+    }
+    return null;
 }
