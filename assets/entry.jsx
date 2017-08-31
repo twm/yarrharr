@@ -16,7 +16,6 @@ import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
 import reducer from 'reducer.js';
 import { setPath, ROUTES } from './actions.js';
-import { loadFeeds, loadMore, showAll, showFeed, showLabel } from './actions.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
