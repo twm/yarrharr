@@ -14,56 +14,46 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from '../action
 
 /**
  * Private helper which dispatches an action instead of allowing the browser to
- * navigate. This is kind of a hack, since it has to be connected in order to
- * actually dispatch the action. It really replicates some of the
- * action-at-a-distance that made React Router so confusing in combination with
- * Redux.
+ * navigate.
  */
 const A = React.createClass({
     handleClick(event) {
-        console.log('Got click on', this.props.path);
         event.preventDefault();
         this.props.dispatch(setPath(this.props.path));
     },
     render() {
-        const href = this.props.path;
-        return <a href={href} {...this.props} onClick={this.handleClick} />;
+        return <a href={this.props.path} onClick={this.handleClick} className={this.props.className} children={this.props.children} />;
     }
 });
 
 const ConnectedA = connect(null, null)(A);
 
 export function AllLink(props) {
-    const { filter } = props;
-    return <ConnectedA path={`/all/${filter}/`} {...props} />;
+    return <ConnectedA path={`/all/${props.filter}/`} className={props.className} children={props.children} />;
 }
 
 export function ArticleLink(props) {
-    const { articleId } = props;
-    return <ConnectedA path={`/article/${articleId}/`} {...props} />;
+    return <ConnectedA path={`/article/${props.articleId}/`} className={props.className} children={props.children} />;
 }
 
 export function FeedLink(props) {
-    const { feedId, filter } = props;
-    var path = `/feed/${feedId}/${filter}/`;
-    return <ConnectedA path={path} {...props} />;
+    return <ConnectedA path={`/feed/${props.feedId}/${props.filter}/`} className={props.className} children={props.children} />;
 }
 
 export function LabelLink(props) {
-    const { labelId, filter } = props;
-    return <ConnectedA path={`/label/${labelId}/${filter}/`} {...props} />;
+    return <ConnectedA path={`/label/${props.labelId}/${props.filter}/`} className={props.className} children={props.children} />;
 }
 
 export function RootLink(props) {
-    return <ConnectedA path="/" {...props} />;
+    return <ConnectedA path="/" className={props.className} children={props.children} />;
 }
 
 export function InventoryLink(props) {
-    return <ConnectedA path="/inventory/" {...props} />;
+    return <ConnectedA path="/inventory/" className={props.className} children={props.children} />;
 }
 
 export function AddFeedLink(props) {
-    return <ConnectedA path="/inventory/add/" {...props} />;
+    return <ConnectedA path="/inventory/add/" className={props.className} children={props.children} />;
 }
 
 if (process.env.NODE_ENV !== 'production') {
