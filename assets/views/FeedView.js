@@ -199,7 +199,7 @@ function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
         const article = articlesById[id];
         if (article) {
             if (article.loading) {
-                elements.push(<Loading key="loading" />);
+                elements.push(<div>Loading</div>);
                 break;
             }
             // TODO: Handle errors
