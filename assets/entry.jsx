@@ -5,7 +5,6 @@ import createLogger from 'redux-logger';
 import { Provider, connect } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import createHistory from 'history/createBrowserHistory';
 
 import './base.less';
 import syncViewOptions from './syncViewOptions.js';
