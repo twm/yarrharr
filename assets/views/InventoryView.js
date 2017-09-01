@@ -12,16 +12,9 @@ import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
 
-export const LABEL_DRAG_DROP_TYPE = 'yarrharr/label';
+const __debug__ = process.env.NODE_ENV !== 'production';
 
-export const InventoryView = React.createClass({
-    propTypes: {
-        labelsById: PropTypes.object.isRequired,
-        feedsById: PropTypes.object.isRequired,
-        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
-        onRemoveFeed: PropTypes.func.isRequired,
-        onSetLayout: PropTypes.func.isRequired,
-    },
+export class InventoryView extends React.PureComponent {
     render() {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
@@ -42,7 +35,7 @@ export const InventoryView = React.createClass({
             <Header text="Manage Feeds" />
             {this.renderFeeds(feedList, labelList)}
         </div>;
-    },
+    }
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
             return <div className="floater-wrap">
@@ -87,21 +80,27 @@ export const InventoryView = React.createClass({
                 </div>
             </div>)}
         </div>;
-    },
+    }
     handleRemoveFeed(feedId) {
         const feed = this.props.feedsById[feedId];
         if (!feed) return;
         if (confirm("Remove feed " + (feed.text || feed.title) + " and associated articles?")) {
             this.props.onRemoveFeed(feedId);
         }
-    },
-});
+    }
+}
 
-export const Label = React.createClass({
-    propTypes: {
-        label: PropTypes.object.isRequired,
-        onDetach: PropTypes.func.isRequired,
-    },
+if (__debug__) {
+    InventoryView.propTypes = {
+        labelsById: PropTypes.object.isRequired,
+        feedsById: PropTypes.object.isRequired,
+        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
+        onRemoveFeed: PropTypes.func.isRequired,
+        onSetLayout: PropTypes.func.isRequired,
+    };
+}
+
+class Label extends React.PureComponent {
     render() {
         return <span style={{
             'whiteSpace': 'nowrap',
@@ -128,24 +127,24 @@ export const Label = React.createClass({
                 </span>
             </button>
         </span>;
-    },
-});
+    }
+}
 
-export const AttachLabelButton = React.createClass({
-    propTypes: {
-        labelList: PropTypes.array.isRequired,
-        feed: PropTypes.object.isRequired,
-        // Will be called with the text of the label to add.
-        onLabelAdd: PropTypes.func.isRequired,
-        // Will be called with the feed and label to associate it with.
-        onLabelPick: PropTypes.func.isRequired,
-    },
-    getInitialState() {
-        return {open: false};
-    },
-    handleClick(event) {
-        this.setState({open: !this.state.open});
-    },
+if (__debug__) {
+    Label.propTypes = {
+        label: PropTypes.object.isRequired,
+        onDetach: PropTypes.func.isRequired,
+    };
+}
+
+export class AttachLabelButton extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {open: false};
+        this.handleClick = (event) => {
+            this.setState({open: !this.state.open});
+        };
+    }
     render() {
         return <span>
             <button
@@ -161,36 +160,30 @@ export const AttachLabelButton = React.createClass({
                     />
                 : null}
         </span>;
-    },
-});
+    }
+}
+
+AttachLabelButton.propTypes = {
+    labelList: PropTypes.array.isRequired,
+    feed: PropTypes.object.isRequired,
+    // Will be called with the text of the label to add.
+    onLabelAdd: PropTypes.func.isRequired,
+    // Will be called with the feed and label to associate it with.
+    onLabelPick: PropTypes.func.isRequired,
+};
 
 /**
  *
  */
-export const LabelPicker = React.createClass({
-    propTypes: {
-        // Feed object
-        feed: PropTypes.shape({
-            text: PropTypes.string.isRequired,
-            labels: PropTypes.arrayOf(PropTypes.number).isRequired,
-        }).isRequired,
-        // All available labels (only those not associated with the feed will be shown).
-        labelList: PropTypes.arrayOf(PropTypes.object).isRequired,
-        // Will be called with the text of the label to add.
-        onLabelAdd: PropTypes.func.isRequired,
-        // Will be called with the feed and label to associate it with.
-        onLabelPick: PropTypes.func.isRequired,
-        // Called with no arguments when the Cancel button is clicked.
-        onCancel: PropTypes.func.isRequired,
-    },
+export class LabelPicker extends React.PureComponent {
     unappliedLabels() {
         return this.props.labelList.filter(function(label) {
             return this.props.feed.labels.indexOf(label.id) < 0;
         }, this);
-    },
+    }
     render() {
         return <div
-            onClick={this.handleCancel}
+            onClick={e => this.handleCancel(e)}
             style={{
                 position: 'fixed',
                 width: '100vw',
@@ -205,7 +198,7 @@ export const LabelPicker = React.createClass({
                     <button
                         title="Create Label"
                         className="button"
-                        onClick={this.handleAdd}>
+                        onClick={e => this.handleAdd(e)}>
                         <Add alt="+" width="32" height="32" />
                     </button>
                 </header>
@@ -215,31 +208,47 @@ export const LabelPicker = React.createClass({
                     </div>)}
                 </div>
                 <footer>
-                    <button className="invisible-button cancel" onClick={this.handleCancel}>Cancel</button>
+                    <button className="invisible-button cancel" onClick={e => this.handleCancel(e)}>Cancel</button>
                 </footer>
             </section>
         </div>;
-    },
+    }
     handleAdd(event) {
         var text = prompt("Label Name:", "");
         if (text) {
             this.props.onLabelAdd(text);
         }
         event.stopPropagation();
-    },
+    }
     /**
      * A label was clicked.  Call the associated callback.
      */
     handleLabelClick(label) {
         this.props.onLabelPick(this.props.feed, label);
-    },
+    }
     handleCancel(event) {
         this.props.onCancel();
-    },
+    }
     componentDidMount() {
         // TODO: Focus the first button
-    },
-});
+    }
+}
+
+LabelPicker.propTypes = {
+    // Feed object
+    feed: PropTypes.shape({
+        text: PropTypes.string.isRequired,
+        labels: PropTypes.arrayOf(PropTypes.number).isRequired,
+    }).isRequired,
+    // All available labels (only those not associated with the feed will be shown).
+    labelList: PropTypes.arrayOf(PropTypes.object).isRequired,
+    // Will be called with the text of the label to add.
+    onLabelAdd: PropTypes.func.isRequired,
+    // Will be called with the feed and label to associate it with.
+    onLabelPick: PropTypes.func.isRequired,
+    // Called with no arguments when the Cancel button is clicked.
+    onCancel: PropTypes.func.isRequired,
+};
 
 export const ConnectedInventoryView = connect(state => state, {
     onAttachLabel: attachLabel,
@@ -249,24 +258,7 @@ export const ConnectedInventoryView = connect(state => state, {
     onSetLayout: setLayout,
 })(InventoryView);
 
-export const AddFeedView = React.createClass({
-    propTypes: {
-        /**
-         * Pre-fill the URL field with this value.
-         */
-        defaultUrl: PropTypes.string,
-        /**
-         * The current feed add operation (if one is ongoing).
-         */
-        feedAdd: PropTypes.object.isRequired,
-        /**
-         * A superficially valid URL has been entered by the user.  Attempt to add
-         * it as a feed.
-         *
-         * @param {string} url Something that looks like a URL.
-         */
-        onSubmit: PropTypes.func.isRequired,
-    },
+export class AddFeedView extends React.PureComponent {
     render() {
         return <div className="add-feed-view">
             <div className="global-tools">
@@ -282,7 +274,7 @@ export const AddFeedView = React.createClass({
                 {this.renderAdd()}
             </div>
         </div>;
-    },
+    }
     renderAdd() {
         const { url=null, error=null, feedId=null } = this.props.feedAdd;
         if (!url) {
@@ -299,31 +291,51 @@ export const AddFeedView = React.createClass({
             </div>;
         }
         return <p>Adding feed {url}</p>;
-    },
-});
+    }
+}
 
-const UrlForm = React.createClass({
-    propTypes: {
-        onSubmit: PropTypes.func.isRequired,
-        defaultUrl: PropTypes.string,
-    },
-    getInitialState() {
-        return {url: ''};
-    },
+AddFeedView.propTypes = {
+    /**
+     * Pre-fill the URL field with this value.
+     */
+    defaultUrl: PropTypes.string,
+    /**
+     * The current feed add operation (if one is ongoing).
+     */
+    feedAdd: PropTypes.object.isRequired,
+    /**
+     * A superficially valid URL has been entered by the user.  Attempt to add
+     * it as a feed.
+     *
+     * @param {string} url Something that looks like a URL.
+     */
+    onSubmit: PropTypes.func.isRequired,
+};
+
+class UrlForm extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {url: ''};
+        this.handleUrlChange = event => {
+            this.setState({url: event.target.value});
+        };
+        this.handleSubmit = event => {
+            event.preventDefault();
+            this.props.onSubmit(this.state.url);
+        };
+    }
     render() {
         return <form onSubmit={this.handleSubmit}>
             <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
             <input type="submit" value="Add" />
         </form>;
-    },
-    handleUrlChange(event) {
-        this.setState({url: event.target.value});
-    },
-    handleSubmit(event) {
-        event.preventDefault();
-        this.props.onSubmit(this.state.url);
-    },
-});
+    }
+}
+
+UrlForm.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+    defaultUrl: PropTypes.string,
+};
 
 export const ConnectedAddFeedView = connect(state => state, {
     onSubmit: addFeed,
