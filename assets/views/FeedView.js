@@ -37,10 +37,10 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             <div className="floater">
                 {joinLinks([
                     renderArchiveAllLink(snapshot, onMarkArticles),
-                    snapshot.filter !== FILTER_NEW ? <AllLink key={FILTER_NEW} filter={FILTER_NEW}>New</AllLink> : null,
-                    snapshot.filter !== FILTER_SAVED ? <AllLink key={FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink> : null,
-                    snapshot.filter !== FILTER_ARCHIVED ? <AllLink key={FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink> : null,
-                    snapshot.filter !== FILTER_ALL ? <AllLink key={FILTER_ALL} filter={FILTER_ALL}>All</AllLink> : null,
+                    <AllLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} filter={FILTER_NEW}>New</AllLink>,
+                    <AllLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink>,
+                    <AllLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink>,
+                    <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>,
                 ])}
             </div>
         </div>
@@ -70,10 +70,10 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
             <div className="floater">
                 {joinLinks([
                     renderArchiveAllLink(snapshot, onMarkArticles),
-                    snapshot.filter !== FILTER_NEW ? <FeedLink key={FILTER_NEW} feedId={feedId} filter={FILTER_NEW}>New</FeedLink> : null,
-                    snapshot.filter !== FILTER_SAVED ? <FeedLink key={FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink> : null,
-                    snapshot.filter !== FILTER_ARCHIVED ? <FeedLink key={FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink> : null,
-                    snapshot.filter !== FILTER_ALL ? <FeedLink key={FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink> : null,
+                    <FeedLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} feedId={feedId} filter={FILTER_NEW}>New</FeedLink>,
+                    <FeedLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink>,
+                    <FeedLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink>,
+                    <FeedLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>,
                 ])}
             </div>
         </div>
@@ -103,10 +103,10 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             <div className="floater">
                 {joinLinks([
                     renderArchiveAllLink(snapshot, onMarkArticles),
-                    snapshot.filter !== FILTER_NEW ? <LabelLink key={FILTER_NEW} labelId={labelId} filter={FILTER_NEW}>New</LabelLink> : null,
-                    snapshot.filter !== FILTER_SAVED ? <LabelLink key={FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink> : null,
-                    snapshot.filter !== FILTER_ARCHIVED ? <LabelLink key={FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink> : null,
-                    snapshot.filter !== FILTER_ALL ? <LabelLink key={FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink> : null,
+                    <LabelLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} labelId={labelId} filter={FILTER_NEW}>New</LabelLink>,
+                    <LabelLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink>,
+                    <LabelLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink>,
+                    <LabelLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>,
                 ])}
             </div>
         </div>
@@ -135,11 +135,9 @@ export const ConnectedLabelView = connect(state => state, mapDispatchToProps)(La
 function joinLinks(maybeLinks) {
     const links = [];
     for (var i = 0; i < maybeLinks.length; i++) {
-        if (maybeLinks[i]) {
-            links.push(maybeLinks[i]);
-            if (i !== maybeLinks.length - 1) {
-                links.push(" \x1b\x1b ");
-            }
+        links.push(maybeLinks[i]);
+        if (i !== maybeLinks.length - 1) {
+            links.push(" \x1b\x1b ");
         }
     }
     return links;
@@ -147,21 +145,17 @@ function joinLinks(maybeLinks) {
 
 function renderArchiveAllLink(snapshot, onMarkArticles) {
     const { loaded, params, articleIds } = snapshot.response;
-
-    // Stuff is still loading.
-    if (!loaded) {
-        return null;
-    }
-    // No articles present.
-    if (articleIds.length < 1) {
-        return null;
-    }
-    if (params.filter === FILTER_ARCHIVED) {
-        return null;
-    }
+    const disabled = (
+        !loaded // Stuff is still loading.
+        || articleIds.length < 1 // No articles present.
+        || params.filter === FILTER_ARCHIVED // Everything already archived.
+    )
 
     return <a key="archive-all" href="#" onClick={e => {
         e.preventDefault();
+        if (disabled) {
+            return;
+        }
         if (confirm("Archive " + articleIds.length + " articles?")) {
             onMarkArticles(articleIds, STATE_ARCHIVED);
         }
