@@ -13,7 +13,7 @@ function Toggle(props) {
         event.preventDefault();
         callback(value);
     }
-    return <a className="text-button" aria-role="button" href="#" aria-disabled={!isSelected} tabIndex={isSelected ? -1 : 0} onClick={onClick}>
+    return <a className="text-button" role="button" href="#" aria-disabled={!isSelected} tabIndex={isSelected ? -1 : 0} onClick={onClick}>
         <span className={"button" + (isSelected ? " button-active" : "")}><Icon alt="" /></span>
         <span className="text">{text}</span>
     </a>;

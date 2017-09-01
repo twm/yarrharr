@@ -26,7 +26,7 @@ function OrderTailButton(props) {
         e.preventDefault();
         props.onSetOrder(ORDER_TAIL);
     };
-    return <a href="#" aria-role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Latest first</a>;
+    return <a href="#" role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Latest first</a>;
 }
 
 function OrderDateButton(props) {
@@ -35,7 +35,7 @@ function OrderDateButton(props) {
         e.preventDefault();
         props.onSetOrder(ORDER_DATE);
     };
-    return <a href="#" aria-role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Oldest first</a>;
+    return <a href="#" role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Oldest first</a>;
 }
 
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
