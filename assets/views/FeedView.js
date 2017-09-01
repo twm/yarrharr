@@ -17,8 +17,11 @@ import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links
 import Header from 'widgets/Header.js';
 import './FeedView.less';
 
+const __debug__ = process.env.NODE_ENV !== 'production';
+
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const { articleId } = params;
+    const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
             <RootLink className="text-button">
@@ -41,9 +44,9 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 ])}
             </div>
         </div>
-        {renderSnapshot(snapshot.response,
-            () => renderArticles(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle,
-                props => <AllArticleLink filter={snapshot.filter} {...props} />),
+        {renderSnapshot(snapshot.response, articleId,
+            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
+            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
@@ -51,6 +54,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
 export function FeedView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
+    const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
             <RootLink className="text-button">
@@ -73,9 +77,9 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
                 ])}
             </div>
         </div>
-        {renderSnapshot(snapshot.response,
-            () => renderArticles(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle,
-                props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />),
+        {renderSnapshot(snapshot.response, articleId,
+            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
+            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
@@ -83,6 +87,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
 export function LabelView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
+    const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
             <RootLink className="text-button">
@@ -105,9 +110,9 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 ])}
             </div>
         </div>
-        {renderSnapshot(snapshot.response,
-            () => renderArticles(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle,
-            props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />),
+        {renderSnapshot(snapshot.response, articleId,
+            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
+            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
@@ -163,7 +168,7 @@ function renderArchiveAllLink(snapshot, onMarkArticles) {
     }}>Archive all</a>;
 }
 
-function renderSnapshot(snapshotResponse, renderArticles, onNearBottom) {
+function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onNearBottom) {
     if (!snapshotResponse.loaded) {
         return <div className="floater">
             <p className="floater-content">Loading</p>
@@ -179,9 +184,11 @@ function renderSnapshot(snapshotResponse, renderArticles, onNearBottom) {
             <p className="floater-content">No articles</p>
         </div>;
     }
-    return <ScrollSpy onNearBottom={onNearBottom}>
-        {renderArticles()}
-    </ScrollSpy>;
+    if (articleId) {
+        return renderArticle();
+    } else {
+        return <ScrollSpy onNearBottom={onNearBottom}>{renderArticleList()}</ScrollSpy>;
+    }
 }
 
 /**
@@ -194,67 +201,87 @@ function renderSnapshot(snapshotResponse, renderArticles, onNearBottom) {
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticles(articleId, articleIds, articlesById, feedsById, onMark, renderLink) {
+function renderArticle(articleId, articleIds, articlesById, feedsById, onMark, renderLink) {
     const elements = [];
-    if (articleId != null) {
-        var index = articleIds.indexOf(articleId);
-        if (index === -1) {
-            // TODO Common 404 page style?
-            return <p>404: Article {articleId} does not exist</p>;
-        }
-        // XXX How to arrange for prev and next to be loaded in all cases?
-        var article = articlesById[articleId];
-        // FIXME Shouldn't assume all feeds have loaded.
-        var feed = feedsById[article.feedId];
-        if (!article) {
-            return <p>Loading</p>;
-        }
+    var index = articleIds.indexOf(articleId);
+    if (index === -1) {
+        // TODO Common 404 page style?
+        return <p>404: Article {articleId} does not exist</p>;
+    }
+    // XXX How to arrange for prev and next to be loaded in all cases?
+    var article = articlesById[articleId];
+    if (__debug__ && !article) {
+        throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
+    }
+    // FIXME Shouldn't assume all feeds have loaded.
+    var feed = feedsById[article.feedId];
+    if (!article) {
+        return <p>Loading</p>;
+    }
 
-        if (index !== 0) {
-            var prevId = articleIds[index - 1];
-            var prev = articlesById[prevId]; // NB: may not have loaded yet
-            elements.push(<div key={prevId} className="prev-link">
-                {renderLink({
-                    articleId: prevId,
-                    children: [
-                        <b>Previous </b>,
-                        prev ? (prev.title || "Untitled") : "",
-                    ],
-                })}
-            </div>);
-        }
+    if (index !== 0) {
+        var prevId = articleIds[index - 1];
+        var prev = articlesById[prevId]; // NB: may not have loaded yet
+        elements.push(<div key={prevId} className="prev-link">
+            {renderLink({
+                articleId: prevId,
+                children: [
+                    <b>Previous </b>,
+                    prev ? (prev.title || "Untitled") : "",
+                ],
+            })}
+        </div>);
+    }
 
+    if (!article.loading) {
         elements.push(<Article key={article.id} feed={feed} onMark={onMark} {...article} />);
-
-        if (index < articleIds.length - 1) {
-            var nextId = articleIds[index + 1];
-            var next = articlesById[nextId]; // NB: may not have loaded yet
-            elements.push(<div key={nextId} className="next-link">
-                {renderLink({
-                    articleId: nextId,
-                    children: [
-                        <b>Next </b>,
-                        next ? (next.title || "Untitled") : "",
-                    ],
-                })}
-            </div>);
-        }
     } else {
-        for (let id of articleIds) {
-            const article = articlesById[id];
-            if (article) {
-                if (article.loading) {
-                    elements.push(<div>Loading</div>);
-                    break;
-                }
-                // FIXME Shouldn't assume all feeds have loaded.
-                const feed = feedsById[article.feedId];
-                elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMark={onMark} {...article} />);
-            } else {
-                // We only render up to the first unavailable article.  This
-                // ensures that loading always occurs at the end.
+        elements.push(<p>Loading</p>);
+    }
+
+    if (index < articleIds.length - 1) {
+        var nextId = articleIds[index + 1];
+        var next = articlesById[nextId]; // NB: may not have loaded yet
+        elements.push(<div key={nextId} className="next-link">
+            {renderLink({
+                articleId: nextId,
+                children: [
+                    <b>Next </b>,
+                    next ? (next.title || "Untitled") : "",
+                ],
+            })}
+        </div>);
+    }
+
+    return elements;
+}
+
+/**
+ * Render the meat of a list view. This must only be called after the
+ * snapshot has loaded.
+ *
+ * @param {?number} articleId
+ *      If not null, render this specific article instead of the whole list.
+ * @param {number[]} articleIds
+ *      List of article IDs in the order to render them. Not all may be present
+ *      in the articlesById map, depending on what has loaded.
+ */
+function renderArticleList(articleId, articleIds, articlesById, feedsById, onMark, renderLink) {
+    const elements = [];
+    for (let id of articleIds) {
+        const article = articlesById[id];
+        if (article) {
+            if (article.loading) {
+                elements.push(<div>Loading</div>);
                 break;
             }
+            // FIXME Shouldn't assume all feeds have loaded.
+            const feed = feedsById[article.feedId];
+            elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMark={onMark} {...article} />);
+        } else {
+            // We only render up to the first unavailable article.  This
+            // ensures that loading always occurs at the end.
+            break;
         }
     }
     return elements;
