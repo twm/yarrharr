@@ -1,59 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Star, Check, Heart } from 'widgets/icons.js';
-import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
-
-const NEXT_STATE = {
-    [STATE_NEW]: STATE_ARCHIVED,
-    [STATE_ARCHIVED]: STATE_SAVED,
-    [STATE_SAVED]: STATE_NEW,
-};
-const STATE_TEXT = {
-    [STATE_NEW]: "New",
-    [STATE_ARCHIVED]: "Archived",
-    [STATE_SAVED]: "Saved",
-};
-const STATE_IMAGE = {
-    [STATE_NEW]: Star,
-    [STATE_ARCHIVED]: Check,
-    [STATE_SAVED]: Heart,
-};
+import { Star, Check } from 'widgets/icons.js';
 
 class StateToggle extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {pendingMark: null};
         this.handleClick = (event) => {
             event.preventDefault();
-            if (this.state.pendingMark) {
-                window.clearTimeout(this._timeout);
-            }
-            const prevState = this.getDisplayState();
-            const nextState = NEXT_STATE[prevState];
-            this.setState({pendingMark: nextState});
-            this._timeout = window.setTimeout(() => {
-                this._timeout = null;
-                this.setState({pendingMark: null});
-                this.props.onMark(this.props.id, nextState);
-            }, 300);
+            const newFlag = !this.props.read;
+            this.setState({read: newFlag});
+            this.props.onMarkArticlesRead([this.props.articleId], newFlag);
         };
     }
-    componentWillUnmount() {
-        // We immediately flush any pending mark when unmounting.  Presumably
-        // the user won't be clicking again, so the intended state can't change.
-        if (this.state.pendingMark) {
-            window.clearTimeout(this._timeout);
-            this.props.onMark(this.props.id, this.state.pendingMark);
-        }
-    }
-    getDisplayState() {
-        return this.state.pendingMark || this.props.marking || this.props.state;
-    }
     render() {
-        const displayState = this.getDisplayState();
-        const marking = this.state.pendingMark || this.props.marking;
-        const Image = STATE_IMAGE[displayState];
-        const text = STATE_TEXT[displayState];
+        const Image = this.props.read ? Check : Star;
+        const text = this.props.read ? "Archived" : "New";
         return <button className="button" onClick={this.handleClick}>
             <Image alt={text} />
         </button>;
@@ -63,11 +24,9 @@ class StateToggle extends React.PureComponent {
 StateToggle.defaultProps = {marking: null};
 
 StateToggle.propTypes = {
-    id: PropTypes.number.isRequired,
-    state: PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
-    // Non-null indicates that a mark operation is in-progress.
-    marking: PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
-    onMark: PropTypes.func.isRequired,
+    articleId: PropTypes.number.isRequired,
+    read: PropTypes.bool.isRequired,
+    onMarkArticlesRead: PropTypes.func.isRequired,
 };
 
 export default StateToggle;

@@ -133,23 +133,30 @@ function failArticles(articleIds) {
 
 
 export const REQUEST_MARK_ARTICLE = 'REQUEST_MARK_ARTICLE';
-export const STATE_NEW = 'new';
-export const STATE_SAVED = 'saved';
-export const STATE_ARCHIVED = 'archived';
-function requestMarkArticle(articleId, state) {
+export const FLAG_READ = 'read';
+export const FLAG_FAVE = 'fave';
+function requestMarkArticle(articleId, flagName, flag) {
+    if (__debug__ && (flagName !== FLAG_READ && flagName !== FLAG_FAVE)) {
+        throw new Error(`Invalid flag ${flagName}`);
+    }
     return {
         type: REQUEST_MARK_ARTICLE,
         articleId,
-        state,
+        flagName,
+        flag
     };
 }
 
 export const FAIL_MARK_ARTICLE = 'FAIL_MARK_ARTICLE';
-function failMarkArticle(articleId, state, error) {
+function failMarkArticle(articleId, flagName, flag, error) {
+    if (__debug__ && (flagName === FLAG_READ || flagName === FLAG_FAVE)) {
+        throw new Error(`Invalid flag ${flagName}`);
+    }
     return {
         type: FAIL_MARK_ARTICLE,
         articleId,
-        state,
+        flagName,
+        flag,
         error,
     };
 }
@@ -190,38 +197,32 @@ function post(path, body) {
 }
 
 
-export function markArticle(articleId, state) {
-    return markArticles([articleId], state);
-}
-
-export function markArticles(articleIds, state) {
-    return (dispatch) => {
-        const body = new FormData();
-        // FIXME: Stop pretending these states are mutually exclusive.
-        if (state === STATE_NEW) {
-            body.append('read', 'false');
-            body.append('fave', 'false');
-        } else if (state === STATE_ARCHIVED) {
-            body.append('read', 'true');
-            body.append('fave', 'false');
-        } else {
-            body.append('read', 'false');
-            body.append('fave', 'true');
+function makeMarkArticles(flagName) {
+    return function(articleIds, flag) {
+        if (__debug__ && (flag !== true && flag !== false)) {
+            throw new Error(`Invalid ${flagName} flag: ${flag}`);
         }
+        return (dispatch) => {
+            const body = new FormData();
+            body.append(flagName, flag ? 'true' : 'false');
 
-        articleIds.forEach(articleId => {
-            body.append('article', String(articleId))
-            dispatch(requestMarkArticle(articleId, state));
-        });
+            articleIds.forEach(articleId => {
+                body.append('article', String(articleId))
+                dispatch(requestMarkArticle(articleId, flagName, flag));
+            });
 
-        post('/api/state/', body).then(json => {
-            const { articlesById } = json;
-            dispatch(receiveArticles(articlesById));
-        }).catch(e => {
-            console.error('Failed to mark articles', articleIds, state, '->', e);
-        });
+            post('/api/flags/', body).then(json => {
+                const { articlesById } = json;
+                dispatch(receiveArticles(articlesById));
+            }).catch(e => {
+                console.error(`Failed to mark articles ${flagName} ${flag}`, articleIds, '->', e);
+            });
+        };
     };
 }
+
+export const markArticlesRead = makeMarkArticles('read');
+export const markArticlesFave = makeMarkArticles('fave');
 
 
 /**

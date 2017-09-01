@@ -53,16 +53,11 @@ def json_for_entry(entry):
     """
     Translate a Yarr feed entry into the JSON data for an article.
     """
-    if entry.fave:
-        state = "saved"
-    elif entry.read:
-        state = "archived"
-    else:
-        state = "new"
     return {
         'feedId': entry.feed.id,
         'id': entry.id,
-        'state': state,
+        'read': entry.read,
+        'fave': entry.fave,
         'title': entry.title,
         'content': entry.content,
         'author': entry.author,
@@ -78,7 +73,7 @@ def json_for_feed(feed):
         'text': feed.user_title,
         'active': feed.next_check is not None,
         'newCount': feed.articles.filter(read=False).count(),
-        'savedCount': feed.articles.filter(fave=True).count(),
+        'faveCount': feed.articles.filter(fave=True).count(),
         'totalCount': feed.articles.all().count(),
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
@@ -105,7 +100,7 @@ def json_for_label(label):
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
         'newCount': Article.objects.filter(read=False).filter(feed__in=label.feeds.all()).count(),
-        'savedCount': Article.objects.filter(fave=True).filter(feed__in=label.feeds.all()).count(),
+        'faveCount': Article.objects.filter(fave=True).filter(feed__in=label.feeds.all()).count(),
         'totalCount': Article.objects.filter(feed__in=label.feeds.all()).count(),
     }
 
@@ -120,7 +115,7 @@ def entries_for_snapshot(user, params):
         filt = Q(read=False)
     elif params['filter'] == 'archived':
         filt = Q(read=True)
-    elif params['filter'] == 'saved':
+    elif params['filter'] == 'faved':
         filt = Q(fave=True)
     else:
         filt = None
@@ -175,7 +170,7 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
     return {
         'feeds': sorted(feeds),
-        'filter': oneof('filter', ['new', 'archived', 'saved', 'all']),
+        'filter': oneof('filter', ['new', 'archived', 'faved', 'all']),
         'order': oneof('order', ['date', 'tail']),
         'view': oneof('view', ['text', 'list']),
         'include': include,
@@ -257,24 +252,27 @@ def articles(request):
 
 
 @login_required
-def state(request):
+def flags(request):
     """
-    Change the state of articles.
+    Change the flags of articles.
 
-    :query status: One of "new", "saved", or "archived".
+    :query read: One of "true" or "false".
+    :query fave: One of "true" or "false".
     :query article: One or more article IDs.
     """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
     updates = {}
-    if request.POST['read'] == 'true':
-        updates['read'] = True
-    elif request.POST['read'] == 'false':
-        updates['read'] = False
-    if request.POST['fave'] == 'true':
-        updates['fave'] = True
-    elif request.POST['fave'] == 'false':
-        updates['fave'] = False
+    if 'read' in request.POST:
+        if request.POST['read'] == 'true':
+            updates['read'] = True
+        elif request.POST['read'] == 'false':
+            updates['read'] = False
+    if 'fave' in request.POST:
+        if request.POST['fave'] == 'true':
+            updates['fave'] = True
+        elif request.POST['fave'] == 'false':
+            updates['fave'] = False
     qs = articles_for_request(request)
     if updates:
         qs.update(**updates)

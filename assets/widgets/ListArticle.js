@@ -6,7 +6,7 @@ import "./ListArticle.less";
 
 export default function ListArticle(props) {
     return <div className="list-article">
-        <StateToggle className="button" {...props} />
+        <StateToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
         {props.renderLink({
             articleId: props.id,
             className: "view-link",

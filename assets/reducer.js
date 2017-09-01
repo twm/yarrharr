@@ -49,13 +49,19 @@ function articleReducer(state = window.props.articlesById, action) {
             return state;
         }
         return Object.assign({}, state, {
-            [action.articleId]: Object.assign({}, article, {marking: action.state}),
+            [action.articleId]: Object.assign({}, article, {marking: Object.assign(
+                {},
+                article.marking,
+                {[action.flagName]: action.flag}
+            )}),
         });
     } else if (action.type === FAIL_MARK_ARTICLE) {
-        // TODO: Communicate the error to the user somehow.
+        alert(`Failed to mark ${action.articleIds.length} articles ${action.flagName} ${action.flag}`);
         const article = state[action.articleId];
+        const marking = Object.assign({}, article.marking);
+        delete marking[article.flagName];
         return Object.assign({}, state, {
-            [action.articleId]: Object.assign({}, article, {marking: null}),
+            [action.articleId]: Object.assign({}, article, {marking}),
         });
     }
     return state;

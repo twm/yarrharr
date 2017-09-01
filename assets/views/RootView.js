@@ -36,10 +36,10 @@ class RootView extends React.PureComponent {
                                 <div className="feed-title">{label.text}</div>
                                 <div className="new-count">{label.newCount} new</div>
                             </LabelLink>
-                            {label.savedCount
-                                ? <LabelLink className="saved-link" labelId={label.id} filter={FILTER_SAVED}>
+                            {label.faveCount
+                                ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_SAVED}>
                                     <Heart width="48" height="48" alt="" className="star-icon" />
-                                    <span className="saved-count">{label.savedCount}</span>
+                                    <span className="fave-count">{label.faveCount}</span>
                                 </LabelLink>
                                 : null}
                         </li>)
@@ -51,10 +51,10 @@ class RootView extends React.PureComponent {
                                 <div className="feed-title">{feed.text || feed.title}</div>
                                 <div className="new-count">{feed.newCount} new</div>
                             </FeedLink>
-                            {feed.savedCount
-                                ? <FeedLink className="saved-link" feedId={feed.id} filter={FILTER_SAVED}>
+                            {feed.faveCount
+                                ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_SAVED}>
                                     <Heart width="48" height="48" alt="" className="star-icon" />
-                                    <span className="saved-count">{feed.savedCount}</span>
+                                    <span className="fave-count">{feed.faveCount}</span>
                                 </FeedLink>
                                 : null}
                         </li>)

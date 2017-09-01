@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setOrder } from 'actions.js';
-import { markArticle, markArticles } from 'actions.js';
+import { markArticlesRead, markArticlesFave } from 'actions.js';
 import { STATE_ARCHIVED } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
@@ -38,7 +38,7 @@ function OrderDateButton(props) {
     return <a href="#" role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Oldest first</a>;
 }
 
-export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
@@ -53,7 +53,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    renderArchiveAllLink(snapshot, onMarkArticles),
+                    renderArchiveAllLink(snapshot, onMarkArticlesRead),
                     <AllLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} filter={FILTER_NEW}>New</AllLink>,
                     <AllLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink>,
                     <AllLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink>,
@@ -64,13 +64,13 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
-            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
+            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
-export function FeedView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+export function FeedView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
@@ -86,7 +86,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    renderArchiveAllLink(snapshot, onMarkArticles),
+                    renderArchiveAllLink(snapshot, onMarkArticlesRead),
                     <FeedLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} feedId={feedId} filter={FILTER_NEW}>New</FeedLink>,
                     <FeedLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink>,
                     <FeedLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink>,
@@ -97,13 +97,13 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
-            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
+            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
-export function LabelView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+export function LabelView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
@@ -119,7 +119,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    renderArchiveAllLink(snapshot, onMarkArticles),
+                    renderArchiveAllLink(snapshot, onMarkArticlesRead),
                     <LabelLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} labelId={labelId} filter={FILTER_NEW}>New</LabelLink>,
                     <LabelLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink>,
                     <LabelLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink>,
@@ -130,8 +130,8 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
-            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle, renderLink),
+            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
@@ -139,8 +139,8 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
 const mapDispatchToProps = {
     onSetLayout: setLayout,
     onSetOrder: setOrder,
-    onMarkArticle: markArticle,
-    onMarkArticles: markArticles,
+    onMarkArticlesRead: markArticlesRead,
+    onMarkArticlesFave: markArticlesFave,
     onLoadMore: loadMore,
 };
 export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
@@ -162,7 +162,7 @@ function joinLinks(maybeLinks) {
     return links;
 }
 
-function renderArchiveAllLink(snapshot, onMarkArticles) {
+function renderArchiveAllLink(snapshot, onMarkArticlesRead) {
     const { loaded, params, articleIds } = snapshot.response;
     const disabled = (
         !loaded // Stuff is still loading.
@@ -176,7 +176,7 @@ function renderArchiveAllLink(snapshot, onMarkArticles) {
             return;
         }
         if (confirm("Archive " + articleIds.length + " articles?")) {
-            onMarkArticles(articleIds, STATE_ARCHIVED);
+            onMarkArticlesRead(articleIds, true);
         }
     }}>Archive all</a>;
 }
@@ -214,7 +214,7 @@ function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderAr
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticle(articleId, articleIds, articlesById, feedsById, onMark, renderLink) {
+function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const elements = [];
     var index = articleIds.indexOf(articleId);
     if (index === -1) {
@@ -247,7 +247,7 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMark, r
     }
 
     if (!article.loading) {
-        elements.push(<Article key={article.id} feed={feed} onMark={onMark} {...article} />);
+        elements.push(<Article key={article.id} feed={feed} onMarkArticlesRead={onMarkArticlesRead} onMarkArticlesFave={onMarkArticlesFave} {...article} />);
     } else {
         elements.push(<p>Loading</p>);
     }
@@ -279,7 +279,7 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMark, r
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticleList(articleId, articleIds, articlesById, feedsById, onMark, renderLink) {
+function renderArticleList(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const elements = [];
     for (let id of articleIds) {
         const article = articlesById[id];
@@ -290,7 +290,7 @@ function renderArticleList(articleId, articleIds, articlesById, feedsById, onMar
             }
             // FIXME Shouldn't assume all feeds have loaded.
             const feed = feedsById[article.feedId];
-            elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMark={onMark} {...article} />);
+            elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
         } else {
             // We only render up to the first unavailable article.  This
             // ensures that loading always occurs at the end.
