@@ -211,13 +211,14 @@ function renderArticles(articleId, articleIds, articlesById, feedsById, onMark, 
         }
 
         if (index !== 0) {
-            var prev = articlesById[articleIds[index - 1]];
-            elements.push(<div key={prev.id} className="prev-link">
+            var prevId = articleIds[index - 1];
+            var prev = articlesById[prevId]; // NB: may not have loaded yet
+            elements.push(<div key={prevId} className="prev-link">
                 {renderLink({
-                    articleId: prev.id,
+                    articleId: prevId,
                     children: [
                         <b>Previous </b>,
-                        prev.title || "Untitled"
+                        prev ? (prev.title || "Untitled") : "",
                     ],
                 })}
             </div>);
@@ -226,13 +227,14 @@ function renderArticles(articleId, articleIds, articlesById, feedsById, onMark, 
         elements.push(<Article key={article.id} feed={feed} onMark={onMark} {...article} />);
 
         if (index < articleIds.length - 1) {
-            var next = articlesById[articleIds[index + 1]];
-            elements.push(<div key={next.id} className="next-link">
+            var nextId = articleIds[index + 1];
+            var next = articlesById[nextId]; // NB: may not have loaded yet
+            elements.push(<div key={nextId} className="next-link">
                 {renderLink({
-                    articleId: next.id,
+                    articleId: nextId,
                     children: [
                         <b>Next </b>,
-                        next.title || "Untitled"
+                        next ? (next.title || "Untitled") : "",
                     ],
                 })}
             </div>);
