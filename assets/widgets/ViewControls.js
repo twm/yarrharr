@@ -1,5 +1,4 @@
 import React from 'react';
-import { VIEW_LIST, VIEW_TEXT } from 'actions.js';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
@@ -36,18 +35,10 @@ function Toggle(props) {
 }
 
 export function ViewControls(props) {
-    const {view=null, onSetView=null,
-           layout=null, onSetLayout=null,
+    const {layout=null, onSetLayout=null,
            order=null, onSetOrder=null} = props;
     const children = [];
 
-    if (view !== null && onSetView) {
-        children.push(<h2 key="view-head">How to list articles?</h2>);
-        children.push(<div key="view-group" className="group">
-            <Toggle callback={onSetView} current={view} value={VIEW_LIST} text="List" icon={List} />
-            <Toggle callback={onSetView} current={view} value={VIEW_TEXT} text="Full Text" icon={Narrow} />
-        </div>);
-    }
     if (layout !== null && onSetLayout) {
         children.push(<h2 key="layout-head">Article layout:</h2>);
         children.push(<div key="layout-group" className="group">

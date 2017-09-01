@@ -13,18 +13,12 @@ import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
+import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import './FeedView.less';
 
-
-const VIEW_TO_WIDGET = {
-    [VIEW_LIST]: ListArticle,
-    [VIEW_TEXT]: Article,
-};
-
-export function AllView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
-    const feedId = params.feedId;
-    const feed = feedsById[feedId];
+export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+    const { articleId } = params;
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
             <RootLink className="text-button">
@@ -32,7 +26,6 @@ export function AllView({params, feedsById, view, layout, snapshot, articlesById
                 Return to Feed List
             </RootLink>
             <ViewButton
-                view={view} onSetView={onSetView}
                 layout={layout} onSetLayout={onSetLayout}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
@@ -49,13 +42,14 @@ export function AllView({params, feedsById, view, layout, snapshot, articlesById
             </div>
         </div>
         {renderSnapshot(snapshot.response,
-            () => renderArticles(view, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle),
+            () => renderArticles(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle,
+                props => <AllArticleLink filter={snapshot.filter} {...props} />),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
-export function FeedView({params, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
-    const feedId = params.feedId;
+export function FeedView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+    const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
@@ -64,7 +58,6 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
                 Return to Feed List
             </RootLink>
             <ViewButton
-                view={view} onSetView={onSetView}
                 layout={layout} onSetLayout={onSetLayout}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
@@ -81,13 +74,14 @@ export function FeedView({params, feedsById, view, layout, snapshot, articlesByI
             </div>
         </div>
         {renderSnapshot(snapshot.response,
-            () => renderArticles(view, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle),
+            () => renderArticles(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle,
+                props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
-export function LabelView({params, labelsById, feedsById, view, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
-    const labelId = Number(params.labelId);
+export function LabelView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
+    const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     return <div className={"feed-view layout-" + layout}>
         <div className="global-tools">
@@ -96,7 +90,6 @@ export function LabelView({params, labelsById, feedsById, view, layout, snapshot
                 Return to Feed List
             </RootLink>
             <ViewButton
-                view={view} onSetView={onSetView}
                 layout={layout} onSetLayout={onSetLayout}
                 order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
@@ -113,13 +106,13 @@ export function LabelView({params, labelsById, feedsById, view, layout, snapshot
             </div>
         </div>
         {renderSnapshot(snapshot.response,
-            () => renderArticles(view, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle),
+            () => renderArticles(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticle,
+            props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />),
             () => onLoadMore(snapshot.response.articleIds))}
     </div>;
 }
 
 const mapDispatchToProps = {
-    onSetView: setView,
     onSetLayout: setLayout,
     onSetOrder: setOrder,
     onMarkArticle: markArticle,
@@ -191,26 +184,75 @@ function renderSnapshot(snapshotResponse, renderArticles, onNearBottom) {
     </ScrollSpy>;
 }
 
-function renderArticles(view, articleIds, articlesById, feedsById, onMark) {
-    if (!articleIds.length) {
-        return <p>No articles</p>;
-    }
-    const Widget = VIEW_TO_WIDGET[view];
+/**
+ * Render the meat of a list/article view. This must only be called after the
+ * snapshot has loaded.
+ *
+ * @param {?number} articleId
+ *      If not null, render this specific article instead of the whole list.
+ * @param {number[]} articleIds
+ *      List of article IDs in the order to render them. Not all may be present
+ *      in the articlesById map, depending on what has loaded.
+ */
+function renderArticles(articleId, articleIds, articlesById, feedsById, onMark, renderLink) {
     const elements = [];
-    for (let id of articleIds) {
-        const article = articlesById[id];
-        if (article) {
-            if (article.loading) {
-                elements.push(<div>Loading</div>);
+    if (articleId != null) {
+        var index = articleIds.indexOf(articleId);
+        if (index === -1) {
+            // TODO Common 404 page style?
+            return <p>404: Article {articleId} does not exist</p>;
+        }
+        // XXX How to arrange for prev and next to be loaded in all cases?
+        var article = articlesById[articleId];
+        // FIXME Shouldn't assume all feeds have loaded.
+        var feed = feedsById[article.feedId];
+        if (!article) {
+            return <p>Loading</p>;
+        }
+
+        if (index !== 0) {
+            var prev = articlesById[articleIds[index - 1]];
+            elements.push(<div key={prev.id} className="prev-link">
+                {renderLink({
+                    articleId: prev.id,
+                    children: [
+                        <b>Previous </b>,
+                        prev.title || "Untitled"
+                    ],
+                })}
+            </div>);
+        }
+
+        elements.push(<Article key={article.id} feed={feed} onMark={onMark} {...article} />);
+
+        if (index < articleIds.length - 1) {
+            var next = articlesById[articleIds[index + 1]];
+            elements.push(<div key={next.id} className="next-link">
+                {renderLink({
+                    articleId: next.id,
+                    children: [
+                        <b>Next </b>,
+                        next.title || "Untitled"
+                    ],
+                })}
+            </div>);
+        }
+    } else {
+        for (let id of articleIds) {
+            const article = articlesById[id];
+            if (article) {
+                if (article.loading) {
+                    elements.push(<div>Loading</div>);
+                    break;
+                }
+                // FIXME Shouldn't assume all feeds have loaded.
+                const feed = feedsById[article.feedId];
+                elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMark={onMark} {...article} />);
+            } else {
+                // We only render up to the first unavailable article.  This
+                // ensures that loading always occurs at the end.
                 break;
             }
-            // TODO: Handle errors
-            const feed = feedsById[article.feedId];
-            elements.push(<Widget key={id} feed={feed} onMark={onMark} {...article} />);
-        } else {
-            // We only render up to the first unavailable article.  This
-            // ensures that loading always occurs at the end.
-            break;
         }
     }
     return elements;

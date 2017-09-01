@@ -32,17 +32,26 @@ export function AllLink(props) {
     return <ConnectedA path={`/all/${props.filter}/`} className={props.className} children={props.children} />;
 }
 
-export function ArticleLink(props) {
-    return <ConnectedA path={`/article/${props.articleId}/`} className={props.className} children={props.children} />;
+export function AllArticleLink(props) {
+    return <ConnectedA path={`/all/${props.filter}/${props.articleId}/`} className={props.className} children={props.children} />;
 }
 
 export function FeedLink(props) {
     return <ConnectedA path={`/feed/${props.feedId}/${props.filter}/`} className={props.className} children={props.children} />;
 }
 
+export function FeedArticleLink(props) {
+    return <ConnectedA path={`/feed/${props.feedId}/${props.filter}/${props.articleId}/`} className={props.className} children={props.children} />;
+}
+
 export function LabelLink(props) {
     return <ConnectedA path={`/label/${props.labelId}/${props.filter}/`} className={props.className} children={props.children} />;
 }
+
+export function LabelArticleLink(props) {
+    return <ConnectedA path={`/label/${props.labelId}/${props.filter}/${props.articleId}/`} className={props.className} children={props.children} />;
+}
+
 
 export function RootLink(props) {
     return <ConnectedA path="/" className={props.className} children={props.children} />;
@@ -58,21 +67,32 @@ export function AddFeedLink(props) {
 
 if (process.env.NODE_ENV !== 'production') {
     A.propTypes = {
-        path: PropTypes.string,
+        path: PropTypes.string.isRequired,
     };
     const filter = PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL]).isRequired;
     AllLink.propTypes = {
         filter,
     };
-    ArticleLink.propTypes = {
+    AllArticleLink.propTypes = {
+        filter,
         articleId: PropTypes.number.isRequired,
     };
     FeedLink.propTypes = {
         feedId: PropTypes.number.isRequired,
         filter,
     };
+    FeedArticleLink.propTypes = {
+        feedId: PropTypes.number.isRequired,
+        filter,
+        articleId: PropTypes.number.isRequired,
+    };
     LabelLink.propTypes = {
         labelId: PropTypes.number.isRequired,
         filter,
+    };
+    LabelArticleLink.propTypes = {
+        labelId: PropTypes.number.isRequired,
+        filter,
+        articleId: PropTypes.number.isRequired,
     };
 }

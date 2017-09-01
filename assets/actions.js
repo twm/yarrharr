@@ -1,23 +1,5 @@
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-export const SET_VIEW = 'SET_VIEW';
-export const VIEW_LIST = 'list';
-export const VIEW_TEXT = 'text';
-export function setView(view) {
-    return {
-        type: SET_VIEW,
-        view,
-    };
-}
-export function validView(view) {
-    switch (view) {
-        case VIEW_LIST:
-        case VIEW_TEXT:
-            return true;
-    }
-    return false;
-}
-
 export const SET_LAYOUT = 'SET_LAYOUT';
 export const LAYOUT_NARROW = 'narrow';
 export const LAYOUT_WIDE = 'wide';
@@ -287,15 +269,21 @@ export function showAll(filter, articleId) {
         throw new Error(`invalid articleId: '${articleId}'`);
     }
     return (dispatch, getState) => {
-        const { snapshot, feedsById } = getState();
+        // FIXME This is getting increasingly ridiculous.
+        if (articleId != null) {
+            dispatch(loadMore([articleId]));
+        }
+
+        const feedsById = getState().feedsById;
         const feedIds = Object.keys(feedsById).map(Number);
         feedIds.sort();
-        const newSnapshot = Object.assign({}, snapshot, {
+        const action = {
+            type: SET_SNAPSHOT_PARAMS,
             filter,
             feedIds,
-            include: articleId
-        });
-        return _setSnapshot(newSnapshot, dispatch, getState);
+            include: articleId,
+        };
+        return _setSnapshot(action, dispatch, getState);
     };
 }
 
@@ -310,6 +298,11 @@ export function showFeed(feedId, filter, articleId) {
         throw new Error(`invalid articleId: ${articleId}`);
     }
     return (dispatch, getState) => {
+        // FIXME This is getting increasingly ridiculous.
+        if (articleId != null) {
+            dispatch(loadMore([articleId]));
+        }
+
         const { snapshot } = getState();
         const action = {
             type: SET_SNAPSHOT_PARAMS,
@@ -333,6 +326,11 @@ export function showLabel(labelId, filter, articleId) {
         throw new Error(`invalid articleId: '${articleId}'`);
     }
     return (dispatch, getState) => {
+        // FIXME This is getting increasingly ridiculous.
+        if (articleId != null) {
+            dispatch(loadMore([articleId]));
+        }
+
         const { feedsById, snapshot } = getState();
         const feedIds = Object.keys(feedsById)
             .filter(feedId => feedsById[feedId].labels.indexOf(Number(labelId)) >= 0)
@@ -655,8 +653,7 @@ export function setPath(path) {
 }
 
 const ROUTE_LOADERS = {
-    '/inventory': _ => loadFeeds(),
-    '/article/:articleId': params => loadMore([params.articleId]),
+    '/inventory': params => loadFeeds(),
     '/all/:filter': params => showAll(params.filter, null),
     '/all/:filter/:articleId': params => showAll(params.filter, params.articleId),
     '/label/:labelId/:filter': params => showLabel(params.labelId, params.filter, null),
@@ -669,7 +666,6 @@ export const ROUTES = [
     '/',
     '/inventory',
     '/inventory/add',
-    '/article/:articleId',
     '/all/:filter',
     '/all/:filter/:articleId',
     '/label/:labelId/:filter',

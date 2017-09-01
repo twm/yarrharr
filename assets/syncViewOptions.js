@@ -17,15 +17,11 @@ const __debug__ = process.env.NODE_ENV !== 'production';
  *          A function which may be called to unsubscribe from the Redux store.
  */
 export default function syncViewOptions(store, storage) {
-    var view = storage.getItem('view');
     var layout = storage.getItem('layout');
     var order = storage.getItem('order');
 
     // If the key is not present in the Storage then we will get null, which
     // will fail the validity check.
-    if (validView(view)) {
-        store.dispatch(setView(view));
-    }
     if (validLayout(layout)) {
         store.dispatch(setLayout(layout));
     }
@@ -35,15 +31,12 @@ export default function syncViewOptions(store, storage) {
 
     return store.subscribe(function saveToLocalStorage() {
         const state = store.getState();
-        if (state.view !== view
-                || state.layout !== layout
+        if (state.layout !== layout
                 || state.snapshot.order !== order
         ) {
-            view = state.view;
             layout = state.layout;
             order = state.snapshot.order;
             try {
-                storage.setItem('view', view);
                 storage.setItem('layout', layout);
                 storage.setItem('order', order);
             } catch(e) {
