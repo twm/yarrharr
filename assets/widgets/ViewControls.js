@@ -2,14 +2,9 @@ import React from 'react';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
-import { Ascending, Descending, Eye, Star, Check, Heart, InfinityIcon, List, Narrow, Wide } from 'widgets/icons.js';
+import { Ascending, Descending, Narrow, Wide } from 'widgets/icons.js';
 import './ViewControls.less';
 
-
-function EyeButton({open}) {
-    const className = (open ? "button-active " : "") + "button";
-    return <button className={className}><Eye /></button>
-}
 
 export function ViewButton(props) {
     return <ViewControls {...props} />
