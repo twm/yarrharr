@@ -237,17 +237,6 @@ function labelReducer(state = window.props.labelsById, action) {
     return state;
 }
 
-import { SET_VIEW, VIEW_LIST, validView } from './actions.js';
-function viewReducer(state = VIEW_LIST, action) {
-    if (action.type === SET_VIEW) {
-        if (__debug__ && !validView(action.view)) {
-            throw new Error('invalid view ' + action.view);
-        }
-        return action.view;
-    }
-    return state;
-}
-
 import { SET_LAYOUT, LAYOUT_NARROW, validLayout } from './actions.js';
 function layoutReducer(state = LAYOUT_NARROW, action) {
     if (action.type === SET_LAYOUT) {
@@ -267,6 +256,5 @@ export default combineReducers({
     feedAdd: feedAddReducer,
     snapshot: snapshotReducer,
     labelsById: labelReducer,
-    view: viewReducer,
     layout: layoutReducer,
 });

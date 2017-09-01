@@ -10,20 +10,17 @@ import PropTypes from 'prop-types';
  * This will fire events as long as there is less than a full viewport's worth
  * of content below the fold.
  */
-const ScrollSpy = React.createClass({
-    propTypes: {
-        onNearBottom: PropTypes.func.isRequired,
-    },
+class ScrollSpy extends React.PureComponent {
     componentDidMount() {
-        window.addEventListener('scroll', this.handleChange, false);
-        window.addEventListener('resize', this.handleChange, false);
+        window.addEventListener('scroll', this.handleChange.bind(this), false);
+        window.addEventListener('resize', this.handleChange.bind(this), false);
         // Immediately schedule a check now that we have rendered.
         this.handleChange();
-    },
+    }
     componentWillUnmount() {
-        window.removeEventListener('resize', this.handleChange, false);
-        window.removeEventListener('scroll', this.handleChange, false);
-    },
+        window.removeEventListener('resize', this.handleChange.bind(this), false);
+        window.removeEventListener('scroll', this.handleChange.bind(this), false);
+    }
     /**
      * The view has resized or scrolled.  Schedule a check for whether we need
      * to load more items.
@@ -32,8 +29,8 @@ const ScrollSpy = React.createClass({
         if (this._scrollTimeout) {
             clearTimeout(this._scrollTimeout);
         }
-        this._scrollTimeout = setTimeout(this.checkBufferSize, 50);
-    },
+        this._scrollTimeout = setTimeout(this.checkBufferSize.bind(this), 50);
+    }
     /**
      * Schedule the load of more items once we get near the bottom of the
      * scrollable area.
@@ -47,10 +44,14 @@ const ScrollSpy = React.createClass({
             console.log('scroll near bottom: buffer=%d < viewportHeight=%d', buffer, viewportHeight);
             this.props.onNearBottom();
         }
-    },
+    }
     render() {
         return <div>{this.props.children}</div>;
     }
-});
+}
+
+ScrollSpy.propTypes = {
+    onNearBottom: PropTypes.func.isRequired,
+};
 
 export default ScrollSpy;

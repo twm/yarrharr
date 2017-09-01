@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 import { setPath, ROUTES } from './actions.js';
 
-import ConnectedArticleView from 'views/ArticleView.js';
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
@@ -16,7 +15,6 @@ const routeToView = {
     '/': ConnectedRootView,
     '/inventory': ConnectedInventoryView,
     '/inventory/add': ConnectedAddFeedView,
-    '/article/:articleId': ConnectedArticleView,
     '/all/:filter': ConnectedAllView,
     '/all/:filter/:articleId': ConnectedAllView,
     '/label/:labelId/:filter': ConnectedLabelView,
