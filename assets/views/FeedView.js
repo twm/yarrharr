@@ -66,7 +66,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => onLoadMore(snapshot.response.articleIds))}
+            onLoadMore)}
     </div>;
 }
 
@@ -99,7 +99,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => onLoadMore(snapshot.response.articleIds))}
+            onLoadMore)}
     </div>;
 }
 
@@ -132,7 +132,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => onLoadMore(snapshot.response.articleIds))}
+            onLoadMore)}
     </div>;
 }
 
@@ -187,7 +187,7 @@ function Status(props) {
     </div>;
 }
 
-function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onNearBottom) {
+function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onLoadMore) {
     if (!snapshotResponse.loaded) {
         return <Status>Loading</Status>;
     }
@@ -200,7 +200,11 @@ function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderAr
     if (articleId) {
         return renderArticle();
     } else {
-        return <ScrollSpy onNearBottom={onNearBottom}>{renderArticleList()}</ScrollSpy>;
+        const onVisibleChange = (start, end) => {
+            const ids = snapshotResponse.articleIds;
+            onLoadMore(ids.slice(Math.floor(start * ids.length), Math.floor(end * ids.length) + 10));
+        }
+        return <ScrollSpy onVisibleChange={onVisibleChange}>{renderArticleList()}</ScrollSpy>;
     }
 }
 

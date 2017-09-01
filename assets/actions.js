@@ -420,28 +420,24 @@ function transitionRequires(snapshot, action) {
 
 
 /**
- * Given a snapshot of article IDs, load the first few articles which haven't
- * already been loaded.  If those articles are already loading, do nothing.
+ * Load the specified articles if they are not already loading.
+ *
+ * @param {number[]} articleIds Articles to load.
  */
 export function loadMore(articleIds) {
     return (dispatch, getState) => {
-        var loading = 0;
         const { articlesById } = getState();
 
-        var i = 0;
-        for (; i < articleIds.length; i++) {
+        // Filter out articles which area already loaded or loading.
+        const nextBatch = [];
+        for (var i = 0; i < articleIds.length; i++) {
             let id = articleIds[i];
             let article = articlesById[id];
             if (!article) {
-                break;
-            }
-            if (article.loading) {
-                // We are already loading articles at the end of this
-                // snapshot.  No need to kick off another load.
-                return;
+                nextBatch.push(id);
             }
         }
-        const nextBatch = articleIds.slice(i, i + 10);
+
         if (nextBatch.length) {
             dispatch(requestArticles(nextBatch));
 
