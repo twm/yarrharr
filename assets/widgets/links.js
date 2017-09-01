@@ -16,13 +16,16 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from '../action
  * Private helper which dispatches an action instead of allowing the browser to
  * navigate.
  */
-const A = React.createClass({
-    handleClick(event) {
-        event.preventDefault();
-        if (!this.props.disabled) {
-            this.props.dispatch(setPath(this.props.path));
+class A extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClick = (event) => {
+            event.preventDefault();
+            if (!this.props.disabled) {
+                this.props.dispatch(setPath(this.props.path));
+            }
         }
-    },
+    }
     render() {
         return <a
             aria-disabled={!!this.props.disabled}
@@ -33,7 +36,7 @@ const A = React.createClass({
             children={this.props.children}
         />;
     }
-});
+}
 
 const ConnectedA = connect(null, null)(A);
 
@@ -78,6 +81,7 @@ if (process.env.NODE_ENV !== 'production') {
     A.propTypes = {
         path: PropTypes.string.isRequired,
         disabled: PropTypes.boolean,
+        dispatch: PropTypes.func.isRequired,
     };
     const filter = PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL]).isRequired;
     AllLink.propTypes = {
