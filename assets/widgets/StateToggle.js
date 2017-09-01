@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Star, Check } from 'widgets/icons.js';
+import { Star, Check, Heart } from 'widgets/icons.js';
 
-class StateToggle extends React.PureComponent {
+export class ReadToggle extends React.PureComponent {
     constructor(props) {
         super(props);
         this.handleClick = (event) => {
@@ -21,12 +21,37 @@ class StateToggle extends React.PureComponent {
     }
 }
 
-StateToggle.defaultProps = {marking: null};
+ReadToggle.defaultProps = {marking: null};
 
-StateToggle.propTypes = {
+ReadToggle.propTypes = {
     articleId: PropTypes.number.isRequired,
     read: PropTypes.bool.isRequired,
     onMarkArticlesRead: PropTypes.func.isRequired,
 };
 
-export default StateToggle;
+export class FaveToggle extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClick = (event) => {
+            event.preventDefault();
+            const newFlag = !this.props.fave;
+            this.setState({fave: newFlag});
+            this.props.onMarkArticlesFave([this.props.articleId], newFlag);
+        };
+    }
+    render() {
+        const Image = this.props.fave ? Heart : Star;  // FIXME Star is not right. Perhaps an empty heart?
+        const text = this.props.fave ? "Favorite" : "Not Favorite";
+        return <button className="button" onClick={this.handleClick}>
+            <Image alt={text} />
+        </button>;
+    }
+}
+
+FaveToggle.defaultProps = {marking: null};
+
+FaveToggle.propTypes = {
+    articleId: PropTypes.number.isRequired,
+    fave: PropTypes.bool.isRequired,
+    onMarkArticlesFave: PropTypes.func.isRequired,
+};

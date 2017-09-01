@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FeedLink } from "widgets/links.js";
 import { FILTER_ALL, FLAG_READ, FLAG_FAVE } from 'actions.js';
 import { Outbound } from 'widgets/icons.js';
-import StateToggle from 'widgets/StateToggle.js';
+import { ReadToggle, FaveToggle } from 'widgets/StateToggle.js';
 import "./Article.less";
 
 class Article extends React.Component {
@@ -11,7 +11,8 @@ class Article extends React.Component {
         return <div className="article-wrap">
             <div className="tools">
                 <div className="tool-wrap">
-                    <StateToggle articleId={this.props.id} read={this.props.read} onMarkArticlesRead={this.props.onMarkArticlesRead} />
+                    <ReadToggle articleId={this.props.id} read={this.props.read} onMarkArticlesRead={this.props.onMarkArticlesRead} />
+                    <FaveToggle articleId={this.props.id} fave={this.props.fave} onMarkArticlesFave={this.props.onMarkArticlesFave} />
                     <a href={this.props.url} target="_blank" title="View on source site">
                         <Outbound alt="View on source site" width="32" height="32" />
                     </a>
