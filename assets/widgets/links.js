@@ -80,7 +80,7 @@ export function AddFeedLink(props) {
 if (process.env.NODE_ENV !== 'production') {
     A.propTypes = {
         path: PropTypes.string.isRequired,
-        disabled: PropTypes.boolean,
+        disabled: PropTypes.bool,
         dispatch: PropTypes.func.isRequired,
     };
     const filter = PropTypes.oneOf([FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL]).isRequired;

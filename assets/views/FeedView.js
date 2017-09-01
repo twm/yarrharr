@@ -58,8 +58,8 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                     <AllLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink>,
                     <AllLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink>,
                     <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>,
-                    <OrderTailButton order={snapshot.order} onSetOrder={onSetOrder} />,
-                    <OrderDateButton order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
             </div>
         </div>
@@ -91,8 +91,8 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
                     <FeedLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink>,
                     <FeedLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink>,
                     <FeedLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>,
-                    <OrderTailButton order={snapshot.order} onSetOrder={onSetOrder} />,
-                    <OrderDateButton order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
             </div>
         </div>
@@ -124,8 +124,8 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                     <LabelLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink>,
                     <LabelLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink>,
                     <LabelLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>,
-                    <OrderTailButton order={snapshot.order} onSetOrder={onSetOrder} />,
-                    <OrderDateButton order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
             </div>
         </div>
