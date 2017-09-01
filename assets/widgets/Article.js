@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FeedLink } from "widgets/links.js";
-import { FILTER_ALL } from 'actions.js';
-import { STATE_NEW, STATE_SAVED, STATE_ARCHIVED } from 'actions.js';
+import { FILTER_ALL, FLAG_READ, FLAG_FAVE } from 'actions.js';
 import { Outbound } from 'widgets/icons.js';
-import StateToggle from 'widgets/StateToggle.js';
+import { ReadToggle, FaveToggle } from 'widgets/StateToggle.js';
 import "./Article.less";
 
 class Article extends React.Component {
@@ -12,7 +11,8 @@ class Article extends React.Component {
         return <div className="article-wrap">
             <div className="tools">
                 <div className="tool-wrap">
-                    <StateToggle {...this.props} />
+                    <ReadToggle articleId={this.props.id} read={this.props.read} onMarkArticlesRead={this.props.onMarkArticlesRead} />
+                    <FaveToggle articleId={this.props.id} fave={this.props.fave} onMarkArticlesFave={this.props.onMarkArticlesFave} />
                     <a href={this.props.url} target="_blank" title="View on source site">
                         <Outbound alt="View on source site" width="32" height="32" />
                     </a>
@@ -44,11 +44,16 @@ if (process.env.NODE_ENV !== 'production') {
             text: PropTypes.string,
             title: PropTypes.string.isRequired,
         }).isRequired,
-        state: PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
+        read: PropTypes.bool.isRequired,
+        fave: PropTypes.bool.isRequired,
         // Non-null indicates that a mark operation is in-progress.
-        marking: PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
+        marking: PropTypes.shape({
+            [FLAG_READ]: PropTypes.bool,
+            [FLAG_FAVE]: PropTypes.bool,
+        }),
         // Event handlers
-        onMark: PropTypes.func.isRequired,
+        onMarkArticlesRead: PropTypes.func.isRequired,
+        onMarkArticlesFave: PropTypes.func.isRequired,
     };
 }
 

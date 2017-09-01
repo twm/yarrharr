@@ -1,12 +1,12 @@
 import React from 'react';
 import { FeedLink } from 'widgets/links.js';
 import { Outbound } from 'widgets/icons.js';
-import StateToggle from 'widgets/StateToggle.js';
+import { ReadToggle } from 'widgets/StateToggle.js';
 import "./ListArticle.less";
 
 export default function ListArticle(props) {
     return <div className="list-article">
-        <StateToggle className="button" {...props} />
+        <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
         {props.renderLink({
             articleId: props.id,
             className: "view-link",

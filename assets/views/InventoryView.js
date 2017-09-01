@@ -67,7 +67,7 @@ export class InventoryView extends React.PureComponent {
                             }}
                         />
                     <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
-                    <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.savedCount} saved</FeedLink></div>
+                    <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.faveCount} marked favorite</FeedLink></div>
                     <div>Last updated {feed.updated}</div>
                     {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
                 </div>
