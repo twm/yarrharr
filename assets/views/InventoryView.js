@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
-import { ViewButton } from 'widgets/ViewControls.js';
+import { ViewControls } from 'widgets/ViewControls.js';
 import Header from 'widgets/Header.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
@@ -30,7 +30,7 @@ export class InventoryView extends React.PureComponent {
                         <Add alt="" />
                     </span>
                 </AddFeedLink>
-                <ViewButton layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
+                <ViewControls layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             </div>
             <Header text="Manage Feeds" />
             {this.renderFeeds(feedList, labelList)}

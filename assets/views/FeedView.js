@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setOrder } from 'actions.js';
 import { markArticle, markArticles } from 'actions.js';
-import { VIEW_LIST, VIEW_TEXT, STATE_ARCHIVED } from 'actions.js';
+import { STATE_ARCHIVED } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
+import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
-import { ViewButton } from 'widgets/ViewControls.js';
+import { ViewControls } from 'widgets/ViewControls.js';
 import { Logo } from 'widgets/icons.js';
 import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -19,6 +20,24 @@ import './FeedView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
+function OrderTailButton(props) {
+    const disabled = props.order === ORDER_TAIL;
+    const onClick = e => {
+        e.preventDefault();
+        props.onSetOrder(ORDER_TAIL);
+    };
+    return <a href="#" aria-role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Latest first</a>;
+}
+
+function OrderDateButton(props) {
+    const disabled = props.order === ORDER_DATE;
+    const onClick = e => {
+        e.preventDefault();
+        props.onSetOrder(ORDER_DATE);
+    };
+    return <a href="#" aria-role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Oldest first</a>;
+}
+
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticle, onMarkArticles, onLoadMore}) {
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
@@ -28,9 +47,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <span className="button"><Logo /></span>
                 Return to Feed List
             </RootLink>
-            <ViewButton
-                layout={layout} onSetLayout={onSetLayout}
-                order={snapshot.order} onSetOrder={onSetOrder} />
+            <ViewControls layout={layout} onSetLayout={onSetLayout} />
         </div>
         <Header text="All Feeds" />
         <div className="floater-wrap">
@@ -41,6 +58,8 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                     <AllLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink>,
                     <AllLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink>,
                     <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>,
+                    <OrderTailButton order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderDateButton order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
             </div>
         </div>
@@ -61,9 +80,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
                 <span className="button"><Logo /></span>
                 Return to Feed List
             </RootLink>
-            <ViewButton
-                layout={layout} onSetLayout={onSetLayout}
-                order={snapshot.order} onSetOrder={onSetOrder} />
+            <ViewControls layout={layout} onSetLayout={onSetLayout} />
         </div>
         <Header text={feed.text || feed.title} />
         <div className="floater-wrap">
@@ -74,6 +91,8 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
                     <FeedLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink>,
                     <FeedLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink>,
                     <FeedLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>,
+                    <OrderTailButton order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderDateButton order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
             </div>
         </div>
@@ -94,9 +113,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 <span className="button"><Logo /></span>
                 Return to Feed List
             </RootLink>
-            <ViewButton
-                layout={layout} onSetLayout={onSetLayout}
-                order={snapshot.order} onSetOrder={onSetOrder} />
+            <ViewControls layout={layout} onSetLayout={onSetLayout} />
         </div>
         <Header text={label.text} />
         <div className="floater-wrap">
@@ -107,6 +124,8 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                     <LabelLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink>,
                     <LabelLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink>,
                     <LabelLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>,
+                    <OrderTailButton order={snapshot.order} onSetOrder={onSetOrder} />,
+                    <OrderDateButton order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
             </div>
         </div>
