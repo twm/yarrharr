@@ -168,21 +168,21 @@ function renderArchiveAllLink(snapshot, onMarkArticles) {
     }}>Archive all</a>;
 }
 
+function Status(props) {
+    return <div className="floater">
+        <p className="floater-content">{props.children}</p>
+    </div>;
+}
+
 function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onNearBottom) {
     if (!snapshotResponse.loaded) {
-        return <div className="floater">
-            <p className="floater-content">Loading</p>
-        </div>;
+        return <Status>Loading</Status>;
     }
     if (snapshotResponse.error) {
-        return <div className="floater">
-            <p className="floater-content">Failed to load (reload to retry)</p>
-        </div>;
+        return <Status>Failed to load (refresh to retry)</Status>;
     }
     if (snapshotResponse.articleIds.length === 0) {
-        return <div className="floater">
-            <p className="floater-content">No articles</p>
-        </div>;
+        return <Status>No articles</Status>;
     }
     if (articleId) {
         return renderArticle();
@@ -206,7 +206,7 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMark, r
     var index = articleIds.indexOf(articleId);
     if (index === -1) {
         // TODO Common 404 page style?
-        return <p>404: Article {articleId} does not exist</p>;
+        return <Status>404: Article {articleId} does not exist</Status>;
     }
     // XXX How to arrange for prev and next to be loaded in all cases?
     var article = articlesById[articleId];
@@ -216,7 +216,7 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMark, r
     // FIXME Shouldn't assume all feeds have loaded.
     var feed = feedsById[article.feedId];
     if (!article) {
-        return <p>Loading</p>;
+        return <Status>Loading</Status>;
     }
 
     if (index !== 0) {
