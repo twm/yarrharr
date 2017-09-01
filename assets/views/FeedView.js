@@ -282,20 +282,10 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArt
 function renderArticleList(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const elements = [];
     for (let id of articleIds) {
-        const article = articlesById[id];
-        if (article) {
-            if (article.loading) {
-                elements.push(<div>Loading</div>);
-                break;
-            }
-            // FIXME Shouldn't assume all feeds have loaded.
-            const feed = feedsById[article.feedId];
-            elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
-        } else {
-            // We only render up to the first unavailable article.  This
-            // ensures that loading always occurs at the end.
-            break;
-        }
+        const article = articlesById[id] || {loading: true};
+        // FIXME Shouldn't assume all feeds have loaded.
+        const feed = feedsById[article.feedId];
+        elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
     }
     return elements;
 }

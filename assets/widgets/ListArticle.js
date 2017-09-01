@@ -5,6 +5,21 @@ import { ReadToggle } from 'widgets/StateToggle.js';
 import "./ListArticle.less";
 
 export default function ListArticle(props) {
+    if (props.loading) {
+        return <div className="list-article">
+            <span className="button"> </span>
+            {props.renderLink({
+                articleId: props.id,
+                className: "view-link",
+                children: [
+                    <span className="meta">...</span>,
+                    <br />,
+                    "...",
+                ],
+            })}
+            <span className="button"> </span>
+        </div>;
+    }
     return <div className="list-article">
         <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
         {props.renderLink({
