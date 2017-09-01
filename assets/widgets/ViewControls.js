@@ -2,7 +2,6 @@ import React from 'react';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { ORDER_DATE, ORDER_TAIL } from 'actions.js';
 
-import DropButton from 'widgets/DropButton.js';
 import { Ascending, Descending, Eye, Star, Check, Heart, InfinityIcon, List, Narrow, Wide } from 'widgets/icons.js';
 import './ViewControls.less';
 
@@ -13,9 +12,7 @@ function EyeButton({open}) {
 }
 
 export function ViewButton(props) {
-    return <DropButton className="button" trigger={EyeButton}>
-        <ViewControls {...props} />
-    </DropButton>;
+    return <ViewControls {...props} />
 }
 
 function Toggle(props) {
