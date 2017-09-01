@@ -66,7 +66,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => onLoadMore(snapshot.response.articleIds))}
+            onLoadMore)}
     </div>;
 }
 
@@ -99,7 +99,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => onLoadMore(snapshot.response.articleIds))}
+            onLoadMore)}
     </div>;
 }
 
@@ -132,7 +132,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => onLoadMore(snapshot.response.articleIds))}
+            onLoadMore)}
     </div>;
 }
 
@@ -187,7 +187,7 @@ function Status(props) {
     </div>;
 }
 
-function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onNearBottom) {
+function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onLoadMore) {
     if (!snapshotResponse.loaded) {
         return <Status>Loading</Status>;
     }
@@ -200,7 +200,11 @@ function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderAr
     if (articleId) {
         return renderArticle();
     } else {
-        return <ScrollSpy onNearBottom={onNearBottom}>{renderArticleList()}</ScrollSpy>;
+        const onVisibleChange = (start, end) => {
+            const ids = snapshotResponse.articleIds;
+            onLoadMore(ids.slice(Math.floor(start * ids.length), Math.floor(end * ids.length) + 10));
+        }
+        return <ScrollSpy onVisibleChange={onVisibleChange}>{renderArticleList()}</ScrollSpy>;
     }
 }
 
@@ -282,20 +286,10 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArt
 function renderArticleList(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const elements = [];
     for (let id of articleIds) {
-        const article = articlesById[id];
-        if (article) {
-            if (article.loading) {
-                elements.push(<div>Loading</div>);
-                break;
-            }
-            // FIXME Shouldn't assume all feeds have loaded.
-            const feed = feedsById[article.feedId];
-            elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
-        } else {
-            // We only render up to the first unavailable article.  This
-            // ensures that loading always occurs at the end.
-            break;
-        }
+        const article = articlesById[id] || {loading: true};
+        // FIXME Shouldn't assume all feeds have loaded.
+        const feed = feedsById[article.feedId];
+        elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
     }
     return elements;
 }

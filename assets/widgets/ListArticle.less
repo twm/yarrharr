@@ -1,22 +1,23 @@
 @import "../globals.less";
 
 .list-article {
+    height: 48px;
     display: flex;
     flex-flow: row nowrap;
     margin: 4px 0;
     align-items: center;
+    .content-colors;
 
     & > .button {
         margin: 0 4px;
     }
 
-    .view-link {
+    a.view-link {
         flex: 1 1 100%;
         min-width: 0;
         display: block;
         padding: 4px;
 
-        .content-colors;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -27,4 +28,9 @@
             color: @quiet_text_color;
         }
     }
+}
+
+.layout-narrow .list-article {
+    max-width: 34em;
+    margin: 4px auto;
 }
