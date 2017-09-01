@@ -1,5 +1,4 @@
 import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Logo, Heart } from 'widgets/icons.js';
@@ -11,12 +10,7 @@ import { labelsByTitle, feedsByNewCount } from 'sorting.js';
 import './RootView.less';
 
 
-export const RootView = React.createClass({
-    mixins: [PureRenderMixin],
-    propTypes: {
-        labelsById: PropTypes.object.isRequired,
-        feedsById: PropTypes.object.isRequired,
-    },
+class RootView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByNewCount(this.props);
@@ -67,7 +61,14 @@ export const RootView = React.createClass({
                     : <li>No feeds.  Add one?</li>}
             </ul>
         </div>;
-    },
-});
+    }
+}
+
+if (process.env.NODE_ENV !== 'production') {
+    RootView.propTypes = {
+        labelsById: PropTypes.object.isRequired,
+        feedsById: PropTypes.object.isRequired,
+    };
+}
 
 export default connect(state => state, null)(RootView);
