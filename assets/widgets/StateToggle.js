@@ -19,34 +19,25 @@ const STATE_IMAGE = {
     [STATE_SAVED]: Heart,
 };
 
-const StateToggle = React.createClass({
-    propTypes: {
-        id: PropTypes.number.isRequired,
-        state: PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
-        // Non-null indicates that a mark operation is in-progress.
-        marking: PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
-        onMark: PropTypes.func.isRequired,
-    },
-    getDefaultProps() {
-        return {marking: null};
-    },
-    getInitialState() {
-        return {pendingMark: null};
-    },
-    handleClick(event) {
-        event.preventDefault();
-        if (this.state.pendingMark) {
-            window.clearTimeout(this._timeout);
-        }
-        const prevState = this.getDisplayState();
-        const nextState = NEXT_STATE[prevState];
-        this.setState({pendingMark: nextState});
-        this._timeout = window.setTimeout(() => {
-            this._timeout = null;
-            this.setState({pendingMark: null});
-            this.props.onMark(this.props.id, nextState);
-        }, 300);
-    },
+class StateToggle extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {pendingMark: null};
+        this.handleClick = (event) => {
+            event.preventDefault();
+            if (this.state.pendingMark) {
+                window.clearTimeout(this._timeout);
+            }
+            const prevState = this.getDisplayState();
+            const nextState = NEXT_STATE[prevState];
+            this.setState({pendingMark: nextState});
+            this._timeout = window.setTimeout(() => {
+                this._timeout = null;
+                this.setState({pendingMark: null});
+                this.props.onMark(this.props.id, nextState);
+            }, 300);
+        };
+    }
     componentWillUnmount() {
         // We immediately flush any pending mark when unmounting.  Presumably
         // the user won't be clicking again, so the intended state can't change.
@@ -54,20 +45,29 @@ const StateToggle = React.createClass({
             window.clearTimeout(this._timeout);
             this.props.onMark(this.props.id, this.state.pendingMark);
         }
-    },
+    }
     getDisplayState() {
         return this.state.pendingMark || this.props.marking || this.props.state;
-    },
+    }
     render() {
         const displayState = this.getDisplayState();
         const marking = this.state.pendingMark || this.props.marking;
-        const className = "state-toggle state-" + displayState + (marking ? " marking " : "");
         const Image = STATE_IMAGE[displayState];
         const text = STATE_TEXT[displayState];
-        return <button className={className} onClick={this.handleClick} {...this.props}>
+        return <button className="button" onClick={this.handleClick}>
             <Image alt={text} />
         </button>;
-    },
-});
+    }
+}
+
+StateToggle.defaultProps = {marking: null};
+
+StateToggle.propTypes = {
+    id: PropTypes.number.isRequired,
+    state: PropTypes.oneOf([STATE_NEW, STATE_SAVED, STATE_ARCHIVED]).isRequired,
+    // Non-null indicates that a mark operation is in-progress.
+    marking: PropTypes.oneOf([null, STATE_NEW, STATE_SAVED, STATE_ARCHIVED]),
+    onMark: PropTypes.func.isRequired,
+};
 
 export default StateToggle;
