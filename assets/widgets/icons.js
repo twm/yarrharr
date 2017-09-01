@@ -33,6 +33,10 @@ export function Heart(props) {
     return <img src={window.__webpack_public_path__ + require('../art/heart.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
+export function HeartEmpty(props) {
+    return <img src={window.__webpack_public_path__ + require('../art/heart-empty.inkscape.svg')} width="32" height="32" {...props} />;
+}
+
 export function Outbound(props) {
     return <img src={window.__webpack_public_path__ + require('../art/outbound.inkscape.svg')} {...props} />;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Star, Check, Heart } from 'widgets/icons.js';
+import { Star, Check, Heart, HeartEmpty } from 'widgets/icons.js';
 
 export class ReadToggle extends React.PureComponent {
     constructor(props) {
@@ -40,7 +40,7 @@ export class FaveToggle extends React.PureComponent {
         };
     }
     render() {
-        const Image = this.props.fave ? Heart : Star;  // FIXME Star is not right. Perhaps an empty heart?
+        const Image = this.props.fave ? Heart : HeartEmpty;
         const text = this.props.fave ? "Favorite" : "Not Favorite";
         return <button className="button" onClick={this.handleClick}>
             <Image alt={text} />
