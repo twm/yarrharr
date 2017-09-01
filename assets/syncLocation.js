@@ -1,9 +1,9 @@
 import { setPath } from './actions.js';
 
 /**
- * @param Store store Redux store
- * @param Window window
- * @returns function
+ * @param {Store} store Redux store
+ * @param {Window} window
+ * @returns {function}
  *          A function which may be called to unsubscribe from the Redux store.
  */
 export default function syncLocation(store, window) {

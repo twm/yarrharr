@@ -11,9 +11,9 @@ const __debug__ = process.env.NODE_ENV !== 'production';
  * All of the view options are written to local storage together, so settings
  * from multiple tabs won't get mixed.
  *
- * @param Store store Redux store
- * @param Storage storage Web storage API implementation
- * @returns function
+ * @param {Store} store Redux store
+ * @param {Storage} storage Web storage API implementation
+ * @returns {function}
  *          A function which may be called to unsubscribe from the Redux store.
  */
 export default function syncViewOptions(store, storage) {

@@ -263,7 +263,7 @@ export const AddFeedView = React.createClass({
          * A superficially valid URL has been entered by the user.  Attempt to add
          * it as a feed.
          *
-         * @param url String Something that looks like a URL.
+         * @param {string} url Something that looks like a URL.
          */
         onSubmit: PropTypes.func.isRequired,
     },
