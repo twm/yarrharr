@@ -1,9 +1,5 @@
 import { setPath } from './actions.js';
 
-function windowPath() {
-    return window.location.pathname;
-}
-
 /**
  * @param {Store} store Redux store
  * @param {Window} window
@@ -11,6 +7,10 @@ function windowPath() {
  *          A function which may be called to unsubscribe from the Redux store.
  */
 export default function syncLocation(store, window) {
+    function windowPath() {
+        return window.location.pathname;
+    }
+
     var popPath = windowPath();
     store.dispatch(setPath(popPath));
 
