@@ -23,7 +23,7 @@ export default function syncLocation(store, window) {
     return store.subscribe(function pushState() {
         const { route } = store.getState();
         // console.log('syncLocation callback called', route);
-        if (popPath !== route.path) {
+        if (popPath !== null && popPath !== route.path) {
             // Ignore because we are waiting for the change made by popstate to
             // propagate to us.
             //
