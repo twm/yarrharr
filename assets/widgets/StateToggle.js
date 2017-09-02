@@ -14,16 +14,24 @@ export class ReadToggle extends React.PureComponent {
     }
     render() {
         const Image = this.props.read ? Check : Star;
-        const text = this.props.read ? "Archived" : "New";
+        const text = this.props.read ? "Read" : "Unread";
         return <button className="button" onClick={this.handleClick}>
             <Image alt={text} />
         </button>;
     }
 }
 
-ReadToggle.defaultProps = {marking: null};
+export class ReadToggleLink extends ReadToggle {
+    render() {
+        const Image = this.props.read ? Check : Star;
+        const text = this.props.read ? "Read" : "Unread"
+        return <span className="lozenge" role="button" tabIndex="0" onClick={this.handleClick}><Image width="14" height="14" /> {text}</span>;
+    }
+}
 
-ReadToggle.propTypes = {
+ReadToggle.defaultProps = ReadToggleLink.defaultProps = {marking: null};
+
+ReadToggle.propTypes = ReadToggleLink.propTypes = {
     articleId: PropTypes.number.isRequired,
     read: PropTypes.bool.isRequired,
     onMarkArticlesRead: PropTypes.func.isRequired,
@@ -48,9 +56,17 @@ export class FaveToggle extends React.PureComponent {
     }
 }
 
-FaveToggle.defaultProps = {marking: null};
+export class FaveToggleLink extends FaveToggle {
+    render() {
+        const Image = this.props.fave ? Heart : HeartEmpty;
+        const text = this.props.fave ? "Favorite" : "Not Favorite";
+        return <span className="lozenge" role="button" tabIndex="0" onClick={this.handleClick}><Image width="14" height="14" /> {text}</span>;
+    }
+}
 
-FaveToggle.propTypes = {
+FaveToggle.defaultProps = FaveToggleLink.defaultProps = {marking: null};
+
+FaveToggle.propTypes = FaveToggleLink.propTypes = {
     articleId: PropTypes.number.isRequired,
     fave: PropTypes.bool.isRequired,
     onMarkArticlesFave: PropTypes.func.isRequired,

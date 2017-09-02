@@ -9,36 +9,42 @@
 
 .article-wrap {
     margin: 16px auto;
+
+    .content-colors;
+}
+
+.frontmatter {
     display: flex;
-    flex: row nowrap;
+    flex-flow: row nowrap;
+}
 
-    .tools {
-        flex: 0 0 auto;
-        width: 44px;
-        margin-left: 4px;
+.meta {
+    color: @quiet_text_color;
+    flex: 1 2 0;
+    margin: 0 0 1em 0;
+    p {
+        margin: 0;
     }
+}
 
-    article {
-        flex: 1 1 auto;
-        min-width: 0; /* allow flex to collapse past natural width */
-    }
+.top-tools {
+    display: flex;
+    flex-flow: row wrap;
+}
 
-    /* The "tools" div is a channel which buttons float in.
-     *
-     * TODO: When there is sufficient space, add text labels to the buttons.
-     */
-    .tools {
-        padding: 20px 0 0 0;
+.bottom-tools {
+    display: flex;
+    flex-flow: row wrap;
+}
 
-        .tool-wrap {
-            position: sticky;
-            top: 4px;
-        }
-
-        button, a {
-            .button;
-        }
-    }
+.lozenge {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 12px;
+    border: 2px solid #efefef;
+    border-radius: .5em;
+    white-space: nowrap;
+    margin: 4px;
 }
 
 article {
@@ -46,18 +52,13 @@ article {
     margin: 0;
     word-wrap: break-word; /* Don't let long lines break the layout */
 
-    .content-colors;
-
     h1 {
-        font: normal 24px / 32px sans-serif;
-        padding: 10px 0 2px 0;
+        font: normal 18px / 24px sans-serif;
+        padding: 12px 0 2px 0;
 
         a[href] {
             text-decoration: none;
         }
-    }
-    .meta {
-        color: @quiet_text_color;
     }
 
     .content {
