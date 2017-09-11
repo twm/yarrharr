@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Star, Check, Heart, HeartEmpty } from 'widgets/icons.js';
+import { Check, CheckEmpty, Heart, HeartEmpty } from 'widgets/icons.js';
 
 export class ReadToggle extends React.PureComponent {
     constructor(props) {
@@ -13,7 +13,7 @@ export class ReadToggle extends React.PureComponent {
         };
     }
     render() {
-        const Image = this.props.read ? Check : Star;
+        const Image = this.props.read ? Check : CheckEmpty;
         const text = this.props.read ? "Read" : "Unread";
         return <button className="button" onClick={this.handleClick}>
             <Image alt={text} />
@@ -23,7 +23,7 @@ export class ReadToggle extends React.PureComponent {
 
 export class ReadToggleLink extends ReadToggle {
     render() {
-        const Image = this.props.read ? Check : Star;
+        const Image = this.props.read ? Check : CheckEmpty;
         const text = this.props.read ? "Read" : "Unread"
         return <span className="lozenge" role="button" tabIndex="0" onClick={this.handleClick}><Image width="14" height="14" /> {text}</span>;
     }
