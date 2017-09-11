@@ -1,5 +1,5 @@
 import React from 'react';
-// TODO: Use minified SVG
+// TODO: #79 Use minified SVG
 
 export function Add(props) {
     return <img src={window.__webpack_public_path__ + require('../art/add.inkscape.svg')} {...props} />;
@@ -27,6 +27,10 @@ export function Star(props) {
 
 export function Check(props) {
     return <img src={window.__webpack_public_path__ + require('../art/check.inkscape.svg')} width="32" height="32" {...props} />;
+}
+
+export function CheckEmpty(props) {
+    return <img src={window.__webpack_public_path__ + require('../art/check-empty.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
 export function Heart(props) {
