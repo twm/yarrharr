@@ -10,13 +10,11 @@ class Article extends React.PureComponent {
         // TODO Put the outbound icon in the <h1>: <Outbound alt="" width="16" height="16" />
         return <article>
             <h1><a href={this.props.url} target="_blank">{this.props.title || "Untitled"}</a></h1>
-            <div className="frontmatter">
-                <div className="meta">
-                    {this.props.author
-                        ? <p>By {this.props.author} from <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
-                        : <p>From <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
-                    <p>Posted {this.props.date}</p>
-                </div>
+            <div className="meta">
+                {this.props.author
+                    ? <p>By {this.props.author} from <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
+                    : <p>From <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
+                <p>Posted {this.props.date}</p>
             </div>
             <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
         </article>;

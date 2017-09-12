@@ -1,37 +1,28 @@
 @import "../globals.less";
 
-.layout-narrow article {
-    max-width: calc(40px + @narrow_width);
-}
-
-.frontmatter {
-    display: flex;
-    flex-flow: row nowrap;
-}
-
-.meta {
-    color: @quiet_text_color;
-    flex: 1 2 0;
-    margin: 0 0 1em 0;
-    p {
-        margin: 0;
-    }
-}
-
 article {
     .content-colors;
 
-    padding: 0px 16px 16px 16px;
-    margin: 8px auto;
+    padding: 0 0 1rem 0;
+    margin: 0.5rem 0;
     word-wrap: break-word; /* Don't let long lines break the layout */
 
-    h1 {
-        font: normal 18px / 24px sans-serif;
+    /* NB: This is written so that it can't affect <h1> tags within .content */
+    & > h1 {
+        font: normal 1.125rem / 1.5rem sans-serif;
         margin: 0 0 0.67em 0;
-        padding: 12px 0 2px 0;
-
-        a {
+        padding-top: 0.75rem;
+        padding-bottom: 0.125rem;
+        & > a {
             display: block;
+        }
+    }
+
+    .meta {
+        color: @quiet_text_color;
+        margin: 0 0 1em 0;
+        p {
+            margin: 0;
         }
     }
 
@@ -64,4 +55,15 @@ article {
             border: 0.5px solid @quiet_text_color;
         }
     }
+}
+
+article > * {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+.layout-narrow article > * {
+    max-width: calc(40px + @narrow_width);
+    margin-left: auto;
+    margin-right: auto;
 }
