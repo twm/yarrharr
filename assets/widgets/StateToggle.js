@@ -25,7 +25,8 @@ export class ReadToggleLink extends ReadToggle {
     render() {
         const Image = this.props.read ? Check : CheckEmpty;
         const text = this.props.read ? "Read" : "Unread"
-        return <span className="lozenge" role="button" tabIndex="0" onClick={this.handleClick}><Image width="14" height="14" /> {text}</span>;
+        const actionText = this.props.read ? "Mark unread" : "Mark read"
+        return <span role="button" tabIndex="0" onClick={this.handleClick} title={actionText} ><Image width="40" height="40" alt={text} /></span>;
     }
 }
 
@@ -60,7 +61,8 @@ export class FaveToggleLink extends FaveToggle {
     render() {
         const Image = this.props.fave ? Heart : HeartEmpty;
         const text = this.props.fave ? "Favorite" : "Not Favorite";
-        return <span className="lozenge" role="button" tabIndex="0" onClick={this.handleClick}><Image width="14" height="14" /> {text}</span>;
+        const actionText = this.props.fave ? "Mark article as not favorite" : "Mark article as favorite";
+        return <span role="button" tabIndex="0" title={actionText} onClick={this.handleClick}><Image width="40" height="40" alt={text} /></span>;
     }
 }
 

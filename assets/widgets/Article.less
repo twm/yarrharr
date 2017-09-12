@@ -1,16 +1,7 @@
 @import "../globals.less";
 
-.layout-narrow .article-wrap {
+.layout-narrow article {
     max-width: calc(40px + @narrow_width);
-}
-
-.layout-wide .article-wrap {
-}
-
-.article-wrap {
-    margin: 16px auto;
-
-    .content-colors;
 }
 
 .frontmatter {
@@ -27,37 +18,20 @@
     }
 }
 
-.top-tools {
-    display: flex;
-    flex-flow: row wrap;
-}
-
-.bottom-tools {
-    display: flex;
-    flex-flow: row wrap;
-}
-
-.lozenge {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 12px;
-    border: 2px solid #efefef;
-    border-radius: .5em;
-    white-space: nowrap;
-    margin: 4px;
-}
-
 article {
+    .content-colors;
+
     padding: 0px 16px 16px 16px;
-    margin: 0;
+    margin: 8px auto;
     word-wrap: break-word; /* Don't let long lines break the layout */
 
     h1 {
         font: normal 18px / 24px sans-serif;
+        margin: 0 0 0.67em 0;
         padding: 12px 0 2px 0;
 
-        a[href] {
-            text-decoration: none;
+        a {
+            display: block;
         }
     }
 

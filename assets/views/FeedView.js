@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setOrder } from 'actions.js';
@@ -15,6 +16,7 @@ import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
+import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
 import Header from 'widgets/Header.js';
 import './FeedView.less';
 
@@ -232,45 +234,87 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArt
     }
     // FIXME Shouldn't assume all feeds have loaded.
     var feed = feedsById[article.feedId];
-    if (!article) {
+    if (!feed) {
         return <Status>Loading</Status>;
     }
 
-    if (index !== 0) {
-        var prevId = articleIds[index - 1];
-        var prev = articlesById[prevId]; // NB: may not have loaded yet
-        elements.push(<div key={prevId} className="prev-link">
-            {renderLink({
-                articleId: prevId,
-                children: [
-                    <b>Previous </b>,
-                    prev ? (prev.title || "Untitled") : "",
-                ],
-            })}
-        </div>);
-    }
+    const prevId = index !== 0 ? articleIds[index - 1] : null;
+    const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
 
-    if (!article.loading) {
-        elements.push(<Article key={article.id} feed={feed} onMarkArticlesRead={onMarkArticlesRead} onMarkArticlesFave={onMarkArticlesFave} {...article} />);
-    } else {
-        elements.push(<p>Loading</p>);
-    }
+    return [
+        <TopBar
+            key={prevId}
+            article={article}
+            prevId={prevId}
+            nextId={nextId}
+            articlesById={articlesById}
+            onMarkArticlesRead={onMarkArticlesRead}
+            onMarkArticlesFave={onMarkArticlesFave}
+            renderLink={renderLink} />,
+        article.loading ? <Status key={articleId}>Loading</Status> : <Article key={articleId} feed={feed} {...article} />,
+        <BottomBar
+            key={nextId}
+            article={article}
+            prevId={prevId}
+            nextId={nextId}
+            articlesById={articlesById}
+            onMarkArticlesRead={onMarkArticlesRead}
+            onMarkArticlesFave={onMarkArticlesFave}
+            renderLink={renderLink} />,
+    ];
+}
 
-    if (index < articleIds.length - 1) {
-        var nextId = articleIds[index + 1];
-        var next = articlesById[nextId]; // NB: may not have loaded yet
-        elements.push(<div key={nextId} className="next-link">
-            {renderLink({
-                articleId: nextId,
-                children: [
-                    <b>Next </b>,
-                    next ? (next.title || "Untitled") : "",
-                ],
-            })}
-        </div>);
-    }
+function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
+    // NB: These may not have loaded yet.
+    const prev = prevId === null ? null : articlesById[prevId];
+    const next = nextId === null ? null : articlesById[nextId];
 
-    return elements;
+    return <div className="top-bar">
+        {prevId ? renderLink({
+            key: prevId,
+            className: "prev-link",
+            articleId: prevId,
+            children: [
+                <b>Previous </b>,
+                <span className="title">{prev ? (prev.title || "Untitled") : ""}</span>,
+            ],
+        }) : <span className="prev-link"></span>}
+        <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} />
+        <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} />
+    </div>;
+}
+
+function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
+    var next = articlesById[nextId]; // NB: may not have loaded yet
+    return <div className="bottom-bar">
+        <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} />
+        <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} />
+        {nextId ? renderLink({
+            key: nextId,
+            className: "next-link",
+            articleId: nextId,
+            children: [
+                <b>Next </b>,
+                <span className="title">{next ? (next.title || "Untitled") : ""}</span>,
+            ],
+        }) : <span key={nextId} className="next-link"></span>}
+    </div>;
+}
+
+if (__debug__) {
+    TopBar.propTypes = BottomBar.propTypes = {
+        article: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+        }).isRequired,
+        prevId: PropTypes.number,  // null indicates no previous article
+        nextId: PropTypes.number,  // null indicates no next article
+        articlesById: PropTypes.object.isRequired,
+        // Event handlers
+        onMarkArticlesRead: PropTypes.func.isRequired,
+        onMarkArticlesFave: PropTypes.func.isRequired,
+        // Render helpers
+        renderLink: PropTypes.func.isRequired,
+    };
 }
 
 /**
