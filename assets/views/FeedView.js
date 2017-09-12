@@ -9,7 +9,7 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.j
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { ViewControls } from 'widgets/ViewControls.js';
-import { Logo } from 'widgets/icons.js';
+import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
 import Article from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -271,33 +271,56 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
 
     return <div className="top-bar">
         {prevId ? renderLink({
-            key: prevId,
-            className: "prev-link",
+            className: "prev-link expand",
             articleId: prevId,
             children: [
-                <b>Previous </b>,
-                <span className="title">{prev ? (prev.title || "Untitled") : ""}</span>,
+                <ArrowLeft width="40" height="40" alt="Previous" />,
+                <div>
+                    <b>Previous </b>
+                    <span className="title">{prev ? (prev.title || "Untitled") : ""}</span>
+                </div>,
             ],
-        }) : <span className="prev-link"></span>}
+        }) : <span className="expand"></span>}
         <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} />
         <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} />
+        {nextId ? renderLink({
+            className: "next-link",
+            title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
+            articleId: nextId,
+            children: [
+                <ArrowRight width="40" height="40" alt="Next" />,
+            ],
+        }) : <span key={nextId} className="next-link"></span>}
     </div>;
 }
 
 function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
-    var next = articlesById[nextId]; // NB: may not have loaded yet
+    // NB: These may not have loaded yet.
+    const prev = prevId === null ? null : articlesById[prevId];
+    const next = nextId === null ? null : articlesById[nextId];
+
     return <div className="bottom-bar">
+        {prevId ? renderLink({
+            className: "prev-link",
+            title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),
+            articleId: prevId,
+            children: [
+                <ArrowLeft width="40" height="40" alt="Previous" />,
+            ],
+        }) : null}
         <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} />
         <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} />
         {nextId ? renderLink({
-            key: nextId,
-            className: "next-link",
+            className: "next-link expand",
             articleId: nextId,
             children: [
-                <b>Next </b>,
-                <span className="title">{next ? (next.title || "Untitled") : ""}</span>,
+                <div>
+                    <b>Next </b>
+                    <span className="title">{next ? (next.title || "Untitled") : ""}</span>
+                </div>,
+                <ArrowRight width="40" height="40" alt="" />,
             ],
-        }) : <span key={nextId} className="next-link"></span>}
+        }) : <span key={nextId} className="expand"></span>}
     </div>;
 }
 

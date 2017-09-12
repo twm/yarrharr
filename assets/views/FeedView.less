@@ -14,7 +14,7 @@
 .bottom-bar {
     display: flex;
     flex-flow: row wrap;
-    padding: 0 16px; /* match article */
+    padding: 0; /* match article */
 
     & > * {
         display: block;
@@ -26,11 +26,27 @@
     & > * > img {
         display: block;
     }
+
+    & > .expand {
+        flex: 1 1 0;
+        min-width: 0; /* allow shrinking below content size */
+    }
+}
+
+.next-link,
+.prev-link {
+    min-width: 40px;
 }
 
 .next-link[href],
 .prev-link[href] {
     text-decoration: none;
+    display: flex;
+    flex-flow: row nowrap;
+    div {
+        flex: 1 1 0;
+        min-width: 0;
+    }
     b, .title {
         display: block;
         width: 100%;
@@ -43,13 +59,6 @@
     }
 }
 
-.top-bar .prev-link,
-.bottom-bar .next-link {
-    flex: 1 1 0;
-    min-width: 0; /* allow shrinking below content size */
-    /* TODO ellipsize on overflow */
-}
-
-.bottom-bar .next-link {
+.next-link.expand {
     text-align: right;
 }
