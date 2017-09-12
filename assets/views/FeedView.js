@@ -10,7 +10,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { ViewControls } from 'widgets/ViewControls.js';
 import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
-import Article from 'widgets/Article.js';
+import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
@@ -190,18 +190,18 @@ function Status(props) {
 }
 
 function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onLoadMore) {
-    if (!snapshotResponse.loaded) {
-        return <Status>Loading</Status>;
-    }
-    if (snapshotResponse.error) {
-        return <Status>Failed to load (refresh to retry)</Status>;
-    }
-    if (snapshotResponse.articleIds.length === 0) {
-        return <Status>No articles</Status>;
-    }
     if (articleId) {
         return renderArticle();
     } else {
+        if (!snapshotResponse.loaded) {
+            return <Status>Loading</Status>;
+        }
+        if (snapshotResponse.error) {
+            return <Status>Failed to load (refresh to retry)</Status>;
+        }
+        if (snapshotResponse.articleIds.length === 0) {
+            return <Status>No articles</Status>;
+        }
         const onVisibleChange = (start, end) => {
             const ids = snapshotResponse.articleIds;
             onLoadMore(ids.slice(Math.floor(start * ids.length), Math.floor(end * ids.length) + 10));
@@ -222,28 +222,26 @@ function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderAr
  */
 function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const elements = [];
-    var index = articleIds.indexOf(articleId);
+    const index = articleIds.indexOf(articleId);
     if (index === -1) {
         // TODO Common 404 page style?
         return <Status>404: Article {articleId} does not exist</Status>;
     }
+
     // XXX How to arrange for prev and next to be loaded in all cases?
-    var article = articlesById[articleId];
+    const article = articlesById[articleId];
     if (__debug__ && !article) {
         throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
     }
     // FIXME Shouldn't assume all feeds have loaded.
-    var feed = feedsById[article.feedId];
-    if (!feed) {
-        return <Status>Loading</Status>;
-    }
+    const feed = feedsById[article.feedId];
+    const articleComponent = (feed && !article.loading) ? <Article key="article" feed={feed} {...article} /> : <LoadingArticle key="article" />;
 
     const prevId = index !== 0 ? articleIds[index - 1] : null;
     const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
-
     return [
         <TopBar
-            key={prevId}
+            key="top"
             article={article}
             prevId={prevId}
             nextId={nextId}
@@ -251,9 +249,9 @@ function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArt
             onMarkArticlesRead={onMarkArticlesRead}
             onMarkArticlesFave={onMarkArticlesFave}
             renderLink={renderLink} />,
-        article.loading ? <Status key={articleId}>Loading</Status> : <Article key={articleId} feed={feed} {...article} />,
+        articleComponent,
         <BottomBar
-            key={nextId}
+            key="bottom"
             article={article}
             prevId={prevId}
             nextId={nextId}
@@ -281,8 +279,8 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
                 </div>,
             ],
         }) : <span className="expand"></span>}
-        <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} />
-        <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} />
+        {article ? <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
+        {article ? <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null }
         {nextId ? renderLink({
             className: "next-link",
             title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
@@ -308,8 +306,8 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
                 <ArrowLeft width="40" height="40" alt="Previous" />,
             ],
         }) : null}
-        <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} />
-        <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} />
+        {article ? <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
+        {article ? <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
         {nextId ? renderLink({
             className: "next-link expand",
             articleId: nextId,

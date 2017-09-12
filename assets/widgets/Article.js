@@ -5,7 +5,7 @@ import { FILTER_ALL } from 'actions.js';
 // import { Outbound } from 'widgets/icons.js';
 import "./Article.less";
 
-class Article extends React.PureComponent {
+export class Article extends React.PureComponent {
     render() {
         // TODO Put the outbound icon in the <h1>: <Outbound alt="" width="16" height="16" />
         return <article>
@@ -40,4 +40,17 @@ if (process.env.NODE_ENV !== 'production') {
     };
 }
 
-export default Article;
+const LOADING_ARTICLE = <article>
+    <h1><a href="javascript:void(0)">••••• ••••••••••••• ••••••••</a></h1>
+    <div className="meta">
+        <p>••••••••••••••••••••••••••••••••</p>
+        <p>••••••••••••••••</p>
+    </div>
+    <div className="content">
+        <p>••••••••••••••••• ••••• •••••••••••••• ••••••••••••• ••••••••••••••••• ••••••••••••• •••••••••••••••••• •• •••••••••••••</p>
+    </div>
+</article>;
+
+export function LoadingArticle() {
+    return LOADING_ARTICLE;
+}
