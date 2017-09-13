@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Check, CheckEmpty, Heart, HeartEmpty } from 'widgets/icons.js';
 
+const STYLE_HIDDEN = {visibility: "hidden"};
+
 export class ReadToggle extends React.PureComponent {
     constructor(props) {
         super(props);
@@ -23,6 +25,9 @@ export class ReadToggle extends React.PureComponent {
 
 export class ReadToggleLink extends ReadToggle {
     render() {
+        if (this.props.read == null) {
+            return <span role="button" aria-disabled={true} tabIndex={-1}><CheckEmpty width="40" height="40" alt="" style={STYLE_HIDDEN} /></span>;
+        }
         const Image = this.props.read ? Check : CheckEmpty;
         const text = this.props.read ? "Read" : "Unread"
         const actionText = this.props.read ? "Mark unread" : "Mark read"
@@ -34,7 +39,7 @@ ReadToggle.defaultProps = ReadToggleLink.defaultProps = {marking: null};
 
 ReadToggle.propTypes = ReadToggleLink.propTypes = {
     articleId: PropTypes.number.isRequired,
-    read: PropTypes.bool.isRequired,
+    read: PropTypes.bool,  // null indicates no value (the control is disabled)
     onMarkArticlesRead: PropTypes.func.isRequired,
 };
 
@@ -59,6 +64,9 @@ export class FaveToggle extends React.PureComponent {
 
 export class FaveToggleLink extends FaveToggle {
     render() {
+        if (this.props.fave == null) {
+            return <span role="button" aria-disabled={true} tabIndex={-1}><HeartEmpty width="40" height="40" alt="" style={STYLE_HIDDEN} /></span>;
+        }
         const Image = this.props.fave ? Heart : HeartEmpty;
         const text = this.props.fave ? "Favorite" : "Not Favorite";
         const actionText = this.props.fave ? "Mark article as not favorite" : "Mark article as favorite";
@@ -70,6 +78,6 @@ FaveToggle.defaultProps = FaveToggleLink.defaultProps = {marking: null};
 
 FaveToggle.propTypes = FaveToggleLink.propTypes = {
     articleId: PropTypes.number.isRequired,
-    fave: PropTypes.bool.isRequired,
+    fave: PropTypes.bool,  // null indicates no value (the control is disabled)
     onMarkArticlesFave: PropTypes.func.isRequired,
 };

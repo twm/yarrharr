@@ -67,7 +67,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
     </div>;
 }
@@ -100,7 +100,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
     </div>;
 }
@@ -133,7 +133,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
     </div>;
 }
@@ -191,7 +191,7 @@ function Status(props) {
 
 function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onLoadMore) {
     if (articleId) {
-        return renderArticle();
+        return renderArticle(snapshotResponse.loaded);
     } else {
         if (!snapshotResponse.loaded) {
             return <Status>Loading</Status>;
@@ -216,29 +216,44 @@ function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderAr
  *
  * @param {?number} articleId
  *      If not null, render this specific article instead of the whole list.
- * @param {number[]} articleIds
+ * @param {{loaded: bool, articleIds: number[]} snapshot.response
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
-    const elements = [];
-    const index = articleIds.indexOf(articleId);
-    if (index === -1) {
-        // TODO Common 404 page style?
-        return <Status>404: Article {articleId} does not exist</Status>;
+function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
+    const index = loaded ? articleIds.indexOf(articleId) : -2;
+    console.log(`renderArticle(${articleId}, {${loaded}, ${articleIds}}, ...) -> index ${index}`);
+    var articleComponent, article = null, prevId = null, nextId = null;
+    switch (index) {
+        case -2:
+            // TODO Common 404 page style?
+            articleComponent = <LoadingArticle key="article" />;
+            article = {
+                id: articleId,
+                read: false,
+                fave: false,
+            };
+            break;
+        case -1:
+            articleComponent = <Status key="status">404: Article {articleId} does not exist</Status>;
+            article = {
+                id: articleId,
+                read: false,
+                fave: false,
+            };
+            break;
+        default:
+            // XXX How to arrange for prev and next to be loaded in all cases?
+            article = articlesById[articleId];
+            if (__debug__ && !article) {
+                throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
+            }
+            // FIXME Shouldn't assume all feeds have loaded.
+            const feed = feedsById[article.feedId];
+            articleComponent = (feed && !article.loading) ? <Article key="article" feed={feed} {...article} /> : <LoadingArticle key="article" />;
+            prevId = index !== 0 ? articleIds[index - 1] : null;
+            nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
     }
-
-    // XXX How to arrange for prev and next to be loaded in all cases?
-    const article = articlesById[articleId];
-    if (__debug__ && !article) {
-        throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
-    }
-    // FIXME Shouldn't assume all feeds have loaded.
-    const feed = feedsById[article.feedId];
-    const articleComponent = (feed && !article.loading) ? <Article key="article" feed={feed} {...article} /> : <LoadingArticle key="article" />;
-
-    const prevId = index !== 0 ? articleIds[index - 1] : null;
-    const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
     return [
         <TopBar
             key="top"
@@ -326,6 +341,8 @@ if (__debug__) {
     TopBar.propTypes = BottomBar.propTypes = {
         article: PropTypes.shape({
             id: PropTypes.number.isRequired,
+            read: PropTypes.bool,
+            fave: PropTypes.bool,
         }).isRequired,
         prevId: PropTypes.number,  // null indicates no previous article
         nextId: PropTypes.number,  // null indicates no next article
