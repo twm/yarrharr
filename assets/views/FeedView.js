@@ -55,10 +55,9 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    renderArchiveAllLink(snapshot, onMarkArticlesRead),
                     <AllLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} filter={FILTER_NEW}>New</AllLink>,
                     <AllLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} filter={FILTER_SAVED}>Saved</AllLink>,
-                    <AllLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Archived</AllLink>,
+                    <AllLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} filter={FILTER_ARCHIVED}>Read</AllLink>,
                     <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>,
                     <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
                     <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
@@ -69,6 +68,11 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
+        {articleId ? null : <div className="floater-wrap">
+            <div className="floater">
+                <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
+            </div>
+        </div>}
     </div>;
 }
 
@@ -88,10 +92,9 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    renderArchiveAllLink(snapshot, onMarkArticlesRead),
                     <FeedLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} feedId={feedId} filter={FILTER_NEW}>New</FeedLink>,
                     <FeedLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} feedId={feedId} filter={FILTER_SAVED}>Saved</FeedLink>,
-                    <FeedLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Archived</FeedLink>,
+                    <FeedLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} feedId={feedId} filter={FILTER_ARCHIVED}>Read</FeedLink>,
                     <FeedLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>,
                     <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
                     <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
@@ -102,6 +105,11 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
+        {articleId ? null : <div className="floater-wrap">
+            <div className="floater">
+                <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
+            </div>
+        </div>}
     </div>;
 }
 
@@ -121,10 +129,9 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    renderArchiveAllLink(snapshot, onMarkArticlesRead),
                     <LabelLink key={FILTER_NEW} disabled={snapshot.filter === FILTER_NEW} labelId={labelId} filter={FILTER_NEW}>New</LabelLink>,
                     <LabelLink key={FILTER_SAVED} disabled={snapshot.filter === FILTER_SAVED} labelId={labelId} filter={FILTER_SAVED}>Saved</LabelLink>,
-                    <LabelLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Archived</LabelLink>,
+                    <LabelLink key={FILTER_ARCHIVED} disabled={snapshot.filter === FILTER_ARCHIVED} labelId={labelId} filter={FILTER_ARCHIVED}>Read</LabelLink>,
                     <LabelLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>,
                     <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
                     <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
@@ -135,6 +142,11 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
+        {articleId ? null : <div className="floater-wrap">
+            <div className="floater">
+                <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
+            </div>
+        </div>}
     </div>;
 }
 
@@ -164,7 +176,7 @@ function joinLinks(maybeLinks) {
     return links;
 }
 
-function renderArchiveAllLink(snapshot, onMarkArticlesRead) {
+function MarkAllReadLink({snapshot, onMarkArticlesRead}) {
     const { loaded, params, articleIds } = snapshot.response;
     const disabled = (
         !loaded // Stuff is still loading.
@@ -172,15 +184,16 @@ function renderArchiveAllLink(snapshot, onMarkArticlesRead) {
         || params.filter === FILTER_ARCHIVED // Everything already archived.
     )
 
-    return <a key="archive-all" href="#" onClick={e => {
+    // TODO maybe add a checkbox icon here?
+    return <a href="#" onClick={e => {
         e.preventDefault();
         if (disabled) {
             return;
         }
-        if (confirm("Archive " + articleIds.length + " articles?")) {
+        if (confirm("Mark " + articleIds.length + " articles read?")) {
             onMarkArticlesRead(articleIds, true);
         }
-    }}>Archive all</a>;
+    }}>Mark all {articleIds.length} articles read</a>;
 }
 
 function Status(props) {
