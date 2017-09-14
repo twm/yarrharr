@@ -68,11 +68,11 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
-        <div className="floater-wrap">
+        {articleId ? null : <div className="floater-wrap">
             <div className="floater">
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
-        </div>
+        </div>}
     </div>;
 }
 
@@ -105,11 +105,11 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
-        <div className="floater-wrap">
+        {articleId ? null : <div className="floater-wrap">
             <div className="floater">
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
-        </div>
+        </div>}
     </div>;
 }
 
@@ -142,11 +142,11 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
-        <div className="floater-wrap">
+        {articleId ? null : <div className="floater-wrap">
             <div className="floater">
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
-        </div>
+        </div>}
     </div>;
 }
 
