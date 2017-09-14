@@ -1,5 +1,5 @@
 import React from 'react';
-// TODO: Use minified SVG
+// TODO: #79 Use minified SVG
 
 export function Add(props) {
     return <img src={window.__webpack_public_path__ + require('../art/add.inkscape.svg')} {...props} />;
@@ -10,11 +10,11 @@ return <img src={window.__webpack_public_path__ + require('../art/add.inkscape.s
 }
 
 export function ArrowLeft(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="16" height="32" {...props} />;
+    return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
 export function ArrowRight(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="16" height="32" style={{transform: 'rotate(180deg)'}} {...props} />;
+    return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="32" height="32" style={{transform: 'rotate(180deg)'}} {...props} />;
 }
 
 export function Logo(props) {
@@ -27,6 +27,10 @@ export function Star(props) {
 
 export function Check(props) {
     return <img src={window.__webpack_public_path__ + require('../art/check.inkscape.svg')} width="32" height="32" {...props} />;
+}
+
+export function CheckEmpty(props) {
+    return <img src={window.__webpack_public_path__ + require('../art/check-empty.inkscape.svg')} width="32" height="32" {...props} />;
 }
 
 export function Heart(props) {

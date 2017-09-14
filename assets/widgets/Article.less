@@ -1,63 +1,29 @@
 @import "../globals.less";
 
-.layout-narrow .article-wrap {
-    max-width: calc(40px + @narrow_width);
-}
-
-.layout-wide .article-wrap {
-}
-
-.article-wrap {
-    margin: 16px auto;
-    display: flex;
-    flex: row nowrap;
-
-    .tools {
-        flex: 0 0 auto;
-        width: 44px;
-        margin-left: 4px;
-    }
-
-    article {
-        flex: 1 1 auto;
-        min-width: 0; /* allow flex to collapse past natural width */
-    }
-
-    /* The "tools" div is a channel which buttons float in.
-     *
-     * TODO: When there is sufficient space, add text labels to the buttons.
-     */
-    .tools {
-        padding: 20px 0 0 0;
-
-        .tool-wrap {
-            position: sticky;
-            top: 4px;
-        }
-
-        button, a {
-            .button;
-        }
-    }
-}
-
 article {
-    padding: 0px 16px 16px 16px;
-    margin: 0;
-    word-wrap: break-word; /* Don't let long lines break the layout */
-
     .content-colors;
 
-    h1 {
-        font: normal 24px / 32px sans-serif;
-        padding: 10px 0 2px 0;
+    padding: 0 0 1rem 0;
+    margin: 0.5rem 0;
+    word-wrap: break-word; /* Don't let long lines break the layout */
 
-        a[href] {
-            text-decoration: none;
+    /* NB: This is written so that it can't affect <h1> tags within .content */
+    & > h1 {
+        font: normal 1.125rem / 1.5rem sans-serif;
+        margin: 0 0 0.67em 0;
+        padding-top: 0.75rem;
+        padding-bottom: 0.125rem;
+        & > a {
+            display: block;
         }
     }
+
     .meta {
         color: @quiet_text_color;
+        margin: 0 0 1em 0;
+        p {
+            margin: 0;
+        }
     }
 
     .content {
@@ -89,4 +55,15 @@ article {
             border: 0.5px solid @quiet_text_color;
         }
     }
+}
+
+article > * {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+.layout-narrow article > * {
+    max-width: @narrow_width;
+    margin-left: auto;
+    margin-right: auto;
 }

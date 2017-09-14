@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setOrder } from 'actions.js';
@@ -8,13 +9,14 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.j
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { ViewControls } from 'widgets/ViewControls.js';
-import { Logo } from 'widgets/icons.js';
-import Article from 'widgets/Article.js';
+import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
+import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
+import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
 import Header from 'widgets/Header.js';
 import './FeedView.less';
 
@@ -65,7 +67,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
     </div>;
 }
@@ -98,7 +100,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
     </div>;
 }
@@ -131,7 +133,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
     </div>;
 }
@@ -188,18 +190,18 @@ function Status(props) {
 }
 
 function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onLoadMore) {
-    if (!snapshotResponse.loaded) {
-        return <Status>Loading</Status>;
-    }
-    if (snapshotResponse.error) {
-        return <Status>Failed to load (refresh to retry)</Status>;
-    }
-    if (snapshotResponse.articleIds.length === 0) {
-        return <Status>No articles</Status>;
-    }
     if (articleId) {
-        return renderArticle();
+        return renderArticle(snapshotResponse.loaded);
     } else {
+        if (!snapshotResponse.loaded) {
+            return <Status>Loading</Status>;
+        }
+        if (snapshotResponse.error) {
+            return <Status>Failed to load (refresh to retry)</Status>;
+        }
+        if (snapshotResponse.articleIds.length === 0) {
+            return <Status>No articles</Status>;
+        }
         const onVisibleChange = (start, end) => {
             const ids = snapshotResponse.articleIds;
             onLoadMore(ids.slice(Math.floor(start * ids.length), Math.floor(end * ids.length) + 10));
@@ -214,63 +216,143 @@ function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderAr
  *
  * @param {?number} articleId
  *      If not null, render this specific article instead of the whole list.
- * @param {number[]} articleIds
+ * @param {{loaded: bool, articleIds: number[]} snapshot.response
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticle(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
-    const elements = [];
-    var index = articleIds.indexOf(articleId);
-    if (index === -1) {
-        // TODO Common 404 page style?
-        return <Status>404: Article {articleId} does not exist</Status>;
+function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
+    const index = loaded ? articleIds.indexOf(articleId) : -2;
+    console.log(`renderArticle(${articleId}, {${loaded}, ${articleIds}}, ...) -> index ${index}`);
+    var articleComponent, article = null, prevId = null, nextId = null;
+    switch (index) {
+        case -2:
+            // TODO Common 404 page style?
+            articleComponent = <LoadingArticle key="article" />;
+            article = {
+                id: articleId,
+                read: false,
+                fave: false,
+            };
+            break;
+        case -1:
+            articleComponent = <Status key="status">404: Article {articleId} does not exist</Status>;
+            article = {
+                id: articleId,
+                read: false,
+                fave: false,
+            };
+            break;
+        default:
+            // XXX How to arrange for prev and next to be loaded in all cases?
+            article = articlesById[articleId];
+            if (__debug__ && !article) {
+                throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
+            }
+            // FIXME Shouldn't assume all feeds have loaded.
+            const feed = feedsById[article.feedId];
+            articleComponent = (feed && !article.loading) ? <Article key="article" feed={feed} {...article} /> : <LoadingArticle key="article" />;
+            prevId = index !== 0 ? articleIds[index - 1] : null;
+            nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
     }
-    // XXX How to arrange for prev and next to be loaded in all cases?
-    var article = articlesById[articleId];
-    if (__debug__ && !article) {
-        throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
-    }
-    // FIXME Shouldn't assume all feeds have loaded.
-    var feed = feedsById[article.feedId];
-    if (!article) {
-        return <Status>Loading</Status>;
-    }
+    return [
+        <TopBar
+            key="top"
+            article={article}
+            prevId={prevId}
+            nextId={nextId}
+            articlesById={articlesById}
+            onMarkArticlesRead={onMarkArticlesRead}
+            onMarkArticlesFave={onMarkArticlesFave}
+            renderLink={renderLink} />,
+        articleComponent,
+        <BottomBar
+            key="bottom"
+            article={article}
+            prevId={prevId}
+            nextId={nextId}
+            articlesById={articlesById}
+            onMarkArticlesRead={onMarkArticlesRead}
+            onMarkArticlesFave={onMarkArticlesFave}
+            renderLink={renderLink} />,
+    ];
+}
 
-    if (index !== 0) {
-        var prevId = articleIds[index - 1];
-        var prev = articlesById[prevId]; // NB: may not have loaded yet
-        elements.push(<div key={prevId} className="prev-link">
-            {renderLink({
-                articleId: prevId,
-                children: [
-                    <b>Previous </b>,
-                    prev ? (prev.title || "Untitled") : "",
-                ],
-            })}
-        </div>);
-    }
+function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
+    // NB: These may not have loaded yet.
+    const prev = prevId === null ? null : articlesById[prevId];
+    const next = nextId === null ? null : articlesById[nextId];
 
-    if (!article.loading) {
-        elements.push(<Article key={article.id} feed={feed} onMarkArticlesRead={onMarkArticlesRead} onMarkArticlesFave={onMarkArticlesFave} {...article} />);
-    } else {
-        elements.push(<p>Loading</p>);
-    }
+    return <div className="top-bar">
+        {prevId ? renderLink({
+            className: "prev-link expand",
+            articleId: prevId,
+            children: [
+                <ArrowLeft width="40" height="40" alt="Previous" />,
+                <div>
+                    <b>Previous </b>
+                    <span className="title">{prev ? (prev.title || "Untitled") : ""}</span>
+                </div>,
+            ],
+        }) : <span className="expand"></span>}
+        {article ? <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
+        {article ? <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null }
+        {nextId ? renderLink({
+            className: "next-link",
+            title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
+            articleId: nextId,
+            children: [
+                <ArrowRight width="40" height="40" alt="Next" />,
+            ],
+        }) : <span key={nextId} className="next-link"></span>}
+    </div>;
+}
 
-    if (index < articleIds.length - 1) {
-        var nextId = articleIds[index + 1];
-        var next = articlesById[nextId]; // NB: may not have loaded yet
-        elements.push(<div key={nextId} className="next-link">
-            {renderLink({
-                articleId: nextId,
-                children: [
-                    <b>Next </b>,
-                    next ? (next.title || "Untitled") : "",
-                ],
-            })}
-        </div>);
-    }
+function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
+    // NB: These may not have loaded yet.
+    const prev = prevId === null ? null : articlesById[prevId];
+    const next = nextId === null ? null : articlesById[nextId];
 
-    return elements;
+    return <div className="bottom-bar">
+        {prevId ? renderLink({
+            className: "prev-link",
+            title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),
+            articleId: prevId,
+            children: [
+                <ArrowLeft width="40" height="40" alt="Previous" />,
+            ],
+        }) : null}
+        {article ? <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
+        {article ? <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
+        {nextId ? renderLink({
+            className: "next-link expand",
+            articleId: nextId,
+            children: [
+                <div>
+                    <b>Next </b>
+                    <span className="title">{next ? (next.title || "Untitled") : ""}</span>
+                </div>,
+                <ArrowRight width="40" height="40" alt="" />,
+            ],
+        }) : <span key={nextId} className="expand"></span>}
+    </div>;
+}
+
+if (__debug__) {
+    TopBar.propTypes = BottomBar.propTypes = {
+        article: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            read: PropTypes.bool,
+            fave: PropTypes.bool,
+        }).isRequired,
+        prevId: PropTypes.number,  // null indicates no previous article
+        nextId: PropTypes.number,  // null indicates no next article
+        articlesById: PropTypes.object.isRequired,
+        // Event handlers
+        onMarkArticlesRead: PropTypes.func.isRequired,
+        onMarkArticlesFave: PropTypes.func.isRequired,
+        // Render helpers
+        renderLink: PropTypes.func.isRequired,
+    };
 }
 
 /**
