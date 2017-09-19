@@ -8,7 +8,7 @@ import { STATE_ARCHIVED } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
-import { ViewControls } from 'widgets/ViewControls.js';
+import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -44,13 +44,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
-        <div className="global-tools">
-            <RootLink className="text-button">
-                <span className="button"><Logo /></span>
-                Return to Feed List
-            </RootLink>
-            <ViewControls layout={layout} onSetLayout={onSetLayout} />
-        </div>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
         <Header text="All Feeds" />
         <div className="floater-wrap">
             <div className="floater">
@@ -81,13 +75,7 @@ export function FeedView({params, feedsById, layout, snapshot, articlesById, onS
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
-        <div className="global-tools">
-            <RootLink className="text-button">
-                <span className="button"><Logo /></span>
-                Return to Feed List
-            </RootLink>
-            <ViewControls layout={layout} onSetLayout={onSetLayout} />
-        </div>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
         <Header text={feed.text || feed.title} />
         <div className="floater-wrap">
             <div className="floater">
@@ -118,13 +106,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
-        <div className="global-tools">
-            <RootLink className="text-button">
-                <span className="button"><Logo /></span>
-                Return to Feed List
-            </RootLink>
-            <ViewControls layout={layout} onSetLayout={onSetLayout} />
-        </div>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
         <Header text={label.text} />
         <div className="floater-wrap">
             <div className="floater">
@@ -295,7 +277,7 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
     const prev = prevId === null ? null : articlesById[prevId];
     const next = nextId === null ? null : articlesById[nextId];
 
-    return <div className="top-bar">
+    return <div className="bar">
         {prevId ? renderLink({
             className: "prev-link expand",
             articleId: prevId,
@@ -325,7 +307,7 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
     const prev = prevId === null ? null : articlesById[prevId];
     const next = nextId === null ? null : articlesById[nextId];
 
-    return <div className="bottom-bar">
+    return <div className="bar">
         {prevId ? renderLink({
             className: "prev-link",
             title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),

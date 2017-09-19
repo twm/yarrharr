@@ -10,29 +10,6 @@
     margin: 0 auto;
 }
 
-.top-bar,
-.bottom-bar {
-    display: flex;
-    flex-flow: row wrap;
-    padding: 0; /* match article */
-
-    & > * {
-        display: block;
-        border: 2px solid transparent;
-        border-radius: 2px;
-        transition: border-color 0.1s;
-    }
-
-    & > * > img {
-        display: block;
-    }
-
-    & > .expand {
-        flex: 1 1 0;
-        min-width: 0; /* allow shrinking below content size */
-    }
-}
-
 .next-link,
 .prev-link {
     min-width: 40px;
