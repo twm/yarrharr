@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
-import { ViewControls } from 'widgets/ViewControls.js';
 import Header from 'widgets/Header.js';
+import { GlobalBar } from 'widgets/GlobalBar.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
@@ -18,21 +18,14 @@ export class InventoryView extends React.PureComponent {
     render() {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
-        return <div className="inventory-view">
-            <div className="global-tools">
-                <RootLink className="text-button">
-                    <span className="button"><Logo /></span>
-                    Return to Feed List
-                </RootLink>
-                <AddFeedLink className="text-button text-button-left" style={{margin: '0 4px 0 auto'}}>
-                    Add Feed
-                    <span className="button">
-                        <Add alt="" />
-                    </span>
-                </AddFeedLink>
-                <ViewControls layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
-            </div>
+        return <div className={"inventory-view layout-" + this.props.layout}>
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             <Header text="Manage Feeds" />
+            <div className="floater-wrap">
+                <div className="floater">
+                        <AddFeedLink>Add Feed</AddFeedLink>
+                </div>
+            </div>
             {this.renderFeeds(feedList, labelList)}
         </div>;
     }
@@ -260,15 +253,10 @@ export const ConnectedInventoryView = connect(state => state, {
 
 export class AddFeedView extends React.PureComponent {
     render() {
-        return <div className="add-feed-view">
-            <div className="global-tools">
-                <RootLink className="text-button">
-                    <span className="button"><Logo /></span>
-                    Return to Feed List
-                </RootLink>
-            </div>
-            <Header>Add Feed</Header>
+        return <div className={"add-feed-view layout-" + this.props.layout}>
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             <div className="form">
+                <h2>Add Feed</h2>
                 <p>Enter the URL of Atom or RSS feed:</p>
                 <UrlForm onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
                 {this.renderAdd()}
@@ -339,4 +327,5 @@ UrlForm.propTypes = {
 
 export const ConnectedAddFeedView = connect(state => state, {
     onSubmit: addFeed,
+    onSetLayout: setLayout,
 })(AddFeedView);

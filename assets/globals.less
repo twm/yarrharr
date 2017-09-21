@@ -96,34 +96,42 @@
     background: transparent;
 }
 
-/* A text-button contains a .button and some text to the right */
-.text-button {
-    display: flex;
-    flex-wrap: nowrap;
-    text-decoration: none !important; /* *sigh* */
-    line-height: 40px;
-
-    & > .button {
-        flex: none;
-        margin: 0 4px 0 0;
-    }
-}
-.text-button-left {
-    & > .button {
-        margin: 0 0 0 4px;
-    }
+.layout-narrow .bar {
+    max-width: @narrow_width;
+    margin: 0 auto;
 }
 
-.global-tools {
+.bar {
     display: flex;
-    padding: 4px;
     justify-content: space-between;
+    height: 44px;
+    contain: size layout style;
 
-    .view-button {
-        flex: none;
-        align-self: end;
+    & > * {
+        display: block;
+        border: 2px solid @background_color;
+        border-radius: 4px;
+        transition: border-color 0.1s, background 0.2s;
+        text-decoration: none;
+    }
+
+    & > a[href]:focus {
+        outline: none;
+        border-color: darken(@background_color, 10%);
+        background-color: darken(@background_color, 10%);
+    }
+
+    & > * > img {
+        display: block;
+    }
+
+    & > .expand {
+        flex: 1 1 0;
+        min-width: 0; /* allow shrinking below content size */
     }
 }
+
+
 
 footer {
     margin: 3em 0.25em;

@@ -5,6 +5,8 @@ import { Logo, Heart } from 'widgets/icons.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
+import { GlobalBar } from 'widgets/GlobalBar.js';
+import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { labelsByTitle, feedsByNewCount } from 'sorting.js';
 import './RootView.less';
@@ -14,7 +16,8 @@ class RootView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByNewCount(this.props);
-        return <div className="root-view">
+        return <div className={"root-view layout-" + this.props.layout}>
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             <Header icon={<Logo width="48" height="48" />} text="Yarrharr Feed Reader" />
             <div className="floater-wrap">
                 <div className="floater">
@@ -66,9 +69,12 @@ class RootView extends React.PureComponent {
 
 if (process.env.NODE_ENV !== 'production') {
     RootView.propTypes = {
+        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
     };
 }
 
-export default connect(state => state, null)(RootView);
+export default connect(state => state, {
+    onSetLayout: setLayout,
+})(RootView);
