@@ -4,7 +4,7 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 
 import { SET_PATH, matchPath } from './actions.js';
 
-const defaultRoute = {path: null, route: null, params: {}};
+const defaultRoute = {path: null, route: null, params: {}, scrollX: 0, scrollY: 0};
 function routeReducer(state = defaultRoute, action) {
     if (action.type === SET_PATH) {
         if (state.path === action.path) {
@@ -14,6 +14,8 @@ function routeReducer(state = defaultRoute, action) {
             path: action.path,
             route: action.route,
             params: action.params,
+            scrollX: action.scrollX,
+            scrollY: action.scrollY,
         };
     }
     return state;

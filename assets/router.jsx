@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { setPath, ROUTES } from './actions.js';
+import { setPath, ORIGIN_CLICK, ROUTES } from './actions.js';
 
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
@@ -39,15 +39,24 @@ if (__debug__) {
 /**
  * Component which selects its sub-component based on the URL path.
  */
-export function Router({ path, route, params }) {
-    if (route == null) {
-        return null;  // Can't render yet.
+export class Router extends React.Component {
+    render() {
+        const { path, route, params } = this.props;
+        if (route == null) {
+            return null;  // Can't render yet.
+        }
+        const Component = routeToView[route];
+        if (Component) {
+            return <Component params={params} />;
+        }
+        return <p>Client-side 404: The location {path} {route} did not match a route.</p>;
     }
-    const Component = routeToView[route];
-    if (Component) {
-        return <Component params={params} />;
+    componentDidUpdate(prevProps) {
+        if (this.props.path !== prevProps.path && this.props.scrollX !== null) {
+            // console.log(`scroll(${this.props.scrollX}, ${this.props.scrollY}) for new route ${this.props.path}`);
+            window.scrollTo(this.props.scrollX, this.props.scrollY);
+        }
     }
-    return <p>Client-side 404: The location {path} {route} did not match a route.</p>;
 }
 
 if (__debug__) {
@@ -55,6 +64,8 @@ if (__debug__) {
         path: PropTypes.string.isRequired,
         route: PropTypes.string.isRequired,
         params: PropTypes.object.isRequired,
+        scrollX: PropTypes.number,  // null to disable automatic scroll
+        scrollY: PropTypes.number,
     };
 }
 
