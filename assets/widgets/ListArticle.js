@@ -13,7 +13,6 @@ export default function ListArticle(props) {
         return PLACEHOLDER;
     }
     return <div className="list-article">
-        <ReadToggleLink articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
         {props.renderLink({
             articleId: props.id,
             className: "view-link",
@@ -23,6 +22,7 @@ export default function ListArticle(props) {
                 props.title || "Untitled",
             ],
         })}
+        <ReadToggleLink articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
         <a href={props.url} target="_blank" title="View on source site">
             {OUTBOUND_ICON}
         </a>
