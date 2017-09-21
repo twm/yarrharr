@@ -17,6 +17,10 @@ export function ArrowRight(props) {
     return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="32" height="32" style={{transform: 'rotate(180deg)'}} {...props} />;
 }
 
+export function Home(props) {
+    return <img src={window.__webpack_public_path__ + require('../art/home.inkscape.svg')} width="40" height="40" {...props} />;
+}
+
 export function Logo(props) {
     return <img src={window.__webpack_public_path__ + require('../art/icon.inkscape.svg')} width="32" height="32" {...props} />;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { Logo } from 'widgets/icons.js';
+import { Home } from 'widgets/icons.js';
 import { Narrow, Wide } from 'widgets/icons.js';
 import { RootLink } from 'widgets/links.js';
 
@@ -28,7 +28,7 @@ export class LayoutToggleLink extends React.PureComponent {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink><Logo width="40" height="40" alt="Home" /></RootLink>
+            <RootLink><Home alt="Home" /></RootLink>
             <LayoutToggleLink layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
         </div>;
     }
