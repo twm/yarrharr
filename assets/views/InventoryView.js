@@ -15,6 +15,10 @@ import './InventoryView.less';
 const __debug__ = process.env.NODE_ENV !== 'production';
 
 export class InventoryView extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleRemoveFeed = this.handleRemoveFeed.bind(this);
+    }
     render() {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
@@ -37,49 +41,70 @@ export class InventoryView extends React.PureComponent {
         }
 
         return <div>
-            {feedList.map(feed => <div key={feed.id} className={`feed-wrap ${this.props.layout}`}>
-                <div className="feed-info">
-                    <h2>{feed.text || feed.title} {feed.active ? null : <i>(inactive)</i>}</h2>
-                    <div><a href={feed.url}>{feed.url}</a></div>
-                    {feed.labels.length
-                        ? feed.labels.map(labelId => {
-                            const label = this.props.labelsById[labelId];
-                            return <Label
-                                key={labelId}
-                                label={label}
-                                onDetach={event => this.props.onDetachLabel(feed.id, labelId)}
-                            />;
-                        })
-                        : "No labels"}
-                        <AttachLabelButton
-                            feed={feed}
-                            labelList={labelList}
-                            onLabelAdd={this.props.onAddLabel}
-                            onLabelPick={(feed, label) => {
-                                this.props.onAttachLabel(feed.id, label.id);
-                            }}
-                        />
-                    <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
-                    <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.faveCount} marked favorite</FeedLink></div>
-                    <div>Last updated {feed.updated}</div>
-                    {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
-                </div>
-                <div className="tools">
-                    <div className="tools-inner">
-                        <button className="button" title="Remove feed" onClick={e => this.handleRemoveFeed(feed.id)}>
-                            <Remove width="40" height="40" alt="Remove feed" />
-                        </button>
-                    </div>
-                </div>
-            </div>)}
+            {feedList.map(feed => <FeedInfo
+                key={feed.id}
+                feed={feed}
+                labelList={labelList}
+                labelsById={this.props.labelsById}
+                onAddLabel={this.props.onAddLabel}
+                onAttachLabel={this.props.onAttachLabel}
+                onDetachLabel={this.props.onDetachLabel}
+                onRemoveFeed={this.handleRemoveFeed}
+            />)}
         </div>;
     }
     handleRemoveFeed(feedId) {
         const feed = this.props.feedsById[feedId];
         if (!feed) return;
-        if (confirm("Remove feed " + (feed.text || feed.title) + " and associated articles?")) {
+        if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
             this.props.onRemoveFeed(feedId);
         }
+    }
+}
+
+class FeedInfo extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClickRemoveFeed = e => props.onRemoveFeed(props.feed.id);
+    }
+    render() {
+        const feed = this.props.feed;
+        const labelList = this.props.labelList;
+        return <div className="feed-wrap">
+            <div className="feed-info">
+                <h2>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h2>
+                <div><a href={feed.url}>{feed.url}</a></div>
+                {feed.labels.length
+                    ? feed.labels.map(labelId => {
+                        const label = this.props.labelsById[labelId];
+                        return <Label
+                            key={labelId}
+                            label={label}
+                            onDetach={event => this.props.onDetachLabel(feed.id, labelId)}
+                        />;
+                    })
+                    : "No labels"}
+                    <AttachLabelButton
+                        feed={feed}
+                        labelList={labelList}
+                        onAddLabel={this.props.onAddLabel}
+                        onLabelPick={(feed, label) => {
+                            this.props.onAttachLabel(feed.id, label.id);
+                        }}
+                    />
+                <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
+                <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.faveCount} marked favorite</FeedLink></div>
+                <div>Last updated {feed.updated}</div>
+                {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
+            </div>
+            <div className="tools">
+                <div className="tools-inner">
+                    <button className="button" title="Remove feed" onClick={this.handleClickRemoveFeed}>
+                        <Remove width="40" height="40" alt="Remove feed" />
+                    </button>
+                </div>
+            </div>
+        </div>;
     }
 }
 
@@ -90,6 +115,16 @@ if (__debug__) {
         layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         onRemoveFeed: PropTypes.func.isRequired,
         onSetLayout: PropTypes.func.isRequired,
+        onAddLabel: PropTypes.func.isRequired,
+    };
+
+    FeedInfo.propTypes = {
+        feed: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+        }).isRequired,
+        onRemoveFeed: PropTypes.func.isRequired,
+        onAttachLabel: PropTypes.func.isRequired,
+        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
@@ -160,7 +195,7 @@ AttachLabelButton.propTypes = {
     labelList: PropTypes.array.isRequired,
     feed: PropTypes.object.isRequired,
     // Will be called with the text of the label to add.
-    onLabelAdd: PropTypes.func.isRequired,
+    onAddLabel: PropTypes.func.isRequired,
     // Will be called with the feed and label to associate it with.
     onLabelPick: PropTypes.func.isRequired,
 };
@@ -209,7 +244,7 @@ export class LabelPicker extends React.PureComponent {
     handleAdd(event) {
         var text = prompt("Label Name:", "");
         if (text) {
-            this.props.onLabelAdd(text);
+            this.props.onAddLabel(text);
         }
         event.stopPropagation();
     }
@@ -236,7 +271,7 @@ LabelPicker.propTypes = {
     // All available labels (only those not associated with the feed will be shown).
     labelList: PropTypes.arrayOf(PropTypes.object).isRequired,
     // Will be called with the text of the label to add.
-    onLabelAdd: PropTypes.func.isRequired,
+    onAddLabel: PropTypes.func.isRequired,
     // Will be called with the feed and label to associate it with.
     onLabelPick: PropTypes.func.isRequired,
     // Called with no arguments when the Cancel button is clicked.
