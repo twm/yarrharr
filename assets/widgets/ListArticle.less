@@ -1,14 +1,17 @@
 @import "../globals.less";
 
+@list_article_line_height: 1.25rem;
+
 .list-article {
     contain: strict;
 
-    height: calc(2 * 1.25rem + 2 * 0.25rem + 2 * 0.125rem);
+    height: calc(2 * @list_article_line_height + 2 * @text_padding + 2 * @button_border_width);
+
     /* The line height relates to the above height calculation, which allows
      * for two lines of text. We must make sure that the line-height is
      * a static value, not based on the x-height of the font, since we don't
      * specify the font. */
-    line-height: 1.25rem;
+    line-height: @list_article_line_height;
 
     margin: 0 0 1px 0;
 
