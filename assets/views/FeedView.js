@@ -44,9 +44,15 @@ function OrderDateButton(props) {
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
+    const feedCount = Object.keys(feedsById).length;
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Header text="All Feeds" />
+        <div className="list-header">
+            <div className="list-header-inner">
+                <h1>All Feeds</h1>
+                <p>{feedCount === 1 ? "1 feed" : feedCount + " feeds"}</p>
+            </div>
+        </div>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -137,7 +143,12 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Header text={label.text} />
+        <div className="list-header">
+            <div className="list-header-inner">
+                <h1>{label.text}</h1>
+                <p>Label with {label.feeds.length === 1 ? "1 feed" : label.feeds.length + " feeds"}</p>
+            </div>
+        </div>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
