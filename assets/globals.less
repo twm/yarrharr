@@ -48,11 +48,12 @@
 
 .flat-button() {
     display: block;
-    border: 2px solid @background_color;
+    box-sizing: border-box;
+
+    border: 0.125rem solid transparent;
     background: transparent;
-    border-radius: 4px;
-    transition: border-color 0.1s, background 0.2s;
-    text-decoration: none;
+    border-radius: 0.25rem;
+    transition: border-color 0.05s, background 0.1s;
 }
 
 .flat-button-focus() {
