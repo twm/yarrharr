@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2014, 2015, 2016 Tom Most <twm@freecog.net>
+# Copyright © 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -117,7 +117,12 @@ class ConfTests(unittest.TestCase):
                 'APP_DIRS': True,
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': [],
-                'OPTIONS': {'debug': False},
+                'OPTIONS': {
+                    'context_processors': [
+                        'django.contrib.auth.context_processors.auth',
+                        'django.contrib.messages.context_processors.messages',
+                    ],
+                },
             }],
             'SECRET_KEY': 'sarlona',
             'X_FRAME_OPTIONS': 'DENY',
@@ -184,7 +189,12 @@ class ConfTests(unittest.TestCase):
                 'APP_DIRS': True,
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': [],
-                'OPTIONS': {'debug': True},
+                'OPTIONS': {
+                    'context_processors': [
+                        'django.contrib.auth.context_processors.auth',
+                        'django.contrib.messages.context_processors.messages',
+                    ],
+                },
             }],
             'SECRET_KEY': 'supersekrit',
             'X_FRAME_OPTIONS': 'DENY',
