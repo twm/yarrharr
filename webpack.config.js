@@ -64,7 +64,12 @@ module.exports = {
             exclude: /node_modules/,
         }, {
             test: /\.svg$/,
-            loaders: ['file-loader'],
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[hash].[ext]',
+                },
+            }],
         }],
     },
     output: {

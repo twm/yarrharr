@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
+{% load static %}
+{% load static_glob %}
+
 {% block title %}Login{% endblock %}
 
 {% block content %}
-    <form method=post action="{% url 'login' %}" class="yarrharr_login small_form">
-        <h1>Login</h1>
+<div class="login-page">
+    <h1><img width="64" height="64" src="{% static 'icon.*.svg'|newest_static %}" alt="">Yarrharr</h1>
 
+    <form method=post action="{% url 'login' %}" class="small-form">
         {{ form.as_p }}
 
         <p class=actions>
@@ -13,4 +17,5 @@
             <input type=hidden value="{{ next }}">
             {% csrf_token %}
     </form>
+</div>
 {% endblock %}
