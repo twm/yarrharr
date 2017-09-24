@@ -3,12 +3,14 @@
 .list-article {
     height: 48px;
     display: flex;
+    contain: strict;
     flex-flow: row nowrap;
     margin: 4px 0;
     align-items: center;
 
-    & > .button {
-        margin: 0 4px;
+    a[role=button], .outbound {
+        .flat-button;
+        &:focus { .flat-button-focus; }
     }
 
     a {
@@ -32,6 +34,18 @@
 
         .meta {
             color: @quiet_text_color;
+        }
+    }
+
+    &.loading {
+        /* This span occupies the same space as the view-link would once
+         * loaded. Its background color serves as a loading indicator. */
+        span {
+            display: block;
+            height: 100%;
+            width: calc(100% - 52px - 52px);
+            box-sizing: border-box;
+            background: @content_background_color;
         }
     }
 }
