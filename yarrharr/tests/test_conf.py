@@ -171,6 +171,7 @@ class ConfTests(unittest.TestCase):
                 },
             },
             'ALLOWED_HOSTS': ['127.0.0.1'],
+            'INTERNAL_IPS': ['127.0.0.1'],
             'SERVER_ENDPOINT': 'tcp:8888:interface=127.0.0.1',
             'ROOT_URLCONF': 'yarrharr.urls',
             'LOGIN_URL': 'login',
@@ -192,6 +193,7 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
+                        'django.template.context_processors.debug',
                         'django.contrib.messages.context_processors.messages',
                     ],
                 },

@@ -35,5 +35,14 @@
             {% endif %}
             <p>Yarrharr Feed Reader ∙ © 2013–2017 Tom Most ∙ GPLv3+ ∙ <a href="{% url 'about' %}">About</a>
         </footer>
+
+        {% if debug %}
+            <h1>{{ sql_queries|length }} SQL Queries</h1>
+            <ol>
+                {% for query in sql_queries %}
+                    <li><p>{{ query.time }}</p><pre style="white-space: pre-wrap">{{ query.sql }}</pre>
+                {% endfor %}
+            </ol>
+        {% endif %}
     </body>
 </html>
