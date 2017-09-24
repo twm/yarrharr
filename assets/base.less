@@ -15,6 +15,10 @@ html {
     overflow-y: scroll;
 }
 
+:focus {
+    outline: 1px dotted;
+}
+
 a[href] {
     color: @text_color;
     text-decoration: underline;
@@ -24,4 +28,179 @@ a[href]:visited {
 }
 a[aria-disabled=true] {
     text-decoration: none;
+}
+
+/* A "floater" is centered and is horizontally centered.  Mainly used for
+ * mastheads and error messages. */
+.floater-wrap {
+    display: flex;
+    margin: 16px 4px;
+}
+.floater {
+    text-align: center;
+    margin: 0 auto;
+    padding: 8px 16px;
+    color: @content_text_color;
+    background: @content_background_color;
+    max-width: @narrow_width;
+}
+
+/* A button is round, subtly 3D, and features a centered icon. */
+.button {
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 0 0 4px 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, @background_color, darken(@background_color, 10%));
+    box-shadow: inset  1px  1.0px 3.5px lighten(@background_color, 10%),
+                inset -1px -1.0px 3.5px darken(@background_color, 20%);
+
+    img {
+        display: block;
+        width: 24px;
+        height: 24px;
+        padding: 8px;
+    }
+}
+
+.button:active, .button-active {
+    background: linear-gradient(to top, @background_color, darken(@background_color, 10%));
+    box-shadow: inset  1px  1.0px 3.5px darken(@background_color, 20%),
+    inset -1px -1.0px 3.5px lighten(@background_color, 10%);
+    & > * {
+        transform: translate(1px, 1px);
+    }
+}
+
+/* Due to limitations of <button> it can't be made display: flex.  The
+ * workaround is to stick a <div> inside it.  This just zeros out the button
+ * styles.  See <https://bugzilla.mozilla.org/show_bug.cgi?id=984869#c2>. */
+.invisible-button {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+.layout-narrow .bar {
+    max-width: @narrow_width;
+    margin: 0 auto;
+}
+
+.bar {
+    display: flex;
+    justify-content: space-between;
+    height: 44px;
+    contain: size layout style;
+
+    & > * {
+        .flat-button;
+    }
+
+    & > a[href]:focus {
+        .flat-button-focus;
+    }
+
+    & > * > img {
+        display: block;
+    }
+
+    & > .expand {
+        flex: 1 1 0;
+        min-width: 0; /* allow shrinking below content size */
+    }
+}
+
+/* Mostly used for the login page. */
+form.small-form {
+    display: block;
+    margin: 0 auto;
+    padding: 0.5rem 1rem;
+    .content-colors;
+
+    label {
+        display: block;
+        color: @quiet_text_color;
+    }
+    input {
+        width: 100%;
+        height: 2.5rem;
+        font: inherit;
+        box-sizing: border-box;
+    }
+    input[type=text], input[type=password] {
+        color: @content_text_color;
+        background: @content_background_color;
+        border-color: @quiet_text_color;
+        border-width: 0 0 2px 0;
+
+        &:focus {
+            border-color: @logo_orange;
+        }
+    }
+    input[type=submit] {
+        .flat-button;
+        color: white;
+        text-shadow: rgba(0, 0, 0, .5) 0 0 .025rem; /* bump contrast */
+        background-color: @logo_orange;
+        border-color: @logo_orange_dark;
+
+        &:focus {
+            color: white;
+            background-color: @logo_orange_dark;
+            border-color: @logo_orange_dark;
+        }
+
+        &:active {
+            color: white;
+            background-color: @logo_orange_dark;
+            border-color: @logo_orange_dark;
+        }
+    }
+}
+
+.login-page {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+
+    margin: 0 auto;
+    max-width: 35rem;
+
+    @media screen and (orientation: landscape) {
+        /* 8rem = approx. height of <footer> */
+        min-height: calc(100vh - 8rem);
+    }
+
+    h1 {
+        margin: 0;
+        padding: 1rem 1rem;
+        flex: 100 1 auto;
+
+        text-align: center;
+        font-weight: normal;
+
+        img {
+            display: block;
+            margin: 0 auto;
+        }
+    }
+
+    form {
+        flex: 1 1 15rem;
+        min-width: 0;
+        margin: 1rem 0 0 0;
+
+        @media screen and (orientation: portrait) {
+            flex-basis: 100%;
+        }
+    }
+}
+
+footer {
+    margin: 3em 0.25em;
+    text-align: center;
+    color: lighten(@text_color, 40%);
 }

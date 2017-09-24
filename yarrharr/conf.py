@@ -160,7 +160,17 @@ def read_yarrharr_conf(files, namespace):
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
-            'debug': namespace['DEBUG'],
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                # 'django.template.context_processors.debug',
+                # These are in the default set, but Yarrharr's templates don't
+                # use the variables they set:
+                # 'django.template.context_processors.i18n',
+                # 'django.template.context_processors.media',
+                # 'django.template.context_processors.static',
+                # 'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
         },
     }]
 
