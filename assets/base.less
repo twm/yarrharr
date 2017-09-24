@@ -33,13 +33,14 @@ a[aria-disabled=true] {
 /* A "floater" is centered and is horizontally centered.  Mainly used for
  * mastheads and error messages. */
 .floater-wrap {
-    display: flex;
-    margin: 16px 4px;
+    display: flex; /* XXX Why is this display: flex? */
+    margin: 1rem .25rem;
 }
 .floater {
     text-align: center;
     margin: 0 auto;
-    padding: 8px 16px;
+    box-sizing: border-box; /* Fix #94 */
+    padding: .5rem 1rem;
     color: @content_text_color;
     background: @content_background_color;
     max-width: @narrow_width;
