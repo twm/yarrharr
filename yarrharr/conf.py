@@ -155,23 +155,21 @@ def read_yarrharr_conf(files, namespace):
     namespace['STATICFILES_FINDERS'] = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',)
 
+    # Template context processors. This list is missing most of the processors
+    # in the default list as Yarrharr's templates don't use them.
+    context_processors = ['django.contrib.auth.context_processors.auth']
+    if namespace['DEBUG']:
+        # When in debug mode, display SQL queries for requests coming from the
+        # loopback interface.
+        context_processors.append('django.template.context_processors.debug')
+        namespace['INTERNAL_IPS'] = ['127.0.0.1']
+    context_processors.append('django.contrib.messages.context_processors.messages')
+
     namespace['TEMPLATES'] = [{
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                # 'django.template.context_processors.debug',
-                # These are in the default set, but Yarrharr's templates don't
-                # use the variables they set:
-                # 'django.template.context_processors.i18n',
-                # 'django.template.context_processors.media',
-                # 'django.template.context_processors.static',
-                # 'django.template.context_processors.tz',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
+        'OPTIONS': {'context_processors': context_processors},
     }]
 
     namespace['SECRET_KEY'] = conf.get('secrets', 'secret_key')
