@@ -36,6 +36,18 @@
             color: @quiet_text_color;
         }
     }
+
+    &.loading {
+        /* This span occupies the same space as the view-link would once
+         * loaded. Its background color serves as a loading indicator. */
+        span {
+            display: block;
+            height: 100%;
+            width: calc(100% - 52px - 52px);
+            box-sizing: border-box;
+            background: @content_background_color;
+        }
+    }
 }
 
 .layout-narrow .list-article {
