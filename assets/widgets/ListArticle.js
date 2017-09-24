@@ -23,7 +23,7 @@ export default function ListArticle(props) {
             ],
         })}
         <ReadToggleLink articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
-        <a href={props.url} target="_blank" title="View on source site">
+        <a className="outbound" href={props.url} target="_blank" title="View on source site">
             {OUTBOUND_ICON}
         </a>
     </div>;
