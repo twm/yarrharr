@@ -19,15 +19,19 @@ html {
     outline: 1px dotted;
 }
 
-a[href] {
+a {
     color: @text_color;
-    text-decoration: underline;
+    text-decoration-line: underline;
 }
-a[href]:visited {
+a[role=button] {
+    text-decoration-line: none;
+}
+a:visited:not([role=button]) {
     color: darken(@text_color, 20%);
 }
-a[aria-disabled=true] {
-    text-decoration: none;
+a:link[aria-disabled=true],
+a:visited[aria-disabled=true] {
+    text-decoration-line: none;
 }
 
 /* A "floater" is centered and is horizontally centered.  Mainly used for
@@ -41,9 +45,8 @@ a[aria-disabled=true] {
     margin: 0 auto;
     box-sizing: border-box; /* Fix #94 */
     padding: .5rem 1rem;
-    color: @content_text_color;
-    background: @content_background_color;
     max-width: @narrow_width;
+    .content-colors;
 }
 
 /* A button is round, subtly 3D, and features a centered icon. */

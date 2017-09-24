@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
+import { Label } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
@@ -121,47 +122,11 @@ if (__debug__) {
     FeedInfo.propTypes = {
         feed: PropTypes.shape({
             id: PropTypes.number.isRequired,
+            error: PropTypes.string,
         }).isRequired,
         onRemoveFeed: PropTypes.func.isRequired,
         onAttachLabel: PropTypes.func.isRequired,
         onAddLabel: PropTypes.func.isRequired,
-    };
-}
-
-class Label extends React.PureComponent {
-    render() {
-        return <span style={{
-            'whiteSpace': 'nowrap',
-            'padding': '0 0.25em 0 0',
-        }}>
-            <span style={{
-                'padding': '0 0.25em 0 0.5em',
-                'background': 'no-repeat -0.25em 50% url(' + window.__webpack_public_path__ + require('../art/label.inkscape.svg') + ')',
-            }}>
-                {this.props.label.text}
-            </span>
-            <button
-                className="invisible-button"
-                onClick={this.props.onDetach}>
-                <span
-                    style={{
-                        'borderLeft': '1px solid #f0f0f0',
-                        'background': '#dbdbdb',
-                        'font': 'inherit',
-                        'padding': '0 0.25em',
-                        'display': 'inline',
-                    }}>
-                    ×
-                </span>
-            </button>
-        </span>;
-    }
-}
-
-if (__debug__) {
-    Label.propTypes = {
-        label: PropTypes.object.isRequired,
-        onDetach: PropTypes.func.isRequired,
     };
 }
 

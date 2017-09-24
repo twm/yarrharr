@@ -23,19 +23,26 @@
 .content-colors() {
     color: @content_text_color;
     background: @content_background_color;
-    a[href] {
+    a {
         color: @content_text_color;
-        text-decoration: underline;
+        text-decoration-line: underline;
         text-decoration-color: rgb(28, 140, 199);
     }
-    a[href]:visited {
+    a[role=button] {
+        text-decoration-line: none;
+    }
+    a:visited {
         text-decoration-color: rgb(199, 68, 28);
     }
-    a[href]:active {
+    a:visited:not([role=button]) {
+        color: @content_text_color;
+    }
+    a:active {
         text-decoration-color: rgb(185, 28, 199);
     }
-    a[href]:focus {
-        outline: 1px dotted;
+    a:link[aria-disabled=true],
+    a:visited[aria-disabled=true] {
+        text-decoration-line: none;
     }
 }
 

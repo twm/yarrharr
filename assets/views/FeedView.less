@@ -1,9 +1,17 @@
 @import "../globals.less";
 
-.feed-view {
-    padding: 0;
+.list-header {
+    .content-colors;
+}
+.list-header-inner {
+    padding: 0.25rem;
+    box-sizing: border-box;
+}
+.list-header h1 {
+    font-weight: normal;
 }
 
+.layout-narrow .list-header-inner,
 .layout-narrow .top-bar,
 .layout-narrow .bottom-bar {
     max-width: @narrow_width;
