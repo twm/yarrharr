@@ -1,13 +1,18 @@
 @import "../globals.less";
 
-.feed-view {
-    padding: 0;
+.list-header {
+    .content-colors;
+}
+.list-header-inner {
+    margin: 0 auto;
+    padding: @text_padding;
+    box-sizing: border-box;
 }
 
+.layout-narrow .list-header-inner,
 .layout-narrow .top-bar,
 .layout-narrow .bottom-bar {
     max-width: @narrow_width;
-    margin: 0 auto;
 }
 
 .next-link,

@@ -9,6 +9,7 @@ import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.j
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
+import { Label } from 'widgets/Label.js';
 import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -43,9 +44,15 @@ function OrderDateButton(props) {
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
+    const feedCount = Object.keys(feedsById).length;
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Header text="All Feeds" />
+        <div className="list-header">
+            <div className="list-header-inner">
+                <h1>All Feeds</h1>
+                <p>{feedCount === 1 ? "1 feed" : feedCount + " feeds"}</p>
+            </div>
+        </div>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -70,13 +77,42 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     </div>;
 }
 
-export function FeedView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
+export class FeedHeader extends React.PureComponent {
+    render() {
+        const feed = this.props.feed;
+        return <div className="list-header">
+            <div className="list-header-inner">
+                <h1>{feed.text || feed.title || feed.url}</h1>
+                {feed.labels.length > 0 ? <p>{feed.labels.map(labelId => {
+                    const label = this.props.labelsById[labelId];
+                    return <Label key={labelId} label={label} />;
+                })}</p> : null}
+                {feed.error ? <p><b>Error: </b>{feed.error}</p> : null}
+            </div>
+        </div>;
+    }
+}
+
+if (__debug__) {
+    FeedHeader.propTypes = {
+        labelsById: PropTypes.object.isRequired,
+        feed: PropTypes.shape({
+            text: PropTypes.string,
+            title: PropTypes.string,
+            url: PropTypes.string.isRequired,
+            labels: PropTypes.array.isRequired,
+            error: PropTypes.string,
+        }).isRequired,
+    };
+}
+
+export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Header text={feed.text || feed.title} />
+        <FeedHeader feed={feed} labelsById={labelsById} />
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -107,7 +143,12 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Header text={label.text} />
+        <div className="list-header">
+            <div className="list-header-inner">
+                <h1>{label.text}</h1>
+                <p>Label with {label.feeds.length === 1 ? "1 feed" : label.feeds.length + " feeds"}</p>
+            </div>
+        </div>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([

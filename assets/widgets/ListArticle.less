@@ -1,12 +1,28 @@
 @import "../globals.less";
 
+@list_article_line_height: 1.25rem;
+
 .list-article {
-    height: 48px;
-    display: flex;
     contain: strict;
+
+    height: calc(2 * @list_article_line_height + 2 * @text_padding + 2 * @button_border_width);
+
+    /* The line height relates to the above height calculation, which allows
+     * for two lines of text. We must make sure that the line-height is
+     * a static value, not based on the x-height of the font, since we don't
+     * specify the font. */
+    line-height: @list_article_line_height;
+
+    margin: 0 0 1px 0;
+
+    .content-colors;
+}
+
+.list-article-inner {
+    display: flex;
+    height: 100%;
     flex-flow: row nowrap;
-    margin: 4px 0;
-    align-items: center;
+    align-items: stretch;
 
     a[role=button], .outbound {
         .flat-button;
@@ -14,43 +30,34 @@
     }
 
     a {
-        padding: 4px;
+        padding: 0.25rem;
     }
     a > img {
         display: block;
+        width: 2.5rem;
+        height: 2.5rem;
     }
 
     a.view-link {
         flex: 1 1 100%;
         min-width: 0;
         display: block;
-        .content-colors;
 
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
 
         text-decoration: none;
+        .flat-button;
+        &:focus { .flat-button-focus; }
 
         .meta {
             color: @quiet_text_color;
         }
     }
-
-    &.loading {
-        /* This span occupies the same space as the view-link would once
-         * loaded. Its background color serves as a loading indicator. */
-        span {
-            display: block;
-            height: 100%;
-            width: calc(100% - 52px - 52px);
-            box-sizing: border-box;
-            background: @content_background_color;
-        }
-    }
 }
 
-.layout-narrow .list-article {
+.layout-narrow .list-article-inner {
     max-width: @narrow_width;
-    margin: 4px auto;
+    margin: 0 auto;
 }

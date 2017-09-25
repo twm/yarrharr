@@ -70,9 +70,25 @@ function articleReducer(state = window.props.articlesById, action) {
 }
 
 import { RECEIVE_FEEDS, REQUEST_REMOVE_FEED, FAIL_REMOVE_FEED } from './actions.js';
+import { REQUEST_MARK_FEED_ACTIVE, FAIL_MARK_FEED_ACTIVE } from './actions.js';
 function feedReducer(state = window.props.feedsById, action) {
     if (action.type === RECEIVE_FEEDS) {
         return action.feedsById;
+    } else if (action.type === REQUEST_MARK_FEED_ACTIVE) {
+        const feed = state[action.feedId];
+        return Object.assign({}, state, {
+            [action.feedId]: Object.assign({}, feed, {
+                active: action.active,
+                oldActive: feed.active,
+            }),
+        });
+    } else if (action.type === FAIL_MARK_FEED_ACTIVE) {
+        const feed = state[action.feedId];
+        return Object.assign({}, state, {
+            [action.feedId]: Object.assign({}, feed, {
+                active: feed.oldActive,
+            }),
+        });
     } else if (action.type === REQUEST_REMOVE_FEED) {
         const feed = state[action.feedId];
         return Object.assign({}, state, {
