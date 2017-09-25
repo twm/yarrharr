@@ -512,6 +512,43 @@ export function failAddFeed(url, error) {
     };
 }
 
+export const REQUEST_MARK_FEED_ACTIVE = 'REQUEST_MARK_FEED_ACTIVE';
+/**
+ * Enable or disable checking a feed.
+ *
+ * @param {number} feedId
+ * @param {boolean} active
+ */
+export function markFeedActive(feedId, active) {
+    return (dispatch) => {
+        dispatch({
+            type: REQUEST_MARK_FEED_ACTIVE,
+            feedId,
+            active,
+        });
+        const body = new FormData();
+        body.append('action', active ? 'activate' : 'deactivate');
+        body.append('feed', feedId);
+        return post('/api/inventory/', body).then(json => {
+            const { feedsById, labelsById } = json;
+            dispatch(receiveLabels(labelsById));
+            dispatch(receiveFeeds(feedsById));
+        }).catch(e => {
+            console.error(`Error marking feed ${feedId} active=${active}`, e);
+            dispatch(failMarkFeedActive(feedId, active));
+        });
+    };
+}
+
+export const FAIL_MARK_FEED_ACTIVE = 'FAIL_MARK_FEED_ACTIVE';
+export function failMarkFeedActive(feedId, active) {
+    return {
+        type: FAIL_MARK_FEED_ACTIVE,
+        feedId,
+        active,
+    };
+}
+
 export const REQUEST_REMOVE_FEED = 'REQUEST_REMOVE_FEED';
 export function removeFeed(feedId) {
     return (dispatch) => {

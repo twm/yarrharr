@@ -1,18 +1,109 @@
+@import "../globals.less";
+
 .label {
     white-space: nowrap;
+    display: inline-block;
     padding: 0 0.25em 0 0;
 }
 
 .label-text {
-    padding: 0 0.25em 0 0.5em;
-    background: no-repeat -0.25em 50% url('../art/label.inkscape.svg');
+    display: inline-block;
+    padding: 0.5em 0.75em 0.5em 1em;
+    background: no-repeat -0.5em 50% url('../art/label.inkscape.svg');
 }
 
-a.label-x,
+a.label-x:link,
 a.label-x:visited {
+    display: inline-block;
+    padding: 0.5em 0.75em;
     border-left: 1px solid #f0f0f0;
     background: #dbdbdb;
     font: inherit;
-    padding: 0 0.25em;
-    display: inline;
+}
+
+.label-attach {
+    .flat-button;
+    &:focus { .flat-button-focus; }
+
+    display: inline-block;
+    padding: 0.5em 0.75em;
+}
+
+.label-picker-backdrop {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0px;
+    left: 0px;
+    background: rgba(0, 0, 0, 0.5);
+}
+.label-picker {
+    margin: 2.5rem auto;
+    max-width: (@narrow_width / 2);
+    box-shadow: rgba(0, 0, 0, 0.5) 0.25rem 0.25rem 1rem;
+
+    .content-colors;
+
+    flex-flow: column nowrap;
+
+    header {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+
+        h1 {
+            flex: 1 1 100%;
+            font: inherit;
+            font-weight: bold;
+            margin: 0;
+            padding: 0 0.5rem;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cancel {
+            flex: 0 0 auto;
+            width: 3.5rem;
+            height: 3.5rem;
+            .flat-button;
+            &:focus { .flat-button-focus; }
+
+            /* TODO Should use this on all icon buttons, rather than manually specifying padding to approximate it. */
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+
+            img {
+                display: block;
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
+    }
+
+    .center {
+        flex: 1 1 100%;
+        min-height: 0;
+        overflow: hidden;
+        overflow-y: auto;
+        max-height: calc(100vh - 80px - 80px);
+
+        [role=button] {
+            display: block;
+            min-width: 0;
+            padding: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            .flat-button;
+            &:focus { .flat-button-focus; }
+        }
+    }
+
+    footer {
+        margin: 0;
+    }
 }

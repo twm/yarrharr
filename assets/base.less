@@ -15,6 +15,10 @@ html {
     overflow-y: scroll;
 }
 
+h1 {
+    font-weight: normal;
+}
+
 :focus {
     outline: 1px dotted;
 }
@@ -34,6 +38,74 @@ a:visited[aria-disabled=true] {
     text-decoration-line: none;
 }
 
+/**
+ * Base form styles
+ *
+ * .text-button and .text-button-primary can be used to style links to look
+ * like buttons. The element needs to be focusable.
+ *
+ * .text-button is pretty muted. .text-button-primary is bright and bold.
+ *
+ * <input type=submit> receives the styling of .text-button-primary.
+ *
+ * All of these styles cause the element to be display: block. Layout is to be
+ * defined at the point of use.
+ */
+input,
+.text-button,
+.text-button-primary {
+    width: 100%;
+    height: 2.5rem;
+    font: inherit;
+    display: block;
+    box-sizing: border-box;
+}
+input[type=checkbox],
+input[type=radio] {
+    width: 2.5rem;
+}
+input[type=text],
+input[type=password],
+input[type=url] {
+    color: @content_text_color;
+    background: @content_background_color;
+    border-color: @quiet_text_color;
+    border-width: 0 0 2px 0;
+
+    &:focus {
+        border-color: @logo_orange;
+    }
+}
+.text-button,
+.text-button-primary,
+input[type=submit] {
+    .flat-button;
+    border-color: @background_color;
+    line-height: 2.5rem;
+    padding: 0 0.75rem;
+
+    &:focus { .flat-button-focus; }
+}
+input[type=submit],
+.text-button-primary {
+    color: white;
+    text-shadow: rgba(0, 0, 0, .5) 0 0 .025rem; /* bump contrast */
+    background-color: @logo_orange;
+    border-color: @logo_orange_dark;
+
+    &:focus {
+        color: white;
+        background-color: @logo_orange_dark;
+        border-color: @logo_orange_dark;
+    }
+
+    &:active {
+        color: white;
+        background-color: @logo_orange_dark;
+        border-color: @logo_orange_dark;
+    }
+}
+
 /* A "floater" is centered and is horizontally centered.  Mainly used for
  * mastheads and error messages. */
 .floater-wrap {
@@ -49,45 +121,6 @@ a:visited[aria-disabled=true] {
     .content-colors;
 }
 
-/* A button is round, subtly 3D, and features a centered icon. */
-.button {
-    display: block;
-    width: 40px;
-    height: 40px;
-    margin: 0 0 4px 0;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: linear-gradient(to bottom, @background_color, darken(@background_color, 10%));
-    box-shadow: inset  1px  1.0px 3.5px lighten(@background_color, 10%),
-                inset -1px -1.0px 3.5px darken(@background_color, 20%);
-
-    img {
-        display: block;
-        width: 24px;
-        height: 24px;
-        padding: 8px;
-    }
-}
-
-.button:active, .button-active {
-    background: linear-gradient(to top, @background_color, darken(@background_color, 10%));
-    box-shadow: inset  1px  1.0px 3.5px darken(@background_color, 20%),
-    inset -1px -1.0px 3.5px lighten(@background_color, 10%);
-    & > * {
-        transform: translate(1px, 1px);
-    }
-}
-
-/* Due to limitations of <button> it can't be made display: flex.  The
- * workaround is to stick a <div> inside it.  This just zeros out the button
- * styles.  See <https://bugzilla.mozilla.org/show_bug.cgi?id=984869#c2>. */
-.invisible-button {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-}
 .layout-narrow .bar {
     max-width: @narrow_width;
     margin: 0 auto;
@@ -128,41 +161,6 @@ form.small-form {
         display: block;
         color: @quiet_text_color;
     }
-    input {
-        width: 100%;
-        height: 2.5rem;
-        font: inherit;
-        box-sizing: border-box;
-    }
-    input[type=text], input[type=password] {
-        color: @content_text_color;
-        background: @content_background_color;
-        border-color: @quiet_text_color;
-        border-width: 0 0 2px 0;
-
-        &:focus {
-            border-color: @logo_orange;
-        }
-    }
-    input[type=submit] {
-        .flat-button;
-        color: white;
-        text-shadow: rgba(0, 0, 0, .5) 0 0 .025rem; /* bump contrast */
-        background-color: @logo_orange;
-        border-color: @logo_orange_dark;
-
-        &:focus {
-            color: white;
-            background-color: @logo_orange_dark;
-            border-color: @logo_orange_dark;
-        }
-
-        &:active {
-            color: white;
-            background-color: @logo_orange_dark;
-            border-color: @logo_orange_dark;
-        }
-    }
 }
 
 .login-page {
@@ -184,7 +182,6 @@ form.small-form {
         flex: 100 1 auto;
 
         text-align: center;
-        font-weight: normal;
 
         img {
             display: block;
