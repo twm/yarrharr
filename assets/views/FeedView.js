@@ -86,6 +86,7 @@ export class FeedHeader extends React.PureComponent {
         return <div className="list-header">
             <div className="list-header-inner">
                 <h1>{feed.text || feed.title || feed.url}</h1>
+                {feed.text ? <p>feed.title</p> : null}
                 <div>{feed.labels.length > 0 ? feed.labels.map(labelId => {
                     const label = this.props.labelsById[labelId];
                     return <Label key={labelId} feedId={feed.id} label={label}
@@ -98,7 +99,15 @@ export class FeedHeader extends React.PureComponent {
                         onAttachLabel={this.props.onAttachLabel}
                     />
                 </div>
-                {feed.error ? <p><b>Error: </b>{feed.error}</p> : null}
+                <details>
+                    <summary>{feed.active
+                        ? ("Last checked " + (feed.checked || "never") + (feed.error ? ": Error!" : ""))
+                        : "Inactive"}</summary>
+                    {feed.active ? null : <p>This feed is not being checked for updates.</p>}
+                    {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
+                    <p>Feed URL: <a href={feed.url} target="_blank">{feed.url}</a></p>
+                    <p>Site URL: {feed.siteUrl ? <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a> : "None"}</p>
+                </details>
             </div>
         </div>;
     }
@@ -115,6 +124,7 @@ if (__debug__) {
             text: PropTypes.string,
             title: PropTypes.string,
             url: PropTypes.string.isRequired,
+            siteUrl: PropTypes.string.isRequired,
             labels: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
             error: PropTypes.string,
         }).isRequired,
