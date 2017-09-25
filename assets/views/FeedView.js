@@ -4,12 +4,13 @@ import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setLayout, setOrder } from 'actions.js';
 import { markArticlesRead, markArticlesFave } from 'actions.js';
+import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { STATE_ARCHIVED } from 'actions.js';
 import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Label } from 'widgets/Label.js';
+import { Label, AttachLabelButton } from 'widgets/Label.js';
 import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -19,6 +20,7 @@ import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
 import Header from 'widgets/Header.js';
+import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
@@ -80,14 +82,32 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
 export class FeedHeader extends React.PureComponent {
     render() {
         const feed = this.props.feed;
+        const labelList = labelsByTitle(this.props);
         return <div className="list-header">
             <div className="list-header-inner">
                 <h1>{feed.text || feed.title || feed.url}</h1>
-                {feed.labels.length > 0 ? <p>{feed.labels.map(labelId => {
+                {feed.text ? <p>feed.title</p> : null}
+                <div>{feed.labels.length > 0 ? feed.labels.map(labelId => {
                     const label = this.props.labelsById[labelId];
-                    return <Label key={labelId} label={label} />;
-                })}</p> : null}
-                {feed.error ? <p><b>Error: </b>{feed.error}</p> : null}
+                    return <Label key={labelId} feedId={feed.id} label={label}
+                        onDetachLabel={this.props.onDetachLabel} />;
+                }) : "No labels"}
+                    <AttachLabelButton
+                        feed={feed}
+                        labelList={labelList}
+                        onAddLabel={this.props.onAddLabel}
+                        onAttachLabel={this.props.onAttachLabel}
+                    />
+                </div>
+                <details>
+                    <summary>{feed.active
+                        ? ("Last checked " + (feed.checked || "never") + (feed.error ? ": Error!" : ""))
+                        : "Inactive"}</summary>
+                    {feed.active ? null : <p>This feed is not being checked for updates.</p>}
+                    {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
+                    <p>Feed URL: <a href={feed.url} target="_blank">{feed.url}</a></p>
+                    <p>Site URL: {feed.siteUrl ? <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a> : "None"}</p>
+                </details>
             </div>
         </div>;
     }
@@ -95,24 +115,35 @@ export class FeedHeader extends React.PureComponent {
 
 if (__debug__) {
     FeedHeader.propTypes = {
-        labelsById: PropTypes.object.isRequired,
+        labelsById: PropTypes.objectOf(PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            text: PropTypes.string.isRequired,
+        })).isRequired,
         feed: PropTypes.shape({
+            id: PropTypes.number.isRequired,
             text: PropTypes.string,
             title: PropTypes.string,
             url: PropTypes.string.isRequired,
-            labels: PropTypes.array.isRequired,
+            siteUrl: PropTypes.string.isRequired,
+            labels: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
             error: PropTypes.string,
         }).isRequired,
+        onAddLabel: PropTypes.func.isRequired,
+        onAttachLabel: PropTypes.func.isRequired,
+        onDetachLabel: PropTypes.func.isRequired,
     };
 }
 
-export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
+export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore, onAddLabel, onAttachLabel, onDetachLabel}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <FeedHeader feed={feed} labelsById={labelsById} />
+        <FeedHeader feed={feed} labelsById={labelsById}
+            onAddLabel={onAddLabel}
+            onAttachLabel={onAttachLabel}
+            onDetachLabel={onDetachLabel} />
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -179,6 +210,9 @@ const mapDispatchToProps = {
     onMarkArticlesRead: markArticlesRead,
     onMarkArticlesFave: markArticlesFave,
     onLoadMore: loadMore,
+    onAddLabel: addLabel,
+    onAttachLabel: attachLabel,
+    onDetachLabel: detachLabel,
 };
 export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);

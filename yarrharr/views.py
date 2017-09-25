@@ -77,9 +77,10 @@ def json_for_feed(feed):
         'totalCount': feed.articles.all().count(),
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
+        'siteUrl': feed.site_url,
         'added': str(feed.added),
         'updated': str(feed.last_updated or ''),
-        # 'checked': str(feed.last_checked or ''),
+        'checked': str(feed.last_checked or ''),
         # 'nextCheck': str(feed.next_check or ''),
         'error': feed.error,
     }
