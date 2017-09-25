@@ -6,24 +6,34 @@ import "./Label.less";
 const __debug__ = process.env.NODE_ENV !== 'production';
 
 /**
- * <Label> displays the name of a label. If the optional onDetach prop is
- * provided, it also allows removal of the label.
+ * <Label> displays the name of a label and a button which can be used to
+ * detach it from the feed.
  */
 export class Label extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClickX = (event) => {
+            console.log(event);
+            event.preventDefault();
+            this.props.onDetachLabel(this.props.feedId, this.props.label.id);
+        };
+    }
     render() {
         return <span className="label">
             <span className="label-text">{this.props.label.text}</span>
-            {this.props.onDetach ? <a className="label-x" role="button" href="#" onClick={this.props.onDetach}> × </a> : null}
+            <a className="label-x" role="button" href="#" onClick={this.handleClickX}> × </a>
         </span>;
     }
 }
 
 if (__debug__) {
     Label.propTypes = {
+        feedId: PropTypes.number.isRequired,
         label: PropTypes.shape({
+            id: PropTypes.number.isRequired,
             text: PropTypes.string.isRequired,
         }).isRequired,
-        onDetach: PropTypes.func,
+        onDetachLabel: PropTypes.func.isRequired,
     };
 }
 
@@ -36,15 +46,15 @@ export class AttachLabelButton extends React.PureComponent {
             this.setState({open: !this.state.open});
             event.preventDefault();
         };
+        this.handleClose = event => {
+            this.setState({open: false});
+        };
     }
     render() {
         return <span>
             <a className="label-attach" role="button" href="#" title="Attach Label" onClick={this.handleClick}> + </a>
             {this.state.open
-                ? <LabelPicker
-                    {...this.props}
-                    onCancel={() => this.setState({open: false})}
-                    />
+                ? <LabelPicker {...this.props} onClose={this.handleClose} />
                 : null}
         </span>;
     }
@@ -53,11 +63,14 @@ export class AttachLabelButton extends React.PureComponent {
 if (__debug__) {
     AttachLabelButton.propTypes = {
         labelList: PropTypes.array.isRequired,
-        feed: PropTypes.object.isRequired,
+        feed: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            labels: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
+        }).isRequired,
         // Will be called with the text of the label to add.
         onAddLabel: PropTypes.func.isRequired,
-        // Will be called with the feed and label to associate it with.
-        onLabelPick: PropTypes.func.isRequired,
+        // Will be called with the feedId and labelId to associate it with.
+        onAttachLabel: PropTypes.func.isRequired,
     };
 }
 
@@ -82,7 +95,7 @@ export class LabelPicker extends React.PureComponent {
                 </header>
                 <div className="center">
                     {this.unappliedLabels().map(label =>
-                        <LabelPickButton key={label.id} label={label} feed={this.props.feed} onLabelPick={this.props.onLabelPick} />)}
+                        <LabelPickButton key={label.id} label={label} feed={this.props.feed} onAttachLabel={this.props.onAttachLabel} />)}
                 </div>
                 <footer>
                     <a role="button" href="#" className="create text-button" onClick={this.handleAdd}>New Label</a>
@@ -102,7 +115,7 @@ export class LabelPicker extends React.PureComponent {
      * A label was clicked.  Call the associated callback.
      */
     handleLabelClick(label) {
-        this.props.onLabelPick(this.props.feed, label);
+        this.props.onAttachLabel(this.props.feed.id, label.id);
     }
     /**
      * Stop propagation of the click event so that it isn't handled by the
@@ -113,7 +126,7 @@ export class LabelPicker extends React.PureComponent {
     }
     handleClose(event) {
         event.preventDefault();
-        this.props.onCancel();
+        this.props.onClose();
     }
     componentDidMount() {
         // TODO: Focus the first button
@@ -125,7 +138,7 @@ class LabelPickButton extends React.PureComponent {
         super(props);
         this.handleClick = event => {
             event.preventDefault();
-            this.props.onLabelPick(this.props.feed, this.props.label);
+            this.props.onAttachLabel(this.props.feed.id, this.props.label.id);
         };
     }
     render() {
@@ -133,18 +146,20 @@ class LabelPickButton extends React.PureComponent {
     }
 }
 
-LabelPicker.propTypes = {
-    // Feed object
-    feed: PropTypes.shape({
-        text: PropTypes.string.isRequired,
-        labels: PropTypes.arrayOf(PropTypes.number).isRequired,
-    }).isRequired,
-    // All available labels (only those not associated with the feed will be shown).
-    labelList: PropTypes.arrayOf(PropTypes.object).isRequired,
-    // Will be called with the text of the label to add.
-    onAddLabel: PropTypes.func.isRequired,
-    // Will be called with the feed and label to associate it with.
-    onLabelPick: PropTypes.func.isRequired,
-    // Called with no arguments when the dialog is closed.
-    onCancel: PropTypes.func.isRequired,
-};
+if (__debug__) {
+    LabelPicker.propTypes = {
+        // Feed object
+        feed: PropTypes.shape({
+            text: PropTypes.string.isRequired,
+            labels: PropTypes.arrayOf(PropTypes.number).isRequired,
+        }).isRequired,
+        // All available labels (only those not associated with the feed will be shown).
+        labelList: PropTypes.arrayOf(PropTypes.object).isRequired,
+        // Will be called with the text of the label to add.
+        onAddLabel: PropTypes.func.isRequired,
+        // Will be called with the feed and label to associate it with.
+        onAttachLabel: PropTypes.func.isRequired,
+        // Called with no arguments when the dialog is to be closed.
+        onClose: PropTypes.func.isRequired,
+    };
+}

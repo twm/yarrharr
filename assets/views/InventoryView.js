@@ -8,7 +8,8 @@ import { Label, AttachLabelButton, LabelPicker } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { addFeed, markFeedActive, removeFeed, addLabel, attachLabel, detachLabel } from 'actions.js';
+import { addFeed, markFeedActive, removeFeed } from 'actions.js';
+import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
@@ -91,8 +92,9 @@ class InventoryItem extends React.PureComponent {
                         const label = this.props.labelsById[labelId];
                         return <Label
                             key={labelId}
+                            feedId={feed.id}
                             label={label}
-                            onDetach={event => this.props.onDetachLabel(feed.id, labelId)}
+                            onDetachLabel={this.props.onDetachLabel}
                         />;
                     })
                     : "No labels"}
@@ -100,9 +102,7 @@ class InventoryItem extends React.PureComponent {
                         feed={feed}
                         labelList={labelList}
                         onAddLabel={this.props.onAddLabel}
-                        onLabelPick={(feed, label) => {
-                            this.props.onAttachLabel(feed.id, label.id);
-                        }}
+                        onAttachLabel={this.props.onAttachLabel}
                     />
                 <div><a href={feed.url} target="_blank">{feed.url}</a></div>
                 <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
