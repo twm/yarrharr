@@ -31,7 +31,7 @@ if (production) {
 module.exports = {
     entry: {
         main: path.join(__dirname, 'assets/entry.jsx'),
-        vendor: ['react', 'react-addons-pure-render-mixin', 'react-dom', 'react-redux'],
+        vendor: ['react', 'react-dom', 'react-redux', 'redux-thunk', 'redux-logger'],
     },
     resolve: {
         modules: [
