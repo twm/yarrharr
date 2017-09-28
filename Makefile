@@ -17,19 +17,14 @@ V := @
 
 # This variable is appended to by the Make fragments in tools when they are
 # included below.
-STATIC_TARGETS := yarrharr/static/yarrharr.css
+STATIC_TARGETS :=
 
-yarrharr/static/yarrharr.css: assets/yarrharr.less
-	$(V)mkdir -p "$(dir $@)"
-	@echo "LESS $@"
-	$(V)$(LESSC) --strict-math=on --compress $< $@
+include tools/yarrharr-icon.mk
 
 webpack-prod:
 	$(V)mkdir -p "$(dir $@)"
 	@echo "WEBPACK"
-	$(V)NODE_ENV=production $(WEBPACK) --bail
-
-include tools/yarrharr-icon.mk
+	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
 
 static-assets: $(STATIC_TARGETS) webpack-prod
 
