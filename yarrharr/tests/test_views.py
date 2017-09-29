@@ -55,6 +55,29 @@ class InventoryViewTests(TestCase):
         self.assertIsNotNone(feed.added)
         self.assertIsNotNone(feed.next_check)  # scheduled for poll
 
+    def test_update(self):
+        feed = self.user.feed_set.create(
+            url='http://example.com/feedX.xml',
+            feed_title='Feed X',
+            added=timezone.now() - datetime.timedelta(days=1),
+        )
+        url = 'http://example.com/feedZ.xml'
+        user_title = 'Feed Z'
+        c = Client()
+        c.force_login(self.user)
+
+        response = c.post('/api/inventory/', {
+            'action': 'update',
+            'feed': feed.id,
+            'url': url,
+            'title': user_title,
+        })
+
+        self.assertEqual(200, response.status_code)
+        [feed] = self.user.feed_set.all()
+        self.assertEqual(url, feed.url)
+        self.assertEqual(user_title, feed.user_title)
+
     def test_remove(self):
         feed = self.user.feed_set.create(
             url='http://example.com/feed2.xml',

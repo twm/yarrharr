@@ -353,6 +353,9 @@ def inventory(request):
     (and also the initial title).  The ID of the feed is returned in the
     ``"feedId"`` member of the response.
 
+    ``"update"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
+    according to the :param:`title` and :param:`url` parameters.
+
     ``"remove"`` deletes the feed specified by :param:`feed`.  The operation
     cascades to all of the articles from the feed.
 
@@ -376,6 +379,11 @@ def inventory(request):
             )
             feed.save()
             data['feedId'] = feed.id
+        elif action == 'update':
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            feed.url = request.POST['url']
+            feed.user_title = request.POST['title']
+            feed.save()
         elif action == 'remove':
             feed = request.user.feed_set.get(id=request.POST['feed'])
             feed.delete()
