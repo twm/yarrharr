@@ -1,10 +1,10 @@
 # Generate raster and optimized versions of the Yarrharr icon.
-# Copyright 2013, 2014 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2017 Tom Most <twm@freecog.net>; GPLv3+
 #
 # This Make include file depends on the V, SCOUR and SCOURFLAGS variables being
 # defined by the caller.  It appends icon output files to STATIC_TARGETS.
 
-YARRHARR_ICON_SOURCE := assets/icon.inkscape.svg
+YARRHARR_ICON_SOURCE := assets/art/icon.inkscape.svg
 
 # SVG-TO-PNG infile,outfile,size
 define SVG-TO-PNG
@@ -46,6 +46,6 @@ yarrharr/static/icon.ico: \
 # And a nicely squished SVG.
 STATIC_TARGETS += yarrharr/static/icon.svg
 
-yarrharr/static/icon.svg: assets/icon.inkscape.svg
+yarrharr/static/icon.svg: assets/art/icon.inkscape.svg
 	@echo "SCOUR $@"
 	$(V)$(SCOUR) -i "$<" -o "$@" $(SCOURFLAGS) >/dev/null 2>&1
