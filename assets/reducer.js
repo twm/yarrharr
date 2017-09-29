@@ -70,23 +70,33 @@ function articleReducer(state = window.props.articlesById, action) {
 }
 
 import { RECEIVE_FEEDS, REQUEST_REMOVE_FEED, FAIL_REMOVE_FEED } from './actions.js';
-import { REQUEST_MARK_FEED_ACTIVE, FAIL_MARK_FEED_ACTIVE } from './actions.js';
+import { REQUEST_UPDATE_FEED, FAIL_UPDATE_FEED } from './actions.js';
 function feedReducer(state = window.props.feedsById, action) {
     if (action.type === RECEIVE_FEEDS) {
         return action.feedsById;
-    } else if (action.type === REQUEST_MARK_FEED_ACTIVE) {
+    } else if (action.type === REQUEST_UPDATE_FEED) {
         const feed = state[action.feedId];
         return Object.assign({}, state, {
             [action.feedId]: Object.assign({}, feed, {
                 active: action.active,
                 oldActive: feed.active,
+                url: action.url,
+                oldUrl: feed.url,
+                text: action.text,
+                oldText: feed.text,
             }),
         });
-    } else if (action.type === FAIL_MARK_FEED_ACTIVE) {
+    } else if (action.type === FAIL_UPDATE_FEED) {
         const feed = state[action.feedId];
         return Object.assign({}, state, {
+            // XXX This is racy if multiple requests are in flight.
             [action.feedId]: Object.assign({}, feed, {
                 active: feed.oldActive,
+                oldActive: null,
+                text: feed.oldText,
+                oldText: null,
+                url: feed.oldUrl,
+                oldUrl: null,
             }),
         });
     } else if (action.type === REQUEST_REMOVE_FEED) {

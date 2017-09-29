@@ -353,12 +353,12 @@ def inventory(request):
     (and also the initial title).  The ID of the feed is returned in the
     ``"feedId"`` member of the response.
 
+    ``"update"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
+    according to the :param:`title` and :param:`url` parameters. Iff
+    :param:`active` is ``on`` then the feed is scheduled to be checked.
+
     ``"remove"`` deletes the feed specified by :param:`feed`.  The operation
     cascades to all of the articles from the feed.
-
-    ``"activate"`` resumes checking the :param:`feed` if it wasn't active.
-
-    ``"deactivate"`` stops the :param:`feed` from being checked in the future.
 
     POST returns the full feed and label metadata just like GET, in the
     ``"labelsById"`` and ``"feedsById"`` members of the JSON response body.
@@ -376,17 +376,18 @@ def inventory(request):
             )
             feed.save()
             data['feedId'] = feed.id
+        elif action == 'update':
+            feed = request.user.feed_set.get(id=request.POST['feed'])
+            feed.url = request.POST['url']
+            feed.user_title = request.POST['title']
+            if request.POST['active'] == 'on':
+                feed.next_check = timezone.now()
+            else:
+                feed.next_check = None
+            feed.save()
         elif action == 'remove':
             feed = request.user.feed_set.get(id=request.POST['feed'])
             feed.delete()
-        elif action == 'activate':
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.next_check = timezone.now()
-            feed.save()
-        elif action == 'deactivate':
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.next_check = None
-            feed.save()
 
         data['labelsById'] = labels_for_user(request.user)
         data['feedsById'] = feeds_for_user(request.user)

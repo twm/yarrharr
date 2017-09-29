@@ -512,39 +512,46 @@ export function failAddFeed(url, error) {
     };
 }
 
-export const REQUEST_MARK_FEED_ACTIVE = 'REQUEST_MARK_FEED_ACTIVE';
+export const REQUEST_UPDATE_FEED = 'REQUEST_UPDATE_FEED';
 /**
  * Enable or disable checking a feed.
  *
  * @param {number} feedId
  * @param {boolean} active
  */
-export function markFeedActive(feedId, active) {
+export function updateFeed(feedId, text, url, active) {
     return (dispatch) => {
         dispatch({
-            type: REQUEST_MARK_FEED_ACTIVE,
+            type: REQUEST_UPDATE_FEED,
             feedId,
+            text,
+            url,
             active,
         });
         const body = new FormData();
-        body.append('action', active ? 'activate' : 'deactivate');
+        body.append('action', 'update');
         body.append('feed', feedId);
+        body.append('title', text); // user_title on Feed
+        body.append('url', url);
+        body.append('active', active ? 'on' : 'off');
         return post('/api/inventory/', body).then(json => {
             const { feedsById, labelsById } = json;
             dispatch(receiveLabels(labelsById));
             dispatch(receiveFeeds(feedsById));
         }).catch(e => {
             console.error(`Error marking feed ${feedId} active=${active}`, e);
-            dispatch(failMarkFeedActive(feedId, active));
+            dispatch(failMarkFeedActive(feedId, text, url, active));
         });
     };
 }
 
-export const FAIL_MARK_FEED_ACTIVE = 'FAIL_MARK_FEED_ACTIVE';
-export function failMarkFeedActive(feedId, active) {
+export const FAIL_UPDATE_FEED = 'FAIL_UPDATE_FEED';
+export function failMarkFeedActive(feedId, text, url, active) {
     return {
-        type: FAIL_MARK_FEED_ACTIVE,
+        type: FAIL_UPDATE_FEED,
         feedId,
+        text,
+        url,
         active,
     };
 }
