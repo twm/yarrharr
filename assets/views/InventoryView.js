@@ -141,11 +141,11 @@ class InventoryItem extends React.PureComponent {
                 {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
                 <form onSubmit={this.handleSubmit}>
                     <p>
-                        <label>Feed Title</label>
+                        <label>Title Override</label>
                         <input type="text" name="text" value={this.current('text')} placeholder={feed.title} onChange={this.handleInputChange} />
                     </p>
                     <p>
-                        <label>Feed URL</label>
+                        <label>Feed URL (<a href={this.current('url')} target="_blank">link</a>)</label>
                         <input type="url" name="url" value={this.current('url')} onChange={this.handleInputChange} />
                     </p>
                     <p>
