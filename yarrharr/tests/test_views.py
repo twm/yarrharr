@@ -56,6 +56,9 @@ class InventoryViewTests(TestCase):
         self.assertIsNotNone(feed.next_check)  # scheduled for poll
 
     def test_update(self):
+        """
+        A feed's user title and feed URL may be changed by the update action.
+        """
         feed = self.user.feed_set.create(
             url='http://example.com/feedX.xml',
             feed_title='Feed X',
@@ -70,6 +73,7 @@ class InventoryViewTests(TestCase):
             'action': 'update',
             'feed': feed.id,
             'url': url,
+            'active': 'on',
             'title': user_title,
         })
 
@@ -109,8 +113,11 @@ class InventoryViewTests(TestCase):
         c.force_login(self.user)
 
         response = c.post('/api/inventory/', {
-            'action': 'activate',
+            'action': 'update',
             'feed': feed.id,
+            'active': 'on',
+            'title': '',
+            'url': 'http://example.com/feed1.xml',
         })
 
         self.assertEqual(200, response.status_code)
@@ -134,6 +141,9 @@ class InventoryViewTests(TestCase):
         response = c.post('/api/inventory/', {
             'action': 'deactivate',
             'feed': feed.id,
+            'active': 'off',
+            'title': '',
+            'url': 'http://example.com/feed1.xml',
         })
 
         self.assertEqual(200, response.status_code)

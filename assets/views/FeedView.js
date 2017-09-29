@@ -86,7 +86,7 @@ export class FeedHeader extends React.PureComponent {
         return <div className="list-header">
             <div className="list-header-inner">
                 <h1>{feed.text || feed.title || feed.url}</h1>
-                {feed.text ? <p>feed.title</p> : null}
+                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a></p>
                 <div>{feed.labels.length > 0 ? feed.labels.map(labelId => {
                     const label = this.props.labelsById[labelId];
                     return <Label key={labelId} feedId={feed.id} label={label}
