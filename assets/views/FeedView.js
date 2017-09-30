@@ -101,7 +101,7 @@ export class FeedHeader extends React.PureComponent {
                 </div>
                 <details>
                     <summary>{feed.active
-                        ? ("Last checked " + (feed.checked || "never") + (feed.error ? ": Error!" : ""))
+                        ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
                         : "Inactive"}</summary>
                     {feed.active ? null : <p>This feed is not being checked for updates.</p>}
                     {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
