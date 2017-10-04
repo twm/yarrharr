@@ -126,7 +126,7 @@ class ConfTests(unittest.TestCase):
             }],
             'SECRET_KEY': 'sarlona',
             'X_FRAME_OPTIONS': 'DENY',
-            'MIDDLEWARE_CLASSES': (
+            'MIDDLEWARE': (
                 'django.middleware.common.CommonMiddleware',
                 'django.contrib.sessions.middleware.SessionMiddleware',
                 'django.middleware.csrf.CsrfViewMiddleware',
@@ -200,7 +200,7 @@ class ConfTests(unittest.TestCase):
             }],
             'SECRET_KEY': 'supersekrit',
             'X_FRAME_OPTIONS': 'DENY',
-            'MIDDLEWARE_CLASSES': (
+            'MIDDLEWARE': (
                 'django.middleware.common.CommonMiddleware',
                 'django.contrib.sessions.middleware.SessionMiddleware',
                 'django.middleware.csrf.CsrfViewMiddleware',
