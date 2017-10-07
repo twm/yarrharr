@@ -134,7 +134,7 @@ function feedAddReducer(state = {}, action) {
 }
 
 import { SET_SNAPSHOT_PARAMS } from './actions.js';
-import { FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
+import { FILTER_NEW, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
 import { ORDER_DATE, ORDER_TAIL } from './actions.js';
 import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT, SHOW_ARTICLE } from './actions.js';
 const defaultSnapshot = {

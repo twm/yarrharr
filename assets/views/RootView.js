@@ -7,7 +7,7 @@ import { AddFeedLink, InventoryLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
+import { FILTER_NEW, FILTER_FAVE } from 'actions.js';
 import { labelsByTitle, feedsByNewCount } from 'sorting.js';
 import './RootView.less';
 
@@ -40,7 +40,7 @@ class RootView extends React.PureComponent {
                                 <div className="new-count">{label.newCount} new</div>
                             </LabelLink>
                             {label.faveCount
-                                ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_SAVED}>
+                                ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_FAVE}>
                                     <Heart width="48" height="48" alt="" className="star-icon" />
                                     <span className="fave-count">{label.faveCount}</span>
                                 </LabelLink>
@@ -55,7 +55,7 @@ class RootView extends React.PureComponent {
                                 <div className="new-count">{feed.newCount} new</div>
                             </FeedLink>
                             {feed.faveCount
-                                ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_SAVED}>
+                                ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_FAVE}>
                                     <Heart width="48" height="48" alt="" className="star-icon" />
                                     <span className="fave-count">{feed.faveCount}</span>
                                 </FeedLink>
