@@ -175,7 +175,7 @@ def read_yarrharr_conf(files, namespace):
     namespace['SECRET_KEY'] = conf.get('secrets', 'secret_key')
     namespace['X_FRAME_OPTIONS'] = 'DENY'
 
-    namespace['MIDDLEWARE_CLASSES'] = (
+    namespace['MIDDLEWARE'] = (
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
