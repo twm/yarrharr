@@ -87,7 +87,7 @@ class Feed(models.Model):
 
     These two are combined in the `title` property.
     """
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     url = models.URLField()
     added = models.DateTimeField()
     deleted = models.DateTimeField(null=True, default=None)
@@ -158,7 +158,7 @@ class Label(models.Model):
     :ivar feeds: Feeds to which the label has been applied.
     """
     text = models.CharField(unique=True, max_length=64)
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     feeds = models.ManyToManyField(Feed)
 
     def __str__(self):
