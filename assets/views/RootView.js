@@ -7,15 +7,15 @@ import { AddFeedLink, InventoryLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
-import { labelsByTitle, feedsByNewCount } from 'sorting.js';
+import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
+import { labelsByTitle, feedsByTitle } from 'sorting.js';
 import './RootView.less';
 
 
 class RootView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props);
-        const feedList = feedsByNewCount(this.props);
+        const feedList = feedsByTitle(this.props);
         return <div className={"root-view layout-" + this.props.layout}>
             <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             <Header icon={<Logo width="48" height="48" />} text="Yarrharr Feed Reader" />
@@ -28,19 +28,19 @@ class RootView extends React.PureComponent {
             </div>
             <ul className="tiles">
                 <li>
-                    <AllLink className="new-link" filter={FILTER_NEW}>
+                    <AllLink className="unread-link" filter={FILTER_UNREAD}>
                         <div className="feed-title">All Feeds</div>
                     </AllLink>
                 </li>
                 {labelList.length
                     ? labelList.map((label) =>
                         <li key={"label-" + label.id}>
-                            <LabelLink className="new-link" labelId={label.id} filter={FILTER_NEW}>
+                            <LabelLink className="unread-link" labelId={label.id} filter={FILTER_UNREAD}>
                                 <div className="feed-title">{label.text}</div>
-                                <div className="new-count">{label.newCount} new</div>
+                                <div className="unread-count">{label.unreadCount} unread</div>
                             </LabelLink>
                             {label.faveCount
-                                ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_SAVED}>
+                                ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_FAVE}>
                                     <Heart width="48" height="48" alt="" className="star-icon" />
                                     <span className="fave-count">{label.faveCount}</span>
                                 </LabelLink>
@@ -50,12 +50,12 @@ class RootView extends React.PureComponent {
                 {feedList.length
                     ? feedList.map((feed) =>
                         <li key={"feed-" + feed.id}>
-                            <FeedLink className="new-link" feedId={feed.id} filter={FILTER_NEW}>
+                            <FeedLink className="unread-link" feedId={feed.id} filter={FILTER_UNREAD}>
                                 <div className="feed-title">{feed.text || feed.title}</div>
-                                <div className="new-count">{feed.newCount} new</div>
+                                <div className="unread-count">{feed.unreadCount} unread</div>
                             </FeedLink>
                             {feed.faveCount
-                                ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_SAVED}>
+                                ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_FAVE}>
                                     <Heart width="48" height="48" alt="" className="star-icon" />
                                     <span className="fave-count">{feed.faveCount}</span>
                                 </FeedLink>

@@ -20,18 +20,16 @@ export function validLayout(layout) {
 
 export const SET_SNAPSHOT_PARAMS = 'SET_SNAPSHOT_PARAMS';
 
-export const FILTER_NEW = 'new';
-export const FILTER_SAVED = 'saved';
-export const FILTER_ARCHIVED = 'archived';
+export const FILTER_UNREAD = 'unread';
+export const FILTER_FAVE = 'fave';
 export const FILTER_ALL = 'all';
 /**
  * Is `filter` a valid filter?
  */
 export function validFilter(filter) {
     switch (filter) {
-        case FILTER_NEW:
-        case FILTER_SAVED:
-        case FILTER_ARCHIVED:
+        case FILTER_UNREAD:
+        case FILTER_FAVE:
         case FILTER_ALL:
             return true;
     }
@@ -725,7 +723,7 @@ const PARAM_TYPES = {
     'articleId': '(\\d+)',
     'labelId': '(\\d+)',
     'feedId': '(\\d+)',
-    'filter': '(' + [FILTER_NEW, FILTER_SAVED, FILTER_ARCHIVED, FILTER_ALL].join('|') + ')',
+    'filter': '(' + [FILTER_UNREAD, FILTER_FAVE, FILTER_ALL].join('|') + ')',
 };
 
 const PARAM_CONVERT = {

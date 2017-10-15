@@ -6,7 +6,7 @@ import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, AttachLabelButton, LabelPicker } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
-import { FILTER_NEW, FILTER_SAVED } from 'actions.js';
+import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -135,8 +135,8 @@ class InventoryItem extends React.PureComponent {
                         onAttachLabel={this.props.onAttachLabel}
                     />
                 <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
-                <div><FeedLink feedId={feed.id} filter={FILTER_NEW}>{feed.newCount} new</FeedLink></div>
-                <div><FeedLink feedId={feed.id} filter={FILTER_SAVED}>{feed.faveCount} marked favorite</FeedLink></div>
+                <div><FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.unreadCount} new</FeedLink></div>
+                <div><FeedLink feedId={feed.id} filter={FILTER_FAVE}>{feed.faveCount} marked favorite</FeedLink></div>
                 <div>Last updated {feed.updated || "never"}</div>
                 {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
                 <form onSubmit={this.handleSubmit}>
@@ -219,7 +219,7 @@ export class AddFeedView extends React.PureComponent {
         }
         if (feedId) {
             return <div>
-                <p>Added feed <FeedLink feedId={feedId} filter={FILTER_NEW}>{url}</FeedLink></p>
+                <p>Added feed <FeedLink feedId={feedId} filter={FILTER_UNREAD}>{url}</FeedLink></p>
             </div>;
         }
         return <p>Adding feed {url}</p>;
