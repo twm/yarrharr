@@ -33,7 +33,7 @@
             {% if user.is_authenticated %}
                 <p><a href="{% url 'home' %}">Home</a> ∙ <a href="{% url 'logout' %}">Log out</a>
             {% endif %}
-            <p>Yarrharr Feed Reader ∙ © 2013–2017 Tom Most ∙ GPLv3+ ∙ <a href="{% url 'about' %}">About</a>
+            <p>Yarrharr Feed Reader ∙ © 2013–2017 Tom Most ∙ GPLv3+ ∙ <a href="{% url 'about' %}">About</a> ∙ <a rel="noreferrer noopener" href="https://github.com/twm/yarrharr/issues/new">Report Issue</a>
         </footer>
 
         {% if debug %}
