@@ -24,9 +24,15 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from __future__ import unicode_literals
+
+import re
+from collections import OrderedDict
+
 import html5lib
 from html5lib.constants import namespaces
 from html5lib.filters.base import Filter as BaseFilter
+from six.moves.urllib.parse import quote, quote_plus
 
 STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
 SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
@@ -60,7 +66,7 @@ def sanitize_html(html):
     tree = html5lib.parseFragment(html)
     w = html5lib.getTreeWalker('etree')
     s = html5lib.serializer.HTMLSerializer(sanitize=True)
-    return s.render(_ElideFilter(_ReplaceObjectFilter(w(tree))))
+    return s.render(_ReplaceYoutubeEmbedFilter(_ElideFilter(_ReplaceObjectFilter(w(tree)))))
 
 
 class _ElideFilter(BaseFilter):
@@ -119,3 +125,82 @@ class _ReplaceObjectFilter(BaseFilter):
                 continue
 
             yield token
+
+
+class _ReplaceYoutubeEmbedFilter(BaseFilter):
+    """
+    YouTube embeds are replaced with a thumbnail which links to the original video.
+    """
+    _embed_url_pattern = re.compile(r'https?://(www\.)?youtube\.com/embed/(?P<video_id>[^/?#]+)', re.I)
+    _video_url = 'https://www.youtube.com/watch?v={video_id}'
+    # There are a few apparent options for the filename in this URL:
+    #
+    # default.jpg — always seems to be available, even on old videos, but is tiny (120×90).
+    #
+    # mqdefault.jpg — always seems to be available, and has a more contemporary
+    # aspect ratio (320×180).
+    #
+    # hqdefault.jpg — always seems to be available (though I haven't tested
+    # videos more than 5 years old), but it is always 4:3 (480×360), so recent
+    # videos are letterboxed.
+    #
+    # maxresdefault.jpg — only recent videos seem to have this (e.g., all of
+    # the videos I've checked on the YouTube homepage as of October 2017 do).
+    #
+    # An old video which lacks maxresdefault.jpg: https://www.youtube.com/watch?v=XPIFncE22pw
+    # A recent video from the homepage which has all of them: https://www.youtube.com/watch?v=R1ZXOOLMJ8s
+    #
+    # See also https://boingboing.net/features/getthumbs.html
+    _thumbnail_url = 'https://i.ytimg.com/vi/{video_id}/mqdefault.jpg'
+
+    def __iter__(self, _SRC_ATTR=(None, 'src')):
+        html_ns = namespaces['html']
+        elide = 0
+        for token in BaseFilter.__iter__(self):
+            token_type = token['type']
+            if elide:
+                if token_type == 'StartTag' and token['name'] == 'iframe':
+                    elide += 1
+                elif token_type == 'EndTag' and token['name'] == 'iframe':
+                    elide -= 1
+            else:
+                if (
+                    token_type == 'StartTag' and
+                    token['name'] == 'iframe' and
+                    token['namespace'] == html_ns and
+                    'data' in token and
+                    _SRC_ATTR in token['data']
+                ):
+                    m = self._embed_url_pattern.match(token['data'][_SRC_ATTR])
+                    if m:
+                        video_id = m.group('video_id')
+                        yield {
+                            'type': 'StartTag',
+                            'namespace': html_ns,
+                            'name': 'a',
+                            'data': OrderedDict([
+                                ((None, 'href'), self._video_url.format(video_id=quote_plus(video_id))),
+                                ((None, 'target'), '_blank'),
+                            ]),
+                        }
+                        yield {
+                            'type': 'EmptyTag',
+                            'namespace': html_ns,
+                            'name': u'img',
+                            'data': OrderedDict([
+                                ((None, 'alt'), 'YouTube video'),
+                                (_SRC_ATTR, self._thumbnail_url.format(video_id=quote(video_id))),
+                                ((None, 'width'), '320'),
+                                ((None, 'height'), '180'),
+                            ]),
+                        }
+                        yield {
+                            'type': 'EndTag',
+                            'namespace': html_ns,
+                            'name': 'a',
+                        }
+                        elide += 1
+                    else:
+                        yield token
+                else:
+                    yield token

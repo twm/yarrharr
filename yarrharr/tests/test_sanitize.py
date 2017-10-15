@@ -24,7 +24,12 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from __future__ import print_function
+
 import unittest
+from pprint import pprint
+
+import html5lib
 
 from ..fetch import sanitize_html, html_to_text
 
@@ -131,3 +136,24 @@ class SanitizeHtmlTests(unittest.TestCase):
         html2 = u'<img src="https://example.com/baz.png" alt="">'
         # FIXME: the order of the attributes varies as dicts aren't ordered...
         self.assertIn(sanitize_html(html), (html, html2))
+
+    def test_youtube_embed_replaced(self):
+        html = (
+            u'<p>'
+            u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
+            u' height="315" src="http://www.youtube.com/embed/XsyogXtyU9o" '
+            u' width="560"></iframe></p>'
+        )
+        self.assertEqual((
+            u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o" target=_blank>'
+            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
+            u' width=320 height=180></a>'
+        ), sanitize_html(html))
+
+
+def print_tokens(html):
+    tree = html5lib.parseFragment(html)
+    w = html5lib.getTreeWalker('etree')
+    print('Tokens for', html)
+    for token in w(tree):
+        pprint(token)
