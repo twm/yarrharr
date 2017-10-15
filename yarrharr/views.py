@@ -72,7 +72,7 @@ def json_for_feed(feed):
         'title': feed.feed_title,
         'text': feed.user_title,
         'active': feed.next_check is not None,
-        'newCount': feed.articles.filter(read=False).count(),
+        'unreadCount': feed.articles.filter(read=False).count(),
         'faveCount': feed.articles.filter(fave=True).count(),
         'totalCount': feed.articles.all().count(),
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
@@ -100,7 +100,7 @@ def json_for_label(label):
         'id': label.id,
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
-        'newCount': Article.objects.filter(read=False).filter(feed__in=label.feeds.all()).count(),
+        'unreadCount': Article.objects.filter(read=False).filter(feed__in=label.feeds.all()).count(),
         'faveCount': Article.objects.filter(fave=True).filter(feed__in=label.feeds.all()).count(),
         'totalCount': Article.objects.filter(feed__in=label.feeds.all()).count(),
     }
@@ -112,11 +112,9 @@ def entries_for_snapshot(user, params):
     """
     qs = Article.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
 
-    if params['filter'] == 'new':
+    if params['filter'] == 'unread':
         filt = Q(read=False)
-    elif params['filter'] == 'archived':
-        filt = Q(read=True)
-    elif params['filter'] == 'faved':
+    elif params['filter'] == 'fave':
         filt = Q(fave=True)
     else:
         filt = None
@@ -171,7 +169,7 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
     return {
         'feeds': sorted(feeds),
-        'filter': oneof('filter', ['new', 'archived', 'faved', 'all']),
+        'filter': oneof('filter', ['unread', 'fave', 'all']),
         'order': oneof('order', ['date', 'tail']),
         'view': oneof('view', ['text', 'list']),
         'include': include,

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { setPath } from '../actions.js';
-import { FILTER_NEW, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from '../actions.js';
+import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from '../actions.js';
 
 /**
  * This module contains wrappers around the <a> element that know about URL
@@ -83,7 +83,7 @@ if (process.env.NODE_ENV !== 'production') {
         disabled: PropTypes.bool,
         dispatch: PropTypes.func.isRequired,
     };
-    const filter = PropTypes.oneOf([FILTER_NEW, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL]).isRequired;
+    const filter = PropTypes.oneOf([FILTER_UNREAD, FILTER_FAVE, FILTER_ALL]).isRequired;
     AllLink.propTypes = {
         filter,
     };

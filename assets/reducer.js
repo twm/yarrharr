@@ -134,7 +134,7 @@ function feedAddReducer(state = {}, action) {
 }
 
 import { SET_SNAPSHOT_PARAMS } from './actions.js';
-import { FILTER_NEW, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from './actions.js';
+import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from './actions.js';
 import { ORDER_DATE, ORDER_TAIL } from './actions.js';
 import { REQUEST_SNAPSHOT, RECEIVE_SNAPSHOT, FAIL_SNAPSHOT, SHOW_ARTICLE } from './actions.js';
 const defaultSnapshot = {
@@ -145,7 +145,7 @@ const defaultSnapshot = {
     /**
      * The current desired filter.
      */
-    filter: FILTER_NEW,
+    filter: FILTER_UNREAD,
     /**
      * An array of feed IDs which are currently desired to be displayed.
      * An empty array indicates that no snapshot is currently desired.
@@ -168,7 +168,7 @@ const defaultSnapshot = {
          */
         params: {
             order: ORDER_TAIL,
-            filter: FILTER_NEW,
+            filter: FILTER_UNREAD,
             feedIds: [],
             include: null,
         },

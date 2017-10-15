@@ -29,8 +29,8 @@ export function feedsByNewCount({feedsById}) {
         // TODO: Investigate Intl.Collator and friends to make this more correct.
         var titleA = (a.text || a.title).toLowerCase();
         var titleB = (b.text || b.title).toLowerCase();
-        return (a.newCount > b.newCount) ? -1 :
-               (a.newCount < b.newCount) ? 1 :
+        return (a.unreadCount > b.unreadCount) ? -1 :
+               (a.unreadCount < b.unreadCount) ? 1 :
                (titleA < titleB) ? -1 :
                (titleA > titleB) ? 1 :
                b.id - a.id;
