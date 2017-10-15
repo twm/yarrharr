@@ -51,7 +51,7 @@ import treq
 import pytz
 
 from .models import Feed
-from .sanitize import html_to_text, sanitize_html
+from .sanitize import REVISION, html_to_text, sanitize_html
 
 try:
     # Seriously STFU this is not helpful.
@@ -196,6 +196,7 @@ class MaybeUpdated(object):
                 guid=upsert.guid,
                 raw_content=upsert.raw_content,
                 content=sanitize_html(upsert.raw_content),
+                content_rev=REVISION,
             )
             created.save()
             log.debug("  created {created} (No match for GUID {guid!r} or URL {url!r})",

@@ -31,9 +31,16 @@ static-assets: $(STATIC_TARGETS) webpack-prod
 release: static-assets
 	python setup.py sdist
 
+.PHONY: devserver
 devserver:
 	tox -e run -- django-admin migrate
 	tox -e run -- django-admin runserver 127.0.0.1:8888
+
+.PHONY: realserver
+realserver:
+	tox -e run -- django-admin migrate
+	tox -e run -- django-admin collectstatic
+	tox -e run -- yarrharr
 
 .PHONY: poll-feeds
 poll-feeds:
