@@ -37,7 +37,7 @@ class RootView extends React.PureComponent {
                         <li key={"label-" + label.id}>
                             <LabelLink className="unread-link" labelId={label.id} filter={FILTER_UNREAD}>
                                 <div className="feed-title">{label.text}</div>
-                                <div className="unread-count">{label.unreadCount} new</div>
+                                <div className="unread-count">{label.unreadCount} unread</div>
                             </LabelLink>
                             {label.faveCount
                                 ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_FAVE}>
@@ -52,7 +52,7 @@ class RootView extends React.PureComponent {
                         <li key={"feed-" + feed.id}>
                             <FeedLink className="unread-link" feedId={feed.id} filter={FILTER_UNREAD}>
                                 <div className="feed-title">{feed.text || feed.title}</div>
-                                <div className="unread-count">{feed.unreadCount} new</div>
+                                <div className="unread-count">{feed.unreadCount} unread</div>
                             </FeedLink>
                             {feed.faveCount
                                 ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_FAVE}>
