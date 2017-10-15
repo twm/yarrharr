@@ -149,3 +149,27 @@ class InventoryViewTests(TestCase):
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
         self.assertIsNone(feed.next_check)
+
+
+class RobotsTxtTests(TestCase):
+    def test_get(self):
+        """
+        The robots.txt file is empty.
+        """
+        response = Client().get('/robots.txt')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(b'', response.content)
+
+    def test_head(self):
+        """
+        Django automatically supports HEAD when GET is provided.
+        """
+        response = Client().get('/robots.txt')
+        self.assertEqual(200, response.status_code)
+
+    def test_post(self):
+        """
+        Unsupported methods are rejected.
+        """
+        response = Client().post('/robots.txt', {})
+        self.assertEqual(405, response.status_code)

@@ -149,7 +149,8 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' width="560"></iframe></p>'
         )
         self.assertEqual((
-            u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o" target=_blank>'
+            u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o"'
+            u' rel="noopener noreferrer" target=_blank>'
             u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
             u' width=320 height=180></a>'
         ), sanitize_html(html))
@@ -163,7 +164,8 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' frameborder="0" allowfullscreen></iframe>'
         )
         self.assertEqual((
-            u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY" target=_blank>'
+            u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
+            u' rel="noopener noreferrer" target=_blank>'
             u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
             u' width=320 height=180></a>'
         ), sanitize_html(html))
@@ -177,7 +179,8 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' src="https://www.youtube.com/embed/wZZ7oFKsKzY?rel=0&amp;showinfo=0&amp;start=3601"></iframe>'
         )
         self.assertEqual((
-            u'<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s" target=_blank>'
+            u'<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s"'
+            u' rel="noopener noreferrer" target=_blank>'
             u'<img alt="YouTube video" src="https://i.ytimg.com/vi/wZZ7oFKsKzY/mqdefault.jpg"'
             u' width=320 height=180></a>'
         ), sanitize_html(html))
@@ -192,7 +195,8 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' width="560"><p>inside</iframe>after'
         )
         self.assertEqual((
-            u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY" target=_blank>'
+            u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
+            u' rel="noopener noreferrer" target=_blank>'
             u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
             u' width=320 height=180></a>after'
         ), sanitize_html(html))
@@ -205,6 +209,16 @@ class SanitizeHtmlTests(unittest.TestCase):
         """
         html = u'<img title="blah blah">'
         self.assertEqual(u'<img title="blah blah"><aside>blah blah</aside>', sanitize_html(html))
+
+    def test_a_attrs(self):
+        """
+        ``<a>`` tags are given ``rel`` and ``target`` attributes.
+        """
+        html = u'<a href="foo.html">bar</a>'
+        self.assertEqual(
+            u'<a href=foo.html rel="noopener noreferrer" target=_blank>bar</a>',
+            sanitize_html(html),
+        )
 
 
 def print_tokens(html):

@@ -414,6 +414,16 @@ def about(request):
     })
 
 
+def robots_txt(request):
+    """
+    Serve up an empty robots.txt file so that it doesn't show as a 404 in the
+    access logs.
+    """
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['HEAD', 'GET'])
+    return HttpResponse(b'', content_type='text/plain')
+
+
 @debug_only
 @login_required
 def debug_messages(request):

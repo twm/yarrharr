@@ -66,9 +66,14 @@ def sanitize_html(html):
     Make the given HTML string safe to display in a Yarrharr page.
     """
     tree = html5lib.parseFragment(html)
-    w = html5lib.getTreeWalker('etree')
-    s = html5lib.serializer.HTMLSerializer(sanitize=True)
-    return s.render(_ExtractTitleTextFilter(_ReplaceYoutubeEmbedFilter(_ElideFilter(_ReplaceObjectFilter(w(tree))))))
+    serializer = html5lib.serializer.HTMLSerializer(sanitize=True)
+    source = html5lib.getTreeWalker('etree')(tree)
+    source = _ReplaceObjectFilter(source)
+    source = _ElideFilter(source)
+    source = _ReplaceYoutubeEmbedFilter(source)
+    source = _ExtractTitleTextFilter(source)
+    source = _adjust_links(source)
+    return serializer.render(source)
 
 
 class _ElideFilter(BaseFilter):
@@ -216,7 +221,6 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                             'name': 'a',
                             'data': OrderedDict([
                                 ((None, 'href'), self._watch_url(url).to_text()),
-                                ((None, 'target'), '_blank'),
                             ]),
                         }
                         yield {
@@ -273,3 +277,21 @@ class _ExtractTitleTextFilter(BaseFilter):
                         'namespace': html_ns,
                         'name': 'aside',
                     }
+
+
+def _adjust_links(source):
+    html_ns = namespaces['html']
+    href_attr = (None, 'href')
+    rel_attr = (None, 'rel')
+    target_attr = (None, 'target')
+    for token in source:
+        if (
+            token['type'] == 'StartTag' and
+            token['name'] == 'a' and
+            token['namespace'] == html_ns and
+            'data' in token and
+            href_attr in token['data']
+        ):
+            token['data'][rel_attr] = 'noopener noreferrer'
+            token['data'][target_attr] = '_blank'
+        yield token
