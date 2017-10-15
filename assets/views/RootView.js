@@ -28,16 +28,16 @@ class RootView extends React.PureComponent {
             </div>
             <ul className="tiles">
                 <li>
-                    <AllLink className="new-link" filter={FILTER_UNREAD}>
+                    <AllLink className="unread-link" filter={FILTER_UNREAD}>
                         <div className="feed-title">All Feeds</div>
                     </AllLink>
                 </li>
                 {labelList.length
                     ? labelList.map((label) =>
                         <li key={"label-" + label.id}>
-                            <LabelLink className="new-link" labelId={label.id} filter={FILTER_UNREAD}>
+                            <LabelLink className="unread-link" labelId={label.id} filter={FILTER_UNREAD}>
                                 <div className="feed-title">{label.text}</div>
-                                <div className="new-count">{label.unreadCount} new</div>
+                                <div className="unread-count">{label.unreadCount} new</div>
                             </LabelLink>
                             {label.faveCount
                                 ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_FAVE}>
@@ -50,9 +50,9 @@ class RootView extends React.PureComponent {
                 {feedList.length
                     ? feedList.map((feed) =>
                         <li key={"feed-" + feed.id}>
-                            <FeedLink className="new-link" feedId={feed.id} filter={FILTER_UNREAD}>
+                            <FeedLink className="unread-link" feedId={feed.id} filter={FILTER_UNREAD}>
                                 <div className="feed-title">{feed.text || feed.title}</div>
-                                <div className="new-count">{feed.unreadCount} new</div>
+                                <div className="unread-count">{feed.unreadCount} new</div>
                             </FeedLink>
                             {feed.faveCount
                                 ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_FAVE}>
