@@ -24,9 +24,15 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from __future__ import unicode_literals
+
+import re
+from collections import OrderedDict
+
 import html5lib
 from html5lib.constants import namespaces
 from html5lib.filters.base import Filter as BaseFilter
+from hyperlink import URL
 
 STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
 SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
@@ -60,7 +66,7 @@ def sanitize_html(html):
     tree = html5lib.parseFragment(html)
     w = html5lib.getTreeWalker('etree')
     s = html5lib.serializer.HTMLSerializer(sanitize=True)
-    return s.render(_ElideFilter(_ReplaceObjectFilter(w(tree))))
+    return s.render(_ReplaceYoutubeEmbedFilter(_ElideFilter(_ReplaceObjectFilter(w(tree)))))
 
 
 class _ElideFilter(BaseFilter):
@@ -119,3 +125,116 @@ class _ReplaceObjectFilter(BaseFilter):
                 continue
 
             yield token
+
+
+class _ReplaceYoutubeEmbedFilter(BaseFilter):
+    """
+    YouTube embeds are replaced with a thumbnail which links to the original video.
+    """
+    _embed_url_pattern = re.compile(r'https?://(www\.)?youtube(?:-nocookie)?\.com/embed/(?P<video_id>[^/?#]+)', re.I)
+
+    def _watch_url(self, embed_url):
+        """
+        Generate the URL of the YouTube page at which the embedded video can be
+        viewed.
+        """
+        video_id = embed_url.path[1]
+        watch_url = URL(
+            scheme='https',
+            host='www.youtube.com',
+            path=('watch',),
+            query=(('v', video_id),),
+        )
+        try:
+            [start] = embed_url.get('start')
+        except (KeyError, ValueError):
+            return watch_url
+        if not start.isdigit():
+            return watch_url  # Ignore an invalid second offset.
+        return watch_url.replace(fragment='t={}s'.format(start))
+
+    def _thumbnail_url(self, embed_url):
+        """
+        Generate the URL of the thumbnail for a YouTube video embed.
+
+        There are a few apparent options for the filename in this URL:
+
+        default.jpg — always seems to be available, even on old videos, but is tiny (120×90).
+
+        mqdefault.jpg — always seems to be available, and has a more contemporary
+        aspect ratio (320×180). This is what this function returns.
+
+        hqdefault.jpg — always seems to be available (though I haven't tested
+        videos more than 5 years old), but it is always 4:3 (480×360), so recent
+        videos are letterboxed.
+
+        maxresdefault.jpg — only recent videos seem to have this (e.g., all of
+        the videos I've checked on the YouTube homepage as of October 2017 do).
+
+        An old video which lacks maxresdefault.jpg: https://www.youtube.com/watch?v=XPIFncE22pw
+        A recent video from the homepage which has all of them: https://www.youtube.com/watch?v=R1ZXOOLMJ8s
+
+        See also https://boingboing.net/features/getthumbs.html
+        """
+        video_id = embed_url.path[1]
+        return URL(
+            scheme='https',
+            host='i.ytimg.com',
+            path=('vi', video_id, 'mqdefault.jpg'),
+        )
+
+    def __iter__(self, _SRC_ATTR=(None, 'src'), _youtube_hosts=('youtube.com',
+                                                                'www.youtube.com',
+                                                                'youtube-nocookie.com',
+                                                                'www.youtube-nocookie.com')):
+        html_ns = namespaces['html']
+        elide = False
+        for token in BaseFilter.__iter__(self):
+            token_type = token['type']
+            if elide:
+                # NOTE html5lib doesn't permit nesting <iframe> tags,
+                # (presumably because HTML5 doesn't permit it). Therefore we
+                # don't need to deal with that case here, just wait for the
+                # first end tag.
+                if token_type == 'EndTag' and token['name'] == 'iframe':
+                    elide = False
+            else:
+                if (
+                    token_type == 'StartTag' and
+                    token['name'] == 'iframe' and
+                    token['namespace'] == html_ns and
+                    'data' in token and
+                    _SRC_ATTR in token['data']
+                ):
+                    url = URL.from_text(token['data'][_SRC_ATTR])
+                    if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == 'embed':
+                        yield {
+                            'type': 'StartTag',
+                            'namespace': html_ns,
+                            'name': 'a',
+                            'data': OrderedDict([
+                                ((None, 'href'), self._watch_url(url).to_text()),
+                                ((None, 'target'), '_blank'),
+                            ]),
+                        }
+                        yield {
+                            'type': 'EmptyTag',
+                            'namespace': html_ns,
+                            'name': u'img',
+                            'data': OrderedDict([
+                                ((None, 'alt'), 'YouTube video'),
+                                (_SRC_ATTR, self._thumbnail_url(url).to_text()),
+                                ((None, 'width'), '320'),
+                                ((None, 'height'), '180'),
+                            ]),
+                        }
+                        yield {
+                            'type': 'EndTag',
+                            'namespace': html_ns,
+                            'name': 'a',
+                        }
+                        elide = True
+                    else:
+                        yield token
+                else:
+                    yield token
