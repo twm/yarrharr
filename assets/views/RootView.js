@@ -8,14 +8,14 @@ import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
-import { labelsByTitle, feedsByNewCount } from 'sorting.js';
+import { labelsByTitle, feedsByTitle } from 'sorting.js';
 import './RootView.less';
 
 
 class RootView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props);
-        const feedList = feedsByNewCount(this.props);
+        const feedList = feedsByTitle(this.props);
         return <div className={"root-view layout-" + this.props.layout}>
             <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
             <Header icon={<Logo width="48" height="48" />} text="Yarrharr Feed Reader" />
