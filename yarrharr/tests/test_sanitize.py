@@ -197,6 +197,15 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' width=320 height=180></a>after'
         ), sanitize_html(html))
 
+    def test_img_title_to_aside(self):
+        """
+        As it is painful to view the "title text" of an image from
+        a touchscreen device, inject the text as an ``<aside>`` element after
+        the image.
+        """
+        html = u'<img title="blah blah">'
+        self.assertEqual(u'<img title="blah blah"><aside>blah blah</aside>', sanitize_html(html))
+
 
 def print_tokens(html):
     tree = html5lib.parseFragment(html)

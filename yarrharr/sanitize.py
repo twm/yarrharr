@@ -66,7 +66,7 @@ def sanitize_html(html):
     tree = html5lib.parseFragment(html)
     w = html5lib.getTreeWalker('etree')
     s = html5lib.serializer.HTMLSerializer(sanitize=True)
-    return s.render(_ReplaceYoutubeEmbedFilter(_ElideFilter(_ReplaceObjectFilter(w(tree)))))
+    return s.render(_ExtractTitleTextFilter(_ReplaceYoutubeEmbedFilter(_ElideFilter(_ReplaceObjectFilter(w(tree))))))
 
 
 class _ElideFilter(BaseFilter):
@@ -238,3 +238,36 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                         yield token
                 else:
                     yield token
+
+
+class _ExtractTitleTextFilter(BaseFilter):
+    """
+    ``<img title="...">`` becomes ``<img><aside>...</aside>``
+    """
+    def __iter__(self, _title_attr=(None, 'title')):
+        html_ns = namespaces['html']
+        for token in BaseFilter.__iter__(self):
+            yield token
+            if (
+                token['type'] == 'EmptyTag' and
+                token['name'] == 'img' and
+                token['namespace'] == html_ns and
+                'data' in token
+            ):
+                attrs = token['data']
+                if _title_attr in attrs:
+                    yield {
+                        'type': 'StartTag',
+                        'namespace': html_ns,
+                        'name': 'aside',
+                        'data': OrderedDict(),  # TODO Some way to pass through special styling.
+                    }
+                    yield {
+                        'type': 'Characters',
+                        'data': attrs[_title_attr],
+                    }
+                    yield {
+                        'type': 'EndTag',
+                        'namespace': html_ns,
+                        'name': 'aside',
+                    }
