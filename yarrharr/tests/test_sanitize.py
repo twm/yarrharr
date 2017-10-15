@@ -138,6 +138,10 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertIn(sanitize_html(html), (html, html2))
 
     def test_youtube_embed_replaced(self):
+        """
+        An ``<iframe>`` style embedded YouTube video is replaced by a thumbnail
+        which links to the original video.
+        """
         html = (
             u'<p>'
             u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
@@ -148,6 +152,49 @@ class SanitizeHtmlTests(unittest.TestCase):
             u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o" target=_blank>'
             u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
             u' width=320 height=180></a>'
+        ), sanitize_html(html))
+
+    def test_youtube_nocookie_embed_replaced(self):
+        """
+        A "privacy-enhanced" YouTube embed, which uses the youtube-nocookie.com domain, is replaced with a link.
+        """
+        html = (
+            u'<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q0CbN8sfihY"'
+            u' frameborder="0" allowfullscreen></iframe>'
+        )
+        self.assertEqual((
+            u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY" target=_blank>'
+            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
+            u' width=320 height=180></a>'
+        ), sanitize_html(html))
+
+    def test_youtube_embed_start_timecode_preserved(self):
+        """
+        A YouTube embed which links to a specific time in the video produces a link to that same time.
+        """
+        html = (
+            u'<iframe width="560" height="315" frameborder="0" allowfullscreen '
+            u' src="https://www.youtube.com/embed/wZZ7oFKsKzY?rel=0&amp;showinfo=0&amp;start=3601"></iframe>'
+        )
+        self.assertEqual((
+            u'<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s" target=_blank>'
+            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/wZZ7oFKsKzY/mqdefault.jpg"'
+            u' width=320 height=180></a>'
+        ), sanitize_html(html))
+
+    def test_youtube_embed_content_dropped(self):
+        """
+        Stuff inside a YouTube embed ``<iframe>`` tag is discarded.
+        """
+        html = (
+            u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
+            u' height="315" src="http://www.youtube.com/embed/Q0CbN8sfihY" '
+            u' width="560"><p>inside</iframe>after'
+        )
+        self.assertEqual((
+            u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY" target=_blank>'
+            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
+            u' width=320 height=180></a>after'
         ), sanitize_html(html))
 
 
