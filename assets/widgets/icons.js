@@ -1,70 +1,42 @@
 import React from 'react';
-// TODO: #79 Use minified SVG
 
-export function Add(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/add.inkscape.svg')} {...props} />;
-}
+import Add from '../art/add.svg';
+export { Add as Add };
 
 export function Remove(props) {
-return <img src={window.__webpack_public_path__ + require('../art/add.inkscape.svg')} {...props} style={{transform: 'rotate(45deg)'}} />;
+    return <Add {...props} style={{transform: 'rotate(45deg)'}} />;
 }
 
-export function ArrowLeft(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="32" height="32" {...props} />;
-}
-
+import Arrow from '../art/arrow.svg';
+export { Arrow as ArrowLeft };
 export function ArrowRight(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/arrow.inkscape.svg')} width="32" height="32" style={{transform: 'rotate(180deg)'}} {...props} />;
+    return <Arrow {...props} style={{transform: 'rotate(180deg)'}} />;
 }
 
-export function Home(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/home.inkscape.svg')} width="40" height="40" {...props} />;
-}
+import Home from '../art/home.svg';
+export { Home as Home };
 
 export function Logo(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/icon.inkscape.svg')} width="32" height="32" {...props} />;
+    return <img src={window.__webpack_public_path__ + require('../art/icon.svg')} width="32" height="32" {...props} />;
 }
 
-export function Star(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/star.inkscape.svg')} width="32" height="32" {...props} />;
-}
+import Check from '../art/check.svg';
+export { Check as Check };
 
-export function Check(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/check.inkscape.svg')} width="32" height="32" {...props} />;
-}
+import CheckEmpty from '../art/check-empty.svg';
+export { CheckEmpty as CheckEmpty };
 
-export function CheckEmpty(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/check-empty.inkscape.svg')} width="32" height="32" {...props} />;
-}
+import Heart from '../art/heart.svg';
+export { Heart as Heart };
 
-export function Heart(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/heart.inkscape.svg')} width="32" height="32" {...props} />;
-}
+import HeartEmpty from '../art/heart-empty.svg';
+export { HeartEmpty as HeartEmpty };
 
-export function HeartEmpty(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/heart-empty.inkscape.svg')} width="32" height="32" {...props} />;
-}
+import Outbound from '../art/outbound.svg';
+export { Outbound as Outbound };
 
-export function Outbound(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/outbound.inkscape.svg')} {...props} />;
-}
+import Narrow from '../art/narrow.svg';
+export { Narrow as Narrow };
 
-export function List(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/list.inkscape.svg')} {...props} />;
-}
-
-export function Narrow(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/narrow.inkscape.svg')} {...props} />;
-}
-
-export function Wide(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/wide.inkscape.svg')} {...props} />;
-}
-
-export function Ascending(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/ascending.inkscape.svg')} {...props} />;
-}
-
-export function Descending(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/ascending.inkscape.svg')} style={{transform: 'rotate(180deg)'}} {...props} />;
-}
+import Wide from '../art/wide.svg';
+export { Wide as Wide };

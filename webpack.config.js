@@ -63,20 +63,24 @@ module.exports = {
             loaders: ['babel-loader'],
             exclude: /node_modules/,
         }, {
-            test: /\.svg$/,
-            // use: [{
-            //     loader: 'file-loader',
-            //     options: {
-            //         name: '[name].[hash].[ext]',
-            //     },
-            // }],
+            // Files which must currently be used as images.
+            // icon.svg — included as a file from non-React pages.
+            // label.svg — used as a CSS background image.
+            test: /(icon|label)\.svg$/,
             use: [{
-                loader: 'svgr/webpack',
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[hash].[ext]',
+                },
+            }],
+        }, {
+            test: /\.svg$/,
+            use: ['babel-loader', './svghack.js', {
+                loader: 'svgr/lib/webpack',
                 options: {
                     // See https://github.com/smooth-code/svgr#options
-                    icon: true,
                 },
-            }, 'babel-loader'],
+            }],
         }],
     },
     output: {
