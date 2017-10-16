@@ -1,4 +1,5 @@
 import React from 'react';
+import './icons.less';
 
 import Add from '../icons/add.svg';
 export { Add as Add };
@@ -26,11 +27,10 @@ export { Check as Check };
 import CheckEmpty from '../icons/check-empty.svg';
 export { CheckEmpty as CheckEmpty };
 
-import Heart from '../icons/heart.svg';
-export { Heart as Heart };
-
-import HeartEmpty from '../icons/heart-empty.svg';
-export { HeartEmpty as HeartEmpty };
+import HeartSVG from '../icons/heart-empty.svg';
+export function Heart({empty}) {
+    return <HeartSVG className={"icon icon-heart " + (empty ? "icon-empty" : "")} />;
+}
 
 import Outbound from '../icons/outbound.svg';
 export { Outbound as Outbound };

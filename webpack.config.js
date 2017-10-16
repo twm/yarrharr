@@ -79,6 +79,8 @@ module.exports = {
                 loader: 'svgr/lib/webpack',
                 options: {
                     // See https://github.com/smooth-code/svgr#options
+                    // Be sure icon SVGs have a viewBox attribute!
+                    icon: true,  // width=1em height=1em
                 },
             }],
         }],

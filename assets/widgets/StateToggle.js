@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Check, CheckEmpty, Heart, HeartEmpty } from 'widgets/icons.js';
+import { Check, CheckEmpty, Heart } from 'widgets/icons.js';
 
 const STYLE_HIDDEN = {visibility: "hidden"};
 
@@ -47,10 +47,9 @@ export class FaveToggleLink extends React.PureComponent {
         if (this.props.fave == null) {
             return <a role="button" aria-disabled={true} tabIndex={-1} href="#"><HeartEmpty width="40" height="40" alt="" style={STYLE_HIDDEN} /></a>;
         }
-        const Image = this.props.fave ? Heart : HeartEmpty;
         const text = this.props.fave ? "Favorite" : "Not Favorite";
         const actionText = this.props.fave ? "Mark article as not favorite" : "Mark article as favorite";
-        return <a role="button" tabIndex="0" title={actionText} href="#" onClick={this.handleClick}><Image width="40" height="40" alt={text} /></a>;
+        return <a role="button" tabIndex="0" aria-label={text} title={actionText} href="#" onClick={this.handleClick}><Heart empty={!this.props.fave} aria-hidden="true" /></a>;
     }
 }
 
