@@ -64,12 +64,19 @@ module.exports = {
             exclude: /node_modules/,
         }, {
             test: /\.svg$/,
+            // use: [{
+            //     loader: 'file-loader',
+            //     options: {
+            //         name: '[name].[hash].[ext]',
+            //     },
+            // }],
             use: [{
-                loader: 'file-loader',
+                loader: 'svgr/webpack',
                 options: {
-                    name: '[name].[hash].[ext]',
+                    // See https://github.com/smooth-code/svgr#options
+                    icon: true,
                 },
-            }],
+            }, 'babel-loader'],
         }],
     },
     output: {
