@@ -66,7 +66,7 @@ module.exports = {
             // Files which must currently be used as images.
             // icon.svg — included as a file from non-React pages.
             // label.svg — used as a CSS background image.
-            test: /(icon|label)\.svg$/,
+            test: /assets\/art\/.*\.svg$/,
             use: [{
                 loader: 'file-loader',
                 options: {
@@ -74,7 +74,7 @@ module.exports = {
                 },
             }],
         }, {
-            test: /\.svg$/,
+            test: /assets\/icons\/.*\.svg$/,
             use: ['babel-loader', './svghack.js', {
                 loader: 'svgr/lib/webpack',
                 options: {
