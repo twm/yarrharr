@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="arrow.inkscape.svg">
+   sodipodi:docname="arrow.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32"
-     inkscape:cx="4.4154185"
-     inkscape:cy="11.023896"
+     inkscape:zoom="28.34375"
+     inkscape:cx="42.010781"
+     inkscape:cy="1.4818583"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -55,7 +55,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -65,18 +65,9 @@
      id="layer1"
      transform="translate(0,-1020.3622)">
     <path
-       id="path3780"
-       d="m 16.211955,1021.8934 -7.2131201,7.2188 -7.2131206,7.25 7.2131206,7.25 7.2131201,7.2188 c 1.835952,-1.848 0.61967,-3.4112 -0.8125,-4.8438 l -2.377051,-2.375 -7.2131202,-7.25 7.2131202,-7.25 2.377051,-2.375 c 2.075132,-1.9537 1.956993,-3.4163 0.8125,-4.8438 z"
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#666666;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2.90476203;marker:none;enable-background:accumulate"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccccccccc" />
-    <rect
-       style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#666666;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.5999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
-       id="rect4135"
-       width="23"
-       height="3"
-       x="5"
-       y="1034.8622"
-       ry="0.5000174" />
+       style="color:#000000;fill:#666666;stroke-width:2.90476203"
+       d="M 16.212891 1.53125 L 8.9980469 8.75 L 1.7851562 16 L 8.9980469 23.25 L 16.212891 30.46875 C 18.048843 28.62075 16.832561 27.0576 15.400391 25.625 L 13.021484 23.25 L 7.3007812 17.5 L 27.5 17.5 C 27.77701 17.5 28 17.27701 28 17 L 28 15 C 28 14.72299 27.77701 14.5 27.5 14.5 L 7.3007812 14.5 L 13.021484 8.75 L 15.400391 6.375 C 17.475523 4.4213 17.357384 2.95875 16.212891 1.53125 z "
+       transform="translate(0,1020.3622)"
+       id="path3780" />
   </g>
 </svg>

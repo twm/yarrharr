@@ -1,17 +1,15 @@
 @import "../globals.less";
 
-@list_article_line_height: 1.25rem;
-
 .list-article {
     contain: strict;
 
-    height: calc(2 * @list_article_line_height + 2 * @text_padding + 2 * @button_border_width);
+    height: @bar_height;
 
     /* The line height relates to the above height calculation, which allows
      * for two lines of text. We must make sure that the line-height is
      * a static value, not based on the x-height of the font, since we don't
      * specify the font. */
-    line-height: @list_article_line_height;
+    line-height: @bar_line_height;
 
     margin: 0 0 1px 0;
 
@@ -27,15 +25,15 @@
     a[role=button], .outbound {
         .flat-button;
         &:focus { .flat-button-focus; }
+        display: flex;
+        flex: 0 0 @bar_height;
+        align-items: center;
+        justify-content: center;
+        font-size: @icon_size;
     }
 
     a {
         padding: 0.25rem;
-    }
-    a > img {
-        display: block;
-        width: 2.5rem;
-        height: 2.5rem;
     }
 
     a.view-link {

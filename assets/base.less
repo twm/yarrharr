@@ -139,25 +139,37 @@ input[type=submit],
 .bar {
     display: flex;
     justify-content: space-between;
-    height: 44px;
+    height: @bar_height;
+    line-height: @bar_line_height;
     contain: size layout style;
 
     & > * {
         .flat-button;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     & > a[href]:focus {
         .flat-button-focus;
     }
 
-    & > * > .icon {
+    & .icon {
         display: block;
-        font-size: 40px; /* icon size */
+        font-size: @icon_size;
+    }
+
+    & > .square,
+    & > .expand > .square {
+        flex: 0 0 @bar_height;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     & > .expand {
         flex: 1 1 0;
-        min-width: 0; /* allow shrinking below content size */
+        min-width: @bar_height; /* allow shrinking below content size */
     }
 }
 

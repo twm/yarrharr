@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="home.inkscape.svg">
+   sodipodi:docname="home.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="19.766565"
-     inkscape:cx="9.6970069"
-     inkscape:cy="35.013769"
+     inkscape:zoom="7.4863833"
+     inkscape:cx="-19.51365"
+     inkscape:cy="29.362024"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -53,7 +53,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -63,8 +63,8 @@
      id="layer1"
      transform="translate(0,-1004.3622)">
     <path
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#666666;stroke-width:2;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker:none;enable-background:accumulate"
-       d="m 24,1014.4208 -15,10 c 0,6.3138 0,12.6276 0,18.9414 0,0.554 0.446,1 1,1 l 10,0 0,-12.0664 c 0,-0.554 0.446,-1 1,-1 l 6,0 c 0.554,0 1,0.446 1,1 l 0,12.0664 10,0 c 0.554,0 1,-0.446 1,-1 0,-6.3138 0,-12.6276 0,-18.9414 z"
+       style="color:black;fill:none;stroke:#666;stroke-width:2;stroke-linecap:square;stroke-linejoin:round"
+       d="m 24,1009.6167 -18.745441,12.5214 c 0,7.906 0,15.8116 0,23.7176 0,0.6936 0.5573647,1.2519 1.2496962,1.2519 l 12.4969608,0 0,-15.1088 c 0,-0.6937 0.557365,-1.2521 1.249696,-1.2521 l 7.498176,0 c 0.692332,0 1.249697,0.5584 1.249697,1.2521 l 0,15.1088 12.49696,0 c 0.692332,0 1.249695,-0.5583 1.249695,-1.2519 0,-7.906 0,-15.8116 0,-23.7176 z"
        id="rect4894"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccscsssscsccc" />

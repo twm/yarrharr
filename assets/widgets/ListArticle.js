@@ -6,7 +6,7 @@ import "./ListArticle.less";
 
 const PLACEHOLDER = <div className="list-article"></div>;
 const BR = <br />;
-const OUTBOUND_ICON = <Outbound alt="View on source site" width="40" height="40" />;
+const OUTBOUND_ICON = <Outbound aria-hidden={true} />;
 
 export default class ListArticle extends React.PureComponent {
     render() {

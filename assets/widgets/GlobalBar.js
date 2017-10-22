@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { Home } from 'widgets/icons.js';
-import { Narrow, Wide } from 'widgets/icons.js';
+import Home from 'icons/home.svg';
+import Narrow from 'icons/narrow.svg';
+import Wide from 'icons/wide.svg';
+
 import { RootLink } from 'widgets/links.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
@@ -21,14 +23,14 @@ export class LayoutToggleLink extends React.PureComponent {
         const Image = narrow ? Wide : Narrow;
         const text = narrow ? "Wide" : "Narrow"
         const actionText = narrow ? "Switch to wide layout" : "Switch to narrow layout"
-        return <a role="button" tabIndex="0" href="#" onClick={this.handleClick} title={actionText} ><Image width="40" height="40" alt={text} /></a>;
+        return <a role="button" className="square" tabIndex="0" aria-label={text} href="#" onClick={this.handleClick} title={actionText} ><Image className="icon" aria-hidden={true} /></a>;
     }
 }
 
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink><Home alt="Home" /></RootLink>
+            <RootLink className="square" aria-label="Home"><Home className="icon" aria-hidden={true} /></RootLink>
             <LayoutToggleLink layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
         </div>;
     }
