@@ -37,12 +37,11 @@
         </footer>
 
         {% if debug %}
-            <h1>{{ sql_queries|length }} SQL Queries</h1>
-            <ol>
-                {% for query in sql_queries %}
-                    <li><p>{{ query.time }}</p><pre style="white-space: pre-wrap">{{ query.sql }}</pre>
-                {% endfor %}
-            </ol>
+            <details>
+            <summary>{{ sql_queries|length }} SQL Queries</summary>
+            <pre>{% for query in sql_queries %}{{ query.time }} sec: {{ query.sql }}
+{% endfor %}</pre>
+            </details>
         {% endif %}
     </body>
 </html>
