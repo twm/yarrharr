@@ -5,7 +5,7 @@ import { ReadToggleLink } from 'widgets/StateToggle.js';
 import "./ListArticle.less";
 
 const PLACEHOLDER = <div className="list-article"></div>;
-const BR = <br />;
+const BR = <br key="br" />;
 const OUTBOUND_ICON = <Outbound aria-hidden={true} />;
 
 export default class ListArticle extends React.PureComponent {
@@ -20,7 +20,7 @@ export default class ListArticle extends React.PureComponent {
                     articleId: props.id,
                     className: "view-link",
                     children: [
-                        <span className="meta">{props.feed.text || props.feed.title} on {props.date}</span>,
+                        <span key="meta" className="meta">{props.feed.text || props.feed.title} on {props.date}</span>,
                         BR,
                         props.title || "Untitled",
                     ],
