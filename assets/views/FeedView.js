@@ -352,10 +352,10 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             className: "prev-link expand",
             articleId: prevId,
             children: [
-                <div className="square">
+                <div key="icon" className="square">
                     <ArrowLeft className="icon" aria-hidden={true} />
                 </div>,
-                <div>
+                <div key="text">
                     <span>Previous </span>
                     {prev && prev.title ? <span className="title">{prev.title}</span> : null}
                 </div>,
@@ -367,9 +367,7 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             className: "next-link square",
             title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
             articleId: nextId,
-            children: [
-                <ArrowRight className="icon" aria-hidden={true} />,
-            ],
+            children: <ArrowRight className="icon" aria-hidden={true} />,
         }) : <span className="square"></span>}
     </div>;
 }
@@ -392,15 +390,15 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
             className: "next-link expand",
             articleId: nextId,
             children: [
-                <div>
+                <div key="text">
                     <span>Next </span>
                     {next && next.title ? <span className="title">{next.title}</span> : null}
                 </div>,
-                <div className="square">
+                <div className="square" key="icon">
                     <ArrowRight className="icon" aria-hidden={true} />
                 </div>,
             ],
-        }) : <span key={nextId} className="expand"></span>}
+        }) : <span className="expand"></span>}
     </div>;
 }
 
