@@ -9,12 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="48"
-   height="48"
+   viewBox="0 0 32 32"
+   width="32"
+   height="32"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="add.inkscape.svg">
+   sodipodi:docname="arrow.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -24,17 +25,19 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.839192"
-     inkscape:cx="19.338603"
-     inkscape:cy="31.872368"
+     inkscape:zoom="28.34375"
+     inkscape:cx="42.010781"
+     inkscape:cy="1.4818583"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="2037"
-     inkscape:window-x="1920"
+     inkscape:window-width="3840"
+     inkscape:window-height="2072"
+     inkscape:window-x="0"
      inkscape:window-y="49"
-     inkscape:window-maximized="0">
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true">
     <inkscape:grid
        type="xygrid"
        id="grid2985"
@@ -52,7 +55,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -60,11 +63,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1004.3622)">
+     transform="translate(0,-1020.3622)">
     <path
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#666666;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker:none;enable-background:accumulate"
-       d="M 23 4 C 22.445991 4 22 4.446 22 5 L 22 22 L 5 22 C 4.446 22 4 22.446 4 23 L 4 25 C 4 25.554 4.446 26 5 26 L 22 26 L 22 43 C 22 43.554 22.445991 44 23 44 L 25 44 C 25.554009 44 26 43.554 26 43 L 26 26 L 43 26 C 43.554 26 44 25.554 44 25 L 44 23 C 44 22.446 43.554 22 43 22 L 26 22 L 26 5 C 26 4.446 25.554009 4 25 4 L 23 4 z "
-       transform="translate(0,1004.3622)"
-       id="rect4884" />
+       style="color:#000000;fill:#666666;stroke-width:2.90476203"
+       d="M 16.212891 1.53125 L 8.9980469 8.75 L 1.7851562 16 L 8.9980469 23.25 L 16.212891 30.46875 C 18.048843 28.62075 16.832561 27.0576 15.400391 25.625 L 13.021484 23.25 L 7.3007812 17.5 L 27.5 17.5 C 27.77701 17.5 28 17.27701 28 17 L 28 15 C 28 14.72299 27.77701 14.5 27.5 14.5 L 7.3007812 14.5 L 13.021484 8.75 L 15.400391 6.375 C 17.475523 4.4213 17.357384 2.95875 16.212891 1.53125 z "
+       transform="translate(0,1020.3622)"
+       id="path3780" />
   </g>
 </svg>

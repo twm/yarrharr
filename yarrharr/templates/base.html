@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, user-scalable=no">
         <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="{% static 'icon.ico' %}">
         <link rel="icon" sizes="152x152" type="image/png" href="{% static 'icon.touch.png' %}">
+        <link rel="icon" sizes="any" type="image/svg+xml" href="{% static 'icon.*.svg'|newest_static %}">
         <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static 'icon.touch.png' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'main.*.css'|newest_static %}">
         <script>
@@ -37,12 +38,11 @@
         </footer>
 
         {% if debug %}
-            <h1>{{ sql_queries|length }} SQL Queries</h1>
-            <ol>
-                {% for query in sql_queries %}
-                    <li><p>{{ query.time }}</p><pre style="white-space: pre-wrap">{{ query.sql }}</pre>
-                {% endfor %}
-            </ol>
+            <details>
+            <summary>{{ sql_queries|length }} SQL Queries</summary>
+            <pre>{% for query in sql_queries %}{{ query.time }} sec: {{ query.sql }}
+{% endfor %}</pre>
+            </details>
         {% endif %}
     </body>
 </html>

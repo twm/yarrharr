@@ -352,23 +352,23 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             className: "prev-link expand",
             articleId: prevId,
             children: [
-                <ArrowLeft width="40" height="40" alt="Previous" />,
-                <div>
-                    <b>Previous </b>
-                    <span className="title">{prev ? (prev.title || "Untitled") : ""}</span>
+                <div key="icon" className="square">
+                    <ArrowLeft className="icon" aria-hidden={true} />
+                </div>,
+                <div key="text">
+                    <span>Previous </span>
+                    {prev && prev.title ? <span className="title">{prev.title}</span> : null}
                 </div>,
             ],
         }) : <span className="expand"></span>}
-        {article ? <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
-        {article ? <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null }
+        {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
+        {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null }
         {nextId ? renderLink({
-            className: "next-link",
+            className: "next-link square",
             title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
             articleId: nextId,
-            children: [
-                <ArrowRight width="40" height="40" alt="Next" />,
-            ],
-        }) : <span key={nextId} className="next-link"></span>}
+            children: <ArrowRight className="icon" aria-hidden={true} />,
+        }) : <span className="square"></span>}
     </div>;
 }
 
@@ -379,26 +379,26 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
 
     return <div className="bar">
         {prevId ? renderLink({
-            className: "prev-link",
+            className: "prev-link square",
             title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),
             articleId: prevId,
-            children: [
-                <ArrowLeft width="40" height="40" alt="Previous" />,
-            ],
+            children: <ArrowLeft className="icon" aria-hidden={true} />,
         }) : null}
-        {article ? <ReadToggleLink articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
-        {article ? <FaveToggleLink articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
+        {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
+        {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
         {nextId ? renderLink({
             className: "next-link expand",
             articleId: nextId,
             children: [
-                <div>
-                    <b>Next </b>
-                    <span className="title">{next ? (next.title || "Untitled") : ""}</span>
+                <div key="text">
+                    <span>Next </span>
+                    {next && next.title ? <span className="title">{next.title}</span> : null}
                 </div>,
-                <ArrowRight width="40" height="40" alt="" />,
+                <div className="square" key="icon">
+                    <ArrowRight className="icon" aria-hidden={true} />
+                </div>,
             ],
-        }) : <span key={nextId} className="expand"></span>}
+        }) : <span className="expand"></span>}
     </div>;
 }
 

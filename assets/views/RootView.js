@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Logo, Heart } from 'widgets/icons.js';
+import { Logo } from 'widgets/icons.js';
+import Heart from 'icons/heart-empty.svg';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
@@ -41,8 +42,7 @@ class RootView extends React.PureComponent {
                             </LabelLink>
                             {label.faveCount
                                 ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_FAVE}>
-                                    <Heart width="48" height="48" alt="" className="star-icon" />
-                                    <span className="fave-count">{label.faveCount}</span>
+                                    <Heart className="icon-heart" aria-hidden={true} /> {label.faveCount}
                                 </LabelLink>
                                 : null}
                         </li>)
@@ -56,8 +56,7 @@ class RootView extends React.PureComponent {
                             </FeedLink>
                             {feed.faveCount
                                 ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_FAVE}>
-                                    <Heart width="48" height="48" alt="" className="star-icon" />
-                                    <span className="fave-count">{feed.faveCount}</span>
+                                    <Heart className="icon-heart" aria-hidden={true} /> {feed.faveCount}
                                 </FeedLink>
                                 : null}
                         </li>)
