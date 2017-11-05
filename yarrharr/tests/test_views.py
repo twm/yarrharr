@@ -33,6 +33,50 @@ from django.utils import timezone
 # from ..models import Feed
 
 
+class LoginRedirectTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='james',
+            email='james@mail.example',
+            password='hunter2',
+        )
+
+    def test_login_redirect(self):
+        """
+        When redirecting post-login all of the paths handled by the SPA are
+        valid.  See #122.
+        """
+        c = Client()
+        nexts = [
+            '/',
+            '/all/fave',
+            '/all/unread/1234',
+            '/label/1234/unread',
+            '/label/1234/fave/',
+            '/label/1234/unread/1234',
+            '/label/1234/all/1234/',
+            '/feed/1/unread',
+            '/feed/2/fave/',
+            '/feed/3/all/4'
+            '/feed/5/all/678/'
+            '/inventory',
+            '/inventory/',
+            '/inventory/add',
+            '/inventory/add/',
+        ]
+
+        redirects = []
+        for next_ in nexts:
+            response = c.post('/login/', {
+                'next': next_,
+                'username': 'james',
+                'password': 'hunter2',
+            })
+            redirects.append(response['Location'])
+
+        self.assertEqual(nexts, redirects)
+
+
 class InventoryViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
