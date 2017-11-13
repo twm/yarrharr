@@ -20,7 +20,7 @@ export class Label extends React.PureComponent {
     }
     render() {
         return <span className="label">
-            <span className="label-text">{this.props.label.text}</span>
+            {this.props.label.text}
             <a className="label-x" role="button" href="#" onClick={this.handleClickX}> × </a>
         </span>;
     }

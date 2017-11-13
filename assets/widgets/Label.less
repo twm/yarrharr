@@ -3,21 +3,15 @@
 .label {
     white-space: nowrap;
     display: inline-block;
-    padding: 0 0.25em 0 0;
-}
-
-.label-text {
-    display: inline-block;
-    padding: 0.5em 0.75em 0.5em 1em;
-    background: no-repeat -0.5em 50% url('../art/label.svg');
+    padding: 0 0.2em 0 .75em;
+    border-image-source: url("../art/label.svg");
+    border-image-slice: 12;
+    border-image-width: 0.45em;
 }
 
 a.label-x:link,
 a.label-x:visited {
-    display: inline-block;
-    padding: 0.5em 0.75em;
-    border-left: 1px solid #f0f0f0;
-    background: #dbdbdb;
+    padding: 0 0.5em;
     font: inherit;
 }
 
