@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Remove } from 'widgets/icons.js';
+import { LabelLink } from 'widgets/links.js';
+import { FILTER_UNREAD } from '../actions.js';
 import "./Label.less";
 
 const __debug__ = process.env.NODE_ENV !== 'production';
@@ -10,19 +12,10 @@ const __debug__ = process.env.NODE_ENV !== 'production';
  * detach it from the feed.
  */
 export class Label extends React.PureComponent {
-    constructor(props) {
-        super(props);
-        this.handleClickX = (event) => {
-            console.log(event);
-            event.preventDefault();
-            this.props.onDetachLabel(this.props.feedId, this.props.label.id);
-        };
-    }
     render() {
-        return <span className="label">
-            {this.props.label.text}
-            <a className="label-x" role="button" href="#" onClick={this.handleClickX}> × </a>
-        </span>;
+        return <LabelLink labelId={this.props.label.id} filter={FILTER_UNREAD}>
+            <span className="label">{this.props.label.text}</span>
+        </LabelLink>;
     }
 }
 
@@ -33,10 +26,77 @@ if (__debug__) {
             id: PropTypes.number.isRequired,
             text: PropTypes.string.isRequired,
         }).isRequired,
-        onDetachLabel: PropTypes.func.isRequired,
     };
 }
 
+
+/**
+ * LabelSelector presents a checkbox for each label.
+ */
+export class LabelSelector extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleAdd = this.handleAdd.bind(this);
+    }
+    unappliedLabels() {
+        return this.props.labelList.filter(function(label) {
+            return this.props.feed.labels.indexOf(label.id) < 0;
+        }, this);
+    }
+    render() {
+        const feed = this.props.feed;
+        return <div className="label-selector">
+            {this.props.labelList.map(label =>
+                <LabelCheckbox key={label.id} feed={feed} label={label}
+                    onAttachLabel={this.props.onAttachLabel}
+                    onDetachLabel={this.props.onDetachLabel} />)}
+        </div>;
+    }
+    handleAdd(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var text = prompt("Label Name:", "");
+        if (text) {
+            this.props.onAddLabel(text);
+        }
+    }
+}
+
+class LabelCheckbox extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClick = event => {
+            if (event.target.checked) {
+                this.props.onAttachLabel(this.props.feed.id, this.props.label.id);
+            } else {
+                this.props.onDetachLabel(this.props.feed.id, this.props.label.id);
+            }
+        };
+    }
+    render() {
+        return <label key={this.props.label.id}>
+            <input type="checkbox" onChange={this.handleClick}
+                checked={this.props.feed.labels.indexOf(this.props.label.id) >= 0} />
+            <span className="label">{this.props.label.text}</span>
+        </label>;
+    }
+}
+
+if (__debug__) {
+    LabelSelector.propTypes = {
+        labelList: PropTypes.array.isRequired,
+        feed: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            labels: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
+        }).isRequired,
+        // Will be called with the text of the label to add.
+        onAddLabel: PropTypes.func.isRequired,
+        // Will be called with the feedId and labelId to associate it with.
+        onAttachLabel: PropTypes.func.isRequired,
+        // Will be called when the feedId and labelId to disassociate.
+        onDetachLabel: PropTypes.func.isRequired,
+    };
+}
 
 export class AttachLabelButton extends React.PureComponent {
     constructor(props) {

@@ -2,17 +2,29 @@
 
 .label {
     white-space: nowrap;
-    display: inline-block;
-    padding: 0 0.2em 0 .75em;
+    display: inline-block; /* Otherwise the top and bottom borders are too close. */
+    padding: 0 0.4em 0 .7em;
     border-image-source: url("../art/label.svg");
     border-image-slice: 12;
     border-image-width: 0.45em;
 }
 
-a.label-x:link,
-a.label-x:visited {
-    padding: 0 0.5em;
-    font: inherit;
+a > .label {
+    /* Force inheritance of the link styles (underline, etc.) */
+    color: inherit;
+    text-decoration: inherit;
+}
+
+.label-selector {
+    display: flex;
+    flex-flow: row wrap;
+
+    label {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 .label-attach {

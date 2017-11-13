@@ -9,7 +9,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Label, AttachLabelButton } from 'widgets/Label.js';
+import { Label, LabelSelector } from 'widgets/Label.js';
 import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -85,18 +85,17 @@ export class FeedHeader extends React.PureComponent {
             <div className="list-header-inner">
                 <h1>{feed.text || feed.title || feed.url}</h1>
                 <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a></p>
-                <div>{feed.labels.length > 0 ? feed.labels.map(labelId => {
-                    const label = this.props.labelsById[labelId];
-                    return <Label key={labelId} feedId={feed.id} label={label}
-                        onDetachLabel={this.props.onDetachLabel} />;
-                }) : "No labels"}
-                    <AttachLabelButton
-                        feed={feed}
-                        labelList={labelList}
+                <details>
+                    <summary>{feed.labels.length > 0 ? feed.labels.map(labelId => {
+                        const label = this.props.labelsById[labelId];
+                        return <Label key={labelId} feedId={feed.id} label={label} />;
+                    }) : "No labels"}
+                    </summary>
+                    <LabelSelector feed={feed} labelList={labelList}
                         onAddLabel={this.props.onAddLabel}
                         onAttachLabel={this.props.onAttachLabel}
-                    />
-                </div>
+                        onDetachLabel={this.props.onDetachLabel} />
+                </details>
                 <details>
                     <summary>{feed.active
                         ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
