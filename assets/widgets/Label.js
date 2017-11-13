@@ -38,11 +38,6 @@ export class LabelSelector extends React.PureComponent {
         super(props);
         this.handleAdd = this.handleAdd.bind(this);
     }
-    unappliedLabels() {
-        return this.props.labelList.filter(function(label) {
-            return this.props.feed.labels.indexOf(label.id) < 0;
-        }, this);
-    }
     render() {
         const feed = this.props.feed;
         return <div className="label-selector">
@@ -50,6 +45,7 @@ export class LabelSelector extends React.PureComponent {
                 <LabelCheckbox key={label.id} feed={feed} label={label}
                     onAttachLabel={this.props.onAttachLabel}
                     onDetachLabel={this.props.onDetachLabel} />)}
+            <a href="#" className="text-button" role="button" onClick={this.handleAdd}>New Label</a>
         </div>;
     }
     handleAdd(event) {
