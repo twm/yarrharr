@@ -84,18 +84,10 @@ export class FeedHeader extends React.PureComponent {
         return <div className="list-header">
             <div className="list-header-inner">
                 <h1>{feed.text || feed.title || feed.url}</h1>
-                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a></p>
-                <details>
-                    <summary>{feed.labels.length > 0 ? feed.labels.map(labelId => {
+                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
                         const label = this.props.labelsById[labelId];
                         return <Label key={labelId} feedId={feed.id} label={label} />;
-                    }) : "No labels"}
-                    </summary>
-                    <LabelSelector feed={feed} labelList={labelList}
-                        onAddLabel={this.props.onAddLabel}
-                        onAttachLabel={this.props.onAttachLabel}
-                        onDetachLabel={this.props.onDetachLabel} />
-                </details>
+                    }) : null}</p>
                 <details>
                     <summary>{feed.active
                         ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
@@ -104,6 +96,10 @@ export class FeedHeader extends React.PureComponent {
                     {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
                     <p>Feed URL: <a href={feed.url} target="_blank">{feed.url}</a></p>
                     <p>Site URL: {feed.siteUrl ? <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a> : "None"}</p>
+                    <LabelSelector feed={feed} labelList={labelList}
+                        onAddLabel={this.props.onAddLabel}
+                        onAttachLabel={this.props.onAttachLabel}
+                        onDetachLabel={this.props.onDetachLabel} />
                 </details>
             </div>
         </div>;
