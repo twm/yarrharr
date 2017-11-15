@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Label, AttachLabelButton, LabelPicker } from 'widgets/Label.js';
+import { Label, LabelSelector } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
@@ -117,28 +117,21 @@ class InventoryItem extends React.PureComponent {
         return <div className="inventory-item-wrap">
             <div className="inventory-item">
                 <h2>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h2>
-                {feed.labels.length
+                <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
+                <div>{feed.labels.length
                     ? feed.labels.map(labelId => {
                         const label = this.props.labelsById[labelId];
-                        return <Label
-                            key={labelId}
-                            feedId={feed.id}
-                            label={label}
-                            onDetachLabel={this.props.onDetachLabel}
-                        />;
+                        return <Label key={labelId} feedId={feed.id} label={label} />;
                     })
-                    : "No labels"}
-                    <AttachLabelButton
-                        feed={feed}
-                        labelList={labelList}
-                        onAddLabel={this.props.onAddLabel}
-                        onAttachLabel={this.props.onAttachLabel}
-                    />
-                <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
+                    : "No labels"}</div>
                 <div><FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.unreadCount} new</FeedLink></div>
                 <div><FeedLink feedId={feed.id} filter={FILTER_FAVE}>{feed.faveCount} marked favorite</FeedLink></div>
                 <div>Last updated {feed.updated || "never"}</div>
                 {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
+                <LabelSelector feed={feed} labelList={labelList}
+                    onAddLabel={this.props.onAddLabel}
+                    onAttachLabel={this.props.onAttachLabel}
+                    onDetachLabel={this.props.onDetachLabel} />
                 <form onSubmit={this.handleSubmit}>
                     <p>
                         <label>Title Override</label>
