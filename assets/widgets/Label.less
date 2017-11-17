@@ -2,23 +2,32 @@
 
 .label {
     white-space: nowrap;
-    display: inline-block;
-    padding: 0 0.25em 0 0;
+    display: inline-block; /* Otherwise the top and bottom borders are too close. */
+    padding: 0 0.6em 0 .7em;
+    line-height: 1.8em;
+    border-image-source: url("../art/label.svg");
+    border-image-slice: 12;
+    border-image-width: 0.55em;
 }
 
-.label-text {
-    display: inline-block;
-    padding: 0.5em 0.75em 0.5em 1em;
-    background: no-repeat -0.5em 50% url('../art/label.svg');
+a > .label {
+    /* Force inheritance of the link styles (underline, etc.) */
+    color: inherit;
+    text-decoration: inherit;
 }
 
-a.label-x:link,
-a.label-x:visited {
-    display: inline-block;
-    padding: 0.5em 0.75em;
-    border-left: 1px solid #f0f0f0;
-    background: #dbdbdb;
-    font: inherit;
+.label-selector {
+    display: flex;
+    flex-flow: row wrap;
+
+    & > * {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        margin: 0 1em 0 0;
+    }
 }
 
 .label-attach {

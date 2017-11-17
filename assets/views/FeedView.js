@@ -9,7 +9,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Label, AttachLabelButton } from 'widgets/Label.js';
+import { Label, LabelSelector } from 'widgets/Label.js';
 import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -84,19 +84,10 @@ export class FeedHeader extends React.PureComponent {
         return <div className="list-header">
             <div className="list-header-inner">
                 <h1>{feed.text || feed.title || feed.url}</h1>
-                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a></p>
-                <div>{feed.labels.length > 0 ? feed.labels.map(labelId => {
-                    const label = this.props.labelsById[labelId];
-                    return <Label key={labelId} feedId={feed.id} label={label}
-                        onDetachLabel={this.props.onDetachLabel} />;
-                }) : "No labels"}
-                    <AttachLabelButton
-                        feed={feed}
-                        labelList={labelList}
-                        onAddLabel={this.props.onAddLabel}
-                        onAttachLabel={this.props.onAttachLabel}
-                    />
-                </div>
+                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
+                        const label = this.props.labelsById[labelId];
+                        return <Label key={labelId} feedId={feed.id} label={label} />;
+                    }) : null}</p>
                 <details>
                     <summary>{feed.active
                         ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
@@ -105,6 +96,10 @@ export class FeedHeader extends React.PureComponent {
                     {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
                     <p>Feed URL: <a href={feed.url} target="_blank">{feed.url}</a></p>
                     <p>Site URL: {feed.siteUrl ? <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a> : "None"}</p>
+                    <LabelSelector feed={feed} labelList={labelList}
+                        onAddLabel={this.props.onAddLabel}
+                        onAttachLabel={this.props.onAttachLabel}
+                        onDetachLabel={this.props.onDetachLabel} />
                 </details>
             </div>
         </div>;
