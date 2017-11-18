@@ -18,50 +18,46 @@ class RootView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
         return <div className={"root-view layout-" + this.props.layout}>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
-            <Header icon={<Logo width="48" height="48" />} text="Yarrharr Feed Reader" />
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
+                <div className="bar-inset">
+                    <div className="text">
+                        <h1>Yarrharr Feed Reader</h1>
+                    </div>
+                </div>
+            </GlobalBar>
             <div className="floater-wrap">
                 <div className="floater">
                     <InventoryLink>Manage Feeds</InventoryLink>
-                    {" \x1b\x1b "}
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
-            <ul className="tiles">
-                <li>
-                    <AllLink className="unread-link" filter={FILTER_UNREAD}>
-                        <div className="feed-title">All Feeds</div>
-                    </AllLink>
-                </li>
-                {labelList.length
-                    ? labelList.map((label) =>
-                        <li key={"label-" + label.id}>
-                            <LabelLink className="unread-link" labelId={label.id} filter={FILTER_UNREAD}>
-                                <div className="feed-title">{label.text}</div>
-                                <div className="unread-count">{label.unreadCount} unread</div>
-                            </LabelLink>
-                            {label.faveCount
-                                ? <LabelLink className="fave-link" labelId={label.id} filter={FILTER_FAVE}>
-                                    <Heart className="icon-heart" aria-hidden={true} /> {label.faveCount}
-                                </LabelLink>
-                                : null}
-                        </li>)
-                    : null}
-                {feedList.length
-                    ? feedList.map((feed) =>
-                        <li key={"feed-" + feed.id}>
-                            <FeedLink className="unread-link" feedId={feed.id} filter={FILTER_UNREAD}>
-                                <div className="feed-title">{feed.text || feed.title}</div>
-                                <div className="unread-count">{feed.unreadCount} unread</div>
-                            </FeedLink>
-                            {feed.faveCount
-                                ? <FeedLink className="fave-link" feedId={feed.id} filter={FILTER_FAVE}>
-                                    <Heart className="icon-heart" aria-hidden={true} /> {feed.faveCount}
-                                </FeedLink>
-                                : null}
-                        </li>)
-                    : <li>No feeds.  Add one?</li>}
-            </ul>
+            <div className="root-inner-wrap">
+                <div className="root-inner">
+                    <p className="all-link">
+                        <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
+                    </p>
+
+                    <ul>
+                        {labelList.length
+                            ? labelList.map((label) =>
+                                <li key={"label-" + label.id}>
+                                    <LabelLink labelId={label.id} filter={FILTER_UNREAD}>
+                                    <span className="label">{label.text}</span>
+                                    </LabelLink>
+                                </li>)
+                            : null}
+                    </ul>
+
+                    <ul>
+                        {feedList.length
+                            ? feedList.map((feed) =>
+                                <li key={"feed-" + feed.id}>
+                                    <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.text || feed.title}</FeedLink>
+                                </li>)
+                            : <li>No feeds.  Add one?</li>}
+                    </ul>
+                </div>
+            </div>
         </div>;
     }
 }

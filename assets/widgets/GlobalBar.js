@@ -31,6 +31,7 @@ export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
             <RootLink className="square" aria-label="Home"><Home className="icon" aria-hidden={true} /></RootLink>
+            {this.props.children}
             <LayoutToggleLink layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
         </div>;
     }

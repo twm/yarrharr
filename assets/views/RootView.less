@@ -1,45 +1,16 @@
 @import "../globals.less";
 
 .root-view {
-    .tiles {
-        padding: 0;
-        max-width: 100%;
-        display: flex;
-        flex-flow: row wrap;
-        list-style: none;
+}
 
-        li {
-            .content-colors;
+.root-inner-wrap {
+    .content-colors;
+}
 
-            flex: 1 1 308px;
-            min-width: 0;
-            display: flex;
-            flex-flow: row nowrap;
-            align-items: center;
-            height: 48px;
-            max-width: 100%;
-            margin: 1px;
-            padding: 0 4px 0 4px;
+.root-inner {
+    margin: 0 auto;
+}
 
-            .unread-link {
-                flex: 1 1 100%;
-                min-width: 0;
-                text-decoration: none !important;
-
-                .feed-title, .unread-count {
-                    width: 100%;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-            .fave-link {
-                align-self: flex-start;
-                flex: 0 0 48px;
-                text-decoration: none !important;
-                text-align: center;
-                position: relative;
-            }
-        }
-    }
+.layout-narrow .root-inner {
+    max-width: @narrow_width;
 }

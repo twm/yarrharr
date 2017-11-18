@@ -47,13 +47,14 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     const feedCount = Object.keys(feedsById).length;
     return <div className={"feed-view layout-" + layout}>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <div className="list-header">
-            <div className="list-header-inner">
-                <h1>All Feeds</h1>
-                <p>{feedCount === 1 ? "1 feed" : feedCount + " feeds"}</p>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
+            <div className="bar-inset">
+                <div className="text">
+                    <h1>All Feeds</h1>
+                    <div>{feedCount === 1 ? "1 feed" : feedCount + " feeds"}</div>
+                </div>
             </div>
-        </div>
+        </GlobalBar>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -83,11 +84,6 @@ export class FeedHeader extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         return <div className="list-header">
             <div className="list-header-inner">
-                <h1>{feed.text || feed.title || feed.url}</h1>
-                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
-                        const label = this.props.labelsById[labelId];
-                        return <Label key={labelId} feedId={feed.id} label={label} />;
-                    }) : null}</p>
                 <details>
                     <summary>{feed.active
                         ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
@@ -132,7 +128,17 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
+        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
+            <div className="bar-inset">
+                <div className="text">
+                    <h1>{feed.text || feed.title || feed.url}</h1>
+                    <div><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
+                            const label = labelsById[labelId];
+                            return <Label key={labelId} feedId={feed.id} label={label} />;
+                        }) : null}</div>
+                </div>
+            </div>
+        </GlobalBar>
         <FeedHeader feed={feed} labelsById={labelsById}
             onAddLabel={onAddLabel}
             onAttachLabel={onAttachLabel}
@@ -165,13 +171,14 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <div className={"feed-view layout-" + layout}>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <div className="list-header">
-            <div className="list-header-inner">
-                <h1>{label.text}</h1>
-                <p>Label with {label.feeds.length === 1 ? "1 feed" : label.feeds.length + " feeds"}</p>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
+            <div className="bar-inset">
+                <div className="text">
+                    <h1><span className="label">{label.text}</span></h1>
+                    <div>{label.feeds.length === 1 ? "1 feed" : label.feeds.length + " feeds"}</div>
+                </div>
             </div>
-        </div>
+        </GlobalBar>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([

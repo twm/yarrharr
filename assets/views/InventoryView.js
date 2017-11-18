@@ -27,13 +27,14 @@ export class InventoryView extends React.PureComponent {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
         return <div className={"inventory-view layout-" + this.props.layout}>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
-            <div className="inventory-header">
-                <div className="inventory-header-inner">
-                    <h1>Manage Feeds</h1>
-                    <p>{feedList.length === 1 ? "1 feed" : feedList.length + " feeds"}</p>
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
+                <div className="bar-inset">
+                    <div className="text">
+                        <h1>Manage Feeds</h1>
+                        <div>{feedList.length === 1 ? "1 feed" : feedList.length + " feeds"}</div>
+                    </div>
                 </div>
-            </div>
+            </GlobalBar>
             <div className="floater-wrap">
                 <div className="floater">
                         <AddFeedLink>Add Feed</AddFeedLink>

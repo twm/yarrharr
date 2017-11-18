@@ -173,6 +173,39 @@ input[type=submit],
     }
 }
 
+.bar-inset {
+    flex: 1 0 0;
+    min-width: 0; /* allow shrinking below content size */
+
+    border: 2px solid rgb(167, 167, 167);
+    color: rgb(40, 40, 40);
+
+    padding: 0 .75rem;
+    margin: 0.25rem 0;
+    /*
+    box-shadow: inset .01rem .01rem .25rem rgba(0, 0, 0, 0.25);
+    */
+    background: white;
+
+    justify-content: start;
+
+    .text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    h1 {
+        display: inline;
+        font: inherit;
+        font-size: 1.2rem;
+        margin: 0 0.5rem 0 0;
+    }
+    div {
+        display: inline;
+        font-size: 0.75rem;
+    }
+}
+
 /* Mostly used for the login page. */
 form.small-form {
     display: block;
