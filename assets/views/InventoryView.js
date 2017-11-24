@@ -29,10 +29,7 @@ export class InventoryView extends React.PureComponent {
         return <div className={"inventory-view layout-" + this.props.layout}>
             <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
                 <div className="bar-inset">
-                    <div className="text">
-                        <h1>Manage Feeds</h1>
-                        <div>{feedList.length === 1 ? "1 feed" : feedList.length + " feeds"}</div>
-                    </div>
+                    <h1>Manage Feeds</h1>
                 </div>
             </GlobalBar>
             <div className="floater-wrap">
@@ -190,7 +187,11 @@ export const ConnectedInventoryView = connect(state => state, {
 export class AddFeedView extends React.PureComponent {
     render() {
         return <div className={"add-feed-view layout-" + this.props.layout}>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
+                <div className="bar-inset">
+                    <h1>Add Feed</h1>
+                </div>
+            </GlobalBar>
             <div className="add-feed">
                 <div className="add-feed-inner">
                     <h1>Add Feed</h1>

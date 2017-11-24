@@ -49,7 +49,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
-                {/*<AllIcon aria-hidden={true} />*/}
+                {/*<AllIcon className="icon" aria-hidden={true} />*/}
                 <h1>All Feeds</h1>
             </div>
         </GlobalBar>
@@ -134,7 +134,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
-                <FeedIcon aria-hidden={true} />
+                <FeedIcon className="icon" aria-hidden={true} />
                 <h1>{feed.text || feed.title || feed.url}</h1>
             </div>
         </GlobalBar>
@@ -172,7 +172,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     return <div className={"feed-view layout-" + layout}>
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
-                <LabelIcon aria-hidden={true} />
+                <LabelIcon className="icon" aria-hidden={true} />
                 <h1>{label.text}</h1>
             </div>
         </GlobalBar>
