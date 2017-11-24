@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Logo } from 'widgets/icons.js';
+import { Logo, LabelIcon, FeedIcon } from 'widgets/icons.js';
 import Heart from 'icons/heart-empty.svg';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink } from 'widgets/links.js';
@@ -42,7 +42,8 @@ class RootView extends React.PureComponent {
                             ? labelList.map((label) =>
                                 <li key={"label-" + label.id}>
                                     <LabelLink labelId={label.id} filter={FILTER_UNREAD}>
-                                    <span className="label">{label.text}</span>
+                                        <LabelIcon aria-hidden={true} />
+                                        {label.text}
                                     </LabelLink>
                                 </li>)
                             : null}
@@ -52,7 +53,10 @@ class RootView extends React.PureComponent {
                         {feedList.length
                             ? feedList.map((feed) =>
                                 <li key={"feed-" + feed.id}>
-                                    <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.text || feed.title}</FeedLink>
+                                    <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>
+                                        <FeedIcon aria-hidden={true} />
+                                        {feed.text || feed.title}
+                                    </FeedLink>
                                 </li>)
                             : <li>No feeds.  Add one?</li>}
                     </ul>
