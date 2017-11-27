@@ -17,7 +17,7 @@ class RootView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
-        return <div className={"root-view layout-" + this.props.layout}>
+        return <div className="root-view">
             <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
                 <div className="bar-inset">
                     <div className="text">

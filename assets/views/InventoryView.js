@@ -186,7 +186,7 @@ export const ConnectedInventoryView = connect(state => state, {
 
 export class AddFeedView extends React.PureComponent {
     render() {
-        return <div className={"add-feed-view layout-" + this.props.layout}>
+        return <div className="add-feed-view">
             <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
                 <div className="bar-inset">
                     <h1>Add Feed</h1>

@@ -47,7 +47,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     const feedCount = Object.keys(feedsById).length;
-    return <div className={"feed-view layout-" + layout}>
+    return <div className="feed-view">
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
                 {/*<AllIcon className="icon" aria-hidden={true} />*/}
@@ -142,7 +142,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
-    return <div className={"feed-view layout-" + layout}>
+    return <div className="feed-view">
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
                 <FeedIcon className="icon" aria-hidden={true} />
@@ -189,7 +189,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
-    return <div className={"feed-view layout-" + layout}>
+    return <div className="feed-view">
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
                 <LabelIcon className="icon" aria-hidden={true} />
