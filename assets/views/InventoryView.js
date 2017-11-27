@@ -184,6 +184,53 @@ export const ConnectedInventoryView = connect(state => state, {
     onSetLayout: setLayout,
 })(InventoryView);
 
+
+export class ManageFeedView extends React.PureComponent {
+    render() {
+        return <p>TODO: manage feed {this.props.params.feedId}</p>
+    }
+}
+
+if (__debug__) {
+    ManageFeedView.propTypes = {
+        params: PropTypes.shape({
+            feedId: PropTypes.number.isRequired,
+        }).isRequired,
+    };
+}
+
+export const ConnectedManageFeedView = connect(state => state, {
+    onAttachLabel: attachLabel,
+    onAddLabel: addLabel,
+    onDetachLabel: detachLabel,
+    onUpdateFeed: updateFeed,
+    onRemoveFeed: removeFeed,
+    onSetLayout: setLayout,
+})(ManageFeedView);
+
+
+export class ManageLabelView extends React.PureComponent {
+    render() {
+        return <p>TODO: manage label {this.props.params.labelId}</p>
+    }
+}
+
+if (__debug__) {
+    ManageLabelView.propTypes = {
+        params: PropTypes.shape({
+            labelId: PropTypes.number.isRequired,
+        }).isRequired,
+    };
+}
+
+export const ConnectedManageLabelView = connect(state => state, {
+    onAttachLabel: attachLabel,
+    onAddLabel: addLabel,
+    onDetachLabel: detachLabel,
+    onSetLayout: setLayout,
+})(ManageLabelView);
+
+
 export class AddFeedView extends React.PureComponent {
     render() {
         return <div className="add-feed-view">
