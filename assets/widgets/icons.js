@@ -35,3 +35,12 @@ export function FeedIcon(props) {
         <path d="M 1 2 A 17 17, 0, 0, 1, 18 19" fill="none" stroke="lightgray" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
     </svg>;
 }
+
+export function EditIcon(props) {
+    return <svg x="0" y="0" width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M 15 1 A 2 2, 0, 0, 1, 18 4 L 17 5 L 14 2 Z" fill="currentColor" stroke="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+        <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+
+        <path d="M 1 19 L 19 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+    </svg>;
+}

@@ -5,11 +5,25 @@
 }
 .list-header-inner {
     margin: 0 auto;
-    padding: @text_padding;
     box-sizing: border-box;
 
-    details {
-        margin: 1rem 0;
+    & > .expand {
+        justify-content: flex-start;
+    }
+    h1 {
+        min-width: 0;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font: inherit;
+        font-size: 1.5rem;
+        padding: @text_padding;
+        margin: 0;
+    }
+    .icon {
+        color: lightgrey;
+        font-size: 1.25rem;
     }
 }
 

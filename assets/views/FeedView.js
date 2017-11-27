@@ -10,7 +10,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
-import { Logo, ArrowLeft, ArrowRight, LabelIcon, FeedIcon } from 'widgets/icons.js';
+import { Logo, ArrowLeft, ArrowRight, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -18,6 +18,7 @@ import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
+import { InventoryFeedLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
@@ -53,6 +54,16 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <h1>All Feeds</h1>
             </div>
         </GlobalBar>
+        <header className="list-header">
+            <div className="list-header-inner bar">
+                <AllLink className="expand" filter={snapshot.filter}>
+                    <h1>All Feeds</h1>
+                </AllLink>
+                <InventoryLink className="square">
+                    <EditIcon title="Manage Feeds" className="icon" />
+                </InventoryLink>
+            </div>
+        </header>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -80,7 +91,7 @@ export class FeedHeader extends React.PureComponent {
     render() {
         const feed = this.props.feed;
         const labelList = labelsByTitle(this.props);
-        return <div className="list-header">
+        return <header className="list-header">
             <div className="list-header-inner">
                 <details>
                     <summary>
@@ -102,7 +113,7 @@ export class FeedHeader extends React.PureComponent {
                         onDetachLabel={this.props.onDetachLabel} />
                 </details>
             </div>
-        </div>;
+        </header>;
     }
 }
 
@@ -138,10 +149,19 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
                 <h1>{feed.text || feed.title || feed.url}</h1>
             </div>
         </GlobalBar>
-        <FeedHeader feed={feed} labelsById={labelsById}
-            onAddLabel={onAddLabel}
-            onAttachLabel={onAttachLabel}
-            onDetachLabel={onDetachLabel} />
+        <header className="list-header">
+            <div className="list-header-inner bar">
+                <FeedLink className="expand" feedId={feedId} filter={snapshot.filter}>
+                    <div className="square">
+                        <FeedIcon className="icon" aria-hidden={true} />
+                    </div>
+                    <h1>{feed.text ? feed.text : feed.title}</h1>
+                </FeedLink>
+                <InventoryFeedLink className="square" feedId={feedId}>
+                    <EditIcon title="Edit Feed" className="icon" />
+                </InventoryFeedLink>
+            </div>
+        </header>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
@@ -176,6 +196,19 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 <h1>{label.text}</h1>
             </div>
         </GlobalBar>
+        <header className="list-header">
+            <div className="list-header-inner bar">
+                <LabelLink className="expand" labelId={labelId} filter={snapshot.filter}>
+                    <div className="square">
+                        <LabelIcon className="icon" aria-hidden={true} />
+                    </div>
+                    <h1>{label.text}</h1>
+                </LabelLink>
+                <InventoryLabelLink className="square" labelId={labelId}>
+                    <EditIcon title="Edit Label" className="icon" />
+                </InventoryLabelLink>
+            </div>
+        </header>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([

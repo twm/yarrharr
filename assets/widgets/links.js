@@ -73,6 +73,10 @@ export function InventoryLink(props) {
     return <ConnectedA path="/inventory/" disabled={props.disabled} className={props.className} children={props.children} />;
 }
 
+export function InventoryFeedLink(props) {
+    return <ConnectedA path={`/inventory/feed/${props.feedId}/`} disabled={props.disabled} className={props.className} children={props.children} />;
+}
+
 export function AddFeedLink(props) {
     return <ConnectedA path="/inventory/add/" disabled={props.disabled} className={props.className} children={props.children} />;
 }
@@ -108,5 +112,8 @@ if (process.env.NODE_ENV !== 'production') {
         labelId: PropTypes.number.isRequired,
         filter,
         articleId: PropTypes.number.isRequired,
+    };
+    InventoryFeedLink.propTypes = {
+        feedId: PropTypes.number.isRequired,
     };
 }
