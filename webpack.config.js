@@ -63,16 +63,6 @@ module.exports = {
             loaders: ['babel-loader'],
             exclude: /node_modules/,
         }, {
-            // Files which must be inlined to avoid a flash on load.
-            // label.svg — used as a CSS background image.
-            test: /assets\/art\/label\.svg$/,
-            use: [{
-                loader: 'url-loader',
-                options: {
-                    limit: 1e20,
-                },
-            }],
-        }, {
             // Files which must currently be used as images.
             // icon.svg — included as a file from non-React pages.
             test: /assets\/art\/icon\.svg$/,
