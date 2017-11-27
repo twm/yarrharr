@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -39,25 +39,25 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3840"
-     inkscape:window-height="2072"
+     inkscape:window-width="2014"
+     inkscape:window-height="1385"
      id="namedview4218"
      showgrid="false"
-     inkscape:zoom="20.11272"
-     inkscape:cx="-4.6368874"
-     inkscape:cy="10.393182"
-     inkscape:window-x="0"
-     inkscape:window-y="49"
-     inkscape:window-maximized="1"
+     inkscape:zoom="15.652358"
+     inkscape:cx="7.0510005"
+     inkscape:cy="3.0308821"
+     inkscape:window-x="881"
+     inkscape:window-y="378"
+     inkscape:window-maximized="0"
      inkscape:current-layer="svg4214" />
   <path
-     style="fill:none;stroke:#d3d3d3;stroke-width:2;stroke-linejoin:round"
+     style="fill:none;stroke:#666;stroke-width:2;stroke-linejoin:round"
      d="M 19.667306,32.77574 1.4611694,14.508059 1.8636975,5.8491405 6.37982,1.3177218 l 8.21916,0.00803 18.206137,18.2676802 z"
      id="polygon4216"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccccc" />
   <ellipse
-     style="color:black;solid-color:black;solid-opacity:1;fill:none;stroke:#d3d3d3;stroke-width:2.00000453;stroke-linejoin:round"
+     style="color:black;solid-color:black;solid-opacity:1;fill:none;stroke:#666;stroke-width:2.00000453;stroke-linejoin:round"
      id="path4765"
      cx="11.924171"
      cy="-0.096590817"
