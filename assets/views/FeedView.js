@@ -18,7 +18,7 @@ import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
-import { InventoryFeedLink } from 'widgets/links.js';
+import { InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
