@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
-import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
@@ -26,8 +26,8 @@ export class InventoryView extends React.PureComponent {
         // causing the current object of focus to jump around on the page.
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
-        return <div className={"inventory-view layout-" + this.props.layout}>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
+        return <div className="inventory-view">
+            <GlobalBar>
                 <div className="bar-inset">
                     <h1>Manage Feeds</h1>
                 </div>
@@ -156,10 +156,8 @@ if (__debug__) {
     InventoryView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
-        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         onUpdateFeed: PropTypes.func.isRequired,
         onRemoveFeed: PropTypes.func.isRequired,
-        onSetLayout: PropTypes.func.isRequired,
         onAddLabel: PropTypes.func.isRequired,
     };
 
@@ -181,7 +179,6 @@ export const ConnectedInventoryView = connect(state => state, {
     onDetachLabel: detachLabel,
     onUpdateFeed: updateFeed,
     onRemoveFeed: removeFeed,
-    onSetLayout: setLayout,
 })(InventoryView);
 
 
@@ -205,7 +202,6 @@ export const ConnectedManageFeedView = connect(state => state, {
     onDetachLabel: detachLabel,
     onUpdateFeed: updateFeed,
     onRemoveFeed: removeFeed,
-    onSetLayout: setLayout,
 })(ManageFeedView);
 
 
@@ -227,7 +223,6 @@ export const ConnectedManageLabelView = connect(state => state, {
     onAttachLabel: attachLabel,
     onAddLabel: addLabel,
     onDetachLabel: detachLabel,
-    onSetLayout: setLayout,
 })(ManageLabelView);
 
 
@@ -313,5 +308,4 @@ UrlForm.propTypes = {
 
 export const ConnectedAddFeedView = connect(state => state, {
     onSubmit: addFeed,
-    onSetLayout: setLayout,
 })(AddFeedView);

@@ -7,7 +7,6 @@ import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { labelsByTitle, feedsByTitle } from 'sorting.js';
 import './RootView.less';
@@ -18,7 +17,7 @@ class RootView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
         return <div className="root-view">
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
+            <GlobalBar>
                 <div className="bar-inset">
                     <div className="text">
                         <h1>Yarrharr Feed Reader</h1>
@@ -68,12 +67,9 @@ class RootView extends React.PureComponent {
 
 if (process.env.NODE_ENV !== 'production') {
     RootView.propTypes = {
-        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
     };
 }
 
-export default connect(state => state, {
-    onSetLayout: setLayout,
-})(RootView);
+export default connect(state => state)(RootView);

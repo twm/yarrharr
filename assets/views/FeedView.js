@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
-import { setView, setLayout, setOrder } from 'actions.js';
+import { setView, setOrder } from 'actions.js';
 import { markArticlesRead, markArticlesFave } from 'actions.js';
-import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
@@ -233,14 +232,10 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
 }
 
 const mapDispatchToProps = {
-    onSetLayout: setLayout,
     onSetOrder: setOrder,
     onMarkArticlesRead: markArticlesRead,
     onMarkArticlesFave: markArticlesFave,
     onLoadMore: loadMore,
-    onAddLabel: addLabel,
-    onAttachLabel: attachLabel,
-    onDetachLabel: detachLabel,
 };
 export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);
