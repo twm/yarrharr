@@ -13,17 +13,17 @@
     h1 {
         min-width: 0;
         width: 100%;
+        margin: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font: inherit;
         font-size: 1.5rem;
-        padding: @text_padding;
-        margin: 0;
+        line-height: 2; /* Otherwise descenders get cropped by overflow: hidden */
     }
     .icon {
         color: #666;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
     }
 }
 
