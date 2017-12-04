@@ -38,7 +38,7 @@ export const ConnectedLayoutToggleLink = connect(state => {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink className="square" aria-label="Home"><Home className="icon" aria-hidden={true} /></RootLink>
+            <RootLink className="square" aria-label="Home" title="Go home"><Home className="icon" aria-hidden={true} /></RootLink>
             {this.props.children}
             <ConnectedLayoutToggleLink />
         </div>;
