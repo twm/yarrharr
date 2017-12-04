@@ -58,8 +58,8 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <AllLink className="expand" filter={snapshot.filter}>
                     <h1>All Feeds</h1>
                 </AllLink>
-                <InventoryLink className="square">
-                    <EditIcon title="Manage Feeds" className="icon" />
+                <InventoryLink className="square" title="Manage Feeds">
+                    <EditIcon className="icon" aria-label="Manage Feeds" />
                 </InventoryLink>
             </div>
         </header>
@@ -156,8 +156,8 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
                     </div>
                     <h1>{feed.text ? feed.text : feed.title}</h1>
                 </FeedLink>
-                <InventoryFeedLink className="square" feedId={feedId}>
-                    <EditIcon title="Edit Feed" className="icon" />
+                <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
+                    <EditIcon className="icon" aria-label="Edit Feed" />
                 </InventoryFeedLink>
             </div>
         </header>
@@ -203,8 +203,8 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                     </div>
                     <h1>{label.text}</h1>
                 </LabelLink>
-                <InventoryLabelLink className="square" labelId={labelId}>
-                    <EditIcon title="Edit Label" className="icon" />
+                <InventoryLabelLink className="square" labelId={labelId} title="Edit Label">
+                    <EditIcon className="icon" aria-label="Edit Label" />
                 </InventoryLabelLink>
             </div>
         </header>
