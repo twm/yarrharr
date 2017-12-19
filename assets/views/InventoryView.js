@@ -6,7 +6,7 @@ import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
-import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, InventoryLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -32,9 +32,11 @@ export class InventoryView extends React.PureComponent {
                     <h1>Manage Feeds</h1>
                 </div>
             </GlobalBar>
-            <div className="floater-wrap">
-                <div className="floater">
-                        <AddFeedLink>Add Feed</AddFeedLink>
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink>Home</RootLink>
+                    <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
+                    <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
             {this.renderFeeds(feedList, labelList)}
@@ -234,6 +236,13 @@ export class AddFeedView extends React.PureComponent {
                     <h1>Add Feed</h1>
                 </div>
             </GlobalBar>
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink>Home</RootLink>
+                    <InventoryLink>Manage Feeds</InventoryLink>
+                    <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+                </div>
+            </div>
             <div className="add-feed">
                 <div className="add-feed-inner">
                     <h1>Add Feed</h1>

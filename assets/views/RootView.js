@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Logo, LabelIcon, FeedIcon } from 'widgets/icons.js';
 import Heart from 'icons/heart-empty.svg';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
-import { AddFeedLink, InventoryLink } from 'widgets/links.js';
+import { AddFeedLink, InventoryLink, RootLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
@@ -24,8 +24,9 @@ class RootView extends React.PureComponent {
                     </div>
                 </div>
             </GlobalBar>
-            <div className="floater-wrap">
-                <div className="floater">
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink disabled={true}>Home</RootLink>
                     <InventoryLink>Manage Feeds</InventoryLink>
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
