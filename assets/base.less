@@ -246,7 +246,30 @@ input[type=submit],
 .tabs-inner > a[aria-disabled="true"] {
     border-bottom-width: 0;
 }
-/* TODO: Make tabs expand to full width on narrow screens. */
+@media screen and (max-width: 34em) {
+    .tabs-inner {
+        padding: 0;
+        min-height: 40px;  /* tappable size */
+    }
+    .tabs-inner > a {
+        margin: 0;
+        line-height: 1.2;
+        border-radius: 0;
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
+        flex-basis: 100%;
+        text-align: center;
+    }
+    .tabs-inner > a + a {
+        border-left-width: 0;
+    }
+    .tabs-inner > a:first-child {
+        border-left-width: 0;
+    }
+    .tabs-inner > a:last-child {
+        border-right-width: 0;
+    }
+}
 /* TODO: Check what happens in very narrow windows. */
 /* TODO: Make less ugly. */
 
