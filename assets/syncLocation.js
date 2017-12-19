@@ -53,10 +53,10 @@ export default function syncLocation(store, window) {
     }
 
     var key = history.state || makeKey();
-    var popPath = windowPath();
+    var popPath = null;
     // scrollX/Y must be null on initial load as the browser restores scroll position.
     const {x = 0, y = 0} = getScroll(key);
-    store.dispatch(setPath(popPath, null, null));
+    store.dispatch(setPath(windowPath(), null, null));
 
     window.onpopstate = function(event) {
         saveScroll(key);
@@ -85,7 +85,7 @@ export default function syncLocation(store, window) {
             // This dance is necessary because our callback may be called more
             // than once following setPath(), as the setPath() call may
             // dispatch multiple events.
-            // console.log(`Ignoring store update with path ${route.path} ${route.origin} because popPath is ${popPath} (waiting for popstate changes to propagate)`);
+            // console.log(`Ignoring store update with path ${route.path} because popPath is ${popPath} (waiting for popstate changes to propagate)`);
             return;
         }
         if (popPath === route.path) {
