@@ -711,6 +711,8 @@ export const ROUTES = [
     '/',
     '/inventory',
     '/inventory/add',
+    '/inventory/feed/:feedId',
+    '/inventory/label/:labelId',
     '/all/:filter',
     '/all/:filter/:articleId',
     '/label/:labelId/:filter',

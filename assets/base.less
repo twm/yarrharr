@@ -7,8 +7,7 @@
 html {
     background: @background_color;
     color: @text_color;
-    font-size: 14px;
-    line-height: 20px;
+    line-height: 1.4;
     font-family: sans-serif;
     margin: 0;
     padding: 0;
@@ -117,7 +116,10 @@ input[type=submit],
 }
 
 /* A "floater" is centered and is horizontally centered.  Mainly used for
- * mastheads and error messages. */
+ * mastheads and error messages.
+ *
+ * DEPRECATED
+ */
 .floater-wrap {
     display: flex; /* XXX Why is this display: flex? */
     margin: 1rem .25rem;
@@ -172,6 +174,104 @@ input[type=submit],
         min-width: @bar_height; /* allow shrinking below content size */
     }
 }
+
+.bar-inset {
+    /* This is a mockup so it is hidden for now. */
+    visibility: hidden;
+
+    flex: 1 0 0;
+    min-width: 0; /* allow shrinking below content size */
+
+    border: 2px solid rgb(167, 167, 167);
+    color: rgb(40, 40, 40);
+
+    padding: 0 .5rem;
+    margin: 0.5rem 0;
+    /*
+    box-shadow: inset .01rem .01rem .25rem rgba(0, 0, 0, 0.25);
+    */
+    background: white;
+
+    justify-content: start;
+
+    .icon {
+        flex: 0 0 1.3rem;
+        margin: 0 0.5rem 0 0;
+    }
+
+    h1 {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font: inherit;
+        margin: 0 0.5rem 0 0;
+    }
+}
+
+/**
+ * <div.tabs>
+ *   <div.tabs-inner>
+ *      <a.tab>text</a>
+ *      <a.tab disabled>current tab</a>
+ *   </div>
+ * </div>
+ */
+.tabs {
+    border-bottom: 2px solid #666;
+    contain: layout style;
+    background: @content_background_color;
+}
+.tabs-inner {
+    display: flex;
+    margin: 0 auto -2px auto;
+    box-sizing: border-box;
+    padding: 0 0 0 .5rem;
+}
+.layout-narrow .tabs-inner {
+    max-width: @narrow_width;
+}
+/* base tab styles */
+.tabs-inner > a {
+    border: 2px solid #666;
+    border-radius: .5rem .5rem 0 0;
+    background: @content_background_color;
+    text-decoration: none;
+    line-height: 1.7;
+    padding: 0.125rem 1rem 0 1rem;
+    margin: 0 .5rem 0 0;
+}
+/* current tab */
+.tabs-inner > a[aria-disabled="true"] {
+    border-bottom-width: 0;
+}
+@media screen and (max-width: 34em) {
+    .tabs-inner {
+        padding: 0;
+        min-height: 40px;  /* tappable size */
+    }
+    .tabs-inner > a {
+        margin: 0;
+        line-height: 1.2;
+        border-radius: 0;
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
+        flex-basis: 100%;
+        text-align: center;
+    }
+    .tabs-inner > a + a {
+        border-left-width: 0;
+    }
+    .tabs-inner > a:first-child {
+        border-left-width: 0;
+    }
+    .tabs-inner > a:last-child {
+        border-right-width: 0;
+    }
+}
+/* TODO: Check what happens in very narrow windows. */
+/* TODO: Make less ugly. */
 
 /* Mostly used for the login page. */
 form.small-form {

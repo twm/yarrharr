@@ -12,6 +12,7 @@ import syncViewOptions from './syncViewOptions.js';
 import syncLocation from './syncLocation.js';
 
 import { ConnectedRouter } from './router.jsx'
+import { ConnectedYarrharr } from './widgets/Yarrharr.js';
 import reducer from './reducer.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
@@ -32,9 +33,9 @@ const appElement = document.getElementById("app");
 if (appElement) {
     ReactDOM.render(
         <Provider store={store}>
-            <div id="yarrharr">
+            <ConnectedYarrharr>
                 <ConnectedRouter />
-            </div>
+            </ConnectedYarrharr>
         </Provider>,
         appElement
     );

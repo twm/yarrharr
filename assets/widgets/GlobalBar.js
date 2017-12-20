@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
+import { connect } from 'react-redux';
+
+import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import Home from 'icons/home.svg';
 import Narrow from 'icons/narrow.svg';
 import Wide from 'icons/wide.svg';
@@ -27,17 +29,24 @@ export class LayoutToggleLink extends React.PureComponent {
     }
 }
 
+export const ConnectedLayoutToggleLink = connect(state => {
+    return {layout: state.layout};
+}, {
+    onSetLayout: setLayout,
+})(LayoutToggleLink);
+
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink className="square" aria-label="Home"><Home className="icon" aria-hidden={true} /></RootLink>
-            <LayoutToggleLink layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
+            <RootLink className="square" aria-label="Home" title="Go home"><Home className="icon" aria-hidden={true} /></RootLink>
+            {this.props.children}
+            <ConnectedLayoutToggleLink />
         </div>;
     }
 }
 
 if (__debug__) {
-    LayoutToggleLink.propTypes = GlobalBar.propTypes = {
+    LayoutToggleLink.propTypes = {
         layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         onSetLayout: PropTypes.func.isRequired,
     };

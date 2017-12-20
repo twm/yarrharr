@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
 import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
-import { AddFeedLink, FeedLink, LabelLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, InventoryLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
-import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
@@ -26,17 +26,17 @@ export class InventoryView extends React.PureComponent {
         // causing the current object of focus to jump around on the page.
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
-        return <div className={"inventory-view layout-" + this.props.layout}>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
-            <div className="inventory-header">
-                <div className="inventory-header-inner">
+        return <div className="inventory-view">
+            <GlobalBar>
+                <div className="bar-inset">
                     <h1>Manage Feeds</h1>
-                    <p>{feedList.length === 1 ? "1 feed" : feedList.length + " feeds"}</p>
                 </div>
-            </div>
-            <div className="floater-wrap">
-                <div className="floater">
-                        <AddFeedLink>Add Feed</AddFeedLink>
+            </GlobalBar>
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink>Home</RootLink>
+                    <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
+                    <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
             {this.renderFeeds(feedList, labelList)}
@@ -158,10 +158,8 @@ if (__debug__) {
     InventoryView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
-        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
         onUpdateFeed: PropTypes.func.isRequired,
         onRemoveFeed: PropTypes.func.isRequired,
-        onSetLayout: PropTypes.func.isRequired,
         onAddLabel: PropTypes.func.isRequired,
     };
 
@@ -183,13 +181,68 @@ export const ConnectedInventoryView = connect(state => state, {
     onDetachLabel: detachLabel,
     onUpdateFeed: updateFeed,
     onRemoveFeed: removeFeed,
-    onSetLayout: setLayout,
 })(InventoryView);
+
+
+export class ManageFeedView extends React.PureComponent {
+    render() {
+        return <p>TODO: manage feed {this.props.params.feedId}</p>
+    }
+}
+
+if (__debug__) {
+    ManageFeedView.propTypes = {
+        params: PropTypes.shape({
+            feedId: PropTypes.number.isRequired,
+        }).isRequired,
+    };
+}
+
+export const ConnectedManageFeedView = connect(state => state, {
+    onAttachLabel: attachLabel,
+    onAddLabel: addLabel,
+    onDetachLabel: detachLabel,
+    onUpdateFeed: updateFeed,
+    onRemoveFeed: removeFeed,
+})(ManageFeedView);
+
+
+export class ManageLabelView extends React.PureComponent {
+    render() {
+        return <p>TODO: manage label {this.props.params.labelId}</p>
+    }
+}
+
+if (__debug__) {
+    ManageLabelView.propTypes = {
+        params: PropTypes.shape({
+            labelId: PropTypes.number.isRequired,
+        }).isRequired,
+    };
+}
+
+export const ConnectedManageLabelView = connect(state => state, {
+    onAttachLabel: attachLabel,
+    onAddLabel: addLabel,
+    onDetachLabel: detachLabel,
+})(ManageLabelView);
+
 
 export class AddFeedView extends React.PureComponent {
     render() {
-        return <div className={"add-feed-view layout-" + this.props.layout}>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout} />
+        return <div className="add-feed-view">
+            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
+                <div className="bar-inset">
+                    <h1>Add Feed</h1>
+                </div>
+            </GlobalBar>
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink>Home</RootLink>
+                    <InventoryLink>Manage Feeds</InventoryLink>
+                    <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+                </div>
+            </div>
             <div className="add-feed">
                 <div className="add-feed-inner">
                     <h1>Add Feed</h1>
@@ -264,5 +317,4 @@ UrlForm.propTypes = {
 
 export const ConnectedAddFeedView = connect(state => state, {
     onSubmit: addFeed,
-    onSetLayout: setLayout,
 })(AddFeedView);

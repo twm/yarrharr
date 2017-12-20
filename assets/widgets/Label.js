@@ -8,13 +8,12 @@ import "./Label.less";
 const __debug__ = process.env.NODE_ENV !== 'production';
 
 /**
- * <Label> displays the name of a label and a button which can be used to
- * detach it from the feed.
+ * <Label> displays the name of a label as a link to that label's view.
  */
 export class Label extends React.PureComponent {
     render() {
         return <LabelLink labelId={this.props.label.id} filter={FILTER_UNREAD}>
-            <span className="label">{this.props.label.text}</span>
+            {this.props.label.text}
         </LabelLink>;
     }
 }
@@ -73,7 +72,7 @@ class LabelCheckbox extends React.PureComponent {
         return <label key={this.props.label.id}>
             <input type="checkbox" onChange={this.handleClick}
                 checked={this.props.feed.labels.indexOf(this.props.label.id) >= 0} />
-            <span className="label">{this.props.label.text}</span>
+            {this.props.label.text}
         </label>;
     }
 }

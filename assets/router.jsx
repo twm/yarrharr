@@ -7,7 +7,7 @@ import { setPath, ORIGIN_CLICK, ROUTES } from './actions.js';
 
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
-import { ConnectedAddFeedView, ConnectedInventoryView } from 'views/InventoryView.js';
+import { ConnectedAddFeedView, ConnectedInventoryView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/InventoryView.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
@@ -15,6 +15,8 @@ const routeToView = {
     '/': ConnectedRootView,
     '/inventory': ConnectedInventoryView,
     '/inventory/add': ConnectedAddFeedView,
+    '/inventory/feed/:feedId': ConnectedManageFeedView,
+    '/inventory/label/:labelId': ConnectedManageLabelView,
     '/all/:filter': ConnectedAllView,
     '/all/:filter/:articleId': ConnectedAllView,
     '/label/:labelId/:filter': ConnectedLabelView,

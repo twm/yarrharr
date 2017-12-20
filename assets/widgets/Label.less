@@ -1,21 +1,5 @@
 @import "../globals.less";
 
-.label {
-    white-space: nowrap;
-    display: inline-block; /* Otherwise the top and bottom borders are too close. */
-    padding: 0 0.6em 0 .7em;
-    line-height: 1.8em;
-    border-image-source: url("../art/label.svg");
-    border-image-slice: 12;
-    border-image-width: 0.55em;
-}
-
-a > .label {
-    /* Force inheritance of the link styles (underline, etc.) */
-    color: inherit;
-    text-decoration: inherit;
-}
-
 .label-selector {
     display: flex;
     flex-flow: row wrap;

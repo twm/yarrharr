@@ -1,45 +1,48 @@
 @import "../globals.less";
 
 .root-view {
-    .tiles {
-        padding: 0;
-        max-width: 100%;
-        display: flex;
-        flex-flow: row wrap;
+}
+
+.root-inner-wrap {
+    .content-colors;
+}
+
+.root-inner {
+    margin: 0 auto;
+}
+
+.layout-narrow .root-inner {
+    max-width: @narrow_width;
+}
+
+.root-list {
+    display: block;
+    margin: 0;
+    padding: 0;
+    column-width: 15rem;
+
+    li {
+        display: block;
         list-style: none;
 
-        li {
-            .content-colors;
-
-            flex: 1 1 308px;
-            min-width: 0;
+        a {
+            .flat-button;
             display: flex;
-            flex-flow: row nowrap;
             align-items: center;
-            height: 48px;
-            max-width: 100%;
-            margin: 1px;
-            padding: 0 4px 0 4px;
-
-            .unread-link {
-                flex: 1 1 100%;
-                min-width: 0;
-                text-decoration: none !important;
-
-                .feed-title, .unread-count {
-                    width: 100%;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-            .fave-link {
-                align-self: flex-start;
-                flex: 0 0 48px;
-                text-decoration: none !important;
-                text-align: center;
-                position: relative;
-            }
+            justify-content: left;
+            min-height: 2.5rem;
         }
+        a:focus {
+            .flat-button-focus;
+        }
+
+        .icon {
+            flex: 0 0 auto;
+            margin: 0 .25rem 0 0;
+        }
+    }
+
+    li.all-link a {
+        /* TODO special styles as this one lacks an icon. */
     }
 }

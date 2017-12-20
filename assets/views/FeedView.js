@@ -2,15 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
-import { setView, setLayout, setOrder } from 'actions.js';
+import { setView, setOrder } from 'actions.js';
 import { markArticlesRead, markArticlesFave } from 'actions.js';
-import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
-import { Logo, ArrowLeft, ArrowRight } from 'widgets/icons.js';
+import { Logo, ArrowLeft, ArrowRight, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -18,6 +17,7 @@ import ScrollSpy from 'widgets/ScrollSpy.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
+import { InventoryLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
@@ -46,23 +46,36 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     const feedCount = Object.keys(feedsById).length;
-    return <div className={"feed-view layout-" + layout}>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <div className="list-header">
-            <div className="list-header-inner">
+    return <div className="feed-view">
+        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
+            <div className="bar-inset">
+                {/*<AllIcon className="icon" aria-hidden={true} />*/}
                 <h1>All Feeds</h1>
-                <p>{feedCount === 1 ? "1 feed" : feedCount + " feeds"}</p>
             </div>
-        </div>
+        </GlobalBar>
+        <header className="list-header">
+            <div className="list-header-inner bar">
+                <AllLink className="expand" filter={snapshot.filter}>
+                    <h1>All Feeds</h1>
+                </AllLink>
+                <InventoryLink className="square" title="Manage Feeds">
+                    <EditIcon className="icon" aria-label="Manage Feeds" />
+                </InventoryLink>
+            </div>
+        </header>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>,
-                    <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>,
-                    <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>,
                     <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
                     <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
+            </div>
+        </div>
+        <div className="tabs">
+            <div className="tabs-inner">
+                <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
+                <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
+                <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
@@ -81,17 +94,18 @@ export class FeedHeader extends React.PureComponent {
     render() {
         const feed = this.props.feed;
         const labelList = labelsByTitle(this.props);
-        return <div className="list-header">
+        return <header className="list-header">
             <div className="list-header-inner">
-                <h1>{feed.text || feed.title || feed.url}</h1>
-                <p><a href={feed.siteUrl} target="_blank">{feed.text ? feed.title : feed.siteUrl}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
-                        const label = this.props.labelsById[labelId];
-                        return <Label key={labelId} feedId={feed.id} label={label} />;
-                    }) : null}</p>
                 <details>
-                    <summary>{feed.active
-                        ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
-                        : "Inactive"}</summary>
+                    <summary>
+                        <a href={feed.siteUrl} target="_blank">{feed.siteUrl} {feed.text ? ` (published as ${feed.title})` : null}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
+                                const label = this.props.labelsById[labelId];
+                                return <Label key={labelId} feedId={feed.id} label={label} />;
+                            }) : null}
+                        {feed.active
+                            ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
+                            : "Inactive"}
+                    </summary>
                     {feed.active ? null : <p>This feed is not being checked for updates.</p>}
                     {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
                     <p>Feed URL: <a href={feed.url} target="_blank">{feed.url}</a></p>
@@ -102,7 +116,7 @@ export class FeedHeader extends React.PureComponent {
                         onDetachLabel={this.props.onDetachLabel} />
                 </details>
             </div>
-        </div>;
+        </header>;
     }
 }
 
@@ -131,22 +145,36 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
-    return <div className={"feed-view layout-" + layout}>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <FeedHeader feed={feed} labelsById={labelsById}
-            onAddLabel={onAddLabel}
-            onAttachLabel={onAttachLabel}
-            onDetachLabel={onDetachLabel} />
-        <div className="floater-wrap">
-            <div className="floater">
-                {joinLinks([
-                    <FeedLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>,
-                    <FeedLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>,
-                    <FeedLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>,
-                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
-                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
-                ])}
+    return <div className="feed-view">
+        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
+            <div className="bar-inset">
+                <FeedIcon className="icon" aria-hidden={true} />
+                <h1>{feed.text || feed.title || feed.url}</h1>
             </div>
+        </GlobalBar>
+        <header className="list-header">
+            <div className="list-header-inner bar">
+                <FeedLink className="expand" feedId={feedId} filter={snapshot.filter}>
+                    <div className="square">
+                        <FeedIcon className="icon" aria-hidden={true} />
+                    </div>
+                    <h1>{feed.text ? feed.text : feed.title}</h1>
+                </FeedLink>
+                <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
+                    <EditIcon className="icon" aria-label="Edit Feed" />
+                </InventoryFeedLink>
+            </div>
+        </header>
+        <div className="tabs">
+            <div className="tabs-inner">
+                <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+                <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+                <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+            </div>
+        </div>
+        <div>
+            <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+            <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
@@ -164,23 +192,39 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
-    return <div className={"feed-view layout-" + layout}>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <div className="list-header">
-            <div className="list-header-inner">
+    return <div className="feed-view">
+        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
+            <div className="bar-inset">
+                <LabelIcon className="icon" aria-hidden={true} />
                 <h1>{label.text}</h1>
-                <p>Label with {label.feeds.length === 1 ? "1 feed" : label.feeds.length + " feeds"}</p>
             </div>
-        </div>
+        </GlobalBar>
+        <header className="list-header">
+            <div className="list-header-inner bar">
+                <LabelLink className="expand" labelId={labelId} filter={snapshot.filter}>
+                    <div className="square">
+                        <LabelIcon className="icon" aria-hidden={true} />
+                    </div>
+                    <h1>{label.text}</h1>
+                </LabelLink>
+                <InventoryLabelLink className="square" labelId={labelId} title="Edit Label">
+                    <EditIcon className="icon" aria-label="Edit Label" />
+                </InventoryLabelLink>
+            </div>
+        </header>
         <div className="floater-wrap">
             <div className="floater">
                 {joinLinks([
-                    <LabelLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>,
-                    <LabelLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>,
-                    <LabelLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>,
                     <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
                     <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
                 ])}
+            </div>
+        </div>
+        <div className="tabs">
+            <div className="tabs-inner">
+                <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
+                <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
+                <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
@@ -196,14 +240,10 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
 }
 
 const mapDispatchToProps = {
-    onSetLayout: setLayout,
     onSetOrder: setOrder,
     onMarkArticlesRead: markArticlesRead,
     onMarkArticlesFave: markArticlesFave,
     onLoadMore: loadMore,
-    onAddLabel: addLabel,
-    onAttachLabel: attachLabel,
-    onDetachLabel: detachLabel,
 };
 export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);

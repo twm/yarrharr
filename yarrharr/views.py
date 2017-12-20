@@ -74,7 +74,6 @@ def json_for_feed(feed):
         'active': feed.next_check is not None,
         'unreadCount': feed.articles.filter(read=False).count(),
         'faveCount': feed.articles.filter(fave=True).count(),
-        'totalCount': feed.articles.all().count(),
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
         'siteUrl': feed.site_url,
@@ -102,7 +101,6 @@ def json_for_label(label):
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
         'unreadCount': Article.objects.filter(read=False).filter(feed__in=label.feeds.all()).count(),
         'faveCount': Article.objects.filter(fave=True).filter(feed__in=label.feeds.all()).count(),
-        'totalCount': Article.objects.filter(feed__in=label.feeds.all()).count(),
     }
 
 
