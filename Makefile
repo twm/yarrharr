@@ -29,7 +29,7 @@ webpack-prod:
 static-assets: $(STATIC_TARGETS) webpack-prod
 
 release: static-assets
-	python setup.py sdist
+	python setup.py sdist bdist_wheel
 
 .PHONY: devserver
 devserver:
