@@ -33,29 +33,27 @@ class RootView extends React.PureComponent {
             </div>
             <div className="root-inner-wrap">
                 <div className="root-inner">
-                    <p className="all-link">
-                        <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
-                    </p>
+                    <ul className="root-list">
+                        <li className="all-link">
+                            <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
+                        </li>
 
-                    <ul>
                         {labelList.length
                             ? labelList.map((label) =>
                                 <li key={"label-" + label.id}>
                                     <LabelLink labelId={label.id} filter={FILTER_UNREAD}>
-                                        <LabelIcon aria-hidden={true} />
-                                        {label.text}
+                                        <LabelIcon className="icon" aria-hidden={true} />
+                                        <span className="text">{label.text}</span>
                                     </LabelLink>
                                 </li>)
                             : null}
-                    </ul>
 
-                    <ul>
                         {feedList.length
                             ? feedList.map((feed) =>
                                 <li key={"feed-" + feed.id}>
                                     <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>
-                                        <FeedIcon aria-hidden={true} />
-                                        {feed.text || feed.title}
+                                        <FeedIcon className="icon" aria-hidden={true} />
+                                        <span className="text">{feed.text || feed.title}</span>
                                     </FeedLink>
                                 </li>)
                             : <li>No feeds.  Add one?</li>}

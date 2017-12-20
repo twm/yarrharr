@@ -14,3 +14,35 @@
 .layout-narrow .root-inner {
     max-width: @narrow_width;
 }
+
+.root-list {
+    display: block;
+    margin: 0;
+    padding: 0;
+    column-width: 15rem;
+
+    li {
+        display: block;
+        list-style: none;
+
+        a {
+            .flat-button;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+            min-height: 2.5rem;
+        }
+        a:focus {
+            .flat-button-focus;
+        }
+
+        .icon {
+            flex: 0 0 auto;
+            margin: 0 .25rem 0 0;
+        }
+    }
+
+    li.all-link a {
+        /* TODO special styles as this one lacks an icon. */
+    }
+}
