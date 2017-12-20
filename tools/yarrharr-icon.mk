@@ -4,7 +4,7 @@
 # This Make include file depends on the V, SCOUR and SCOURFLAGS variables being
 # defined by the caller.  It appends icon output files to STATIC_TARGETS.
 
-YARRHARR_ICON_SOURCE := assets/art/icon.inkscape.svg
+YARRHARR_ICON_SOURCE := assets/art/icon.svg
 
 # SVG-TO-PNG infile,outfile,size
 define SVG-TO-PNG
@@ -46,6 +46,6 @@ yarrharr/static/icon.ico: \
 # And a nicely squished SVG.
 STATIC_TARGETS += yarrharr/static/icon.svg
 
-yarrharr/static/icon.svg: assets/art/icon.inkscape.svg
+yarrharr/static/icon.svg: assets/art/icon.svg
 	@echo "SCOUR $@"
 	$(V)$(SCOUR) -i "$<" -o "$@" $(SCOURFLAGS) >/dev/null 2>&1
