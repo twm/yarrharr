@@ -26,7 +26,7 @@ webpack-prod:
 	@echo "WEBPACK"
 	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
 
-static-assets: $(STATIC_TARGETS) webpack-prod
+static-assets: webpack-prod $(STATIC_TARGETS)
 
 release: static-assets
 	python setup.py sdist bdist_wheel
