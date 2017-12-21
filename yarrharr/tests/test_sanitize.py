@@ -220,6 +220,17 @@ class SanitizeHtmlTests(unittest.TestCase):
             sanitize_html(html),
         )
 
+    def test_video_controls(self):
+        """
+        ``<video>`` tags must have ``controls`` attribute, and must not have an
+        ``autoplay`` attribute.
+        """
+        html = u'<video autoplay />'
+        self.assertEqual(
+            u'<video controls preload=metadata></video>',
+            sanitize_html(html),
+        )
+
 
 def print_tokens(html):
     tree = html5lib.parseFragment(html)
