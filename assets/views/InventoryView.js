@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
+import { Add, EditIcon, Remove, Logo, Heart } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
-import { AddFeedLink, FeedLink, InventoryLink, LabelLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -19,7 +19,6 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 export class InventoryView extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.handleRemoveFeed = this.handleRemoveFeed.bind(this);
     }
     render() {
         // XXX This ordering may change when the feed title is overridden,
@@ -49,26 +48,20 @@ export class InventoryView extends React.PureComponent {
             </div>;
         }
 
-        return <div>
-            {feedList.map(feed => <InventoryItem
-                key={feed.id}
-                feed={feed}
-                labelList={labelList}
-                labelsById={this.props.labelsById}
-                onAddLabel={this.props.onAddLabel}
-                onAttachLabel={this.props.onAttachLabel}
-                onDetachLabel={this.props.onDetachLabel}
-                onUpdateFeed={this.props.onUpdateFeed}
-                onRemoveFeed={this.handleRemoveFeed}
-            />)}
-        </div>;
-    }
-    handleRemoveFeed(feedId) {
-        const feed = this.props.feedsById[feedId];
-        if (!feed) return;
-        if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
-            this.props.onRemoveFeed(feedId);
-        }
+        return <table>
+            <tbody>
+                {feedList.map(feed => <tr key={feed.id}>
+                    <td>
+                        {feed.text || feed.title}
+                    </td>
+                    <td>
+                        <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
+                            <EditIcon className="icon" aria-label="Edit Feed" />
+                        </InventoryFeedLink>
+                    </td>
+                </tr>)}
+            </tbody>
+        </table>;
     }
 }
 
@@ -158,9 +151,6 @@ if (__debug__) {
     InventoryView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
-        onUpdateFeed: PropTypes.func.isRequired,
-        onRemoveFeed: PropTypes.func.isRequired,
-        onAddLabel: PropTypes.func.isRequired,
     };
 
     InventoryItem.propTypes = {
@@ -175,18 +165,45 @@ if (__debug__) {
     };
 }
 
-export const ConnectedInventoryView = connect(state => state, {
-    onAttachLabel: attachLabel,
-    onAddLabel: addLabel,
-    onDetachLabel: detachLabel,
-    onUpdateFeed: updateFeed,
-    onRemoveFeed: removeFeed,
-})(InventoryView);
+export const ConnectedInventoryView = connect(state => state)(InventoryView);
 
 
 export class ManageFeedView extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleRemoveFeed = this.handleRemoveFeed.bind(this);
+    }
     render() {
-        return <p>TODO: manage feed {this.props.params.feedId}</p>
+        const feed = this.props.feedsById[this.props.params.feedId];
+        const labelList = labelsByTitle(this.props);
+        return <div className="inventory-view">
+            <GlobalBar />
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink>Home</RootLink>
+                    <InventoryLink>Manage Feeds</InventoryLink>
+                    <AddFeedLink>Add Feed</AddFeedLink>
+                </div>
+            </div>
+            <InventoryItem
+                key={feed.id}
+                feed={feed}
+                labelList={labelList}
+                labelsById={this.props.labelsById}
+                onAddLabel={this.props.onAddLabel}
+                onAttachLabel={this.props.onAttachLabel}
+                onDetachLabel={this.props.onDetachLabel}
+                onUpdateFeed={this.props.onUpdateFeed}
+                onRemoveFeed={this.handleRemoveFeed}
+            />
+        </div>;
+    }
+    handleRemoveFeed(feedId) {
+        const feed = this.props.feedsById[feedId];
+        if (!feed) return;
+        if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
+            this.props.onRemoveFeed(feedId);
+        }
     }
 }
 
@@ -195,6 +212,9 @@ if (__debug__) {
         params: PropTypes.shape({
             feedId: PropTypes.number.isRequired,
         }).isRequired,
+        onUpdateFeed: PropTypes.func.isRequired,
+        onRemoveFeed: PropTypes.func.isRequired,
+        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
