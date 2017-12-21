@@ -1,0 +1,9 @@
+platform:
+  NPM:
+    # isarray was deprecated for... some reason?
+    # https://github.com/juliangruber/isarray/compare/v1.0.0...master#commitcomment-19159268
+    # I can't figure out how to skip this check for just isarray (I get an
+    # error from Dependency CI when I try that), so we're just going to skip
+    # this check everywhere. :(
+    tests:
+      deprecated: skip
