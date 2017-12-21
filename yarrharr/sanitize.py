@@ -73,6 +73,7 @@ def sanitize_html(html):
     source = _ReplaceYoutubeEmbedFilter(source)
     source = _ExtractTitleTextFilter(source)
     source = _adjust_links(source)
+    source = _video_attrs(source)
     return serializer.render(source)
 
 
@@ -294,4 +295,21 @@ def _adjust_links(source):
         ):
             token['data'][rel_attr] = 'noopener noreferrer'
             token['data'][target_attr] = '_blank'
+        yield token
+
+
+def _video_attrs(source):
+    html_ns = namespaces['html']
+    controls_attr = (None, 'controls')
+    autoplay_attr = (None, 'autoplay')
+    preload_attr = (None, 'preload')
+    for token in source:
+        if (
+            token['type'] == 'StartTag' and
+            token['name'] == 'video' and
+            token['namespace'] == html_ns
+        ):
+            token['data'][controls_attr] = 'controls'
+            token['data'][preload_attr] = 'metadata'
+            token['data'].pop(autoplay_attr, None)
         yield token
