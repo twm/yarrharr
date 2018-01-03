@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ from html5lib.constants import namespaces
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import URL
 
-REVISION = 1
+REVISION = 2
 
 STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
 SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
