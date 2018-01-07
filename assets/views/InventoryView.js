@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Add, Remove, Logo, Heart } from 'widgets/icons.js';
+import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
-import { AddFeedLink, FeedLink, InventoryLink, LabelLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -16,10 +16,19 @@ import './InventoryView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
+
+function Centered(props) {
+    return <div className="inventory">
+        <div className="inventory-inner">
+            {props.children}
+        </div>
+    </div>;
+}
+
+
 export class InventoryView extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.handleRemoveFeed = this.handleRemoveFeed.bind(this);
     }
     render() {
         // XXX This ordering may change when the feed title is overridden,
@@ -39,36 +48,57 @@ export class InventoryView extends React.PureComponent {
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
-            {this.renderFeeds(feedList, labelList)}
+            <Centered>
+                {this.renderFeeds(feedList, labelList)}
+            </Centered>
         </div>;
     }
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
-            return <div className="floater-wrap">
-                <div className="floater">No feeds.  <AddFeedLink>Add one?</AddFeedLink></div>
-            </div>;
+            return <p>No feeds.  <AddFeedLink>Add one?</AddFeedLink></p>
         }
 
-        return <div>
-            {feedList.map(feed => <InventoryItem
-                key={feed.id}
-                feed={feed}
-                labelList={labelList}
-                labelsById={this.props.labelsById}
-                onAddLabel={this.props.onAddLabel}
-                onAttachLabel={this.props.onAttachLabel}
-                onDetachLabel={this.props.onDetachLabel}
-                onUpdateFeed={this.props.onUpdateFeed}
-                onRemoveFeed={this.handleRemoveFeed}
-            />)}
-        </div>;
-    }
-    handleRemoveFeed(feedId) {
-        const feed = this.props.feedsById[feedId];
-        if (!feed) return;
-        if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
-            this.props.onRemoveFeed(feedId);
-        }
+        // TODO sorting
+        // TODO filtering
+        return <table className="inventory-table">
+            <thead>
+                <tr>
+                    <th className="col-error"><span title="Error?">⚠️ </span></th>
+                    <th className="col-unread">Unread Articles</th>
+                    <th className="col-feed">Feed</th>
+                    <th className="col-site-url">Site URL</th>
+                    <th className="col-updated">Last Updated</th>
+                    <th className="col-edit"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {feedList.map(feed => <tr key={feed.id}>
+                    <td className="col-error">
+                        {feed.error ? <span title={feed.error}>⚠️ </span> : ""}
+                    </td>
+                    <td className="col-unread">
+                        {feed.unreadCount}
+                    </td>
+                    <td className="col-feed">
+                        <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.text || feed.title}
+                            {feed.active ? "" : <i title="This feed is not checked for updates"> (inactive)</i>}
+                        </FeedLink>
+                    </td>
+                    <td className="col-site-url">
+                        <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
+                    </td>
+                    <td className="col-updated">
+                        {/* TODO use <time> element, display relative date */}
+                        {feed.updated}
+                    </td>
+                    <td className="col-edit">
+                        <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
+                            <EditIcon className="icon" aria-label="Edit Feed" />
+                        </InventoryFeedLink>
+                    </td>
+                </tr>)}
+            </tbody>
+        </table>;
     }
 }
 
@@ -116,7 +146,6 @@ class InventoryItem extends React.PureComponent {
         const labelList = this.props.labelList;
         return <div className="inventory-item-wrap">
             <div className="inventory-item">
-                <h2>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h2>
                 <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
                 <div>{feed.labels.length
                     ? feed.labels.map(labelId => {
@@ -158,9 +187,6 @@ if (__debug__) {
     InventoryView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
-        onUpdateFeed: PropTypes.func.isRequired,
-        onRemoveFeed: PropTypes.func.isRequired,
-        onAddLabel: PropTypes.func.isRequired,
     };
 
     InventoryItem.propTypes = {
@@ -175,18 +201,69 @@ if (__debug__) {
     };
 }
 
-export const ConnectedInventoryView = connect(state => state, {
-    onAttachLabel: attachLabel,
-    onAddLabel: addLabel,
-    onDetachLabel: detachLabel,
-    onUpdateFeed: updateFeed,
-    onRemoveFeed: removeFeed,
-})(InventoryView);
+export const ConnectedInventoryView = connect(state => state)(InventoryView);
 
 
 export class ManageFeedView extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleRemoveFeed = this.handleRemoveFeed.bind(this);
+    }
     render() {
-        return <p>TODO: manage feed {this.props.params.feedId}</p>
+        const feed = this.props.feedsById[this.props.params.feedId];
+        const labelList = labelsByTitle(this.props);
+        return <div className="inventory-view">
+            <GlobalBar />
+            <div className="tabs">
+                <div className="tabs-inner">
+                    <RootLink>Home</RootLink>
+                    <InventoryLink>Manage Feeds</InventoryLink>
+                    <AddFeedLink>Add Feed</AddFeedLink>
+                </div>
+            </div>
+            <header className="list-header">
+                <div className="list-header-inner bar">
+                    <FeedLink className="expand" feedId={feed.id} filter={FILTER_UNREAD}>
+                        <div className="square">
+                            <FeedIcon className="icon" aria-hidden={true} />
+                        </div>
+                        <h1>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h1>
+                    </FeedLink>
+                    {/*
+                    FIXME this should probably be an icon that links back to
+                    the feed view for symmetry with the edit icon that links to
+                    this page. Unfortunately the symmetry wouldn't necessarily
+                    be perfect, as the feed link assigns a filter. Maybe this
+                    manage page should be a tab alongside the filters so that
+                    that symmetry isn't required?
+
+                    <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
+                        <EditIcon className="icon" aria-label="Edit Feed" />
+                    </InventoryFeedLink>
+                    */}
+                </div>
+            </header>
+            <Centered>
+                <InventoryItem
+                    key={feed.id}
+                    feed={feed}
+                    labelList={labelList}
+                    labelsById={this.props.labelsById}
+                    onAddLabel={this.props.onAddLabel}
+                    onAttachLabel={this.props.onAttachLabel}
+                    onDetachLabel={this.props.onDetachLabel}
+                    onUpdateFeed={this.props.onUpdateFeed}
+                    onRemoveFeed={this.handleRemoveFeed}
+                />
+            </Centered>
+        </div>;
+    }
+    handleRemoveFeed(feedId) {
+        const feed = this.props.feedsById[feedId];
+        if (!feed) return;
+        if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
+            this.props.onRemoveFeed(feedId);
+        }
     }
 }
 
@@ -195,6 +272,9 @@ if (__debug__) {
         params: PropTypes.shape({
             feedId: PropTypes.number.isRequired,
         }).isRequired,
+        onUpdateFeed: PropTypes.func.isRequired,
+        onRemoveFeed: PropTypes.func.isRequired,
+        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
@@ -243,14 +323,12 @@ export class AddFeedView extends React.PureComponent {
                     <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
                 </div>
             </div>
-            <div className="add-feed">
-                <div className="add-feed-inner">
-                    <h1>Add Feed</h1>
-                    <p>Enter the URL of an Atom or RSS feed:</p>
-                    <UrlForm onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
-                    {this.renderAdd()}
-                </div>
-            </div>
+            <Centered>
+                <h1>Add Feed</h1>
+                <p>Enter the URL of an Atom or RSS feed:</p>
+                <AddFeedForm className="add-feed-form" onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
+                {this.renderAdd()}
+            </Centered>
         </div>;
     }
     renderAdd() {
@@ -290,7 +368,7 @@ AddFeedView.propTypes = {
     onSubmit: PropTypes.func.isRequired,
 };
 
-class UrlForm extends React.PureComponent {
+class AddFeedForm extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {url: ''};
@@ -303,14 +381,14 @@ class UrlForm extends React.PureComponent {
         };
     }
     render() {
-        return <form onSubmit={this.handleSubmit}>
+        return <form className="add-feed-form" onSubmit={this.handleSubmit}>
             <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
             <input type="submit" value="Add" />
         </form>;
     }
 }
 
-UrlForm.propTypes = {
+AddFeedForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     defaultUrl: PropTypes.string,
 };

@@ -8,7 +8,6 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Label, LabelSelector } from 'widgets/Label.js';
 import { Logo, ArrowLeft, ArrowRight, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
@@ -88,57 +87,6 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             </div>
         </div>}
     </div>;
-}
-
-export class FeedHeader extends React.PureComponent {
-    render() {
-        const feed = this.props.feed;
-        const labelList = labelsByTitle(this.props);
-        return <header className="list-header">
-            <div className="list-header-inner">
-                <details>
-                    <summary>
-                        <a href={feed.siteUrl} target="_blank">{feed.siteUrl} {feed.text ? ` (published as ${feed.title})` : null}</a> {feed.labels.length > 0 ? feed.labels.map(labelId => {
-                                const label = this.props.labelsById[labelId];
-                                return <Label key={labelId} feedId={feed.id} label={label} />;
-                            }) : null}
-                        {feed.active
-                            ? ((feed.checked ? "Last checked " + feed.checked : "Never checked") + (feed.error ? ": Error!" : ""))
-                            : "Inactive"}
-                    </summary>
-                    {feed.active ? null : <p>This feed is not being checked for updates.</p>}
-                    {feed.error ? <p><b>Error: </b>{feed.error}</p> : <p>Last check completed successfully.</p>}
-                    <p>Feed URL: <a href={feed.url} target="_blank">{feed.url}</a></p>
-                    <p>Site URL: {feed.siteUrl ? <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a> : "None"}</p>
-                    <LabelSelector feed={feed} labelList={labelList}
-                        onAddLabel={this.props.onAddLabel}
-                        onAttachLabel={this.props.onAttachLabel}
-                        onDetachLabel={this.props.onDetachLabel} />
-                </details>
-            </div>
-        </header>;
-    }
-}
-
-if (__debug__) {
-    FeedHeader.propTypes = {
-        labelsById: PropTypes.objectOf(PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            text: PropTypes.string.isRequired,
-        })).isRequired,
-        feed: PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            text: PropTypes.string,
-            title: PropTypes.string,
-            url: PropTypes.string.isRequired,
-            siteUrl: PropTypes.string.isRequired,
-            labels: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
-            error: PropTypes.string,
-        }).isRequired,
-        onAddLabel: PropTypes.func.isRequired,
-        onAttachLabel: PropTypes.func.isRequired,
-        onDetachLabel: PropTypes.func.isRequired,
-    };
 }
 
 export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore, onAddLabel, onAttachLabel, onDetachLabel}) {

@@ -11,7 +11,7 @@
      * specify the font. */
     line-height: @bar_line_height;
 
-    margin: 0 0 1px 0;
+    margin: 0 0 2px 0;
 
     .content-colors;
 }
@@ -19,6 +19,8 @@
 .list-article-inner {
     display: flex;
     height: 100%;
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
     flex-flow: row nowrap;
     align-items: stretch;
 
@@ -53,9 +55,4 @@
             color: @quiet_text_color;
         }
     }
-}
-
-.layout-narrow .list-article-inner {
-    max-width: @narrow_width;
-    margin: 0 auto;
 }

@@ -4,6 +4,13 @@
 @import "~normalize.css/normalize.css";
 @import "./globals.less";
 
+:root {
+    --layout-max-width: none;
+}
+.layout-narrow {
+    --layout-max-width: @narrow_width;
+}
+
 html {
     background: @background_color;
     color: @text_color;
