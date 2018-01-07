@@ -1,16 +1,16 @@
 import React from 'react';
 import './icons.less';
 
-import Add from '../icons/add.svg';
-export { Add as Add };
-
 const STYLE_45 = {transform: 'rotate(45deg)'};
-
-export function Remove(props) {
-    return <Add {...props} style={STYLE_45} />;
-}
-
 const STYLE_180 = {transform: 'rotate(180deg)'};
+
+import Add from '../icons/add.svg';
+export function AddIcon(props) {
+    return <Add className="icon" {...props} />;
+}
+export function Remove(props) {
+    return <Add className="icon" {...props} style={STYLE_45} />;
+}
 
 export function ArrowLeft(props) {
     return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
@@ -22,10 +22,10 @@ export function ArrowRight(props) {
     return <ArrowLeft {...props} style={STYLE_180} />;
 }
 
+// FIXME this isn't really an icon, so it shouldn't be in this file.
 export function Logo(props) {
     return <img src={window.__webpack_public_path__ + require('../art/icon.svg')} width="32" height="32" {...props} />;
 }
-
 
 export function Outbound(props) {
      return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
@@ -34,8 +34,10 @@ export function Outbound(props) {
     </svg>;
 }
 
-import LabelIcon from '../icons/label.svg';
-export { LabelIcon as LabelIcon };
+import Label from '../icons/label.svg';
+export function LabelIcon(props) {
+    return <Label className="icon" {...props} />;
+}
 
 export function FeedIcon(props) {
     return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>

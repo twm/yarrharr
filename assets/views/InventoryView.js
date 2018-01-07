@@ -93,7 +93,7 @@ export class InventoryView extends React.PureComponent {
                     </td>
                     <td className="col-edit">
                         <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
-                            <EditIcon className="icon" aria-label="Edit Feed" />
+                            <EditIcon aria-label="Edit Feed" />
                         </InventoryFeedLink>
                     </td>
                 </tr>)}
@@ -225,7 +225,7 @@ export class ManageFeedView extends React.PureComponent {
                 <div className="list-header-inner bar">
                     <FeedLink className="expand" feedId={feed.id} filter={FILTER_UNREAD}>
                         <div className="square">
-                            <FeedIcon className="icon" aria-hidden={true} />
+                            <FeedIcon aria-hidden={true} />
                         </div>
                         <h1>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h1>
                     </FeedLink>
@@ -238,7 +238,7 @@ export class ManageFeedView extends React.PureComponent {
                     that symmetry isn't required?
 
                     <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
-                        <EditIcon className="icon" aria-label="Edit Feed" />
+                        <EditIcon aria-label="Edit Feed" />
                     </InventoryFeedLink>
                     */}
                 </div>

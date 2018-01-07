@@ -48,7 +48,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     return <div className="feed-view">
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
-                {/*<AllIcon className="icon" aria-hidden={true} />*/}
+                {/*<AllIcon aria-hidden={true} />*/}
                 <h1>All Feeds</h1>
             </div>
         </GlobalBar>
@@ -58,7 +58,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                     <h1>All Feeds</h1>
                 </AllLink>
                 <InventoryLink className="square" title="Manage Feeds">
-                    <EditIcon className="icon" aria-label="Manage Feeds" />
+                    <EditIcon aria-label="Manage Feeds" />
                 </InventoryLink>
             </div>
         </header>
@@ -96,7 +96,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     return <div className="feed-view">
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
-                <FeedIcon className="icon" aria-hidden={true} />
+                <FeedIcon aria-hidden={true} />
                 <h1>{feed.text || feed.title || feed.url}</h1>
             </div>
         </GlobalBar>
@@ -104,12 +104,12 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             <div className="list-header-inner bar">
                 <FeedLink className="expand" feedId={feedId} filter={snapshot.filter}>
                     <div className="square">
-                        <FeedIcon className="icon" aria-hidden={true} />
+                        <FeedIcon aria-hidden={true} />
                     </div>
                     <h1>{feed.text ? feed.text : feed.title}</h1>
                 </FeedLink>
                 <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
-                    <EditIcon className="icon" aria-label="Edit Feed" />
+                    <EditIcon aria-label="Edit Feed" />
                 </InventoryFeedLink>
             </div>
         </header>
@@ -143,7 +143,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     return <div className="feed-view">
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
-                <LabelIcon className="icon" aria-hidden={true} />
+                <LabelIcon aria-hidden={true} />
                 <h1>{label.text}</h1>
             </div>
         </GlobalBar>
@@ -151,12 +151,12 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             <div className="list-header-inner bar">
                 <LabelLink className="expand" labelId={labelId} filter={snapshot.filter}>
                     <div className="square">
-                        <LabelIcon className="icon" aria-hidden={true} />
+                        <LabelIcon aria-hidden={true} />
                     </div>
                     <h1>{label.text}</h1>
                 </LabelLink>
                 <InventoryLabelLink className="square" labelId={labelId} title="Edit Label">
-                    <EditIcon className="icon" aria-label="Edit Label" />
+                    <EditIcon aria-label="Edit Label" />
                 </InventoryLabelLink>
             </div>
         </header>
@@ -336,7 +336,7 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             articleId: prevId,
             children: [
                 <div key="icon" className="square">
-                    <ArrowLeft className="icon" aria-hidden={true} />
+                    <ArrowLeft aria-hidden={true} />
                 </div>,
                 <div key="text">
                     <span>Previous </span>
@@ -350,7 +350,7 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             className: "next-link square",
             title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
             articleId: nextId,
-            children: <ArrowRight className="icon" aria-hidden={true} />,
+            children: <ArrowRight aria-hidden={true} />,
         }) : <span className="square"></span>}
     </div>;
 }
@@ -365,7 +365,7 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
             className: "prev-link square",
             title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),
             articleId: prevId,
-            children: <ArrowLeft className="icon" aria-hidden={true} />,
+            children: <ArrowLeft aria-hidden={true} />,
         }) : null}
         {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
         {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
@@ -378,7 +378,7 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
                     {next && next.title ? <span className="title">{next.title}</span> : null}
                 </div>,
                 <div className="square" key="icon">
-                    <ArrowRight className="icon" aria-hidden={true} />
+                    <ArrowRight aria-hidden={true} />
                 </div>,
             ],
         }) : <span className="expand"></span>}
