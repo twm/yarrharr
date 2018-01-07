@@ -16,6 +16,16 @@ import './InventoryView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
+
+function Centered(props) {
+    return <div className="inventory">
+        <div className="inventory-inner">
+            {props.children}
+        </div>
+    </div>;
+}
+
+
 export class InventoryView extends React.PureComponent {
     constructor(props) {
         super(props);
@@ -38,23 +48,50 @@ export class InventoryView extends React.PureComponent {
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
-            {this.renderFeeds(feedList, labelList)}
+            <Centered>
+                {this.renderFeeds(feedList, labelList)}
+            </Centered>
         </div>;
     }
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
-            return <div className="floater-wrap">
-                <div className="floater">No feeds.  <AddFeedLink>Add one?</AddFeedLink></div>
-            </div>;
+            return <p>No feeds.  <AddFeedLink>Add one?</AddFeedLink></p>
         }
 
-        return <table>
+        // TODO sorting
+        // TODO filtering
+        return <table className="inventory-table">
+            <thead>
+                <tr>
+                    <th className="col-error"><span title="Error?">⚠️ </span></th>
+                    <th className="col-unread">Unread Articles</th>
+                    <th className="col-feed">Feed</th>
+                    <th className="col-site-url">Site URL</th>
+                    <th className="col-updated">Last Updated</th>
+                    <th className="col-edit"></th>
+                </tr>
+            </thead>
             <tbody>
                 {feedList.map(feed => <tr key={feed.id}>
-                    <td>
-                        {feed.text || feed.title}
+                    <td className="col-error">
+                        {feed.error ? <span title={feed.error}>⚠️ </span> : ""}
                     </td>
-                    <td>
+                    <td className="col-unread">
+                        {feed.unreadCount}
+                    </td>
+                    <td className="col-feed">
+                        <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.text || feed.title}
+                            {feed.active ? "" : <i title="This feed is not checked for updates"> (inactive)</i>}
+                        </FeedLink>
+                    </td>
+                    <td className="col-site-url">
+                        <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
+                    </td>
+                    <td className="col-updated">
+                        {/* TODO use <time> element, display relative date */}
+                        {feed.updated}
+                    </td>
+                    <td className="col-edit">
                         <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
                             <EditIcon className="icon" aria-label="Edit Feed" />
                         </InventoryFeedLink>
@@ -185,17 +222,19 @@ export class ManageFeedView extends React.PureComponent {
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
-            <InventoryItem
-                key={feed.id}
-                feed={feed}
-                labelList={labelList}
-                labelsById={this.props.labelsById}
-                onAddLabel={this.props.onAddLabel}
-                onAttachLabel={this.props.onAttachLabel}
-                onDetachLabel={this.props.onDetachLabel}
-                onUpdateFeed={this.props.onUpdateFeed}
-                onRemoveFeed={this.handleRemoveFeed}
-            />
+            <Centered>
+                <InventoryItem
+                    key={feed.id}
+                    feed={feed}
+                    labelList={labelList}
+                    labelsById={this.props.labelsById}
+                    onAddLabel={this.props.onAddLabel}
+                    onAttachLabel={this.props.onAttachLabel}
+                    onDetachLabel={this.props.onDetachLabel}
+                    onUpdateFeed={this.props.onUpdateFeed}
+                    onRemoveFeed={this.handleRemoveFeed}
+                />
+            </Centered>
         </div>;
     }
     handleRemoveFeed(feedId) {
@@ -263,14 +302,12 @@ export class AddFeedView extends React.PureComponent {
                     <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
                 </div>
             </div>
-            <div className="add-feed">
-                <div className="add-feed-inner">
-                    <h1>Add Feed</h1>
-                    <p>Enter the URL of an Atom or RSS feed:</p>
-                    <UrlForm onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
-                    {this.renderAdd()}
-                </div>
-            </div>
+            <Centered>
+                <h1>Add Feed</h1>
+                <p>Enter the URL of an Atom or RSS feed:</p>
+                <AddFeedForm className="add-feed-form" onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
+                {this.renderAdd()}
+            </Centered>
         </div>;
     }
     renderAdd() {
@@ -310,7 +347,7 @@ AddFeedView.propTypes = {
     onSubmit: PropTypes.func.isRequired,
 };
 
-class UrlForm extends React.PureComponent {
+class AddFeedForm extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {url: ''};
@@ -323,14 +360,14 @@ class UrlForm extends React.PureComponent {
         };
     }
     render() {
-        return <form onSubmit={this.handleSubmit}>
+        return <form className="add-feed-form" onSubmit={this.handleSubmit}>
             <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
             <input type="submit" value="Add" />
         </form>;
     }
 }
 
-UrlForm.propTypes = {
+AddFeedForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     defaultUrl: PropTypes.string,
 };
