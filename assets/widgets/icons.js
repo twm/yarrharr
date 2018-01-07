@@ -25,10 +25,8 @@ export function OutboundIcon(props) {
     </svg>;
 }
 
-import Label from '../icons/label.svg';
-export function LabelIcon(props) {
-    return <Label className="icon" {...props} />;
-}
+import LabelIcon from '../icons/label.svg';
+export { LabelIcon as LabelIcon };
 
 export function FeedIcon(props) {
     return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
