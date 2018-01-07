@@ -8,7 +8,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Logo, ArrowLeft, ArrowRight, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
+import { Logo, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -336,7 +336,7 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             articleId: prevId,
             children: [
                 <div key="icon" className="square">
-                    <ArrowLeft aria-hidden={true} />
+                    <ArrowLeftIcon aria-hidden={true} />
                 </div>,
                 <div key="text">
                     <span>Previous </span>
@@ -350,7 +350,7 @@ function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMa
             className: "next-link square",
             title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
             articleId: nextId,
-            children: <ArrowRight aria-hidden={true} />,
+            children: <ArrowRightIcon aria-hidden={true} />,
         }) : <span className="square"></span>}
     </div>;
 }
@@ -365,7 +365,7 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
             className: "prev-link square",
             title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),
             articleId: prevId,
-            children: <ArrowLeft aria-hidden={true} />,
+            children: <ArrowLeftIcon aria-hidden={true} />,
         }) : null}
         {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
         {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
@@ -378,7 +378,7 @@ function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, o
                     {next && next.title ? <span className="title">{next.title}</span> : null}
                 </div>,
                 <div className="square" key="icon">
-                    <ArrowRight aria-hidden={true} />
+                    <ArrowRightIcon aria-hidden={true} />
                 </div>,
             ],
         }) : <span className="expand"></span>}

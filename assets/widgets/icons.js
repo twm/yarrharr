@@ -1,25 +1,16 @@
 import React from 'react';
 import './icons.less';
 
-const STYLE_45 = {transform: 'rotate(45deg)'};
 const STYLE_180 = {transform: 'rotate(180deg)'};
 
-import Add from '../icons/add.svg';
-export function AddIcon(props) {
-    return <Add className="icon" {...props} />;
-}
-export function Remove(props) {
-    return <Add className="icon" {...props} style={STYLE_45} />;
-}
-
-export function ArrowLeft(props) {
+export function ArrowLeftIcon(props) {
     return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
         <path d="M 1.5 10 L 19 10 M 9 2 L 1 10 L 9 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
-export function ArrowRight(props) {
-    return <ArrowLeft {...props} style={STYLE_180} />;
+export function ArrowRightIcon(props) {
+    return <ArrowLeftIcon {...props} style={STYLE_180} />;
 }
 
 // FIXME this isn't really an icon, so it shouldn't be in this file.
@@ -27,7 +18,7 @@ export function Logo(props) {
     return <img src={window.__webpack_public_path__ + require('../art/icon.svg')} width="32" height="32" {...props} />;
 }
 
-export function Outbound(props) {
+export function OutboundIcon(props) {
      return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
         <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         <path className="box" d="M 14.5 11 L 14.5 17.5 L 2.5 17.5 L 2.5 5.5 L 9 5.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />

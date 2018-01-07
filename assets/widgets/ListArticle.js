@@ -1,12 +1,12 @@
 import React from 'react';
 import { FeedLink } from 'widgets/links.js';
-import { Outbound } from 'widgets/icons.js';
+import { OutboundIcon } from 'widgets/icons.js';
 import { ReadToggleLink } from 'widgets/StateToggle.js';
 import "./ListArticle.less";
 
 const PLACEHOLDER = <div className="list-article"></div>;
 const BR = <br key="br" />;
-const OUTBOUND_ICON = <Outbound aria-hidden={true} />;
+const OUTBOUND_ICON = <OutboundIcon aria-hidden={true} />;
 
 export default class ListArticle extends React.PureComponent {
     render() {
