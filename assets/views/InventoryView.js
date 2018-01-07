@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Add, EditIcon, Remove, Logo, Heart } from 'widgets/icons.js';
+import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label, LabelSelector } from 'widgets/Label.js';
@@ -146,7 +146,6 @@ class InventoryItem extends React.PureComponent {
         const labelList = this.props.labelList;
         return <div className="inventory-item-wrap">
             <div className="inventory-item">
-                <h2>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h2>
                 <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
                 <div>{feed.labels.length
                     ? feed.labels.map(labelId => {
@@ -222,6 +221,28 @@ export class ManageFeedView extends React.PureComponent {
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
+            <header className="list-header">
+                <div className="list-header-inner bar">
+                    <FeedLink className="expand" feedId={feed.id} filter={FILTER_UNREAD}>
+                        <div className="square">
+                            <FeedIcon className="icon" aria-hidden={true} />
+                        </div>
+                        <h1>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h1>
+                    </FeedLink>
+                    {/*
+                    FIXME this should probably be an icon that links back to
+                    the feed view for symmetry with the edit icon that links to
+                    this page. Unfortunately the symmetry wouldn't necessarily
+                    be perfect, as the feed link assigns a filter. Maybe this
+                    manage page should be a tab alongside the filters so that
+                    that symmetry isn't required?
+
+                    <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
+                        <EditIcon className="icon" aria-label="Edit Feed" />
+                    </InventoryFeedLink>
+                    */}
+                </div>
+            </header>
             <Centered>
                 <InventoryItem
                     key={feed.id}
