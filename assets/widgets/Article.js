@@ -2,14 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FeedLink } from "widgets/links.js";
 import { FILTER_ALL } from 'actions.js';
-// import { Outbound } from 'widgets/icons.js';
+import { Outbound as OutboundIcon } from 'widgets/icons.js';
 import "./Article.less";
 
 export class Article extends React.PureComponent {
     render() {
-        // TODO Put the outbound icon in the <h1>: <Outbound alt="" width="16" height="16" />
         return <article>
-            <h1><a href={this.props.url} target="_blank">{this.props.title || "Untitled"}</a></h1>
+            <h1>
+                <a href={this.props.url} target="_blank">
+                    <span>{this.props.title || "Untitled"}</span>
+                    <OutboundIcon aria-hidden={true} />
+                </a>
+            </h1>
             <div className="meta">
                 {this.props.author
                     ? <p>By {this.props.author} from <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
