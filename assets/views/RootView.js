@@ -16,7 +16,7 @@ class RootView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
-        return <div className="root-view">
+        return <React.Fragment>
             <GlobalBar>
                 <div className="bar-inset">
                     <div className="text">
@@ -60,7 +60,7 @@ class RootView extends React.PureComponent {
                     </ul>
                 </div>
             </div>
-        </div>;
+        </React.Fragment>;
     }
 }
 

@@ -35,7 +35,7 @@ export class InventoryView extends React.PureComponent {
         // causing the current object of focus to jump around on the page.
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
-        return <div className="inventory-view">
+        return <React.Fragment>
             <GlobalBar>
                 <div className="bar-inset">
                     <h1>Manage Feeds</h1>
@@ -51,7 +51,7 @@ export class InventoryView extends React.PureComponent {
             <Centered>
                 {this.renderFeeds(feedList, labelList)}
             </Centered>
-        </div>;
+        </React.Fragment>;
     }
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
@@ -212,7 +212,7 @@ export class ManageFeedView extends React.PureComponent {
     render() {
         const feed = this.props.feedsById[this.props.params.feedId];
         const labelList = labelsByTitle(this.props);
-        return <div className="inventory-view">
+        return <React.Fragment>
             <GlobalBar />
             <div className="tabs">
                 <div className="tabs-inner">
@@ -256,7 +256,7 @@ export class ManageFeedView extends React.PureComponent {
                     onRemoveFeed={this.handleRemoveFeed}
                 />
             </Centered>
-        </div>;
+        </React.Fragment>;
     }
     handleRemoveFeed(feedId) {
         const feed = this.props.feedsById[feedId];
@@ -310,7 +310,7 @@ export const ConnectedManageLabelView = connect(state => state, {
 
 export class AddFeedView extends React.PureComponent {
     render() {
-        return <div className="add-feed-view">
+        return <React.Fragment>
             <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
                 <div className="bar-inset">
                     <h1>Add Feed</h1>
@@ -329,7 +329,7 @@ export class AddFeedView extends React.PureComponent {
                 <AddFeedForm className="add-feed-form" onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
                 {this.renderAdd()}
             </Centered>
-        </div>;
+        </React.Fragment>;
     }
     renderAdd() {
         const { url=null, error=null, feedId=null } = this.props.feedAdd;

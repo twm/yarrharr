@@ -1,4 +1,5 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
@@ -45,7 +46,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     const feedCount = Object.keys(feedsById).length;
-    return <div className="feed-view">
+    return <React.Fragment>
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
                 {/*<AllIcon className="icon" aria-hidden={true} />*/}
@@ -86,14 +87,14 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
         </div>}
-    </div>;
+    </React.Fragment>;
 }
 
 export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore, onAddLabel, onAttachLabel, onDetachLabel}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
-    return <div className="feed-view">
+    return <React.Fragment>
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
                 <FeedIcon className="icon" aria-hidden={true} />
@@ -133,14 +134,14 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
         </div>}
-    </div>;
+    </React.Fragment>;
 }
 
 export function LabelView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
-    return <div className="feed-view">
+    return <React.Fragment>
         <GlobalBar layout={layout} onSetLayout={onSetLayout}>
             <div className="bar-inset">
                 <LabelIcon className="icon" aria-hidden={true} />
@@ -184,7 +185,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
         </div>}
-    </div>;
+    </React.Fragment>;
 }
 
 const mapDispatchToProps = {
