@@ -31,32 +31,6 @@
 
 @narrow_width: 50rem;
 
-.content-colors() {
-    color: @content_text_color;
-    background: @content_background_color;
-    a {
-        color: @content_text_color;
-        text-decoration-line: underline;
-        text-decoration-color: rgb(28, 140, 199);
-    }
-    a[role=button] {
-        text-decoration-line: none;
-    }
-    a:visited {
-        text-decoration-color: rgb(199, 68, 28);
-    }
-    a:visited:not([role=button]) {
-        color: @content_text_color;
-    }
-    a:active {
-        text-decoration-color: rgb(185, 28, 199);
-    }
-    a:link[aria-disabled=true],
-    a:visited[aria-disabled=true] {
-        text-decoration-line: none;
-    }
-}
-
 .flat-button() {
     display: block;
     box-sizing: border-box;
