@@ -1,18 +1,12 @@
 @import "../globals.less";
 
-.root-view {
-}
-
 .root-inner-wrap {
     .content-colors;
 }
 
 .root-inner {
     margin: 0 auto;
-}
-
-.layout-narrow .root-inner {
-    max-width: @narrow_width;
+    max-width: var(--layout-max-width);
 }
 
 .root-list {

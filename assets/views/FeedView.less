@@ -5,6 +5,7 @@
 }
 .list-header-inner {
     margin: 0 auto;
+    max-width: var(--layout-max-width);
     box-sizing: border-box;
 
     & > .expand {
@@ -25,12 +26,6 @@
         color: #666;
         font-size: 1.5rem;
     }
-}
-
-.layout-narrow .list-header-inner,
-.layout-narrow .top-bar,
-.layout-narrow .bottom-bar {
-    max-width: @narrow_width;
 }
 
 .next-link[href],
