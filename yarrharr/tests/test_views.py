@@ -129,10 +129,12 @@ class InventoryViewTests(TestCase):
         """
         A feed's user title and feed URL may be changed by the update action.
         """
+        added = timezone.now() - datetime.timedelta(days=1)
         feed = self.user.feed_set.create(
             url='http://example.com/feedX.xml',
             feed_title='Feed X',
-            added=timezone.now() - datetime.timedelta(days=1),
+            site_url='http://example.com/',
+            added=added,
         )
         url = 'http://example.com/feedZ.xml'
         user_title = 'Feed Z'
@@ -151,6 +153,28 @@ class InventoryViewTests(TestCase):
         [feed] = self.user.feed_set.all()
         self.assertEqual(url, feed.url)
         self.assertEqual(user_title, feed.user_title)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed X',
+                    'text': user_title,
+                    'siteUrl': 'http://example.com/',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': str(added),  # FIXME use RFC 3339 format
+                    'error': '',
+                    'active': True,
+                    'url': url,
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_remove(self):
         feed = self.user.feed_set.create(
@@ -168,6 +192,12 @@ class InventoryViewTests(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, self.user.feed_set.count())
+        self.assertEqual({
+            'feedsById': {},
+            'feedOrder': [],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_activate(self):
         """
