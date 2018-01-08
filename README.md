@@ -21,6 +21,8 @@ The [1.0 milestone](https://github.com/twm/yarrharr/milestone/1) tracks this.
 Yarrharr is a Python application, but also a modern web app, so its dependencies are numerous.
 The following steps work on Ubuntu 14.04 and 16.04; some modification may be necessary for Debian.
 
+The [conventions document](./conventions.md) describes some idioms used in the codebase.
+
 ### Get the Source and Dependencies
 
 Grab the build dependencies with:
@@ -81,7 +83,7 @@ To schedule an immediate check of all feeds:
 
 ## License
 
-Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most
+Copyright © 2013, 2014, 2015, 2016, 2017, 2018 Tom Most
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the [GNU General Public License](./COPYING) as published by the Free Software
