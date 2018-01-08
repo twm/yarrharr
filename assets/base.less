@@ -140,9 +140,6 @@ input[type=submit],
     .content-colors;
 }
 
-.layout-narrow .bar {
-}
-
 .bar {
     display: flex;
     justify-content: space-between;
@@ -233,11 +230,9 @@ input[type=submit],
 .tabs-inner {
     display: flex;
     margin: 0 auto -2px auto;
-    box-sizing: border-box;
     padding: 0 0 0 .5rem;
-}
-.layout-narrow .tabs-inner {
-    max-width: @narrow_width;
+    max-width: var(--layout-max-width);
+    box-sizing: border-box;
 }
 /* base tab styles */
 .tabs-inner > a {
