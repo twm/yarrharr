@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils import timezone
+import mock
 
 # from ..models import Feed
 
@@ -85,8 +86,10 @@ class InventoryViewTests(TestCase):
             password='sesame',
         )
 
+    maxDiff = None
+
     def test_create(self):
-        url = 'http://example.com/feed.xml'
+        url = u'http://example.com/feed.xml'
         c = Client()
         c.force_login(self.user)
 
@@ -98,6 +101,29 @@ class InventoryViewTests(TestCase):
         self.assertEqual(url, feed.feed_title)
         self.assertIsNotNone(feed.added)
         self.assertIsNotNone(feed.next_check)  # scheduled for poll
+        self.assertEqual({
+            'feedId': feed.id,
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': url,
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': True,
+                    'url': url,
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_update(self):
         """
