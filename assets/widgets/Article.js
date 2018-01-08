@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FeedLink } from "widgets/links.js";
 import { FILTER_ALL } from 'actions.js';
-import { Outbound as OutboundIcon } from 'widgets/icons.js';
+import { OutboundIcon } from 'widgets/icons.js';
 import "./Article.less";
 
 export class Article extends React.PureComponent {

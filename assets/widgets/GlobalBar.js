@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import Home from 'icons/home.svg';
-import Narrow from 'icons/narrow.svg';
-import Wide from 'icons/wide.svg';
+import HomeIcon from 'icons/home.svg';
+import { NarrowIcon, WideIcon } from 'widgets/icons.js';
 
 import { RootLink } from 'widgets/links.js';
 
@@ -22,10 +21,12 @@ export class LayoutToggleLink extends React.PureComponent {
     }
     render() {
         const narrow = this.props.layout === LAYOUT_NARROW;
-        const Image = narrow ? Wide : Narrow;
+        const Image = narrow ? WideIcon : NarrowIcon;
         const text = narrow ? "Wide" : "Narrow"
         const actionText = narrow ? "Switch to wide layout" : "Switch to narrow layout"
-        return <a role="button" className="square" tabIndex="0" aria-label={text} href="#" onClick={this.handleClick} title={actionText} ><Image className="icon" aria-hidden={true} /></a>;
+        return <a role="button" className="square" tabIndex="0" aria-label={text} href="#" onClick={this.handleClick} title={actionText} >
+            <Image aria-hidden={true} />
+        </a>;
     }
 }
 
@@ -38,7 +39,7 @@ export const ConnectedLayoutToggleLink = connect(state => {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink className="square" aria-label="Home" title="Go home"><Home className="icon" aria-hidden={true} /></RootLink>
+            <RootLink className="square" aria-label="Home" title="Go home"><HomeIcon className="icon" aria-hidden={true} /></RootLink>
             {this.props.children}
             <ConnectedLayoutToggleLink />
         </div>;
