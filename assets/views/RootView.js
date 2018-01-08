@@ -31,34 +31,32 @@ class RootView extends React.PureComponent {
                     <AddFeedLink>Add Feed</AddFeedLink>
                 </div>
             </div>
-            <div className="root-inner-wrap">
-                <div className="root-inner">
-                    <ul className="root-list">
-                        <li className="all-link">
-                            <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
-                        </li>
+            <div className="root">
+                <ul className="root-list">
+                    <li className="all-link">
+                        <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
+                    </li>
 
-                        {labelList.length
-                            ? labelList.map((label) =>
-                                <li key={"label-" + label.id}>
-                                    <LabelLink labelId={label.id} filter={FILTER_UNREAD}>
-                                        <LabelIcon className="icon" aria-hidden={true} />
-                                        <span className="text">{label.text}</span>
-                                    </LabelLink>
-                                </li>)
-                            : null}
+                    {labelList.length
+                        ? labelList.map((label) =>
+                            <li key={"label-" + label.id}>
+                                <LabelLink labelId={label.id} filter={FILTER_UNREAD}>
+                                    <LabelIcon className="icon" aria-hidden={true} />
+                                    <span className="text">{label.text}</span>
+                                </LabelLink>
+                            </li>)
+                        : null}
 
-                        {feedList.length
-                            ? feedList.map((feed) =>
-                                <li key={"feed-" + feed.id}>
-                                    <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>
-                                        <FeedIcon className="icon" aria-hidden={true} />
-                                        <span className="text">{feed.text || feed.title}</span>
-                                    </FeedLink>
-                                </li>)
-                            : <li>No feeds.  Add one?</li>}
-                    </ul>
-                </div>
+                    {feedList.length
+                        ? feedList.map((feed) =>
+                            <li key={"feed-" + feed.id}>
+                                <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>
+                                    <FeedIcon className="icon" aria-hidden={true} />
+                                    <span className="text">{feed.text || feed.title}</span>
+                                </FeedLink>
+                            </li>)
+                        : <li>No feeds.  Add one?</li>}
+                </ul>
             </div>
         </React.Fragment>;
     }
