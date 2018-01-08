@@ -4,8 +4,7 @@ import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import HomeIcon from 'icons/home.svg';
-import NarrowIcon from 'icons/narrow.svg';
-import WideIcon from 'icons/wide.svg';
+import { NarrowIcon, WideIcon } from 'widgets/icons.js';
 
 import { RootLink } from 'widgets/links.js';
 

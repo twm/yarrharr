@@ -44,13 +44,56 @@ export function EditIcon(props) {
     </svg>;
 }
 
+/**
+ * WideIcon looks like a double-headed arrow, e.g. <->.
+ */
+export function WideIcon(props) {
+    const w = 20;
+    const h = 20;
+    // Padding around the icon so that it doesn't hit the edge of the viewBox, causing ugly clipping.
+    const margin = 1;
+    // The arrowhead strokes are the hypotenuse of right isosceles triangles. a is the length of the other two sides.
+    const a = 5;
+    var path = '';
+    // Left arrowhead:
+    path += `M ${margin + a} ${(h / 2) - a} L ${margin} ${h / 2} L ${margin + a} ${(h / 2) + a}`;
+    // Center bar:
+    path += `M ${margin} ${h / 2} L ${w - margin} ${h / 2}`;
+    // Right arrowhead:
+    path += `M ${w - margin - a} ${(h / 2) - a} L ${w - margin} ${h / 2} L ${w - margin - a} ${(h / 2) + a}`;
+    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>;
+}
 
+/**
+ * NarrowIcon looks like two arrows pointed at one another, e.g.. →←
+ */
+export function NarrowIcon(props) {
+    const w = 20;
+    const h = 20;
+    // The arrowhead strokes are the hypotenuse of right isosceles triangles. a is the length of the other two sides.
+    const a = 5;
+    // Length of the arrow bar.
+    const bar = 8;
 
-/*
+    const arrow = (x, y, xmul) =>
+        `M ${x} ${y} L ${x - xmul * bar} ${y} M ${x - a * xmul} ${y - a} L ${x} ${y} L ${x - a * xmul} ${y + a}`;
+
+    var path = arrow(w / 2 - 1, h / 2, 1) + arrow(w / 2 + 1, h / 2, -1);
+
+    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>;
+}
+
+/* Copy this into https://reactjs.org/
+
+const Icon = WideIcon;
 ReactDOM.render(
     [
-        <div><ArrowLeft /></div>,
-        <div><ArrowLeft width="250" height="250" /></div>
+        <div><Icon /></div>,
+        <div><Icon width="250" height="250" /></div>
     ],
     mountNode
 )
