@@ -141,14 +141,14 @@ input[type=submit],
 }
 
 .layout-narrow .bar {
-    max-width: @narrow_width;
-    margin: 0 auto;
 }
 
 .bar {
     display: flex;
     justify-content: space-between;
     height: @bar_height;
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
     line-height: @bar_line_height;
     contain: size layout style;
 
