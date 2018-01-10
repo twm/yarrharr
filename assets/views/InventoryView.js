@@ -19,9 +19,7 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 
 function Centered(props) {
     return <div className="inventory">
-        <div className="inventory-inner">
-            {props.children}
-        </div>
+        {props.children}
     </div>;
 }
 
@@ -144,41 +142,39 @@ class InventoryItem extends React.PureComponent {
         const feed = this.props.feed;
         const state = this.state;
         const labelList = this.props.labelList;
-        return <div className="inventory-item-wrap">
-            <div className="inventory-item">
-                <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
-                <div>{feed.labels.length
-                    ? feed.labels.map(labelId => {
-                        const label = this.props.labelsById[labelId];
-                        return <Label key={labelId} feedId={feed.id} label={label} />;
-                    })
-                    : "No labels"}</div>
-                <div><FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.unreadCount} new</FeedLink></div>
-                <div><FeedLink feedId={feed.id} filter={FILTER_FAVE}>{feed.faveCount} marked favorite</FeedLink></div>
-                <div>Last updated {feed.updated || "never"}</div>
-                {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
-                <LabelSelector feed={feed} labelList={labelList}
-                    onAddLabel={this.props.onAddLabel}
-                    onAttachLabel={this.props.onAttachLabel}
-                    onDetachLabel={this.props.onDetachLabel} />
-                <form onSubmit={this.handleSubmit}>
-                    <p>
-                        <label>Title Override</label>
-                        <input type="text" name="text" value={this.current('text')} placeholder={feed.title} onChange={this.handleInputChange} />
-                    </p>
-                    <p>
-                        <label>Feed URL (<a href={this.current('url')} target="_blank">link</a>)</label>
-                        <input type="url" name="url" value={this.current('url')} onChange={this.handleInputChange} />
-                    </p>
-                    <p>
-                        <label><input type="checkbox" name="active" checked={this.current('active')} onChange={this.handleActiveToggle} /> Check this feed for updates</label>
-                    </p>
-                    <div className="tools">
-                        <a className="remove-button text-button" role="button" href="#" onClick={this.handleClickRemoveFeed}>Remove Feed</a>
-                        <input type="submit" value="Save" />
-                    </div>
-                </form>
-            </div>
+        return <div className="inventory-item">
+            <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
+            <div>{feed.labels.length
+                ? feed.labels.map(labelId => {
+                    const label = this.props.labelsById[labelId];
+                    return <Label key={labelId} feedId={feed.id} label={label} />;
+                })
+                : "No labels"}</div>
+            <div><FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.unreadCount} new</FeedLink></div>
+            <div><FeedLink feedId={feed.id} filter={FILTER_FAVE}>{feed.faveCount} marked favorite</FeedLink></div>
+            <div>Last updated {feed.updated || "never"}</div>
+            {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
+            <LabelSelector feed={feed} labelList={labelList}
+                onAddLabel={this.props.onAddLabel}
+                onAttachLabel={this.props.onAttachLabel}
+                onDetachLabel={this.props.onDetachLabel} />
+            <form onSubmit={this.handleSubmit}>
+                <p>
+                    <label>Title Override</label>
+                    <input type="text" name="text" value={this.current('text')} placeholder={feed.title} onChange={this.handleInputChange} />
+                </p>
+                <p>
+                    <label>Feed URL (<a href={this.current('url')} target="_blank">link</a>)</label>
+                    <input type="url" name="url" value={this.current('url')} onChange={this.handleInputChange} />
+                </p>
+                <p>
+                    <label><input type="checkbox" name="active" checked={this.current('active')} onChange={this.handleActiveToggle} /> Check this feed for updates</label>
+                </p>
+                <div className="tools">
+                    <a className="remove-button text-button" role="button" href="#" onClick={this.handleClickRemoveFeed}>Remove Feed</a>
+                    <input type="submit" value="Save" />
+                </div>
+            </form>
         </div>;
     }
 }

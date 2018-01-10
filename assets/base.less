@@ -5,20 +5,46 @@
 @import "./globals.less";
 
 :root {
-    --layout-max-width: none;
+    --layout-max-width: 50rem;
 }
-.layout-narrow {
-    --layout-max-width: @narrow_width;
+.layout-wide {
+    --layout-max-width: none;
 }
 
 html {
-    background: @background_color;
-    color: @text_color;
     line-height: 1.4;
     font-family: sans-serif;
     margin: 0;
     padding: 0;
     overflow-y: scroll;
+
+    color: @content_text_color;
+    background: @content_background_color;
+    a {
+        color: @content_text_color;
+        text-decoration-line: underline;
+        text-decoration-color: rgb(28, 140, 199);
+    }
+    a[role=button] {
+        text-decoration-line: none;
+    }
+    a:visited {
+        text-decoration-color: rgb(199, 68, 28);
+    }
+    a:visited:not([role=button]) {
+        color: @content_text_color;
+    }
+    a:active {
+        text-decoration-color: rgb(185, 28, 199);
+    }
+    a:link[aria-disabled=true],
+    a:visited[aria-disabled=true] {
+        text-decoration-line: none;
+    }
+}
+
+main {
+    min-height: 100vh; /* push the footer off the page */
 }
 
 h1 {
@@ -27,21 +53,6 @@ h1 {
 
 :focus {
     outline: 1px dotted;
-}
-
-a {
-    color: @text_color;
-    text-decoration-line: underline;
-}
-a[role=button] {
-    text-decoration-line: none;
-}
-a:visited:not([role=button]) {
-    color: darken(@text_color, 20%);
-}
-a:link[aria-disabled=true],
-a:visited[aria-disabled=true] {
-    text-decoration-line: none;
 }
 
 /**
@@ -113,10 +124,8 @@ input[type=submit],
 }
 
 .about-page {
-    .content-colors;
-
     .about-page-inner {
-        max-width: @narrow_width;
+        max-width: --layout-max-width;
         margin: 0 auto;
         padding: 1px 0 1px 0; /* disable margin collapsing */
     }
@@ -136,8 +145,7 @@ input[type=submit],
     margin: 0 auto;
     box-sizing: border-box; /* Fix #94 */
     padding: .5rem 1rem;
-    max-width: @narrow_width;
-    .content-colors;
+    max-width: --layout-max-width;
 }
 
 .bar {
@@ -280,7 +288,6 @@ form.small-form {
     display: block;
     margin: 0 auto;
     padding: 0.5rem 1rem;
-    .content-colors;
 
     label {
         display: block;
@@ -326,7 +333,23 @@ form.small-form {
 }
 
 footer {
-    margin: 3em 0.25em;
+    padding: 3em 0.25em;
     text-align: center;
+    background: @background_color;
     color: lighten(@text_color, 40%);
+
+    a {
+        color: @text_color;
+        text-decoration-line: underline;
+    }
+    a[role=button] {
+        text-decoration-line: none;
+    }
+    a:visited:not([role=button]) {
+        color: darken(@text_color, 20%);
+    }
+    a:link[aria-disabled=true],
+    a:visited[aria-disabled=true] {
+        text-decoration-line: none;
+    }
 }
