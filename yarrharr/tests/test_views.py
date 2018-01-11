@@ -85,15 +85,15 @@ class InventoryViewTests(TestCase):
             email='john@mail.example',
             password='sesame',
         )
+        self.client = Client()
+        self.client.force_login(self.user)
 
     maxDiff = None
 
     def test_create(self):
         url = u'http://example.com/feed.xml'
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {'action': 'create', 'url': url})
+        response = self.client.post('/api/inventory/', {'action': 'create', 'url': url})
 
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
@@ -138,10 +138,8 @@ class InventoryViewTests(TestCase):
         )
         url = 'http://example.com/feedZ.xml'
         user_title = 'Feed Z'
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'update',
             'feed': feed.id,
             'url': url,
@@ -182,10 +180,8 @@ class InventoryViewTests(TestCase):
             feed_title='Feed 2',
             added=timezone.now() - datetime.timedelta(days=1),
         )
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'remove',
             'feed': feed.id,
         })
@@ -209,10 +205,8 @@ class InventoryViewTests(TestCase):
             added=timezone.now(),
             next_check=None,
         )
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'update',
             'feed': feed.id,
             'active': 'on',
@@ -257,10 +251,8 @@ class InventoryViewTests(TestCase):
             added=timezone.now(),
             next_check=None,
         )
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'deactivate',
             'feed': feed.id,
             'active': 'off',
