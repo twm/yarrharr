@@ -223,6 +223,28 @@ class InventoryViewTests(TestCase):
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
         self.assertIsNotNone(feed.next_check)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed 1',
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': True,
+                    'url': 'http://example.com/feed1.xml',
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_deactivate(self):
         """
@@ -249,6 +271,28 @@ class InventoryViewTests(TestCase):
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
         self.assertIsNone(feed.next_check)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed 1',
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': False,
+                    'url': 'http://example.com/feed1.xml',
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
 
 class RobotsTxtTests(TestCase):
