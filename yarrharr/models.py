@@ -104,7 +104,7 @@ class Feed(models.Model):
     user_title = models.TextField(default='', blank=True)
     site_url = models.URLField(default='', blank=True)
 
-    title = property(lambda self: self.user_title or self.feed_title)
+    title = property(lambda self: self.user_title or self.feed_title or self.url)
 
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)

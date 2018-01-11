@@ -44,6 +44,23 @@ log = Logger()
 json_encoder = simplejson.JSONEncoderForHTML()
 
 
+def human_sort_key(s):
+    """
+    Generate a sort key given a string. The sort key is guaranteed to have
+    a few properties:
+
+    * It is ASCII case insensitive.
+    * It discards non-alphanumeric characters.
+
+    :param str s: A human-readable string
+    :returns:
+        A case-normalized version of `s` less non-alphanumeric characters.
+    """
+    s = u''.join(c for c in s if c.isalnum() or c.isspace())
+    # TODO: Once ported to Python 3, use s.casefold()
+    return s.lower()
+
+
 def log_query(qs):
     log.debug('qs.query = {query}', query=qs.query)
     return qs
@@ -87,13 +104,18 @@ def json_for_feed(feed):
 
 def feeds_for_user(user):
     feeds_by_id = {}
-    feed_order = []
+    feed_order_decorated = []
     for feed in user.feed_set.all():
         feeds_by_id[feed.id] = json_for_feed(feed)
-        feed_order.append(feed.id)
+        feed_order_decorated.append((human_sort_key(feed.title), feed.id))
+    # XXX It would be nice to do this sorting in the database, but sqlite3 does
+    # not ship with appropriate collations. Custom collations can be installed,
+    # but there isn't much advantage to doing so right now given we always
+    # query all feeds anyway.
+    feed_order_decorated.sort()
     return {
         'feedsById': feeds_by_id,
-        'feedOrder': feed_order,
+        'feedOrder': list(pk for _, pk in feed_order_decorated),
     }
 
 

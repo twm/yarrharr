@@ -90,6 +90,40 @@ class InventoryViewTests(TestCase):
 
     maxDiff = None
 
+    def test_get_sort(self):
+        feed_c = self.user.feed_set.create(
+            url='http://example.com/feedC.xml',
+            feed_title='Feed C',
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+        feed_b = self.user.feed_set.create(
+            url='http://example.com/feedB.xml',
+            feed_title='feed b',  # Case is ignored.
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+        feed_a = self.user.feed_set.create(
+            url='http://example.com/feedA.xml',
+            feed_title='<-Feed a',  # Non-alphanumeric characters are disregarded.
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+
+        response = self.client.get('/api/inventory/')
+
+        self.assertEqual({
+            'feedsById': mock.ANY,
+            'feedOrder': [
+                feed_a.id,
+                feed_b.id,
+                feed_c.id,
+            ],
+            'labelsById': mock.ANY,
+            'labelOrder': [
+            ],
+        }, response.json())
+
     def test_create(self):
         url = u'http://example.com/feed.xml'
 
