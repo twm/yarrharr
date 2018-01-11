@@ -452,17 +452,18 @@ export function loadMore(articleIds) {
 }
 
 export const RECEIVE_FEEDS = 'RECEIVE_FEEDS';
-export function receiveFeeds(feedsById) {
+export function receiveFeeds(feedsById, feedOrder) {
     return {
         type: RECEIVE_FEEDS,
         feedsById,
+        feedOrder,
     };
 }
 
 export function loadFeeds() {
     return (dispatch) => {
         get('/api/inventory/').then(json => {
-            dispatch(receiveFeeds(json.feedsById));
+            dispatch(receiveFeeds(json.feedsById, json.feedOrder));
         }).catch(e => {
             console.error(e);
             // TODO: Error handling
@@ -533,9 +534,9 @@ export function updateFeed(feedId, text, url, active) {
         body.append('url', url);
         body.append('active', active ? 'on' : 'off');
         return post('/api/inventory/', body).then(json => {
-            const { feedsById, labelsById } = json;
-            dispatch(receiveLabels(labelsById));
-            dispatch(receiveFeeds(feedsById));
+            const { feedsById, feedOrder, labelsById, labelOrder } = json;
+            dispatch(receiveLabels(labelsById, labelOrder));
+            dispatch(receiveFeeds(feedsById, feedOrder));
         }).catch(e => {
             console.error(`Error marking feed ${feedId} active=${active}`, e);
             dispatch(failMarkFeedActive(feedId, text, url, active));
@@ -566,9 +567,9 @@ export function removeFeed(feedId) {
         body.append('feed', feedId);
         return post('/api/inventory/', body).then(json => {
             // TODO: Handle expected error conditions.
-            const { feedsById, labelsById } = json;
-            dispatch(receiveLabels(labelsById));
-            dispatch(receiveFeeds(feedsById));
+            const { feedsById, feedOrder, labelsById, labelOrder } = json;
+            dispatch(receiveLabels(labelsById, labelOrder));
+            dispatch(receiveFeeds(feedsById, feedOrder));
         }).catch(e => {
             console.error("Error removing", feedId, "->", e);
             dispatch(failRemoveFeed(feedId, "Unexpected error"));
@@ -596,8 +597,8 @@ export function addLabel(text) {
         body.append('action', 'create');
         body.append('text', text);
         return post('/api/labels/', body).then(json => {
-            const { labelsById } = json;
-            dispatch(receiveLabels(labelsById));
+            const { labelsById, labelOrder } = json;
+            dispatch(receiveLabels(labelsById, labelOrder));
         }).catch(e => {
             console.error(e);
             dispatch(failAddLabel(text));
@@ -606,10 +607,11 @@ export function addLabel(text) {
 }
 
 export const RECEIVE_LABELS = 'RECEIVE_LABELS';
-export function receiveLabels(labelsById) {
+export function receiveLabels(labelsById, labelOrder) {
     return {
         type: RECEIVE_LABELS,
         labelsById,
+        labelOrder,
     };
 }
 
@@ -638,7 +640,9 @@ export function attachLabel(feedId, labelId) {
         body.append('feed', feedId);
         body.append('label', labelId);
         return post('/api/labels/', body).then(json => {
-            dispatch(receiveFeeds(json.feedsById));
+            const { feedsById, feedOrder, labelsById, labelOrder } = json;
+            dispatch(receiveLabels(labelsById, labelOrder));
+            dispatch(receiveFeeds(feedsById, feedOrder));
         }).catch(e => {
             console.error(e);
             dispatch(failAttachLabel(feedId, labelId));
@@ -659,7 +663,9 @@ export function detachLabel(feedId, labelId) {
         body.append('feed', feedId);
         body.append('label', labelId);
         return post('/api/labels/', body).then(json => {
-            dispatch(receiveFeeds(json.feedsById));
+            const { feedsById, feedOrder, labelsById, labelOrder } = json;
+            dispatch(receiveLabels(labelsById, labelOrder));
+            dispatch(receiveFeeds(feedsById, feedOrder));
         }).catch(e => {
             console.error(e);
             alert('Failed to remove label');

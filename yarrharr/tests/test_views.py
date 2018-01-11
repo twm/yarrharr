@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils import timezone
+import mock
 
 # from ..models import Feed
 
@@ -84,13 +85,55 @@ class InventoryViewTests(TestCase):
             email='john@mail.example',
             password='sesame',
         )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    maxDiff = None
+
+    def test_get_sort(self):
+        feed_c = self.user.feed_set.create(
+            url='http://example.com/feedC.xml',
+            feed_title='Feed C',
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+        feed_b = self.user.feed_set.create(
+            url='http://example.com/feedB.xml',
+            feed_title='feed b',  # Case is ignored.
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+        feed_a = self.user.feed_set.create(
+            url='http://example.com/feedA.xml',
+            feed_title='<-Feed a',  # Non-alphanumeric characters are disregarded.
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+        label_a = feed_a.label_set.create(text='A', user=self.user)
+        label_c = feed_b.label_set.create(text='C', user=self.user)
+        label_b = feed_c.label_set.create(text='B', user=self.user)
+
+        response = self.client.get('/api/inventory/')
+
+        self.assertEqual({
+            'feedsById': mock.ANY,
+            'feedOrder': [
+                feed_a.id,
+                feed_b.id,
+                feed_c.id,
+            ],
+            'labelsById': mock.ANY,
+            'labelOrder': [
+                label_a.id,
+                label_b.id,
+                label_c.id,
+            ],
+        }, response.json())
 
     def test_create(self):
-        url = 'http://example.com/feed.xml'
-        c = Client()
-        c.force_login(self.user)
+        url = u'http://example.com/feed.xml'
 
-        response = c.post('/api/inventory/', {'action': 'create', 'url': url})
+        response = self.client.post('/api/inventory/', {'action': 'create', 'url': url})
 
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
@@ -98,22 +141,45 @@ class InventoryViewTests(TestCase):
         self.assertEqual(url, feed.feed_title)
         self.assertIsNotNone(feed.added)
         self.assertIsNotNone(feed.next_check)  # scheduled for poll
+        self.assertEqual({
+            'feedId': feed.id,
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': url,
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': True,
+                    'url': url,
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_update(self):
         """
         A feed's user title and feed URL may be changed by the update action.
         """
+        added = timezone.now() - datetime.timedelta(days=1)
         feed = self.user.feed_set.create(
             url='http://example.com/feedX.xml',
             feed_title='Feed X',
-            added=timezone.now() - datetime.timedelta(days=1),
+            site_url='http://example.com/',
+            added=added,
         )
         url = 'http://example.com/feedZ.xml'
         user_title = 'Feed Z'
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'update',
             'feed': feed.id,
             'url': url,
@@ -125,6 +191,28 @@ class InventoryViewTests(TestCase):
         [feed] = self.user.feed_set.all()
         self.assertEqual(url, feed.url)
         self.assertEqual(user_title, feed.user_title)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed X',
+                    'text': user_title,
+                    'siteUrl': 'http://example.com/',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': str(added),  # FIXME use RFC 3339 format
+                    'error': '',
+                    'active': True,
+                    'url': url,
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_remove(self):
         feed = self.user.feed_set.create(
@@ -132,16 +220,20 @@ class InventoryViewTests(TestCase):
             feed_title='Feed 2',
             added=timezone.now() - datetime.timedelta(days=1),
         )
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'remove',
             'feed': feed.id,
         })
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, self.user.feed_set.count())
+        self.assertEqual({
+            'feedsById': {},
+            'feedOrder': [],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_activate(self):
         """
@@ -153,10 +245,8 @@ class InventoryViewTests(TestCase):
             added=timezone.now(),
             next_check=None,
         )
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'update',
             'feed': feed.id,
             'active': 'on',
@@ -167,6 +257,28 @@ class InventoryViewTests(TestCase):
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
         self.assertIsNotNone(feed.next_check)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed 1',
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': True,
+                    'url': 'http://example.com/feed1.xml',
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
     def test_deactivate(self):
         """
@@ -179,10 +291,8 @@ class InventoryViewTests(TestCase):
             added=timezone.now(),
             next_check=None,
         )
-        c = Client()
-        c.force_login(self.user)
 
-        response = c.post('/api/inventory/', {
+        response = self.client.post('/api/inventory/', {
             'action': 'deactivate',
             'feed': feed.id,
             'active': 'off',
@@ -193,6 +303,28 @@ class InventoryViewTests(TestCase):
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
         self.assertIsNone(feed.next_check)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed 1',
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': False,
+                    'url': 'http://example.com/feed1.xml',
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
 
 
 class RobotsTxtTests(TestCase):

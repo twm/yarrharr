@@ -25,7 +25,7 @@ function routeReducer(state = defaultRoute, action) {
 import { RECEIVE_LABELS } from './actions.js';
 import { REQUEST_ARTICLES, RECEIVE_ARTICLES, FAIL_ARTICLES } from './actions.js';
 import { REQUEST_MARK_ARTICLE, FAIL_MARK_ARTICLE } from './actions.js';
-function articleReducer(state = window.props.articlesById, action) {
+function articleReducer(state = {}, action) {
     if (action.type === REQUEST_ARTICLES) {
         const patch = {};
         const flags = {loading: true, error: false};
@@ -109,6 +109,12 @@ function feedReducer(state = window.props.feedsById, action) {
         return Object.assign({}, state, {
             [action.feedId]: Object.assign({}, feed, {removing: false}),
         });
+    }
+    return state;
+}
+function feedOrderReducer(state = window.props.feedOrder, action) {
+    if (action.type === RECEIVE_FEEDS) {
+        return action.feedOrder;
     }
     return state;
 }
@@ -270,6 +276,12 @@ function labelReducer(state = window.props.labelsById, action) {
     }
     return state;
 }
+function labelOrderReducer(state = window.props.labelOrder, action) {
+    if (action.type === RECEIVE_LABELS) {
+        return action.labelOrder;
+    }
+    return state;
+}
 
 import { SET_LAYOUT, LAYOUT_NARROW, validLayout } from './actions.js';
 function layoutReducer(state = LAYOUT_NARROW, action) {
@@ -287,8 +299,10 @@ export default combineReducers({
     route: routeReducer,
     articlesById: articleReducer,
     feedsById: feedReducer,
+    feedOrder: feedOrderReducer,
     feedAdd: feedAddReducer,
     snapshot: snapshotReducer,
     labelsById: labelReducer,
+    labelOrder: labelOrderReducer,
     layout: layoutReducer,
 });

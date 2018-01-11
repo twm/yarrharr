@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2014, 2015, 2016, 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,6 +44,23 @@ log = Logger()
 json_encoder = simplejson.JSONEncoderForHTML()
 
 
+def human_sort_key(s):
+    """
+    Generate a sort key given a string. The sort key is guaranteed to have
+    a few properties:
+
+    * It is ASCII case insensitive.
+    * It discards non-alphanumeric characters.
+
+    :param str s: A human-readable string
+    :returns:
+        A case-normalized version of `s` less non-alphanumeric characters.
+    """
+    s = u''.join(c for c in s if c.isalnum() or c.isspace())
+    # TODO: Once ported to Python 3, use s.casefold()
+    return s.lower()
+
+
 def log_query(qs):
     log.debug('qs.query = {query}', query=qs.query)
     return qs
@@ -86,12 +103,32 @@ def json_for_feed(feed):
 
 
 def feeds_for_user(user):
-    return {feed.id: json_for_feed(feed) for feed in user.feed_set.all()}
+    feeds_by_id = {}
+    feed_order_decorated = []
+    for feed in user.feed_set.all():
+        feeds_by_id[feed.id] = json_for_feed(feed)
+        feed_order_decorated.append((human_sort_key(feed.title), feed.id))
+    # XXX It would be nice to do this sorting in the database, but sqlite3 does
+    # not ship with appropriate collations. Custom collations can be installed,
+    # but there isn't much advantage to doing so right now given we always
+    # query all feeds anyway.
+    feed_order_decorated.sort()
+    return {
+        'feedsById': feeds_by_id,
+        'feedOrder': list(pk for _, pk in feed_order_decorated),
+    }
 
 
 def labels_for_user(user):
-    labels = user.label_set.all()
-    return {label.id: json_for_label(label) for label in labels}
+    labels_by_id = {}
+    label_order_decorated = []
+    for label in user.label_set.all():
+        labels_by_id[label.id] = json_for_label(label)
+        label_order_decorated.append((human_sort_key(label.text), label.id))
+    return {
+        'labelsById': labels_by_id,
+        'labelOrder': list(pk for _, pk in label_order_decorated),
+    }
 
 
 def json_for_label(label):
@@ -180,19 +217,15 @@ def index(request):
     The user interface.  For the moment this is pre-loaded with basic
     information about all the feeds and articles.
     """
-    feeds_by_id = feeds_for_user(request.user)
-    snapshot_params = snapshot_params_from_query(request.GET, list(feeds_by_id.keys()))
+    data = feeds_for_user(request.user)
+    data.update(labels_for_user(request.user))
+    snapshot_params = snapshot_params_from_query(request.GET, list(data['feedOrder']))
     entries = entries_for_snapshot(request.user, snapshot_params)
+    data['snapshotParams'] = snapshot_params
+    data['snapshot'] = [entry.id for entry in entries]
 
     return render(request, 'index.html', {
-        'props': json_encoder.encode({
-            'labelsById': labels_for_user(request.user),
-            'feedsById': feeds_by_id,
-            'snapshotParams': snapshot_params,
-            'snapshot': [entry.id for entry in entries],
-            # Pre-load the cache with the first articles in the shapshot.
-            'articlesById': {entry.id: json_for_entry(entry) for entry in entries[:10]}
-        }),
+        'props': json_encoder.encode(data),
     })
 
 
@@ -315,10 +348,8 @@ def labels(request):
             feed = request.user.feed_set.get(id=request.POST['feed'])
             label.feeds.remove(feed)
             label.save()
-        data = {
-            'labelsById': labels_for_user(request.user),
-            'feedsById': feeds_for_user(request.user),
-        }
+        data = labels_for_user(request.user)
+        data.update(feeds_for_user(request.user))
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     elif request.method == 'DELETE':
@@ -327,10 +358,8 @@ def labels(request):
         except KeyError:
             return HttpResponseBadRequest()
         request.user.label_set.get(id=label_id)
-        data = {
-            'labelsById': labels_for_user(request.user),
-            'feedsById': feeds_for_user(request.user),
-        }
+        data = labels_for_user(request.user)
+        data.update(feeds_for_user(request.user))
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     else:
@@ -385,15 +414,13 @@ def inventory(request):
             feed = request.user.feed_set.get(id=request.POST['feed'])
             feed.delete()
 
-        data['labelsById'] = labels_for_user(request.user)
-        data['feedsById'] = feeds_for_user(request.user)
+        data.update(labels_for_user(request.user))
+        data.update(feeds_for_user(request.user))
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     elif request.method == 'GET':
-        data = {
-            'labelsById': labels_for_user(request.user),
-            'feedsById': feeds_for_user(request.user),
-        }
+        data = labels_for_user(request.user)
+        data.update(feeds_for_user(request.user))
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     else:

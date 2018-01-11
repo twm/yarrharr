@@ -10,7 +10,7 @@ This project is a personal passion project and learning tool.
 
 * The user interface, which is written in <a href="https://reactjs.org/">React</a>, is prototype-quality, with many changes planned.
   “Prototype quality” means “is really ugly”, “changes frequently” and “has no tests”.
-* The backend is in solid shape, though several functional improvements are planned.
+* The backend, [Django](https://www.djangoproject.com/) served via [Twisted](https://twistedmatrix.com/trac/) is in solid shape, though several functional improvements are planned.
   It has tests and does not change frequently.
 
 Yarrharr isn’t ready for you to use it, and probably won't be anytime soon.
