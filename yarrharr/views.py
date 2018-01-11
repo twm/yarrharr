@@ -121,13 +121,13 @@ def feeds_for_user(user):
 
 def labels_for_user(user):
     labels_by_id = {}
-    label_order = []
+    label_order_decorated = []
     for label in user.label_set.all():
         labels_by_id[label.id] = json_for_label(label)
-        label_order.append(label.id)
+        label_order_decorated.append((human_sort_key(label.text), label.id))
     return {
         'labelsById': labels_by_id,
-        'labelOrder': label_order,
+        'labelOrder': list(pk for _, pk in label_order_decorated),
     }
 
 

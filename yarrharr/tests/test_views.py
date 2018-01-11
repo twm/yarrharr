@@ -109,6 +109,9 @@ class InventoryViewTests(TestCase):
             site_url='http://example.com/',
             added=timezone.now(),
         )
+        label_a = feed_a.label_set.create(text='A', user=self.user)
+        label_c = feed_b.label_set.create(text='C', user=self.user)
+        label_b = feed_c.label_set.create(text='B', user=self.user)
 
         response = self.client.get('/api/inventory/')
 
@@ -121,6 +124,9 @@ class InventoryViewTests(TestCase):
             ],
             'labelsById': mock.ANY,
             'labelOrder': [
+                label_a.id,
+                label_b.id,
+                label_c.id,
             ],
         }, response.json())
 
