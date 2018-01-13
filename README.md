@@ -6,15 +6,15 @@ Yarrharr is a simple web-based feed reader intended for self-hosting.
 
 ## Project Status
 
-This project is a personal passion project and learning tool.
+This is a personal passion project and learning tool.
 
 * The user interface, which is written in <a href="https://reactjs.org/">React</a>, is prototype-quality, with many changes planned.
   “Prototype quality” means “is really ugly”, “changes frequently” and “has no tests”.
 * The backend, [Django](https://www.djangoproject.com/) served via [Twisted](https://twistedmatrix.com/trac/) is in solid shape, though several functional improvements are planned.
   It has tests and does not change frequently.
 
-Yarrharr isn’t ready for you to use it, and probably won't be anytime soon.
-The [1.0 milestone](https://github.com/twm/yarrharr/milestone/1) tracks this.
+Yarrharr isn’t ready for you to use it, and probably won't be any time soon.
+The [1.0 milestone](https://github.com/twm/yarrharr/milestone/1) tracks whether the project is ready for general use.
 
 ## Development
 
