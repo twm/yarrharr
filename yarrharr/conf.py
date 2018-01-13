@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2013–2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,10 +30,11 @@ Yarrharr configuration defaults and parsing
 
 import os
 import glob
-from urlparse import urlparse
-from cStringIO import StringIO
-from ConfigParser import RawConfigParser
 import sys
+
+from six import StringIO
+from six.moves.configparser import RawConfigParser
+from six.moves.urllib.parse import urlparse
 
 
 USER_CONF_GLOB = '/etc/yarrharr/*.ini'

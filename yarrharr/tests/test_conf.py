@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2014–2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@
 import re
 import unittest
 from tempfile import NamedTemporaryFile
-from ConfigParser import NoOptionError
 
 import mock
 import pkg_resources
+from six.moves.configparser import NoOptionError
 
 from yarrharr.conf import (find_conf_files, read_yarrharr_conf,
                            NoConfError, UnreadableConfError)
