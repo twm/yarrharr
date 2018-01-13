@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2013–2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ urlpatterns = (
     url(r'^api/labels/$', yarrharr.views.labels),
     url(r'^api/inventory/$', yarrharr.views.inventory),
 
-    url(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
+    url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     url(r'^logout/$', auth_views.logout_then_login, name='logout'),
     url(r'^about/$', yarrharr.views.about, name='about'),
     url(r'^robots\.txt$', yarrharr.views.robots_txt, name='robots'),
