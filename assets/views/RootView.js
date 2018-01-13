@@ -14,8 +14,8 @@ import './RootView.less';
 
 class RootView extends React.PureComponent {
     render() {
-        const labelList = labelsByTitle(this.props);
-        const feedList = feedsByTitle(this.props);
+        const labelList = labelsByTitle(this.props).filter(l => l.unreadCount !== 0);
+        const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
         return <React.Fragment>
             <GlobalBar>
                 <div className="bar-inset">
