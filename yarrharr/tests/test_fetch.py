@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,6 +49,13 @@ from ..fetch import Unchanged, NetworkError, BozoError
 
 EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
 SOME_HTML = resource_string('yarrharr', 'examples/nofeed.html')
+
+
+# The value of BinaryField is of type buffer on Python 2, and bytes on 3.5.
+try:
+    buffer
+except NameError:
+    buffer = bytes
 
 
 @attr.s
