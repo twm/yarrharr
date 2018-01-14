@@ -30,7 +30,6 @@ Feed fetcher based on Twisted Web
 
 from __future__ import unicode_literals, print_function
 
-from cStringIO import StringIO
 from datetime import datetime, timedelta
 import hashlib
 
@@ -42,6 +41,7 @@ try:
     from feedparser.http import ACCEPT_HEADER
 except ImportError:
     from feedparser import ACCEPT_HEADER
+from six import BytesIO
 from twisted.logger import Logger
 from twisted.python.failure import Failure
 from twisted.internet import error, defer
@@ -426,10 +426,10 @@ def poll_feed(feed, client=treq):
     h.update({k.lower(): b', '.join(v) for (k, v) in response.headers.getAllRawHeaders()})
 
     # NOTE: feedparser.parse() will try to interpret a plain string as a URL,
-    # so we wrap it in a StringIO() to force it to parse the response.
+    # so we wrap it in a BytesIO() to force it to parse the response.
     # Otherwise the HTTP response body could be just a URL and trigger
     # blocking I/O!
-    parsed = feedparser.parse(StringIO(raw_bytes), response_headers=h)
+    parsed = feedparser.parse(BytesIO(raw_bytes), response_headers=h)
 
     articles = []
     for entry in parsed['entries']:
