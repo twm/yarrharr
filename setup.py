@@ -16,6 +16,7 @@ setup(
         # Note: feedparser was refactored into a package after 5.2.1, which
         # moved feedparser.SANITIZE_HTML to feedparser.api.SANITIZE_HTML.
         # 'feedparser > 5.2.1',
+        'forkparser ~= 6.0.0',
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
         'html5lib == 0.999999999',
     ],
