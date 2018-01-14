@@ -51,13 +51,6 @@ EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
 SOME_HTML = resource_string('yarrharr', 'examples/nofeed.html')
 
 
-# The value of BinaryField is of type buffer on Python 2, and bytes on 3.5.
-try:
-    buffer
-except NameError:
-    buffer = bytes
-
-
 @attr.s
 class FetchFeed(object):
     """
@@ -65,9 +58,9 @@ class FetchFeed(object):
     fetching works.
     """
     url = attr.ib(default=u'http://an.example/feed.xml')
-    last_modified = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
-    etag = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
-    digest = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
+    last_modified = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
+    etag = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
+    digest = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
 
 
 def examples():

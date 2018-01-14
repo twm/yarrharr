@@ -29,13 +29,6 @@ from django.db.backends.signals import connection_created
 from django.utils.encoding import python_2_unicode_compatible
 
 
-# The value of BinaryField is of type buffer on Python 2.7, and bytes on 3.5.
-try:
-    buffer
-except NameError:
-    buffer = bytes
-
-
 # Enable sqlite WAL mode so that readers don't block writers. See:
 # https://www.sqlite.org/wal.html
 # https://code.djangoproject.com/ticket/24018
