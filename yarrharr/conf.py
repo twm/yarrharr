@@ -108,7 +108,7 @@ def read_yarrharr_conf(files, namespace):
         if any of the given files are not read
     """
     conf = RawConfigParser()
-    conf.readfp(StringIO(DEFAULT_CONF), '<defaults>')
+    conf.read_file(StringIO(DEFAULT_CONF), '<defaults>')
     files_read = conf.read(files)
     files_unread = set(files) - set(files_read)
     if files_unread:
