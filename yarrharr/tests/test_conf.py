@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2014–2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from configparser import NoOptionError
 import re
 import unittest
 from tempfile import NamedTemporaryFile
-from ConfigParser import NoOptionError
 
 import mock
 import pkg_resources
@@ -60,8 +60,8 @@ class ConfTests(unittest.TestCase):
         If a conf file doesn't exist an exception results.
         """
         fn = '/foo/bar/does-not-exist'
-        self.assertRaisesRegexp(UnreadableConfError, re.escape(fn),
-                                read_yarrharr_conf, [fn], {})
+        self.assertRaisesRegex(UnreadableConfError, re.escape(fn),
+                               read_yarrharr_conf, [fn], {})
 
     def test_read_defaults(self):
         """
@@ -70,8 +70,8 @@ class ConfTests(unittest.TestCase):
         """
         # Since at least one file is required, use an empty temp file.
         with NamedTemporaryFile() as f:
-            self.assertRaisesRegexp(NoOptionError, r'secret_key',
-                                    read_yarrharr_conf, [f.name], {})
+            self.assertRaisesRegex(NoOptionError, r'secret_key',
+                                   read_yarrharr_conf, [f.name], {})
 
     def test_read_minimal(self):
         """

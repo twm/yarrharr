@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2013–2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@
 Yarrharr configuration defaults and parsing
 """
 
-import os
+from configparser import RawConfigParser
 import glob
-from urlparse import urlparse
-from cStringIO import StringIO
-from ConfigParser import RawConfigParser
+from io import StringIO
+import os
 import sys
+from urllib.parse import urlparse
 
 
 USER_CONF_GLOB = '/etc/yarrharr/*.ini'
@@ -108,7 +108,7 @@ def read_yarrharr_conf(files, namespace):
         if any of the given files are not read
     """
     conf = RawConfigParser()
-    conf.readfp(StringIO(DEFAULT_CONF), '<defaults>')
+    conf.read_file(StringIO(DEFAULT_CONF), '<defaults>')
     files_read = conf.read(files)
     files_unread = set(files) - set(files_read)
     if files_unread:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,9 +58,9 @@ class FetchFeed(object):
     fetching works.
     """
     url = attr.ib(default=u'http://an.example/feed.xml')
-    last_modified = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
-    etag = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
-    digest = attr.ib(default=buffer(b''), convert=buffer, validator=instance_of(buffer))
+    last_modified = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
+    etag = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
+    digest = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
 
 
 def examples():

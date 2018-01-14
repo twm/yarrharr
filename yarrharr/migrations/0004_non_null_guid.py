@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='article',
             name='guid',
-            field=models.TextField(blank=True, default=b''),
+            field=models.TextField(blank=True, default=''),
         ),
     ]

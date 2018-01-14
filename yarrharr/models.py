@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 
 from django.db import models
 from django.db.backends.signals import connection_created
-from django.utils.encoding import python_2_unicode_compatible
 
 
 # Enable sqlite WAL mode so that readers don't block writers. See:
@@ -41,7 +40,6 @@ def _set_sqlite_wal_mode(sender, connection, **kwargs):
 connection_created.connect(_set_sqlite_wal_mode)
 
 
-@python_2_unicode_compatible
 class Feed(models.Model):
     """
     An Atom or RSS feed to check for new articles periodically.
@@ -110,7 +108,6 @@ class Feed(models.Model):
         return u'{} <{}>'.format(self.title, self.url)
 
 
-@python_2_unicode_compatible
 class Article(models.Model):
     """
     Checking a :class:`Feed` produces articles for the entries within it.
@@ -150,7 +147,6 @@ class Article(models.Model):
         return u'{} <{}>'.format(self.title, self.url)
 
 
-@python_2_unicode_compatible
 class Label(models.Model):
     """
     Labels may be applied to feeds to group them logically.  Each has a unique
