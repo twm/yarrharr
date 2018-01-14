@@ -13,9 +13,9 @@ setup(
         'Twisted[tls] ~= 17.9.0',
         'treq ~= 17.8.0',
         'pytz',
-        # Note: feedparser master has been refactored into a package and
-        # is not compatible.
-        'feedparser == 5.2.1',
+        # Note: feedparser was refactored into a package after 5.2.1, which
+        # moved feedparser.SANITIZE_HTML to feedparser.api.SANITIZE_HTML.
+        # 'feedparser > 5.2.1',
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
         'html5lib == 0.999999999',
     ],

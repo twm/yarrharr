@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2016, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ log = Logger()
 
 # Disable feedparser's HTML sanitization, as it drops important information
 # (like YouTube embeds). We do our own sanitization with html5lib.
-feedparser.SANITIZE_HTML = False
+feedparser.api.SANITIZE_HTML = False
 
 
 @attr.s(slots=True, frozen=True)
@@ -420,10 +420,9 @@ def poll_feed(feed, client=treq):
         defer.returnValue(Unchanged('digest'))
 
     # Convert headers to the format expected by feedparser.
-    # TODO: feedparser appears to use native strings for headers, so these will
-    # need to be decoded under Python 3.
-    h = {'content-location': response.request.absoluteURI}
-    h.update({k.lower(): b', '.join(v) for (k, v) in response.headers.getAllRawHeaders()})
+    h = {'content-location': response.request.absoluteURI.decode('ascii')}
+    h.update({k.lower().decode('latin1'): b', '.join(v).decode('latin1')
+              for (k, v) in response.headers.getAllRawHeaders()})
 
     # NOTE: feedparser.parse() will try to interpret a plain string as a URL,
     # so we wrap it in a BytesIO() to force it to parse the response.
