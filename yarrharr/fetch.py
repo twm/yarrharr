@@ -30,6 +30,7 @@ Feed fetcher based on Twisted Web
 
 from __future__ import unicode_literals, print_function
 
+from io import BytesIO
 from datetime import datetime, timedelta
 import hashlib
 
@@ -38,7 +39,6 @@ from django.db import transaction
 from django.utils import timezone
 import feedparser
 from feedparser.http import ACCEPT_HEADER
-from six import BytesIO
 from twisted.logger import Logger
 from twisted.python.failure import Failure
 from twisted.internet import error, defer

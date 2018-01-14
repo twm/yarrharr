@@ -28,13 +28,12 @@
 Yarrharr configuration defaults and parsing
 """
 
-import os
+from configparser import RawConfigParser
 import glob
+from io import StringIO
+import os
 import sys
-
-from six import StringIO
-from six.moves.configparser import RawConfigParser
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 
 USER_CONF_GLOB = '/etc/yarrharr/*.ini'

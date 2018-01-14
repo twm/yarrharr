@@ -24,13 +24,13 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from configparser import NoOptionError
 import re
 import unittest
 from tempfile import NamedTemporaryFile
 
 import mock
 import pkg_resources
-from six.moves.configparser import NoOptionError
 
 from yarrharr.conf import (find_conf_files, read_yarrharr_conf,
                            NoConfError, UnreadableConfError)
