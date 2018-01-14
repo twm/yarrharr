@@ -37,10 +37,7 @@ import attr
 from django.db import transaction
 from django.utils import timezone
 import feedparser
-try:
-    from feedparser.http import ACCEPT_HEADER
-except ImportError:
-    from feedparser import ACCEPT_HEADER
+from feedparser.http import ACCEPT_HEADER
 from six import BytesIO
 from twisted.logger import Logger
 from twisted.python.failure import Failure
