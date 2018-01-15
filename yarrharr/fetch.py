@@ -62,7 +62,7 @@ log = Logger()
 
 # Disable feedparser's HTML sanitization, as it drops important information
 # (like YouTube embeds). We do our own sanitization with html5lib.
-feedparser.api.SANITIZE_HTML = False
+feedparser.mixin.SANITIZE_HTML = False
 
 
 @attr.s(slots=True, frozen=True)
