@@ -40,7 +40,7 @@ export class InventoryView extends React.PureComponent {
                 </div>
             </GlobalBar>
             <div className="tabs">
-                <div className="tabs-inner">
+                <div className="tabs-tabs">
                     <RootLink>Home</RootLink>
                     <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
                     <AddFeedLink>Add Feed</AddFeedLink>
@@ -216,7 +216,7 @@ export class ManageFeedView extends React.PureComponent {
         return <React.Fragment>
             <GlobalBar />
             <div className="tabs">
-                <div className="tabs-inner">
+                <div className="tabs-tabs">
                     <RootLink>Home</RootLink>
                     <InventoryLink>Manage Feeds</InventoryLink>
                     <AddFeedLink>Add Feed</AddFeedLink>
@@ -311,7 +311,7 @@ export class AddFeedView extends React.PureComponent {
                 </div>
             </GlobalBar>
             <div className="tabs">
-                <div className="tabs-inner">
+                <div className="tabs-tabs">
                     <RootLink>Home</RootLink>
                     <InventoryLink>Manage Feeds</InventoryLink>
                     <AddFeedLink disabled={true}>Add Feed</AddFeedLink>

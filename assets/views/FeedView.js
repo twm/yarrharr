@@ -63,19 +63,15 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 </InventoryLink>
             </div>
         </header>
-        <div className="floater-wrap">
-            <div className="floater">
-                {joinLinks([
-                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
-                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
-                ])}
-            </div>
-        </div>
         <div className="tabs">
-            <div className="tabs-inner">
+            <div className="tabs-tabs">
                 <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
                 <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
                 <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
+            </div>
+            <div className="tabs-buttons">
+                <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+                <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
@@ -90,7 +86,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     </React.Fragment>;
 }
 
-export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore, onAddLabel, onAttachLabel, onDetachLabel}) {
+export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
@@ -103,27 +99,27 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
         </GlobalBar>
         <header className="list-header">
             <div className="list-header-inner bar">
-                <FeedLink className="expand" feedId={feedId} filter={snapshot.filter}>
+                <FeedLink className="expand" disabled={!articleId} feedId={feedId} filter={snapshot.filter}>
                     <div className="square">
                         <FeedIcon aria-hidden={true} />
                     </div>
                     <h1>{feed.text ? feed.text : feed.title}</h1>
                 </FeedLink>
+            </div>
+        </header>
+        <div className="tabs">
+            <div className="tabs-tabs">
+                <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+                <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+                <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
                 <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
                     <EditIcon aria-label="Edit Feed" />
                 </InventoryFeedLink>
             </div>
-        </header>
-        <div className="tabs">
-            <div className="tabs-inner">
-                <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-                <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-                <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+            <div className="tabs-buttons">
+                <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+                <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
-        </div>
-        <div>
-            <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-            <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
         </div>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
@@ -161,19 +157,15 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 </InventoryLabelLink>
             </div>
         </header>
-        <div className="floater-wrap">
-            <div className="floater">
-                {joinLinks([
-                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />,
-                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />,
-                ])}
-            </div>
-        </div>
         <div className="tabs">
-            <div className="tabs-inner">
+            <div className="tabs-tabs">
                 <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
                 <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
                 <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
+            </div>
+            <div className="tabs-buttons">
+                <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+                <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
@@ -198,20 +190,6 @@ export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllV
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);
 export const ConnectedLabelView = connect(state => state, mapDispatchToProps)(LabelView);
 
-/**
- * Given a list of components, filter out null ones and insert non-breaking
- * spaces between those remaining.
- */
-function joinLinks(maybeLinks) {
-    const links = [];
-    for (var i = 0; i < maybeLinks.length; i++) {
-        links.push(maybeLinks[i]);
-        if (i !== maybeLinks.length - 1) {
-            links.push(" \x1b\x1b ");
-        }
-    }
-    return links;
-}
 
 function MarkAllReadLink({snapshot, onMarkArticlesRead}) {
     const { loaded, params, articleIds } = snapshot.response;
