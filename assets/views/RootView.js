@@ -25,10 +25,12 @@ class RootView extends React.PureComponent {
                 </div>
             </GlobalBar>
             <div className="tabs">
-                <div className="tabs-tabs">
-                    <RootLink disabled={true}>Home</RootLink>
-                    <InventoryLink>Manage Feeds</InventoryLink>
-                    <AddFeedLink>Add Feed</AddFeedLink>
+                <div className="tabs-inner">
+                    <div className="tabs-tabs">
+                        <RootLink disabled={true}>Home</RootLink>
+                        <InventoryLink>Manage Feeds</InventoryLink>
+                        <AddFeedLink>Add Feed</AddFeedLink>
+                    </div>
                 </div>
             </div>
             <div className="root">

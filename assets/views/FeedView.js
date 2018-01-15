@@ -64,14 +64,16 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             </div>
         </header>
         <div className="tabs">
-            <div className="tabs-tabs">
-                <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
-                <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
-                <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
-            </div>
-            <div className="tabs-buttons">
-                <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-                <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
+            <div className="tabs-inner">
+                <div className="tabs-tabs">
+                    <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
+                    <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
+                    <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
+                </div>
+                {articleId ? null : <div className="tabs-buttons">
+                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
+                </div>}
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
@@ -108,17 +110,19 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             </div>
         </header>
         <div className="tabs">
-            <div className="tabs-tabs">
-                <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-                <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-                <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-                <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
-                    <EditIcon aria-label="Edit Feed" />
-                </InventoryFeedLink>
-            </div>
-            <div className="tabs-buttons">
-                <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-                <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
+            <div className="tabs-inner">
+                <div className="tabs-tabs">
+                    <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+                    <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+                    <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+                    <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
+                        <EditIcon aria-label="Edit Feed" />
+                    </InventoryFeedLink>
+                </div>
+                {articleId ? null : <div className="tabs-buttons">
+                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
+                </div>}
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,
@@ -158,14 +162,16 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             </div>
         </header>
         <div className="tabs">
-            <div className="tabs-tabs">
-                <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
-                <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
-                <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
-            </div>
-            <div className="tabs-buttons">
-                <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-                <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
+            <div className="tabs-inner">
+                <div className="tabs-tabs">
+                    <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
+                    <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
+                    <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
+                </div>
+                {articleId ? null : <div className="tabs-buttons">
+                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
+                </div>}
             </div>
         </div>
         {renderSnapshot(snapshot.response, articleId,

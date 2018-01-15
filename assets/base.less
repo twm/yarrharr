@@ -265,13 +265,15 @@ select[multiple] {
 }
 
 /**
- * <div.tabs>
- *   <div.tabs-tabs>
- *      <a.tab>text</a>
- *      <a.tab disabled>current tab</a>
- *   </div>
- *   <div.tabs-buttons>
- *      <a>text</a>
+ * <div.tabs>    // container with bottom border
+ *   <div.tabs-inner>  // container which applies max-width
+ *     <div.tabs-tabs>
+ *       <a.tab>text</a>
+ *       <a.tab aria-disabled="true">current tab</a>
+ *     </div>
+ *     <div.tabs-buttons>
+ *       <a>text</a>
+ *     </div>
  *   </div>
  * </div>
  */
@@ -280,11 +282,16 @@ select[multiple] {
     contain: layout style;
     background: @content_background_color;
 }
+.tabs-inner {
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
 .tabs-tabs {
     display: flex;
-    margin: 0 auto -2px auto;
+    margin: 0 0 -2px 0;
     padding: 0 0 0 .5rem;
-    max-width: var(--layout-max-width);
     box-sizing: border-box;
 }
 /* base tab styles */
@@ -301,8 +308,10 @@ select[multiple] {
 .tabs-tabs > a[aria-disabled="true"] {
     border-bottom-width: 0;
 }
-.tabs-buttons {
-    display: none; /* TODO */
+.tabs-buttons > a {
+    line-height: 1.7;
+    padding: 0.125rem 1rem 0 1rem;
+    margin: 0 .5rem 0 0;
 }
 @media screen and (max-width: 34em) {
     .tabs-tabs {

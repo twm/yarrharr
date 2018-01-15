@@ -40,10 +40,12 @@ export class InventoryView extends React.PureComponent {
                 </div>
             </GlobalBar>
             <div className="tabs">
-                <div className="tabs-tabs">
-                    <RootLink>Home</RootLink>
-                    <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
-                    <AddFeedLink>Add Feed</AddFeedLink>
+                <div className="tabs-inner">
+                    <div className="tabs-tabs">
+                        <RootLink>Home</RootLink>
+                        <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
+                        <AddFeedLink>Add Feed</AddFeedLink>
+                    </div>
                 </div>
             </div>
             <Centered>
@@ -227,13 +229,15 @@ export class ManageFeedView extends React.PureComponent {
                 </div>
             </header>
             <div className="tabs">
-                <div className="tabs-tabs">
-                    <FeedLink feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-                    <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-                    <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-                    <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
-                        <EditIcon aria-label="Edit Feed" />
-                    </InventoryFeedLink>
+                <div className="tabs-inner">
+                    <div className="tabs-tabs">
+                        <FeedLink feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+                        <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+                        <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+                        <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
+                            <EditIcon aria-label="Edit Feed" />
+                        </InventoryFeedLink>
+                    </div>
                 </div>
             </div>
             <Centered>
@@ -303,10 +307,12 @@ export class AddFeedView extends React.PureComponent {
                 </div>
             </GlobalBar>
             <div className="tabs">
-                <div className="tabs-tabs">
-                    <RootLink>Home</RootLink>
-                    <InventoryLink>Manage Feeds</InventoryLink>
-                    <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+                <div className="tabs-inner">
+                    <div className="tabs-tabs">
+                        <RootLink>Home</RootLink>
+                        <InventoryLink>Manage Feeds</InventoryLink>
+                        <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+                    </div>
                 </div>
             </div>
             <Centered>
