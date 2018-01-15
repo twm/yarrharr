@@ -7,7 +7,7 @@ import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
-import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
+import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
@@ -211,39 +211,31 @@ export class ManageFeedView extends React.PureComponent {
         this.handleRemoveFeed = this.handleRemoveFeed.bind(this);
     }
     render() {
-        const feed = this.props.feedsById[this.props.params.feedId];
+        const feedId = this.props.params.feedId;
+        const feed = this.props.feedsById[feedId];
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
             <GlobalBar />
-            <div className="tabs">
-                <div className="tabs-tabs">
-                    <RootLink>Home</RootLink>
-                    <InventoryLink>Manage Feeds</InventoryLink>
-                    <AddFeedLink>Add Feed</AddFeedLink>
-                </div>
-            </div>
             <header className="list-header">
                 <div className="list-header-inner bar">
-                    <FeedLink className="expand" feedId={feed.id} filter={FILTER_UNREAD}>
+                    <div className="expand">
                         <div className="square">
                             <FeedIcon aria-hidden={true} />
                         </div>
                         <h1>{feed.text || feed.title || feed.url} {feed.active ? null : <i>(inactive)</i>}</h1>
-                    </FeedLink>
-                    {/*
-                    FIXME this should probably be an icon that links back to
-                    the feed view for symmetry with the edit icon that links to
-                    this page. Unfortunately the symmetry wouldn't necessarily
-                    be perfect, as the feed link assigns a filter. Maybe this
-                    manage page should be a tab alongside the filters so that
-                    that symmetry isn't required?
-
-                    <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
-                        <EditIcon aria-label="Edit Feed" />
-                    </InventoryFeedLink>
-                    */}
+                    </div>
                 </div>
             </header>
+            <div className="tabs">
+                <div className="tabs-tabs">
+                    <FeedLink feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+                    <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+                    <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+                    <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
+                        <EditIcon aria-label="Edit Feed" />
+                    </InventoryFeedLink>
+                </div>
+            </div>
             <Centered>
                 <InventoryItem
                     key={feed.id}
