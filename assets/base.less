@@ -6,6 +6,8 @@
 
 :root {
     --layout-max-width: 50rem;
+
+    --form-focus-color: @focus_blue;
 }
 .layout-wide {
     --layout-max-width: none;
@@ -58,70 +60,110 @@ h1 {
 /**
  * Base form styles
  *
- * .text-button and .text-button-primary can be used to style links to look
- * like buttons. The element needs to be focusable.
- *
- * .text-button is pretty muted. .text-button-primary is bright and bold.
- *
- * <input type=submit> receives the styling of .text-button-primary.
- *
- * All of these styles cause the element to be display: block. Layout is to be
- * defined at the point of use.
  */
-input,
-.text-button,
-.text-button-primary {
-    width: 100%;
-    height: 2.5rem;
-    font: inherit;
+.form-item-layout() {
     display: block;
     box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 @text_padding;
+    font: inherit;
+    line-height: 2.1rem;
 }
-input[type=checkbox],
-input[type=radio] {
-    width: 2.5rem;
+.form-item-focusable() {
+    --border-color: @text_color;
+
+    background: var(--background-color);
+    border: @button_border_width solid var(--border-color);
+    border-radius: @text_padding;
+    transition: border-color 0.05s;
+
+    &:focus {
+        --border-color: @focus_blue_dark;
+        --backgrond-color: white;
+        --gradient-start: @focus_blue_light;
+        --gradient-mid: @focus_blue;
+        --gradient-end: @focus_blue;
+
+        outline: none;
+    }
 }
+
+label:not(.checkbox) {
+    display: block;
+    font-size: 0.9rem;
+    color: @text_color;
+}
+
+label.checkbox {
+    .form-item-layout;
+
+    input[type=checkbox] {
+        display: inline-block;
+    }
+}
+
 input[type=text],
 input[type=password],
-input[type=url] {
-    color: @content_text_color;
-    background: @content_background_color;
-    border-color: @quiet_text_color;
-    border-width: 0 0 2px 0;
+input[type=url],
+input[type=email],
+select[multiple] {
+    .form-item-layout;
+    .form-item-focusable;
 
-    &:focus {
-        border-color: @logo_orange;
-    }
+    color: @content_text_color;
+    --border-color: @quiet_text_color;
 }
-.text-button,
-.text-button-primary,
-input[type=submit] {
-    .flat-button;
-    border-color: @background_color;
-    line-height: 2.5rem;
+select[multiple] {
+    height: auto; /* allow size attribute to have an effect */
+}
+
+.text-button {
+    .form-item-layout;
+    .form-item-focusable;
+
+    --gradient-start: white;
+    --gradient-mid: gray;
+    --gradient-end: gray;
+
+    border-color: var(--border-color);
+    text-shadow: var(--border-color) 0 0 .025rem; /* bump contrast */
+    background: linear-gradient(to bottom, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
+    box-shadow: inset var(--gradient-start) 0 0 .25rem;
     padding: 0 0.75rem;
 
-    &:focus { .flat-button-focus; }
+    &:active {
+        background: linear-gradient(to top, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
+        box-shadow: inset var(--gradient-end) 0 0 .25rem;
+    }
 }
-input[type=submit],
+
+/**
+ * A "primary" button represents the default action of the form. It is colored
+ * bright orange to draw attention to it. This style must be combined with
+ * .text-button, which provides layout.
+ */
 .text-button-primary {
     color: white;
-    text-shadow: rgba(0, 0, 0, .5) 0 0 .025rem; /* bump contrast */
-    background-color: @logo_orange;
-    border-color: @logo_orange_dark;
-
-    &:focus {
-        color: white;
-        background-color: @logo_orange_dark;
-        border-color: @logo_orange_dark;
-    }
-
-    &:active {
-        color: white;
-        background-color: @logo_orange_dark;
-        border-color: @logo_orange_dark;
-    }
+    --border-color: @logo_orange_dark;
+    --gradient-start: @logo_orange_light;
+    --gradient-mid: @logo_orange;
+    --gradient-end: @logo_orange;
 }
+
+/**
+ * A "danger" button performs a destructive action like deletion. It has a red
+ * border to provide an aura of the forbidden. This button must be combined
+ * with .text-button, which provides layout.
+ */
+.text-button-danger {
+    color: white;
+    --border-color: #950015;
+    --gradient-start: #da1732;
+    --gradient-mid: #ba001a;
+    --gradient-end: #ba001a;
+}
+
 
 .about-page {
     .about-page-inner {
@@ -289,9 +331,10 @@ form.small-form {
     margin: 0 auto;
     padding: 0.5rem 1rem;
 
-    label {
-        display: block;
-        color: @quiet_text_color;
+    .errorlist {
+        padding: 0;
+        list-style: none;
+        hyphens: auto;
     }
 }
 

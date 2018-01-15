@@ -13,7 +13,7 @@
         {{ form.as_p }}
 
         <p class=actions>
-            <input type=submit value="Login">
+            <input class="text-button text-button-primary" type=submit value="Login">
             <input type=hidden value="{{ next }}">
             {% csrf_token %}
     </form>

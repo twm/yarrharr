@@ -28,6 +28,7 @@ import simplejson
 import django
 import feedparser
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -381,6 +382,8 @@ def inventory(request):
     ``"update"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
     according to the :param:`title` and :param:`url` parameters. Iff
     :param:`active` is ``on`` then the feed is scheduled to be checked.
+    The set of labels associated with the feed is adjusted to match the IDs
+    presented in the :param:`label` parameter.
 
     ``"remove"`` deletes the feed specified by :param:`feed`.  The operation
     cascades to all of the articles from the feed.
@@ -402,14 +405,17 @@ def inventory(request):
             feed.save()
             data['feedId'] = feed.id
         elif action == 'update':
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.url = request.POST['url']
-            feed.user_title = request.POST['title']
-            if request.POST['active'] == 'on':
-                feed.next_check = timezone.now()
-            else:
-                feed.next_check = None
-            feed.save()
+            with transaction.atomic():
+                feed = request.user.feed_set.get(id=request.POST['feed'])
+                feed.url = request.POST['url']
+                feed.user_title = request.POST['title']
+                new_labels = request.user.label_set.filter(pk__in=request.POST.getlist('label'))
+                feed.label_set.set(new_labels)
+                if request.POST['active'] == 'on':
+                    feed.next_check = timezone.now()
+                else:
+                    feed.next_check = None
+                feed.save()
         elif action == 'remove':
             feed = request.user.feed_set.get(id=request.POST['feed'])
             feed.delete()

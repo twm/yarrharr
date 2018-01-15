@@ -518,7 +518,7 @@ export const REQUEST_UPDATE_FEED = 'REQUEST_UPDATE_FEED';
  * @param {number} feedId
  * @param {boolean} active
  */
-export function updateFeed(feedId, text, url, active) {
+export function updateFeed(feedId, text, url, active, labels) {
     return (dispatch) => {
         dispatch({
             type: REQUEST_UPDATE_FEED,
@@ -526,6 +526,7 @@ export function updateFeed(feedId, text, url, active) {
             text,
             url,
             active,
+            labels,
         });
         const body = new FormData();
         body.append('action', 'update');
@@ -533,6 +534,7 @@ export function updateFeed(feedId, text, url, active) {
         body.append('title', text); // user_title on Feed
         body.append('url', url);
         body.append('active', active ? 'on' : 'off');
+        labels.forEach(id => body.append('label', id));
         return post('/api/inventory/', body).then(json => {
             const { feedsById, feedOrder, labelsById, labelOrder } = json;
             dispatch(receiveLabels(labelsById, labelOrder));

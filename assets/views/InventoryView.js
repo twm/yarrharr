@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { Label, LabelSelector } from 'widgets/Label.js';
+import { Label } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
@@ -107,6 +107,7 @@ class InventoryItem extends React.PureComponent {
             url: null,
             active: null,
             text: null,
+            labels: null,
         };
         this.handleActiveToggle = event => {
             this.setState({active: event.target.checked});
@@ -114,10 +115,13 @@ class InventoryItem extends React.PureComponent {
         this.handleInputChange = event => {
             this.setState({[event.target.name]: event.target.value});
         };
+        this.handleLabelsChange = event => {
+            this.setState({labels: Array.filter(event.target.options, o => o.selected).map(o => Number(o.value))});
+        };
         this.handleSubmit = event => {
             event.preventDefault();
             // TODO loading indicator...
-            props.onUpdateFeed(this.props.feed.id, this.current('text'), this.current('url'), this.current('active'));
+            props.onUpdateFeed(this.props.feed.id, this.current('text'), this.current('url'), this.current('active'), this.current('labels'));
             // XXX This can cause flashing and extra re-layouts because neither
             // setState nor action dispatch is guaranteed to take place
             // immediately...
@@ -125,6 +129,7 @@ class InventoryItem extends React.PureComponent {
                 url: null,
                 active: null,
                 text: null,
+                labels: null,
             });
         };
         this.handleClickRemoveFeed = event => {
@@ -154,25 +159,27 @@ class InventoryItem extends React.PureComponent {
             <div><FeedLink feedId={feed.id} filter={FILTER_FAVE}>{feed.faveCount} marked favorite</FeedLink></div>
             <div>Last updated {feed.updated || "never"}</div>
             {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
-            <LabelSelector feed={feed} labelList={labelList}
-                onAddLabel={this.props.onAddLabel}
-                onAttachLabel={this.props.onAttachLabel}
-                onDetachLabel={this.props.onDetachLabel} />
             <form onSubmit={this.handleSubmit}>
                 <p>
-                    <label>Title Override</label>
-                    <input type="text" name="text" value={this.current('text')} placeholder={feed.title} onChange={this.handleInputChange} />
+                    <label htmlFor="id_text">Title Override</label>
+                    <input id="id_text" type="text" name="text" value={this.current('text')} placeholder={feed.title} onChange={this.handleInputChange} />
                 </p>
                 <p>
-                    <label>Feed URL (<a href={this.current('url')} target="_blank">link</a>)</label>
-                    <input type="url" name="url" value={this.current('url')} onChange={this.handleInputChange} />
+                    <label htmlFor="id_url">Feed URL (<a href={this.current('url')} target="_blank">link</a>)</label>
+                    <input id="id_url" type="url" name="url" value={this.current('url')} onChange={this.handleInputChange} />
                 </p>
                 <p>
-                    <label><input type="checkbox" name="active" checked={this.current('active')} onChange={this.handleActiveToggle} /> Check this feed for updates</label>
+                    <label className="checkbox"><input type="checkbox" name="active" checked={this.current('active')} onChange={this.handleActiveToggle} /> Check this feed for updates</label>
+                </p>
+                <p>
+                    <label htmlFor="id_labels">Labels</label>
+                    <select id="id_labels" name="labels" multiple={true} value={this.current('labels')} onChange={this.handleLabelsChange} size={labelList.length}>
+                        {labelList.map(label => <option key={label.id} value={label.id}>{label.text}</option>)}
+                    </select>
                 </p>
                 <div className="tools">
-                    <a className="remove-button text-button" role="button" href="#" onClick={this.handleClickRemoveFeed}>Remove Feed</a>
-                    <input type="submit" value="Save" />
+                    <a className="remove-button text-button text-button-danger" role="button" href="#" onClick={this.handleClickRemoveFeed}>Remove Feed</a>
+                    <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
             </form>
         </div>;
@@ -192,8 +199,6 @@ if (__debug__) {
         }).isRequired,
         onUpdateFeed: PropTypes.func.isRequired,
         onRemoveFeed: PropTypes.func.isRequired,
-        onAttachLabel: PropTypes.func.isRequired,
-        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
@@ -245,9 +250,6 @@ export class ManageFeedView extends React.PureComponent {
                     feed={feed}
                     labelList={labelList}
                     labelsById={this.props.labelsById}
-                    onAddLabel={this.props.onAddLabel}
-                    onAttachLabel={this.props.onAttachLabel}
-                    onDetachLabel={this.props.onDetachLabel}
                     onUpdateFeed={this.props.onUpdateFeed}
                     onRemoveFeed={this.handleRemoveFeed}
                 />
@@ -270,14 +272,10 @@ if (__debug__) {
         }).isRequired,
         onUpdateFeed: PropTypes.func.isRequired,
         onRemoveFeed: PropTypes.func.isRequired,
-        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
 export const ConnectedManageFeedView = connect(state => state, {
-    onAttachLabel: attachLabel,
-    onAddLabel: addLabel,
-    onDetachLabel: detachLabel,
     onUpdateFeed: updateFeed,
     onRemoveFeed: removeFeed,
 })(ManageFeedView);
@@ -379,7 +377,7 @@ class AddFeedForm extends React.PureComponent {
     render() {
         return <form className="add-feed-form" onSubmit={this.handleSubmit}>
             <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
-            <input type="submit" value="Add" />
+            <input className="text-button text-button-primary" type="submit" value="Add" />
         </form>;
     }
 }

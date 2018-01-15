@@ -34,6 +34,28 @@ import mock
 # from ..models import Feed
 
 
+class dictwith(object):
+    """
+    An object that compares equal to a dictionary which has a superset of the
+    keys and values of the wrapped dictionary.
+    """
+    def __init__(self, wrapped):
+        self._wrapped = wrapped
+
+    def __eq__(self, other):
+        if not isinstance(other, dict):
+            return False
+        for key, value in self._wrapped.items():
+            if key not in other:
+                return False
+            if other[key] != value:
+                return False
+        return True
+
+    def __repr__(self):
+        return '+' + repr(self._wrapped)
+
+
 class LoginRedirectTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -212,6 +234,56 @@ class InventoryViewTests(TestCase):
             'feedOrder': [feed.id],
             'labelsById': {},
             'labelOrder': [],
+        }, response.json())
+
+    def test_update_labels(self):
+        """
+        A feed's label associations may be changed by the update action.
+        """
+        added = timezone.now() - datetime.timedelta(days=1)
+        label_c = self.user.label_set.create(text='C')
+        feed = self.user.feed_set.create(
+            url='http://example.com/feedX.xml',
+            feed_title='Feed X',
+            site_url='http://example.com/',
+            added=added,
+        )
+        label_b = feed.label_set.create(text='B', user=self.user)
+        label_a = self.user.label_set.create(text='A')
+
+        response = self.client.post('/api/inventory/', {
+            'action': 'update',
+            'feed': feed.id,
+            'url': feed.url,
+            'active': 'on',
+            'title': '',
+            'label': [str(label_a.id), str(label_c.id)],
+        })
+
+        self.assertEqual(200, response.status_code)
+        [feed] = self.user.feed_set.all()
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): dictwith({
+                    'labels': [1, 3],
+                }),
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {
+                str(label_a.id): dictwith({
+                    'text': 'A',
+                    'feeds': [feed.id],
+                }),
+                str(label_b.id): dictwith({
+                    'text': 'B',
+                    'feeds': [],
+                }),
+                str(label_c.id): dictwith({
+                    'text': 'C',
+                    'feeds': [feed.id],
+                }),
+            },
+            'labelOrder': [label_a.id, label_b.id, label_c.id],
         }, response.json())
 
     def test_remove(self):
