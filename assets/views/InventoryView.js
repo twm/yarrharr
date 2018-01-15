@@ -170,7 +170,7 @@ class InventoryItem extends React.PureComponent {
                 </p>
                 <p>
                     <label htmlFor="id_labels">Labels</label>
-                    <select id="id_labels" name="labels" multiple={true} value={this.current('labels')} onChange={this.handleInputChange} style={{height: (labelList.length * 1.3) + 'rem'}}>
+                    <select id="id_labels" name="labels" multiple={true} value={this.current('labels')} onChange={this.handleInputChange} size={labelList.length}>
                         {labelList.map(label => <option key={label.id} value={label.id}>{label.text}</option>)}
                     </select>
                 </p>
