@@ -115,6 +115,9 @@ class InventoryItem extends React.PureComponent {
         this.handleInputChange = event => {
             this.setState({[event.target.name]: event.target.value});
         };
+        this.handleLabelsChange = event => {
+            this.setState({labels: Array.filter(event.target.options, o => o.selected).map(o => Number(o.value))});
+        };
         this.handleSubmit = event => {
             event.preventDefault();
             // TODO loading indicator...
@@ -170,7 +173,7 @@ class InventoryItem extends React.PureComponent {
                 </p>
                 <p>
                     <label htmlFor="id_labels">Labels</label>
-                    <select id="id_labels" name="labels" multiple={true} value={this.current('labels')} onChange={this.handleInputChange} size={labelList.length}>
+                    <select id="id_labels" name="labels" multiple={true} value={this.current('labels')} onChange={this.handleLabelsChange} size={labelList.length}>
                         {labelList.map(label => <option key={label.id} value={label.id}>{label.text}</option>)}
                     </select>
                 </p>
