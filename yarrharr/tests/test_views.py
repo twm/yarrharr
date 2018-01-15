@@ -214,6 +214,81 @@ class InventoryViewTests(TestCase):
             'labelOrder': [],
         }, response.json())
 
+    def test_update_labels(self):
+        """
+        A feed's label associations may be changed by the update action.
+        """
+        added = timezone.now() - datetime.timedelta(days=1)
+        label_c = self.user.label_set.create(text='C')
+        feed = self.user.feed_set.create(
+            url='http://example.com/feedX.xml',
+            feed_title='Feed X',
+            site_url='http://example.com/',
+            added=added,
+        )
+        label_b = feed.label_set.create(text='B', user=self.user)
+        label_a = self.user.label_set.create(text='A')
+
+        response = self.client.post('/api/inventory/', {
+            'action': 'update',
+            'feed': feed.id,
+            'url': feed.url,
+            'active': 'on',
+            'title': '',
+            'label': [str(label_a.id), str(label_c.id)],
+        })
+
+        self.assertEqual(200, response.status_code)
+        [feed] = self.user.feed_set.all()
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): {
+                    'id': feed.id,
+                    'title': 'Feed X',
+                    'text': '',
+                    'siteUrl': 'http://example.com/',
+                    'labels': [1, 3],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': str(added),  # FIXME use RFC 3339 format
+                    'error': '',
+                    'active': True,
+                    'url': feed.url,
+                },
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {
+                str(label_a.id): {
+                    'id': label_a.id,
+                    'text': 'A',
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'feeds': [feed.id],
+                },
+                str(label_b.id): {
+                    'id': label_b.id,
+                    'text': 'B',
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'feeds': [],
+                },
+                str(label_c.id): {
+                    'id': label_c.id,
+                    'text': 'C',
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'feeds': [feed.id],
+                },
+            },
+            'labelOrder': [
+                label_a.id,
+                label_b.id,
+                label_c.id,
+            ],
+        }, response.json())
+
     def test_remove(self):
         feed = self.user.feed_set.create(
             url='http://example.com/feed2.xml',
