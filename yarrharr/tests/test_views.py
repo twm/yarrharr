@@ -34,6 +34,28 @@ import mock
 # from ..models import Feed
 
 
+class dictwith(object):
+    """
+    An object that compares equal to a dictionary which has a superset of the
+    keys and values of the wrapped dictionary.
+    """
+    def __init__(self, wrapped):
+        self._wrapped = wrapped
+
+    def __eq__(self, other):
+        if not isinstance(other, dict):
+            return False
+        for key, value in self._wrapped.items():
+            if key not in other:
+                return False
+            if other[key] != value:
+                return False
+        return True
+
+    def __repr__(self):
+        return '+' + repr(self._wrapped)
+
+
 class LoginRedirectTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -242,51 +264,26 @@ class InventoryViewTests(TestCase):
         [feed] = self.user.feed_set.all()
         self.assertEqual({
             'feedsById': {
-                str(feed.id): {
-                    'id': feed.id,
-                    'title': 'Feed X',
-                    'text': '',
-                    'siteUrl': 'http://example.com/',
+                str(feed.id): dictwith({
                     'labels': [1, 3],
-                    'unreadCount': 0,
-                    'faveCount': 0,
-                    'checked': '',
-                    'updated': '',
-                    'added': str(added),  # FIXME use RFC 3339 format
-                    'error': '',
-                    'active': True,
-                    'url': feed.url,
-                },
+                }),
             },
             'feedOrder': [feed.id],
             'labelsById': {
-                str(label_a.id): {
-                    'id': label_a.id,
+                str(label_a.id): dictwith({
                     'text': 'A',
-                    'unreadCount': 0,
-                    'faveCount': 0,
                     'feeds': [feed.id],
-                },
-                str(label_b.id): {
-                    'id': label_b.id,
+                }),
+                str(label_b.id): dictwith({
                     'text': 'B',
-                    'unreadCount': 0,
-                    'faveCount': 0,
                     'feeds': [],
-                },
-                str(label_c.id): {
-                    'id': label_c.id,
+                }),
+                str(label_c.id): dictwith({
                     'text': 'C',
-                    'unreadCount': 0,
-                    'faveCount': 0,
                     'feeds': [feed.id],
-                },
+                }),
             },
-            'labelOrder': [
-                label_a.id,
-                label_b.id,
-                label_c.id,
-            ],
+            'labelOrder': [label_a.id, label_b.id, label_c.id],
         }, response.json())
 
     def test_remove(self):
