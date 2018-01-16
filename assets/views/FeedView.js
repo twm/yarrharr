@@ -8,6 +8,7 @@ import { markArticlesRead, markArticlesFave } from 'actions.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
+import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
@@ -24,22 +25,26 @@ import './FeedView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-function OrderTailButton(props) {
-    const disabled = props.order === ORDER_TAIL;
-    const onClick = e => {
-        e.preventDefault();
-        props.onSetOrder(ORDER_TAIL);
-    };
-    return <a href="#" role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Latest first</a>;
+class OrderToggle extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClick = event => {
+            event.preventDefault();
+            const next = this.props.order === ORDER_TAIL ? ORDER_DATE : ORDER_TAIL;
+            props.onSetOrder(next);
+        };
+    }
+    render() {
+        const title = this.props.order === ORDER_DATE ? "Show latest first" : "Show oldest first";
+        const icon = this.props.order === ORDER_DATE ? "^" : "v"; // TODO
+        return <a href="#" role="button" title={title} onClick={this.handleClick}>{icon}</a>;
+    }
 }
-
-function OrderDateButton(props) {
-    const disabled = props.order === ORDER_DATE;
-    const onClick = e => {
-        e.preventDefault();
-        props.onSetOrder(ORDER_DATE);
+if (__debug__) {
+    OrderToggle.propTypes = {
+        order: PropTypes.oneOf([ORDER_TAIL, ORDER_DATE]).isRequired,
+        onSetOrder: PropTypes.func.isRequired,
     };
-    return <a href="#" role="button" aria-disabled={disabled} tabIndex={disabled ? -1 : 0} onClick={onClick}>Oldest first</a>;
 }
 
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
@@ -58,24 +63,17 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <AllLink className="expand" filter={snapshot.filter}>
                     <h1>All Feeds</h1>
                 </AllLink>
-                <InventoryLink className="square" title="Manage Feeds">
-                    <EditIcon aria-label="Manage Feeds" />
-                </InventoryLink>
+                <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
-        <div className="tabs">
-            <div className="tabs-inner">
-                <div className="tabs-tabs">
-                    <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
-                    <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
-                    <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
-                </div>
-                {articleId ? null : <div className="tabs-buttons">
-                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
-                </div>}
-            </div>
-        </div>
+        <Tabs>
+            <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
+            <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
+            <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
+            <InventoryLink title="Manage Feeds">
+                <EditIcon aria-label="Manage Feeds" />
+            </InventoryLink>
+        </Tabs>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
@@ -93,38 +91,26 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const feed = feedsById[feedId];
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
-            <div className="bar-inset">
-                <FeedIcon aria-hidden={true} />
-                <h1>{feed.text || feed.title || feed.url}</h1>
-            </div>
-        </GlobalBar>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
         <header className="list-header">
             <div className="list-header-inner bar">
                 <FeedLink className="expand" disabled={!articleId} feedId={feedId} filter={snapshot.filter}>
                     <div className="square">
                         <FeedIcon aria-hidden={true} />
                     </div>
-                    <h1>{feed.text ? feed.text : feed.title}</h1>
+                    <h1>{feed.text || feed.title || feed.url}</h1>
                 </FeedLink>
+                <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
-        <div className="tabs">
-            <div className="tabs-inner">
-                <div className="tabs-tabs">
-                    <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-                    <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-                    <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-                    <InventoryFeedLink className="square" feedId={feedId} title="Edit Feed">
-                        <EditIcon aria-label="Edit Feed" />
-                    </InventoryFeedLink>
-                </div>
-                {articleId ? null : <div className="tabs-buttons">
-                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
-                </div>}
-            </div>
-        </div>
+        <Tabs>
+            <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+            <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+            <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+            <InventoryFeedLink feedId={feedId} title="Edit Feed">
+                <EditIcon aria-label="Edit Feed" />
+            </InventoryFeedLink>
+        </Tabs>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
@@ -142,12 +128,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout}>
-            <div className="bar-inset">
-                <LabelIcon aria-hidden={true} />
-                <h1>{label.text}</h1>
-            </div>
-        </GlobalBar>
+        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
         <header className="list-header">
             <div className="list-header-inner bar">
                 <LabelLink className="expand" labelId={labelId} filter={snapshot.filter}>
@@ -156,24 +137,17 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                     </div>
                     <h1>{label.text}</h1>
                 </LabelLink>
-                <InventoryLabelLink className="square" labelId={labelId} title="Edit Label">
-                    <EditIcon aria-label="Edit Label" />
-                </InventoryLabelLink>
+                <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
-        <div className="tabs">
-            <div className="tabs-inner">
-                <div className="tabs-tabs">
-                    <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
-                    <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
-                    <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
-                </div>
-                {articleId ? null : <div className="tabs-buttons">
-                    <OrderTailButton key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
-                    <OrderDateButton key={ORDER_DATE} order={snapshot.order} onSetOrder={onSetOrder} />
-                </div>}
-            </div>
-        </div>
+        <Tabs>
+            <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
+            <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
+            <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
+            <InventoryLabelLink labelId={labelId} title="Edit Label">
+                <EditIcon aria-label="Edit Label" />
+            </InventoryLabelLink>
+        </Tabs>
         {renderSnapshot(snapshot.response, articleId,
             () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),

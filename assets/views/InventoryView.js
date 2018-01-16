@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
+import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
@@ -34,20 +35,12 @@ export class InventoryView extends React.PureComponent {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
-            <GlobalBar>
-                <div className="bar-inset">
-                    <h1>Manage Feeds</h1>
-                </div>
-            </GlobalBar>
-            <div className="tabs">
-                <div className="tabs-inner">
-                    <div className="tabs-tabs">
-                        <RootLink>Home</RootLink>
-                        <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
-                        <AddFeedLink>Add Feed</AddFeedLink>
-                    </div>
-                </div>
-            </div>
+            <GlobalBar/>
+            <Tabs>
+                <RootLink>Home</RootLink>
+                <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
+                <AddFeedLink>Add Feed</AddFeedLink>
+            </Tabs>
             <Centered>
                 {this.renderFeeds(feedList, labelList)}
             </Centered>
@@ -228,18 +221,14 @@ export class ManageFeedView extends React.PureComponent {
                     </div>
                 </div>
             </header>
-            <div className="tabs">
-                <div className="tabs-inner">
-                    <div className="tabs-tabs">
-                        <FeedLink feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-                        <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-                        <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-                        <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
-                            <EditIcon aria-label="Edit Feed" />
-                        </InventoryFeedLink>
-                    </div>
-                </div>
-            </div>
+            <Tabs>
+                <FeedLink feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
+                <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
+                <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
+                <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
+                    <EditIcon aria-label="Edit Feed" />
+                </InventoryFeedLink>
+            </Tabs>
             <Centered>
                 <InventoryItem
                     key={feed.id}
@@ -306,15 +295,11 @@ export class AddFeedView extends React.PureComponent {
                     <h1>Add Feed</h1>
                 </div>
             </GlobalBar>
-            <div className="tabs">
-                <div className="tabs-inner">
-                    <div className="tabs-tabs">
-                        <RootLink>Home</RootLink>
-                        <InventoryLink>Manage Feeds</InventoryLink>
-                        <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
-                    </div>
-                </div>
-            </div>
+            <Tabs>
+                <RootLink>Home</RootLink>
+                <InventoryLink>Manage Feeds</InventoryLink>
+                <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+            </Tabs>
             <Centered>
                 <h1>Add Feed</h1>
                 <p>Enter the URL of an Atom or RSS feed:</p>
