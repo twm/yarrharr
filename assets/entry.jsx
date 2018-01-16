@@ -25,7 +25,7 @@ if (__debug__) {
 }
 const store = createStore(reducer, applyMiddleware.apply(null, middleware));
 
-syncViewOptions(store, window.localStorage);
+syncViewOptions(store, window);
 syncLocation(store, window);
 
 // Only render the app on pages that are run by JS (not, say, login pages).
