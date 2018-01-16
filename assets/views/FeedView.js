@@ -36,7 +36,7 @@ class OrderToggle extends React.PureComponent {
     }
     render() {
         const title = this.props.order === ORDER_DATE ? "Show latest first" : "Show oldest first";
-        return <a href="#" role="button" title={title} onClick={this.handleClick}>
+        return <a className="square" href="#" role="button" title={title} onClick={this.handleClick}>
             <AscDescIcon ascending={this.props.order === ORDER_DATE} aria-hidden={true} />
         </a>;
     }
