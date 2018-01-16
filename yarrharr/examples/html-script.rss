@@ -1,0 +1,26 @@
+<rss version="2.0">
+<channel>
+  <title>
+    Contains Unsafe HTML
+  </title>
+  <link>http://example.com/rss</link>
+  <description>
+    The article in this file contains a HTML script tag which must eventually
+    be sanitized away.
+  </description>
+  <item>
+    <guid>
+      http://example.com/news/1
+    </guid>
+    <title>
+      I have &lt;script&gt;
+    </title>
+    <link>
+      http://example.com/news/1
+    </link>
+    <description><![CDATA[
+      <script>alert("injected!")</script>
+    ]]></description>
+  </item>
+</channel>
+</rss>
