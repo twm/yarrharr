@@ -1,5 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './icons.less';
+
+const __debug__ = process.env.NODE_ENV !== 'production';
 
 const STYLE_180 = {transform: 'rotate(180deg)'};
 
@@ -87,13 +90,45 @@ export function NarrowIcon(props) {
     </svg>;
 }
 
+
+export class AscDescIcon extends React.PureComponent {
+    render() {
+        const w = 20;
+        const h = 20;
+        const step = 4;
+        const halfPi = Math.PI / 2;
+        const length = (y) => {
+          const progress = y / h;
+          const partial = Math.sin(halfPi * progress + (this.props.ascending ? 0 : halfPi));
+          return 4 + (partial * partial * partial * 10);
+        };
+        var path = '';
+        for (let i = 0; i < ((h - 2) / step); i++) {
+            let y = 2 + i * step;
+            path += `M 2 ${y} l ${length(y)} 0`;
+        }
+        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon">
+            <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>;
+    }
+}
+
+if (__debug__) {
+    AscDescIcon.propTypes = {
+        ascending: PropTypes.bool.isRequired,
+    };
+}
+
+
 /* Copy this into https://reactjs.org/
 
-const Icon = WideIcon;
+
+const Icon = AscDescIcon;
 ReactDOM.render(
     [
-        <div><Icon /></div>,
-        <div><Icon width="250" height="250" /></div>
+        <div><Icon ascending={true} /><Icon ascending={false} /></div>,
+        <div><Icon ascending={true} width="120" height="120" /></div>,
+        <div><Icon ascending={false} width="120" height="120" /></div>
     ],
     mountNode
 )

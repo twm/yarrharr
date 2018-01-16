@@ -10,7 +10,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
-import { ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
+import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -36,8 +36,9 @@ class OrderToggle extends React.PureComponent {
     }
     render() {
         const title = this.props.order === ORDER_DATE ? "Show latest first" : "Show oldest first";
-        const icon = this.props.order === ORDER_DATE ? "^" : "v"; // TODO
-        return <a href="#" role="button" title={title} onClick={this.handleClick}>{icon}</a>;
+        return <a href="#" role="button" title={title} onClick={this.handleClick}>
+            <AscDescIcon ascending={this.props.order === ORDER_DATE} aria-hidden={true} />
+        </a>;
     }
 }
 if (__debug__) {
