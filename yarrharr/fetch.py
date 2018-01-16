@@ -60,11 +60,6 @@ except:
 log = Logger()
 
 
-# Disable feedparser's HTML sanitization, as it drops important information
-# (like YouTube embeds). We do our own sanitization with html5lib.
-feedparser.api.SANITIZE_HTML = False
-
-
 @attr.s(slots=True, frozen=True)
 class BadStatus(object):
     """
@@ -425,7 +420,11 @@ def poll_feed(feed, client=treq):
     # so we wrap it in a BytesIO() to force it to parse the response.
     # Otherwise the HTTP response body could be just a URL and trigger
     # blocking I/O!
-    parsed = feedparser.parse(BytesIO(raw_bytes), response_headers=h)
+    parsed = feedparser.parse(
+        BytesIO(raw_bytes),
+        response_headers=h,
+        sanitize_html=False,
+    )
 
     articles = []
     for entry in parsed['entries']:

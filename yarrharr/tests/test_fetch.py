@@ -226,6 +226,19 @@ class ErrorTreq(object):
 
 
 class FetchTests(SynchronousTestCase):
+    def test_raw_content_not_sanitized(self):
+        """
+        feedparser's HTML sanitization is disabled so that we can implement
+        custom sanitization.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/html-script.rss')
+        client = StubTreq(StaticResource(xml))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertIn(u'<script>', outcome.articles[0].raw_content)
+
     def test_title_html(self):
         """
         HTML in feed and article titles is sanitized.
