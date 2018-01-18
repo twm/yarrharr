@@ -21,7 +21,7 @@ const middleware = [
     thunk,
 ];
 if (__debug__) {
-    middleware.push(logger);
+    //middleware.push(logger);
 }
 const store = createStore(reducer, applyMiddleware.apply(null, middleware));
 

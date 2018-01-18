@@ -90,16 +90,72 @@ export function NarrowIcon(props) {
     </svg>;
 }
 
+/**
+ * AscDescIcon looks like a series of horizontal bars ordered by length. The
+ * smallest is at the top for "ascending", and the largest at the top for
+ * "descending".
+ */
+export class AscDescIcon extends React.Component {
+    constructor(props) {
+        super(props);
+        this.raf = null;
+        this.start = null;
+        this.animationFrame = null;
+        this.state = {pos: this.props.ascending ? 0 : 1};
+    }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.ascending === this.props.ascending) {
+            return;
+        }
+        if (this.raf) {
+            // Cancel any pending frame.
+            window.cancelAnimationFrame(this.raf);
+        }
+        const start = window.performance.now();
+        const duration = 250; // ms
 
-export class AscDescIcon extends React.PureComponent {
+        // console.log('componentWillReceiveProps(%o) this.start=%o start=%o duration=%o', nextProps, this.start, start, duration);
+        this.animationFrame = now => {
+            var progress = (now - start) / duration;
+            if (progress >= 1.0) {
+                // console.log('%2s Animation complete start=%o now=%o progress=%o', start, now, progress);
+                progress = 1.0;
+                this.animationFrame = null;
+            }
+            const pos = this.props.ascending ? 1.0 - progress : progress;
+            // console.log('%2s animationFrame(%.6f) progress=%.3f pos=%.3f', now, progress, pos);
+            this.raf =  null;
+            this.setState({pos: pos});
+        };
+
+        this.animationFrame(start);
+        this.raf = window.requestAnimationFrame(this.animationFrame);
+    }
+    componentDidUpdate(prevProps, prevState) {
+        // We have rendered a frame, now schedule another one.
+        if (!this.raf && this.animationFrame) {
+            this.raf = window.requestAnimationFrame(this.animationFrame);
+        }
+        // TODO Should have a setTimeout() too in case raf is never called?
+    }
+    componentWillUnmount() {
+        if (this.raf) {
+            window.cancelAnimationFrame(this.raf);
+        }
+    }
     render() {
         const w = 20;
         const h = 20;
+        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon">
+             <path d={this.buildPath(w, h, this.state.pos)} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>;
+    }
+    buildPath(w, h, pos) {
         const step = 4;
         const halfPi = Math.PI / 2;
         const length = (y) => {
           const progress = y / h;
-          const partial = Math.sin(halfPi * progress + (this.props.ascending ? 0 : halfPi));
+          const partial = Math.sin(halfPi * progress + halfPi * pos);
           return 4 + (partial * partial * partial * 10);
         };
         var path = '';
@@ -107,9 +163,7 @@ export class AscDescIcon extends React.PureComponent {
             let y = 2 + i * step;
             path += `M 2 ${y} l ${length(y)} 0`;
         }
-        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon">
-            <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-        </svg>;
+        return path;
     }
 }
 
