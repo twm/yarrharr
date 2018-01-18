@@ -273,11 +273,12 @@ export function showAll(filter, articleId) {
             dispatch(loadMore([articleId]));
         }
 
-        const feedsById = getState().feedsById;
+        const { feedsById, snapshot } = getState();
         const feedIds = Object.keys(feedsById).map(Number);
         feedIds.sort();
         const action = {
             type: SET_SNAPSHOT_PARAMS,
+            order: snapshot.order,
             filter,
             feedIds,
             include: articleId,

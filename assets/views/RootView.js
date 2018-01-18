@@ -6,6 +6,7 @@ import Heart from 'icons/heart-empty.svg';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink, RootLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
+import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { labelsByTitle, feedsByTitle } from 'sorting.js';
@@ -24,13 +25,11 @@ class RootView extends React.PureComponent {
                     </div>
                 </div>
             </GlobalBar>
-            <div className="tabs">
-                <div className="tabs-inner">
-                    <RootLink disabled={true}>Home</RootLink>
-                    <InventoryLink>Manage Feeds</InventoryLink>
-                    <AddFeedLink>Add Feed</AddFeedLink>
-                </div>
-            </div>
+            <Tabs>
+                <RootLink disabled={true}>Home</RootLink>
+                <InventoryLink>Manage Feeds</InventoryLink>
+                <AddFeedLink>Add Feed</AddFeedLink>
+            </Tabs>
             <div className="root">
                 <ul className="root-list">
                     <li className="all-link">

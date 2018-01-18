@@ -16,24 +16,38 @@ const __debug__ = process.env.NODE_ENV !== 'production';
  * @returns {function}
  *          A function which may be called to unsubscribe from the Redux store.
  */
-export default function syncViewOptions(store, storage) {
-    var layout = storage.getItem('layout');
-    var order = storage.getItem('order');
+export default function syncViewOptions(store, window) {
+    const storage = window.localStorage;
 
-    // If the key is not present in the Storage then we will get null, which
-    // will fail the validity check.
-    if (validLayout(layout)) {
-        store.dispatch(setLayout(layout));
+    var layout, order;
+
+    function readFromLocalStorage() {
+        var storedLayout = storage.getItem('layout');
+        var storedOrder = storage.getItem('order');
+
+        // If the key is not present in the Storage then we will get null, which
+        // will fail the validity check.
+        if (validLayout(storedLayout)) {
+            store.dispatch(setLayout(storedLayout));
+            layout = storedLayout;
+        }
+        if (validOrder(storedOrder)) {
+            store.dispatch(setOrder(storedOrder));
+            order = storedOrder;
+        }
     }
-    if (validOrder(order)) {
-        store.dispatch(setOrder(order));
-    }
+
+    readFromLocalStorage();
+    window.onstorage = readFromLocalStorage;
 
     return store.subscribe(function saveToLocalStorage() {
         const state = store.getState();
         if (state.layout !== layout
                 || state.snapshot.order !== order
         ) {
+            if (__debug__) {
+                console.log('Writing layout and order to localStorage');
+            }
             layout = state.layout;
             order = state.snapshot.order;
             try {

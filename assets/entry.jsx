@@ -21,11 +21,11 @@ const middleware = [
     thunk,
 ];
 if (__debug__) {
-    middleware.push(logger);
+    //middleware.push(logger);
 }
 const store = createStore(reducer, applyMiddleware.apply(null, middleware));
 
-syncViewOptions(store, window.localStorage);
+syncViewOptions(store, window);
 syncLocation(store, window);
 
 // Only render the app on pages that are run by JS (not, say, login pages).
