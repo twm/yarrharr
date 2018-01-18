@@ -132,7 +132,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
         <header className="list-header">
             <div className="list-header-inner bar">
-                <LabelLink className="expand" labelId={labelId} filter={snapshot.filter}>
+                <LabelLink className="expand" disabled={!articleId} labelId={labelId} filter={snapshot.filter}>
                     <div className="square">
                         <LabelIcon aria-hidden={true} />
                     </div>
