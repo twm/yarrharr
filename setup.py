@@ -9,7 +9,7 @@ setup(
     license='GPLv3+',
     install_requires=[
         'attrs == 17.2.0',
-        'Django ~= 1.11.5',
+        'Django ~= 2.0.1',
         'Twisted[tls] ~= 17.9.0',
         'treq ~= 17.8.0',
         'pytz',
