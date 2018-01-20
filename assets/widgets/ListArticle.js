@@ -2,11 +2,15 @@ import React from 'react';
 import { FeedLink } from 'widgets/links.js';
 import { OutboundIcon } from 'widgets/icons.js';
 import { ReadToggleLink } from 'widgets/StateToggle.js';
+import Heart from '../icons/heart-empty.svg';
 import "./ListArticle.less";
 
 const PLACEHOLDER = <div className="list-article"></div>;
 const BR = <br key="br" />;
 const OUTBOUND_ICON = <OutboundIcon aria-hidden={true} />;
+const HEART_ICON = <React.Fragment key="heart">
+    <Heart key="heart" className="icon-heart" />
+</React.Fragment>;
 
 export default class ListArticle extends React.PureComponent {
     render() {
@@ -23,6 +27,7 @@ export default class ListArticle extends React.PureComponent {
                         <span key="meta" className="meta">{props.feed.text || props.feed.title} on {props.date}</span>,
                         BR,
                         props.title || "Untitled",
+                        props.fave ? HEART_ICON : null,
                     ],
                 })}
                 <ReadToggleLink articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
