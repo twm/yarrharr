@@ -85,7 +85,7 @@ class Root(FallbackResource):
         FallbackResource.__init__(self, wsgi)
 
         # Install our static file handlers.
-        self.putChild('static', File(settings.STATIC_ROOT))
+        self.putChild(b'static', File(settings.STATIC_ROOT))
 
 
 def updateFeeds(reactor, max_fetch=5):
