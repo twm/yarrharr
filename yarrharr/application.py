@@ -33,7 +33,7 @@ import logging
 
 from django.conf import settings
 from twisted.logger import globalLogBeginner
-from twisted.logger import FileLogObserver, Logger, LogLevel
+from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
 from twisted.internet import task
 from twisted.logger import formatEvent
 from twisted.web.wsgi import WSGIResource
@@ -132,19 +132,30 @@ def formatForSystemd(event):
     return prefix + s.replace("\n", "\n" + prefix + "  ") + "\n"
 
 
-class SystemdFormatter(logging.Formatter):
-    _prefixes = {
-        logging.DEBUG: "<7>",
-        logging.INFO: "<6>",
-        logging.WARNING: "<4>",
-        logging.ERROR: "<3>",
-        logging.CRITICAL: "<2>",
-    }
+class TwistedLoggerLogHandler(logging.Handler):
+    publisher = globalLogPublisher
 
-    def format(self, record):
-        prefix = self._prefixes.get(record.levelno) or "<6>"
-        s = super().format(record)
-        return prefix + s.rstrip("\n").replace("\n", "\n" + prefix) + "\n"
+    def _mapLevel(self, levelno):
+        """
+        Convert a stdlib logging level into a Twisted :class:`LogLevel`.
+        """
+        if levelno <= logging.DEBUG:
+            return LogLevel.debug
+        elif levelno <= logging.INFO:
+            return LogLevel.info
+        elif levelno <= logging.WARNING:
+            return LogLevel.warn
+        elif levelno <= logging.ERROR:
+            return LogLevel.error
+        return LogLevel.critical
+
+    def emit(self, record):
+        self.publisher({
+            'log_level': self._mapLevel(record.levelno),
+            'log_namespace': record.name,
+            'log_format': '{msg}',
+            'msg': self.format(record),
+        })
 
 
 def run():
@@ -152,10 +163,10 @@ def run():
 
     root = logging.getLogger()
     logging.getLogger('django').setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(SystemdFormatter('%(message)s'))
+    logging.raiseExceptions = settings.DEBUG
+    logging._srcfile = None  # Disable expensive collection of location information.
     root.setLevel(logging.DEBUG if settings.DEBUG else logging.INFO)
-    root.addHandler(handler)
+    root.addHandler(TwistedLoggerLogHandler())
     globalLogBeginner.beginLoggingTo([FileLogObserver(sys.stdout, formatForSystemd)],
                                      redirectStandardIO=False)
 

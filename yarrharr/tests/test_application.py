@@ -31,7 +31,7 @@ from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.failure import Failure
 from twisted.trial.unittest import SynchronousTestCase
 
-from ..application import formatForSystemd
+from ..application import TwistedLoggerLogHandler, formatForSystemd
 
 
 class FormatForSystemdTests(SynchronousTestCase):
@@ -84,3 +84,40 @@ class FormatForSystemdTests(SynchronousTestCase):
             "<7>  s\n"
             "<7>  g\n"
         ), fout.getvalue())
+
+    def _get_stdlib_logger(self, name):
+        fout = StringIO()
+        handler = TwistedLoggerLogHandler()
+        handler.publisher = LogPublisher(FileLogObserver(fout, formatForSystemd))
+        log = logging.getLogger(name)
+        log.setLevel(logging.DEBUG)
+        log.propagate = False
+        log.addHandler(handler)
+        return log, fout
+
+    def test_logging_formatter(self):
+        log, fout = self._get_stdlib_logger('test_logging_formatter')
+
+        log.debug("debug")
+        log.info("info")
+        log.warning("warn")
+        log.error("error")
+        log.critical("critical")
+
+        self.assertEqual((
+            "<7>[test_logging_formatter] debug\n"
+            "<6>[test_logging_formatter] info\n"
+            "<4>[test_logging_formatter] warn\n"
+            "<3>[test_logging_formatter] error\n"
+            "<2>[test_logging_formatter] critical\n"
+        ), fout.getvalue())
+
+    def test_logging_exception(self):
+        log, fout = self._get_stdlib_logger('test_logging_exception')
+
+        try:
+            raise Exception('...')
+        except Exception:
+            log.exception("...")
+
+        self.assertIn('Traceback (most recent call last):\n', fout.getvalue())
