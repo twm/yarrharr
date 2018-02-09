@@ -23,23 +23,64 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from treq.client import HTTPClient
-from treq.testing import RequestTraversalAgent
-from twisted.trial.unittest import TestCase
-from twisted.internet import defer
+from io import StringIO
+import logging
 
-from ..application import Root
+from twisted.logger import Logger, LogPublisher, FileLogObserver
+from twisted.python.log import LogPublisher as LegacyLogPublisher
+from twisted.python.failure import Failure
+from twisted.trial.unittest import SynchronousTestCase
+
+from ..application import formatForSystemd
 
 
-class RootTests(TestCase):
-    @defer.inlineCallbacks
-    def _test_static_resources(self):
+class FormatForSystemdTests(SynchronousTestCase):
+    def test_logger_namespace(self):
         """
-        All static resources linked from the login page load.
+        A `twisted.logger.Logger` with a namespace gets that namespace as a prefix.
         """
-        from twisted.internet import reactor
+        fout = StringIO()
+        log = Logger(namespace="ns", observer=FileLogObserver(fout, formatForSystemd))
 
-        treq = HTTPClient(RequestTraversalAgent(Root(reactor)))
-        response = yield treq.get('http://127.0.0.1:8888/')
-        print(response)
-        assert False
+        log.info("info\n{more}", more="info")
+        log.error("err")
+
+        self.assertEqual((
+            "<6>[ns] info\n"
+            "<6>  info\n"
+            "<3>[ns] err\n"
+        ), fout.getvalue())
+
+    def test_logger_namespace_failure(self):
+        """
+        An unexpected failure, logged as critical, is displayed across multiple
+        lines.
+        """
+        fout = StringIO()
+        log = Logger(namespace="ns", observer=FileLogObserver(fout, formatForSystemd))
+
+        log.failure("Something went wrong", Failure(Exception("1\n2\n3")))
+
+        self.assertEqual((
+            "<2>[ns] Something went wrong\n"
+            "<2>  Traceback (most recent call last):\n"
+            "<2>  Failure: builtins.Exception: 1\n"
+            "<2>  2\n"
+            "<2>  3\n"
+        ), fout.getvalue())
+
+    def test_log_legacy(self):
+        fout = StringIO()
+        p = LegacyLogPublisher(publishPublisher=LogPublisher(FileLogObserver(fout, formatForSystemd)))
+
+        p.msg('msg')
+        p.msg('msg', system='system')
+        p.msg('m\ns\ng', logLevel=logging.DEBUG)
+
+        self.assertEqual((
+            "<6>[-] msg\n"
+            "<6>[system] msg\n"
+            "<7>[-] m\n"
+            "<7>  s\n"
+            "<7>  g\n"
+        ), fout.getvalue())

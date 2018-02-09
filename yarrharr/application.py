@@ -124,12 +124,12 @@ def formatForSystemd(event):
 
     if "log_failure" in event:
         try:
-            s += "\n" + event["log_failure"].getTraceback()
+            s += "\n" + event["log_failure"].getTraceback().rstrip("\n")
         except:
             pass
 
     prefix = _txLevelToPriority.get(event.get("log_level")) or "<6>"
-    return prefix + s.replace("\n", "\n" + prefix) + "\n"
+    return prefix + s.replace("\n", "\n" + prefix + "  ") + "\n"
 
 
 class SystemdFormatter(logging.Formatter):
