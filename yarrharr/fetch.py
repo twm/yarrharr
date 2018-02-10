@@ -529,15 +529,21 @@ def extract_title(title_detail):
 
 def extract_date(entry):
     """
-    Attempt to extract the publication date from a feedparser entry.
+    Attempt to extract an article date from a feedparser entry. The `date of
+    update_` is preferred if set, else the date of publication is used.
 
     :returns:
         A timezone-aware :class:`datetime.datetime` instance, or `None` if the
         entry lacks a date.
+
+    .. date of update: https://pythonhosted.org/feedparser/reference-entry-updated_parsed.html
     """
-    update = entry.get('updated_parsed')
-    if update:
-        return as_datetime(update)
+    # Avoid triggering a deprecation warning by checking for updated_parsed
+    # before getting it.
+    if 'update_parsed' in entry:
+        update = entry.get('updated_parsed')
+        if update:
+            return as_datetime(update)
     pubdate = entry.get('published_parsed')
     if pubdate:
         return as_datetime(pubdate)
