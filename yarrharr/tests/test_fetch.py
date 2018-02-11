@@ -402,6 +402,18 @@ class FetchTests(SynchronousTestCase):
 
         self.assertEqual(BozoError(code=200, content_type=u'text/html', error=mock.ANY), outcome)
 
+    def test_bozo_empty(self):
+        """
+        A zero-byte response body causes feedparser to set the bozo bit, but
+        not set a bozo exception. We must cope with that.
+        """
+        feed = FetchFeed('https://an.example/0byte')
+        client = StubTreq(StaticResource(b'', b'text/html'))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertEqual(BozoError(code=200, content_type=u'text/html', error=u'Unknown error'), outcome)
+
 
 class MaybeUpdatedTests(DjangoTestCase):
     """
