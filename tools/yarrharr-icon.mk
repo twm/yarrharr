@@ -24,8 +24,6 @@ $(eval $(call SVG-TO-PNG,yarrharr/static/icon.24.png,24))
 $(eval $(call SVG-TO-PNG,yarrharr/static/icon.32.png,32))
 $(eval $(call SVG-TO-PNG,yarrharr/static/icon.48.png,48))
 $(eval $(call SVG-TO-PNG,yarrharr/static/icon.64.png,64))
-# Firefox OS wants a 60x60 PNG.
-$(eval $(call SVG-TO-PNG,yarrharr/static/icon.fxos.png,60))
 # Android and iOS are crazy (see <http://mathiasbynens.be/notes/touch-icons>).
 # Just generate one big 152x152 icon for both; it simply isn't worth the HTML
 # clutter to generate one of each size and link to them.  This should also work
