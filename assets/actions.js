@@ -454,6 +454,12 @@ export function loadMore(articleIds) {
 
 export const RECEIVE_FEEDS = 'RECEIVE_FEEDS';
 export function receiveFeeds(feedsById, feedOrder) {
+    if (__debug__ && !feedsById) {
+        throw new Error("feedsById not given");
+    }
+    if (__debug__ && !feedOrder) {
+        throw new Error("feedOrder not given");
+    }
     return {
         type: RECEIVE_FEEDS,
         feedsById,
@@ -486,7 +492,7 @@ export function addFeed(url) {
             // TODO: Handle expected error conditions.
             const { feedId, feedsById } = json;
             dispatch(receiveAddFeed(url, feedId));
-            dispatch(receiveFeeds(feedsById));
+            dispatch(receiveFeeds(feedsById, json.feedOrder));
         }).catch(e => {
             console.error("Error adding", url, "->", e);
             dispatch(failAddFeed(url, "Unexpected error"));
