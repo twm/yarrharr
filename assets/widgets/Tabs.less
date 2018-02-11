@@ -22,40 +22,60 @@
 }
 /* base tab styles */
 .tabs-tabs > a {
-    border: 2px solid #666;
-    border-radius: .5rem .5rem 0 0;
-    background: @content_background_color;
+    --tab-shape-color: transparent;
+    --tab-background-color: transparent;
+
+    border-style: solid;
+    border-width: 2px;
+    border-bottom-width: 0;
+    border-color: var(--tab-shape-color) var(--tab-shape-color) #666 var(--tab-shape-color);
+    background: var(--tab-background-color);
     text-decoration: none;
     line-height: 1.7;
     padding: 0.125rem 1rem 0 1rem;
-    margin: 0 .5rem 0 0;
+    margin: 0 .5rem 2px 0;
+
+    &:hover {
+        /* FIXME need a var for this, it was copied from .flat-button-focus */
+        --tab-shape-color: darken(@background_color, 10%);
+        --tab-background-color: darken(@background_color, 10%);
+    }
+    &:focus {
+        outline: none;
+        /* FIXME need a var for this, it was copied from .form-item-focusable:focus */
+        --tab-shape-color: @focus_blue_dark;
+    }
 }
 /* current tab */
 .tabs-tabs > a[aria-disabled="true"] {
-    border-bottom-width: 0;
+    --tab-shape-color: #666;
+    --tab-background-color: @content_background_color;
+    margin-bottom: 0;
 }
 @media screen and (max-width: 34em) {
     .tabs-tabs {
         padding: 0;
-        min-height: 40px;  /* tappable size */
     }
     .tabs-tabs > a {
-        margin: 0;
-        line-height: 1.2;
-        border-radius: 0;
+        margin-left: 0;
+        margin-right: 2px; /* Prevent borders from abutting, which looks bad. */
         padding-left: 0.1rem;
         padding-right: 0.1rem;
+        line-height: 2.0; /* Increases height so tabs are more tappable. */
         flex-basis: 100%;
         text-align: center;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     .tabs-tabs > a + a {
-        border-left-width: 0;
+        border-left-width: 2px;
     }
     .tabs-tabs > a:first-child {
         border-left-width: 0;
     }
     .tabs-tabs > a:last-child {
         border-right-width: 0;
+        margin-right: 0;
     }
 }
 /* TODO: Check what happens in very narrow windows. */
