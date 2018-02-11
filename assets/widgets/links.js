@@ -20,6 +20,12 @@ class A extends React.PureComponent {
     constructor(props) {
         super(props);
         this.handleClick = (event) => {
+            if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) {
+                return;
+            }
+            if (event.button !== 0) { // left button
+                return;
+            }
             event.preventDefault();
             if (!this.props.disabled) {
                 this.props.dispatch(setPath(this.props.path));
