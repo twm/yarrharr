@@ -577,6 +577,7 @@ export function removeFeed(feedId) {
         return post('/api/inventory/', body).then(json => {
             // TODO: Handle expected error conditions.
             const { feedsById, feedOrder, labelsById, labelOrder } = json;
+            dispatch(setPath('/inventory'));
             dispatch(receiveLabels(labelsById, labelOrder));
             dispatch(receiveFeeds(feedsById, feedOrder));
         }).catch(e => {
