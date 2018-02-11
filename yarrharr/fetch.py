@@ -450,7 +450,7 @@ def poll_feed(feed, client=treq):
         defer.returnValue(BozoError(
             code=response.code,
             content_type=u', '.join(response.headers.getRawHeaders(u'content-type')),
-            error=str(parsed['bozo_exception'])
+            error=str(parsed.get('bozo_exception', 'Unknown error'))
         ))
     else:
         defer.returnValue(MaybeUpdated(
