@@ -174,8 +174,8 @@ module.exports = {
             }],
         }, {
             test: /assets\/icons\/.*\.svg$/,
-            use: ['babel-loader', './svghack.js', {
-                loader: 'svgr/lib/webpack',
+            use: ['babel-loader', {
+                loader: 'svgr/webpack',
                 options: {
                     // See https://github.com/smooth-code/svgr#options
                     // Be sure icon SVGs have a viewBox attribute!
