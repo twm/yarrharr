@@ -70,7 +70,7 @@ function processFavicon(svgSource) {
 }
 
 function scourFavicon(file) {
-    const outfile = `file.scour.svg`;
+    const outfile = `${file}.scour.svg`;
     const args = [
         '-i', file,
         '-o', outfile,
