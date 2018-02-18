@@ -17,3 +17,10 @@ matrix:
       script:
         - npm install
         - make webpack-prod
+      addons:
+        apt:
+          packages:
+            - inkscape
+            - icoutils
+            - python-scour
+            - optipng
