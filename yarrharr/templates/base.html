@@ -6,8 +6,8 @@
         <title>{% block title %}{{ title|default:"Yarrharr" }}{% endblock %}</title>
         {# XXX Does user-scalable=no do anything anymore? #}
         <meta name="viewport" content="width=device-width, user-scalable=no">
-        <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="{% static 'icon.ico' %}">
-        <link rel="icon" sizes="152x152" type="image/png" href="{% static 'icon.touch.png' %}">
+        <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="{% static 'icon.*.ico'|newest_static %}">
+        <link rel="icon" sizes="152x152" type="image/png" href="{% static 'icon.*.png'|newest_static %}">
         <link rel="icon" sizes="any" type="image/svg+xml" href="{% static 'icon.*.svg'|newest_static %}">
         <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static 'icon.touch.png' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'main.*.css'|newest_static %}">
