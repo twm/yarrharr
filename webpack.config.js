@@ -174,7 +174,7 @@ module.exports = {
             }],
         }, {
             test: /assets\/icons\/.*\.svg$/,
-            use: ['babel-loader', './svghack.js', {
+            use: ['babel-loader', {
                 loader: 'svgr/webpack',
                 options: {
                     // See https://github.com/smooth-code/svgr#options
