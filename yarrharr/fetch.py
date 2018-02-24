@@ -47,6 +47,7 @@ from twisted.web import client
 import treq
 import pytz
 
+from . import __version__
 from .models import Feed
 from .sanitize import REVISION, html_to_text, sanitize_html
 
@@ -58,6 +59,11 @@ except:
     pass
 
 log = Logger()
+
+
+# SquareSpace seems to reject requests with Twisted's default
+# User-Agent header, so we don't mention Twisted here.
+USER_AGENT_HEADER = 'Mozilla/5.0 (Linux x86_64) Yarrharr/{} +https://github.com/twm/yarrharr'.format(__version__).encode()
 
 
 @attr.s(slots=True, frozen=True)
@@ -360,6 +366,7 @@ def poll_feed(feed, client=treq):
     :param str url: URL to retrieve
     """
     headers = {
+        b'user-agent': [USER_AGENT_HEADER],
         b'accept': [ACCEPT_HEADER],
     }
     if feed.etag:
