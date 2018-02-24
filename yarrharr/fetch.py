@@ -63,7 +63,8 @@ log = Logger()
 
 # SquareSpace seems to reject requests with Twisted's default
 # User-Agent header, so we don't mention Twisted here.
-USER_AGENT_HEADER = 'Mozilla/5.0 (Linux x86_64) Yarrharr/{} +https://github.com/twm/yarrharr'.format(__version__).encode()
+USER_AGENT_HEADER = 'Mozilla/5.0 (Linux x86_64) Yarrharr/{} +https://github.com/twm/yarrharr'.format(
+    __version__).encode()
 
 
 @attr.s(slots=True, frozen=True)
