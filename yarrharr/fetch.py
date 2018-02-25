@@ -47,6 +47,7 @@ from twisted.web import client
 import treq
 import pytz
 
+from . import __version__
 from .models import Feed
 from .sanitize import REVISION, html_to_text, sanitize_html
 
@@ -58,6 +59,12 @@ except:
     pass
 
 log = Logger()
+
+
+# SquareSpace seems to reject requests with Twisted's default
+# User-Agent header, so we don't mention Twisted here.
+USER_AGENT_HEADER = 'Mozilla/5.0 (Linux x86_64) Yarrharr/{} +https://github.com/twm/yarrharr'.format(
+    __version__).encode()
 
 
 @attr.s(slots=True, frozen=True)
@@ -191,7 +198,7 @@ class MaybeUpdated(object):
                 content_rev=REVISION,
             )
             created.save()
-            log.debug("  created {created} (No match for GUID {guid!r} or URL {url!r})",
+            log.debug("  created {created!a} (No match for GUID {guid!r} or URL {url!r})",
                       created=created, guid=upsert.guid, url=upsert.url)
             return
 
@@ -213,7 +220,7 @@ class MaybeUpdated(object):
             match.raw_content = upsert.raw_content
             match.content = sanitize_html(upsert.raw_content)
             match.save()
-            log.debug("  updated {updated} based on {match_type}",
+            log.debug("  updated {updated!a} based on {match_type}",
                       updated=match, match_type=match_type)
 
 
@@ -334,7 +341,7 @@ def extract_etag(headers):
     except IndexError:
         etag = b''
     if len(etag) > 1024:
-        log.debug('Ignoring oversizzed ETag header ({count} bytes)', count=len(etag))
+        log.debug('Ignoring oversized ETag header ({count} bytes)', count=len(etag))
         etag = b''
     return etag
 
@@ -360,6 +367,7 @@ def poll_feed(feed, client=treq):
     :param str url: URL to retrieve
     """
     headers = {
+        b'user-agent': [USER_AGENT_HEADER],
         b'accept': [ACCEPT_HEADER],
     }
     if feed.etag:
@@ -377,7 +385,7 @@ def poll_feed(feed, client=treq):
         raw_bytes = yield response.content()
     except (
         # DNS resolution failed. I'm not sure how exactly this is distinct from
-        # UnknownHostError which is a subclass of ConnectError, but this is the
+        # UnknownHostError which is a subclass of ConnectError, but this is
         # what I have observed. Perhaps this is what HostnameEndpoint produces.
         error.DNSLookupError,
         # Failed to establish a TCP connection (includes refused, etc.).
