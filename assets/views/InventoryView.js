@@ -290,11 +290,7 @@ export const ConnectedManageLabelView = connect(state => state, {
 export class AddFeedView extends React.PureComponent {
     render() {
         return <React.Fragment>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
-                <div className="bar-inset">
-                    <h1>Add Feed</h1>
-                </div>
-            </GlobalBar>
+            <GlobalBar />
             <Tabs>
                 <RootLink>Home</RootLink>
                 <InventoryLink>Manage Feeds</InventoryLink>

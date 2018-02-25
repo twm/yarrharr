@@ -18,13 +18,7 @@ class RootView extends React.PureComponent {
         const labelList = labelsByTitle(this.props).filter(l => l.unreadCount !== 0);
         const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
         return <React.Fragment>
-            <GlobalBar>
-                <div className="bar-inset">
-                    <div className="text">
-                        <h1>Yarrharr Feed Reader</h1>
-                    </div>
-                </div>
-            </GlobalBar>
+            <GlobalBar />
             <Tabs>
                 <RootLink disabled={true}>Home</RootLink>
                 <InventoryLink>Manage Feeds</InventoryLink>
