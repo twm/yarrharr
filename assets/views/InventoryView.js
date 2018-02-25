@@ -38,9 +38,9 @@ export class InventoryView extends React.PureComponent {
         return <React.Fragment>
             <GlobalBar/>
             <Tabs>
-                <RootLink>Home</RootLink>
-                <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
-                <AddFeedLink>Add Feed</AddFeedLink>
+                <RootLink className="no-underline">Home</RootLink>
+                <InventoryLink disabled={true} className="no-underline">Manage Feeds</InventoryLink>
+                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <Centered>
                 {this.renderFeeds(feedList, labelList)}
@@ -222,10 +222,10 @@ export class ManageFeedView extends React.PureComponent {
                 </div>
             </header>
             <Tabs>
-                <FeedLink feedId={feedId} filter={FILTER_UNREAD}>Unread <Count value={feed.unreadCount} /></FeedLink>
-                <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite <Count value={feed.faveCount} /></FeedLink>
-                <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-                <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
+                <FeedLink feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
+                <FeedLink feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
+                <FeedLink feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
+                <InventoryFeedLink disabled={true} feedId={feedId} title="Edit Feed" className="no-underline">
                     <EditIcon aria-label="Edit Feed" />
                 </InventoryFeedLink>
             </Tabs>
@@ -292,9 +292,9 @@ export class AddFeedView extends React.PureComponent {
         return <React.Fragment>
             <GlobalBar />
             <Tabs>
-                <RootLink>Home</RootLink>
-                <InventoryLink>Manage Feeds</InventoryLink>
-                <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+                <RootLink className="no-underline">Home</RootLink>
+                <InventoryLink className="no-underline">Manage Feeds</InventoryLink>
+                <AddFeedLink disabled={true} className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <Centered>
                 <h1>Add Feed</h1>

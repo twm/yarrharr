@@ -6,6 +6,8 @@
 
 :root {
     --layout-max-width: 50rem;
+    --text-color: @content_text_color;
+    --background-color: @content_background_color;
 }
 .layout-wide {
     --layout-max-width: none;
@@ -17,25 +19,30 @@ html {
     margin: 0;
     padding: 0;
     overflow-y: scroll;
+    color: var(--text-color);
+    background: var(--background-color);
 
-    color: @content_text_color;
-    background: @content_background_color;
     a {
-        color: @content_text_color;
+        color: var(--text-color);
+        --underline-color: rgb(28, 140, 199);
+        text-decoration-line: none;
+    }
+    a:not(.no-underline),
+    a .underline {
         text-decoration-line: underline;
-        text-decoration-color: rgb(28, 140, 199);
+        text-decoration-color: var(--underline-color);
     }
     a[role=button] {
         text-decoration-line: none;
     }
     a:visited {
-        text-decoration-color: rgb(199, 68, 28);
+        --underline-color: rgb(199, 68, 28);
     }
     a:visited:not([role=button]) {
-        color: @content_text_color;
+        color: var(--text-color);
     }
     a:active {
-        text-decoration-color: rgb(185, 28, 199);
+        --underline-color: rgb(185, 28, 199);
     }
     a:link[aria-disabled=true],
     a:visited[aria-disabled=true] {
@@ -282,21 +289,5 @@ footer {
     padding: 3em 0.25em;
     text-align: center;
     background: @background_color;
-    color: lighten(@text_color, 40%);
-
-    a {
-        color: @text_color;
-        text-decoration-line: underline;
-    }
-    a[role=button] {
-        text-decoration-line: none;
-    }
-    a:visited:not([role=button]) {
-        color: darken(@text_color, 20%);
-    }
-    a:link[aria-disabled=true],
-    a:visited[aria-disabled=true] {
-        text-decoration-line: none;
-        cursor: default;
-    }
+    color: @text_color;
 }
