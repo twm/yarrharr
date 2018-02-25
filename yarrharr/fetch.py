@@ -254,7 +254,7 @@ class BozoError(object):
         feed.etag = b''
         feed.last_modified = b''
         feed.digest = b''
-        feed.error = u'Fetch failed: processing HTTP {} {} response produced error: {!a}'.format(
+        feed.error = u'Fetch failed: processing HTTP {} {} response produced error: {}'.format(
             self.code, self.content_type, self.error)
         schedule(feed)
         feed.save()
