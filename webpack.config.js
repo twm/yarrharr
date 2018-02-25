@@ -70,7 +70,7 @@ function processFavicon(svgSource) {
 }
 
 function scourFavicon(file) {
-    const outfile = `file.scour.svg`;
+    const outfile = `${file}.scour.svg`;
     const args = [
         '-i', file,
         '-o', outfile,
@@ -130,7 +130,7 @@ if (production) {
 
 module.exports = {
     entry: {
-        main: path.join(__dirname, 'assets/entry.jsx'),
+        main: path.join(__dirname, 'assets/entry.js'),
         vendor: ['react', 'react-dom', 'react-redux', 'redux-thunk', 'redux-logger'],
     },
     resolve: {
@@ -141,7 +141,7 @@ module.exports = {
     },
     module: {
         rules: [{
-            test: /\.jsx?$/,
+            test: /\.js$/,
             enforce: 'pre',
             loaders: ['eslint-loader'],
             exclude: /node_modules/,
@@ -159,7 +159,7 @@ module.exports = {
                 fallback: 'style-loader',
             }),
         }, {
-            test: /\.jsx?$/,
+            test: /\.js$/,
             loaders: ['babel-loader'],
             exclude: /node_modules/,
         }, {

@@ -5,7 +5,20 @@ This document describes conventions within the Yarrharr codebase.
 ## Browser Support
 
 The primary target browser is Firefox (current release, not ESR).
-Testing in Chrome and Edge is useful as tends to reveal
+Testing in Chrome and Edge is useful as tends to reveal bugs.
+Internet Explorer is not supported.
+I do not test in Safari or iOS as I lack the appropriate hardware.
+
+## JavaScript Features
+
+The project only targets [browsers which natively support ES2015 syntax and &lt;script type="module"&gt;](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/).
+Specifically:
+
+* Firefox ≥ 54
+* Chrome ≥ 60
+* Edge ≥ 15
+
+This is ensured via Babel transformations as specified in [./.babelrc](.babelrc).
 
 ## CSS Features
 

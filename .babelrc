@@ -1,6 +1,14 @@
 {
   "presets": [
-    ["es2015", {"modules": false}],
+    ["env", {
+      "targets": {
+        "browsers": [
+          "Firefox >= 54",
+          "Chrome >= 60",
+          "Edge >= 15"
+        ]
+      }
+    }],
     "react"
   ]
 }
