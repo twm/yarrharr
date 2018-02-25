@@ -11,7 +11,7 @@ import './base.less';
 import syncViewOptions from './syncViewOptions.js';
 import syncLocation from './syncLocation.js';
 
-import { ConnectedRouter } from './router.jsm'
+import { ConnectedRouter } from './router.js'
 import { ConnectedYarrharr } from './widgets/Yarrharr.js';
 import reducer from './reducer.js';
 
