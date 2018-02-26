@@ -586,6 +586,53 @@ class MaybeUpdatedTests(DjangoTestCase):
             content=u'<p>Hello, world!',
         )
 
+    def test_persist_article_guid_http_to_https_match(self):
+        """
+        When the article GUID is a HTTPS URL, it is also matched against an
+        existing article where the GUID has the HTTP scheme.
+        """
+        self.feed.articles.create(
+            read=True,
+            fave=False,
+            author='???',
+            title='???',
+            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            url='http://www.example.com/blah-blah',
+            guid='http://example.com/1',
+            raw_content=b'',
+            content=b'',
+        )
+        mu = MaybeUpdated(
+            feed_title='After',
+            site_url='https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author='Joe Bloggs',
+                    title='Blah Blah',
+                    url='https://www2.example.com/blah-blah',
+                    date=timezone.now(),
+                    guid='https://example.com/1',
+                    raw_content='<p>Hello, world!</p>',
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=False,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            url='https://www2.example.com/blah-blah',
+            guid='https://example.com/1',
+        )
+
     def test_persist_article_url_match(self):
         """
         An article which matches by URL when no GUID is available is updated in
@@ -634,6 +681,54 @@ class MaybeUpdatedTests(DjangoTestCase):
             url=u'https://example.com/blah-blah',
             raw_content=u'<p>Hello, world!</p>',
             content=u'<p>Hello, world!',
+        )
+
+    def test_persist_article_https_to_http_url_match(self):
+        """
+        An article with a HTTPS URL can match an older article with the
+        equivalent HTTP URL.
+        """
+        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+        self.feed.articles.create(
+            read=True,
+            fave=True,
+            author='???',
+            title='???',
+            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            url='http://example.com/blah-blah',
+            guid='',  # Must not have a GUID to match by URL
+            raw_content=b'',
+            content=b'',
+        )
+        mu = MaybeUpdated(
+            feed_title='Blah Blah',
+            site_url='https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author='Joe Bloggs',
+                    title='Blah Blah',
+                    date=new_date,
+                    url='https://example.com/blah-blah',
+                    guid='',
+                    raw_content=u'<p>Hello, world!</p>'
+                ),
+            ],
+            etag=b'',
+            last_modified=b'',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=True,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            date=new_date,
+            url=u'https://example.com/blah-blah',
         )
 
     def test_persist_article_sanitize(self):

@@ -164,6 +164,14 @@ class MaybeUpdated(object):
             else:
                 return match, 'guid'
 
+            if upsert.guid.startswith('https://'):
+                try:
+                    match = feed.articles.filter(guid='http' + upsert.guid[5:])[0]
+                except IndexError:
+                    pass
+                else:
+                    return match, 'guid'
+
         # Fall back to the item link if no GUID is provided.
         # Note that we permit a match by link to match an article with a GUID.
         # This is because of databases migrated from django-yarr, which used
@@ -175,6 +183,18 @@ class MaybeUpdated(object):
                 pass
             else:
                 return match, 'url'
+
+            # When the new URL is HTTPS, check if we have the same thing in
+            # HTTP.  This heuristic helps cope with sites that are migrated
+            # from HTTP to HTTPS but don't use a more stable identifier like
+            # tag URIs.
+            if upsert.url.startswith('https://'):
+                try:
+                    match = feed.articles.filter(url='http' + upsert.url[5:])[0]
+                except IndexError:
+                    pass
+                else:
+                    return match, 'url'
 
         return None, None
 
