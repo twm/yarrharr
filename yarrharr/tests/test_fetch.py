@@ -586,6 +586,53 @@ class MaybeUpdatedTests(DjangoTestCase):
             content=u'<p>Hello, world!',
         )
 
+    def test_persist_article_guid_http_to_https_match(self):
+        """
+        When the article GUID is a HTTPS URL, it is also matched against an
+        existing article where the GUID has the HTTP scheme.
+        """
+        self.feed.articles.create(
+            read=True,
+            fave=False,
+            author='???',
+            title='???',
+            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            url='http://www.example.com/blah-blah',
+            guid='http://example.com/1',
+            raw_content=b'',
+            content=b'',
+        )
+        mu = MaybeUpdated(
+            feed_title='After',
+            site_url='https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author='Joe Bloggs',
+                    title='Blah Blah',
+                    url='https://www2.example.com/blah-blah',
+                    date=timezone.now(),
+                    guid='https://example.com/1',
+                    raw_content='<p>Hello, world!</p>',
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=False,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            url='https://www2.example.com/blah-blah',
+            guid='https://example.com/1',
+        )
+
     def test_persist_article_url_match(self):
         """
         An article which matches by URL when no GUID is available is updated in
@@ -682,8 +729,6 @@ class MaybeUpdatedTests(DjangoTestCase):
             title=u'Blah Blah',
             date=new_date,
             url=u'https://example.com/blah-blah',
-            raw_content=u'<p>Hello, world!</p>',
-            content=u'<p>Hello, world!',
         )
 
     def test_persist_article_sanitize(self):
