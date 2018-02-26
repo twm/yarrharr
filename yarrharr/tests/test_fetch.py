@@ -636,6 +636,56 @@ class MaybeUpdatedTests(DjangoTestCase):
             content=u'<p>Hello, world!',
         )
 
+    def test_persist_article_https_to_http_url_match(self):
+        """
+        An article with a HTTPS URL can match an older article with the
+        equivalent HTTP URL.
+        """
+        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+        self.feed.articles.create(
+            read=True,
+            fave=True,
+            author='???',
+            title='???',
+            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            url='http://example.com/blah-blah',
+            guid='',  # Must not have a GUID to match by URL
+            raw_content=b'',
+            content=b'',
+        )
+        mu = MaybeUpdated(
+            feed_title='Blah Blah',
+            site_url='https://example.com/',
+            articles=[
+                ArticleUpsert(
+                    author='Joe Bloggs',
+                    title='Blah Blah',
+                    date=new_date,
+                    url='https://example.com/blah-blah',
+                    guid='',
+                    raw_content=u'<p>Hello, world!</p>'
+                ),
+            ],
+            etag=b'',
+            last_modified=b'',
+            digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        )
+
+        mu.persist(self.feed)
+
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=True,
+            author=u'Joe Bloggs',
+            title=u'Blah Blah',
+            date=new_date,
+            url=u'https://example.com/blah-blah',
+            raw_content=u'<p>Hello, world!</p>',
+            content=u'<p>Hello, world!',
+        )
+
     def test_persist_article_sanitize(self):
         """
         The HTML associated with an article is sanitized when it is persisted.

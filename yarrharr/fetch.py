@@ -176,6 +176,17 @@ class MaybeUpdated(object):
             else:
                 return match, 'url'
 
+        # When the new URL is HTTPS, check if we have the same thing in HTTP.
+        # This heuristic helps cope with sites that are migrated from HTTP to
+        # HTTPS but don't use a more stable identifier like tag URIs.
+        if upsert.url.startswith('https://'):
+            try:
+                match = feed.articles.filter(url='http' + upsert.url[5:])[0]
+            except IndexError:
+                pass
+            else:
+                return match, 'url'
+
         return None, None
 
     def _upsert_article(self, feed, upsert):
