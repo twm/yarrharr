@@ -85,8 +85,9 @@ h1 {
     transition: border-color 0.05s;
 
     &:focus {
-        --border-color: @focus_blue_dark;
-        --backgrond-color: white;
+        --border-color: @focus_blue;
+        --background-color: white;
+        --gradient-border-color: @focus_blue_dark;
         --gradient-start: @focus_blue_light;
         --gradient-mid: @focus_blue;
         --gradient-end: @focus_blue;
@@ -127,15 +128,16 @@ select[multiple] {
 .text-button {
     .form-item-layout;
     .form-item-focusable;
+    cursor: pointer;
 
     --gradient-start: white;
     --gradient-mid: gray;
     --gradient-end: gray;
 
-    border-color: var(--border-color);
-    text-shadow: var(--border-color) 0 0 .025rem; /* bump contrast */
+    border-color: var(--gradient-border-color);
+    text-shadow: var(--gradient-border-color) 0 0 .025rem; /* bump contrast */
     background: linear-gradient(to bottom, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
-    box-shadow: inset var(--gradient-start) 0 0 .25rem;
+    box-shadow: inset var(--gradient-end) 0 0 .25rem;
     padding: 0 0.75rem;
 
     &:active {
@@ -151,7 +153,7 @@ select[multiple] {
  */
 .text-button-primary {
     color: white;
-    --border-color: @logo_orange_dark;
+    --gradient-border-color: @logo_orange_dark;
     --gradient-start: @logo_orange_light;
     --gradient-mid: @logo_orange;
     --gradient-end: @logo_orange;
@@ -164,7 +166,7 @@ select[multiple] {
  */
 .text-button-danger {
     color: white;
-    --border-color: #950015;
+    --gradient-border-color: #950015;
     --gradient-start: #da1732;
     --gradient-mid: #ba001a;
     --gradient-end: #ba001a;
