@@ -15,6 +15,7 @@ import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
+import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
@@ -68,10 +69,10 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             </div>
         </header>
         <Tabs>
-            <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD}>New</AllLink>
-            <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE}>Favorite</AllLink>
-            <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL}>All</AllLink>
-            <InventoryLink title="Manage Feeds">
+            <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
+            <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
+            <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL} className="no-underline">All</AllLink>
+            <InventoryLink title="Manage Feeds" className="no-underline">
                 <EditIcon aria-label="Manage Feeds" />
             </InventoryLink>
         </Tabs>
@@ -105,10 +106,10 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             </div>
         </header>
         <Tabs>
-            <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-            <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-            <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-            <InventoryFeedLink feedId={feedId} title="Edit Feed">
+            <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
+            <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
+            <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
+            <InventoryFeedLink feedId={feedId} title="Edit Feed" className="no-underline">
                 <EditIcon aria-label="Edit Feed" />
             </InventoryFeedLink>
         </Tabs>
@@ -142,10 +143,10 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             </div>
         </header>
         <Tabs>
-            <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD}>New</LabelLink>
-            <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE}>Favorite</LabelLink>
-            <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL}>All</LabelLink>
-            <InventoryLabelLink labelId={labelId} title="Edit Label">
+            <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
+            <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
+            <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
+            <InventoryLabelLink labelId={labelId} title="Edit Label" className="no-underline">
                 <EditIcon aria-label="Edit Label" />
             </InventoryLabelLink>
         </Tabs>

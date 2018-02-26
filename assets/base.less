@@ -6,6 +6,8 @@
 
 :root {
     --layout-max-width: 50rem;
+    --text-color: @content_text_color;
+    --background-color: @content_background_color;
 }
 .layout-wide {
     --layout-max-width: none;
@@ -17,25 +19,30 @@ html {
     margin: 0;
     padding: 0;
     overflow-y: scroll;
+    color: var(--text-color);
+    background: var(--background-color);
 
-    color: @content_text_color;
-    background: @content_background_color;
     a {
-        color: @content_text_color;
+        color: var(--text-color);
+        --underline-color: rgb(28, 140, 199);
+        text-decoration-line: none;
+    }
+    a:not(.no-underline),
+    a .underline {
         text-decoration-line: underline;
-        text-decoration-color: rgb(28, 140, 199);
+        text-decoration-color: var(--underline-color);
     }
     a[role=button] {
         text-decoration-line: none;
     }
     a:visited {
-        text-decoration-color: rgb(199, 68, 28);
+        --underline-color: rgb(199, 68, 28);
     }
     a:visited:not([role=button]) {
-        color: @content_text_color;
+        color: var(--text-color);
     }
     a:active {
-        text-decoration-color: rgb(185, 28, 199);
+        --underline-color: rgb(185, 28, 199);
     }
     a:link[aria-disabled=true],
     a:visited[aria-disabled=true] {
@@ -78,8 +85,9 @@ h1 {
     transition: border-color 0.05s;
 
     &:focus {
-        --border-color: @focus_blue_dark;
-        --backgrond-color: white;
+        --border-color: @focus_blue;
+        --background-color: white;
+        --gradient-border-color: @focus_blue_dark;
         --gradient-start: @focus_blue_light;
         --gradient-mid: @focus_blue;
         --gradient-end: @focus_blue;
@@ -120,15 +128,16 @@ select[multiple] {
 .text-button {
     .form-item-layout;
     .form-item-focusable;
+    cursor: pointer;
 
     --gradient-start: white;
     --gradient-mid: gray;
     --gradient-end: gray;
 
-    border-color: var(--border-color);
-    text-shadow: var(--border-color) 0 0 .025rem; /* bump contrast */
+    border-color: var(--gradient-border-color);
+    text-shadow: var(--gradient-border-color) 0 0 .025rem; /* bump contrast */
     background: linear-gradient(to bottom, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
-    box-shadow: inset var(--gradient-start) 0 0 .25rem;
+    box-shadow: inset var(--gradient-end) 0 0 .25rem;
     padding: 0 0.75rem;
 
     &:active {
@@ -144,7 +153,7 @@ select[multiple] {
  */
 .text-button-primary {
     color: white;
-    --border-color: @logo_orange_dark;
+    --gradient-border-color: @logo_orange_dark;
     --gradient-start: @logo_orange_light;
     --gradient-mid: @logo_orange;
     --gradient-end: @logo_orange;
@@ -157,7 +166,7 @@ select[multiple] {
  */
 .text-button-danger {
     color: white;
-    --border-color: #950015;
+    --gradient-border-color: #950015;
     --gradient-start: #da1732;
     --gradient-mid: #ba001a;
     --gradient-end: #ba001a;
@@ -228,42 +237,6 @@ select[multiple] {
     }
 }
 
-.bar-inset {
-    /* This is a mockup so it is hidden for now. */
-    visibility: hidden;
-
-    flex: 1 0 0;
-    min-width: 0; /* allow shrinking below content size */
-
-    border: 2px solid rgb(167, 167, 167);
-    color: rgb(40, 40, 40);
-
-    padding: 0 .5rem;
-    margin: 0.5rem 0;
-    /*
-    box-shadow: inset .01rem .01rem .25rem rgba(0, 0, 0, 0.25);
-    */
-    background: white;
-
-    justify-content: start;
-
-    .icon {
-        flex: 0 0 1.3rem;
-        margin: 0 0.5rem 0 0;
-    }
-
-    h1 {
-        flex: 1 1 auto;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font: inherit;
-        margin: 0 0.5rem 0 0;
-    }
-}
-
-
 /* Mostly used for the login page. */
 form.small-form {
     display: block;
@@ -318,21 +291,5 @@ footer {
     padding: 3em 0.25em;
     text-align: center;
     background: @background_color;
-    color: lighten(@text_color, 40%);
-
-    a {
-        color: @text_color;
-        text-decoration-line: underline;
-    }
-    a[role=button] {
-        text-decoration-line: none;
-    }
-    a:visited:not([role=button]) {
-        color: darken(@text_color, 20%);
-    }
-    a:link[aria-disabled=true],
-    a:visited[aria-disabled=true] {
-        text-decoration-line: none;
-        cursor: default;
-    }
+    color: @text_color;
 }

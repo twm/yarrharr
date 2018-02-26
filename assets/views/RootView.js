@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { connect } from 'react-redux';
 import { Logo, LabelIcon, FeedIcon } from 'widgets/icons.js';
 import Heart from 'icons/heart-empty.svg';
+import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink, RootLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
@@ -18,17 +20,11 @@ class RootView extends React.PureComponent {
         const labelList = labelsByTitle(this.props).filter(l => l.unreadCount !== 0);
         const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
         return <React.Fragment>
-            <GlobalBar>
-                <div className="bar-inset">
-                    <div className="text">
-                        <h1>Yarrharr Feed Reader</h1>
-                    </div>
-                </div>
-            </GlobalBar>
+            <GlobalBar />
             <Tabs>
-                <RootLink disabled={true}>Home</RootLink>
-                <InventoryLink>Manage Feeds</InventoryLink>
-                <AddFeedLink>Add Feed</AddFeedLink>
+                <RootLink disabled={true} className="no-underline">Home</RootLink>
+                <InventoryLink className="no-underline">Manage Feeds</InventoryLink>
+                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <div className="root">
                 <ul className="root-list">
@@ -39,9 +35,10 @@ class RootView extends React.PureComponent {
                     {labelList.length
                         ? labelList.map((label) =>
                             <li key={"label-" + label.id}>
-                                <LabelLink labelId={label.id} filter={FILTER_UNREAD}>
+                                <LabelLink labelId={label.id} filter={FILTER_UNREAD} className="no-underline">
                                     <LabelIcon className="icon" aria-hidden={true} />
-                                    <span className="text">{label.text}</span>
+                                    <span className="text underline">{label.text}</span>
+                                    <Count value={label.unreadCount} />
                                 </LabelLink>
                             </li>)
                         : null}
@@ -49,9 +46,10 @@ class RootView extends React.PureComponent {
                     {feedList.length
                         ? feedList.map((feed) =>
                             <li key={"feed-" + feed.id}>
-                                <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>
+                                <FeedLink feedId={feed.id} filter={FILTER_UNREAD} className="no-underline">
                                     <FeedIcon className="icon" aria-hidden={true} />
-                                    <span className="text">{feed.text || feed.title}</span>
+                                    <span className="text underline">{feed.text || feed.title}</span>
+                                    <Count value={feed.unreadCount} />
                                 </FeedLink>
                             </li>)
                         : <li>No feeds.  Add one?</li>}

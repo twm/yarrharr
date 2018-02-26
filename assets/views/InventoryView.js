@@ -7,6 +7,7 @@ import Header from 'widgets/Header.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
+import { Count } from 'widgets/Count.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
@@ -37,9 +38,9 @@ export class InventoryView extends React.PureComponent {
         return <React.Fragment>
             <GlobalBar/>
             <Tabs>
-                <RootLink>Home</RootLink>
-                <InventoryLink disabled={true}>Manage Feeds</InventoryLink>
-                <AddFeedLink>Add Feed</AddFeedLink>
+                <RootLink className="no-underline">Home</RootLink>
+                <InventoryLink disabled={true} className="no-underline">Manage Feeds</InventoryLink>
+                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <Centered>
                 {this.renderFeeds(feedList, labelList)}
@@ -150,8 +151,7 @@ class InventoryItem extends React.PureComponent {
                     return <Label key={labelId} feedId={feed.id} label={label} />;
                 })
                 : "No labels"}</div>
-            <div><FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.unreadCount} new</FeedLink></div>
-            <div><FeedLink feedId={feed.id} filter={FILTER_FAVE}>{feed.faveCount} marked favorite</FeedLink></div>
+            <div>Last checked {feed.checked || "never"}</div>
             <div>Last updated {feed.updated || "never"}</div>
             {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
             <form onSubmit={this.handleSubmit}>
@@ -222,10 +222,10 @@ export class ManageFeedView extends React.PureComponent {
                 </div>
             </header>
             <Tabs>
-                <FeedLink feedId={feedId} filter={FILTER_UNREAD}>New</FeedLink>
-                <FeedLink feedId={feedId} filter={FILTER_FAVE}>Favorite</FeedLink>
-                <FeedLink feedId={feedId} filter={FILTER_ALL}>All</FeedLink>
-                <InventoryFeedLink disabled={true} className="square" feedId={feedId} title="Edit Feed">
+                <FeedLink feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
+                <FeedLink feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
+                <FeedLink feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
+                <InventoryFeedLink disabled={true} feedId={feedId} title="Edit Feed" className="no-underline">
                     <EditIcon aria-label="Edit Feed" />
                 </InventoryFeedLink>
             </Tabs>
@@ -290,15 +290,11 @@ export const ConnectedManageLabelView = connect(state => state, {
 export class AddFeedView extends React.PureComponent {
     render() {
         return <React.Fragment>
-            <GlobalBar layout={this.props.layout} onSetLayout={this.props.onSetLayout}>
-                <div className="bar-inset">
-                    <h1>Add Feed</h1>
-                </div>
-            </GlobalBar>
+            <GlobalBar />
             <Tabs>
-                <RootLink>Home</RootLink>
-                <InventoryLink>Manage Feeds</InventoryLink>
-                <AddFeedLink disabled={true}>Add Feed</AddFeedLink>
+                <RootLink className="no-underline">Home</RootLink>
+                <InventoryLink className="no-underline">Manage Feeds</InventoryLink>
+                <AddFeedLink disabled={true} className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <Centered>
                 <h1>Add Feed</h1>

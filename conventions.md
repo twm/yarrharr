@@ -68,6 +68,24 @@ For example:
 
 The narrow width may become user-configurable some day.
 
+## Links
+
+A regular link like this will display with an underline:
+
+    <a href="#">...</a>
+
+If the ``<a>`` tag is serving as a button rather than a link it will not be underlined:
+
+    <a role="button" href="#">...</a>
+
+To disable the underline use the ``no-underline`` class.
+The ``underline`` class can be used to re-add the underline in a specific location:
+
+    <a class="no-underline">
+        <svg class="icon" width="1em" height="1em" />
+        <span class="underline">...</a>
+    </a>
+
 ## Icons
 
 Icons have the form:
@@ -80,7 +98,7 @@ Parts of the icon may be assigned classes to allow individual targeting.
 There are two icon definition styles:
 
 1. Write a React component in `assets/widgets/icons.js`.
-   Really simple, geometric icons are often easiest to write by hand, or generate programatically.
+   Really simple, geometric icons are often easiest to write by hand, or generate programmatically.
    The [live JSX editor](https://reactjs.org/) on reactjs.org is handy for this.
 
 2. Author the icon in Inkscape.
