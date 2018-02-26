@@ -28,6 +28,7 @@ setup(
     entry_points={
         'console_scripts': [
             'yarrharr=yarrharr.scripts.yarrharr:main',
+            'yarrharr-fetch=yarrharr.scripts.fetch:main',
         ],
     },
     classifiers=[
