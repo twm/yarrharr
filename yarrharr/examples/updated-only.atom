@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     This file is a minified version of https://rachelbythebay.com/w/atom.xml
+     which is a mostly-valid Atom feed which only has <updated> dates, not
+     <published> dates.
+-->
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Feed</title>
+  <link href="https://example.com/w/" />
+  <id>tag:example.com,feed</id>
+  <updated>2017-03-17T00:00:00Z</updated>
+  <author>
+    <name>author</name>
+  </author>
+  <entry>
+    <title>Post 1</title>
+    <link href="https://example.com/w/2017/03/17/1/" />
+    <id>tag:example.com,2017-03-17:1</id>
+    <updated>2017-03-17T00:00:00Z</updated>
+    <content type="html" xml:lang="en"><![CDATA[1]]></content>
+  </entry>
+  <entry>
+    <title>Post 2</title>
+    <link href="https://example.com/w/2013/01/01/2/" />
+    <id>tag:example.com,2013-01-01:2</id>
+    <updated>2013-01-01T00:00:00Z</updated>
+    <content type="html" xml:lang="en"><![CDATA[2]]></content>
+  </entry>
+</feed>
