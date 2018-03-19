@@ -68,6 +68,7 @@ def sanitize_html(html):
     tree = html5lib.parseFragment(html)
     serializer = html5lib.serializer.HTMLSerializer(sanitize=True)
     source = html5lib.getTreeWalker('etree')(tree)
+    source = _strip_attrs(source)
     source = _ReplaceObjectFilter(source)
     source = _ElideFilter(source)
     source = _ReplaceYoutubeEmbedFilter(source)
@@ -75,6 +76,19 @@ def sanitize_html(html):
     source = _adjust_links(source)
     source = _video_attrs(source)
     return serializer.render(source)
+
+
+def _strip_attrs(source):
+    """
+    Strip id, style, and class attributes as they may break the layout.
+    """
+    for token in source:
+        if token['type'] == 'StartTag':
+            attrs = token['data']
+            attrs.pop((None, 'id'), None)
+            attrs.pop((None, 'class'), None)
+            attrs.pop((None, 'style'), None)
+        yield token
 
 
 class _ElideFilter(BaseFilter):
