@@ -40,6 +40,7 @@ from twisted.web import http, static
 from twisted.web.resource import ErrorPage, IResource
 from treq.testing import StubTreq
 from pkg_resources import resource_filename, resource_string
+import pytz
 from zope.interface import implementer
 
 from ..models import Feed
@@ -413,6 +414,24 @@ class FetchTests(SynchronousTestCase):
         outcome = self.successResultOf(poll_feed(feed, client))
 
         self.assertEqual(BozoError(code=200, content_type=u'text/html', error=u'Unknown error'), outcome)
+
+    def test_updated_only(self):
+        """
+        An Atom feed which only has entry dates from ``<updated>`` tags is
+        interpreted as having articles with the dates according to the
+        ``<updated>`` tags.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/updated-only.atom')
+        client = StubTreq(StaticResource(xml))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual([
+            datetime(2017, 3, 17, tzinfo=pytz.UTC),
+            datetime(2013, 1, 1, tzinfo=pytz.UTC),
+        ], [article.date for article in outcome.articles])
 
 
 class MaybeUpdatedTests(DjangoTestCase):
