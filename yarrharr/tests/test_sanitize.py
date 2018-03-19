@@ -72,6 +72,28 @@ class HtmlToTextTests(unittest.TestCase):
 
 
 class SanitizeHtmlTests(unittest.TestCase):
+    def test_id_attr_dropped(self):
+        """
+        The ``id`` attribute is dropped as it might conflict with IDs used in
+        Yarrharr's CSS, producing layout breakage.
+        """
+        self.assertEqual('<p>.', sanitize_html('<p id="top">.'))
+
+    def test_class_attr_dropped(self):
+        """
+        The ``class`` attribute is dropped as it might conflict with classes
+        used in Yarrharr's CSS, producing layout breakage.
+        """
+        self.assertEqual('<p>.', sanitize_html('<p class="float-right">.'))
+
+    def test_style_attr_dropped(self):
+        """
+        The ``style`` attribute is dropped as it may conflict with Yarrharr's
+        styles. In particular, it may assume a light or dark background color
+        when setting text color, or contain ``float`` declarations.
+        """
+        self.assertEqual('<p>.', sanitize_html('<p style="float: left">.'))
+
     def test_script_dropped(self):
         """
         The content of a ``<script>`` tag is dropped, silently. Sometimes feeds
