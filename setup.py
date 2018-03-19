@@ -1,4 +1,9 @@
+import sys
 from setuptools import setup, find_packages
+
+if sys.version_info.major == 2:
+    sys.stderr.write('Yarrharr requires Python 3\n')
+    sys.exit(1)
 
 setup(
     name='yarrharr',
