@@ -548,7 +548,7 @@ def extract_date(entry):
     """
     # Avoid triggering a deprecation warning by checking for updated_parsed
     # before getting it.
-    if 'update_parsed' in entry:
+    if 'updated_parsed' in entry:
         update = entry.get('updated_parsed')
         if update:
             return as_datetime(update)
