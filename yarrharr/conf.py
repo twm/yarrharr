@@ -163,7 +163,6 @@ def read_yarrharr_conf(files, namespace):
         # loopback interface.
         context_processors.append('django.template.context_processors.debug')
         namespace['INTERNAL_IPS'] = ['127.0.0.1']
-    context_processors.append('django.contrib.messages.context_processors.messages')
 
     namespace['TEMPLATES'] = [{
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -180,7 +179,6 @@ def read_yarrharr_conf(files, namespace):
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     )
 
@@ -190,7 +188,6 @@ def read_yarrharr_conf(files, namespace):
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
-        'django.contrib.messages',  # Used by yarr.
         'django.contrib.staticfiles',
         'yarrharr',
     )

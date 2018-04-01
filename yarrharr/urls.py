@@ -55,5 +55,4 @@ urlpatterns = (
     url(r'^logout/$', auth_views.logout_then_login, name='logout'),
     url(r'^about/$', yarrharr.views.about, name='about'),
     url(r'^robots\.txt$', yarrharr.views.robots_txt, name='robots'),
-    url(r'^debug/messages$', yarrharr.views.debug_messages, name='debug-messages'),
 )
