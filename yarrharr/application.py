@@ -29,7 +29,9 @@ Yarrharr production server via Twisted Web
 """
 
 import sys
+import json
 import logging
+from pprint import pformat
 
 from django.conf import settings
 from twisted.logger import globalLogBeginner
@@ -47,6 +49,25 @@ from .wsgi import application
 
 
 log = Logger()
+
+
+class CSPReportLogger(Resource):
+    isLeaf = True
+
+    def render(self, request):
+        if request.method != 'POST':
+            request.setResponseCode(405)
+            request.setHeader('Allow', 'POST')
+            return b'HTTP 405: Method Not Allowed\n'
+        if request.requestHeaders.getRawHeaders('Content-Type') != ['application/csp-report']:
+            request.setResponseCode(415)
+            return b'HTTP 415: Only application/csp-report requests are accepted\n'
+        # Process the JSON text produced per
+        # https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
+        report = json.load(request.content)
+        log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
+                  userAgent=request.requestHeaders.getRawHeaders('User-Agent'),
+                  report=pformat(report))
 
 
 class FallbackResource(Resource):
@@ -85,7 +106,7 @@ class Root(FallbackResource):
 
         FallbackResource.__init__(self, wsgi)
 
-        # Install our static file handlers.
+        self.putChild(b'csp-report', CSPReportLogger())
         self.putChild(b'static', File(settings.STATIC_ROOT))
 
     def getChildWithDefault(self, name, request):
