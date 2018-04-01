@@ -15,6 +15,7 @@ webpack-prod:
 	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
 
 release: webpack-prod
+	rm -rf build/lib build/bdist.*  # Work around https://github.com/pypa/wheel/issues/147
 	python3 setup.py sdist bdist_wheel
 
 .PHONY: devserver
