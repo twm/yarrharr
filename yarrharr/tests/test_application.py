@@ -39,14 +39,21 @@ from ..application import TwistedLoggerLogHandler, formatForSystemd
 
 
 class RootTests(SynchronousTestCase):
-    def test_referrer_policy(self):
+    def mkTreq(self):
         """
-        The ``Referrer-Policy: no-referrer`` header is injected into every response.
+        Construct a :class:`treq.testing.StubTreq` which wraps
+        a :class:`yarrharr.application.Root` resource.
         """
         reactor = MemoryReactorClock()  # unused
         threadpool = ThreadPool(minthreads=0)  # unused
         self.addCleanup(threadpool.stop)
-        treq = StubTreq(Root(reactor, threadpool))
+        return StubTreq(Root(reactor, threadpool))
+
+    def test_referrer_policy(self):
+        """
+        The ``Referrer-Policy: no-referrer`` header is injected into every response.
+        """
+        treq = self.mkTreq()
 
         # This test runs against /static/ as it is a pure-Twisted codepath. Any
         # route handled by Django will try to run stuff in a threadpool, which
@@ -54,9 +61,20 @@ class RootTests(SynchronousTestCase):
         # Someday the test suite may need to be run with Trial so that
         # twisted.trial.unittest.TestCase's real reactor works, but we'll avoid
         # that for now.
-        d = treq.get('http://127.0.0.1:8888/static/')
-        response = self.successResultOf(d)
+        response = self.successResultOf(treq.get('http://127.0.0.1:8888/static/'))
+
         self.assertEqual(['no-referrer'], response.headers.getRawHeaders('Referrer-Policy'))
+
+    def test_x_content_type_options(self):
+        """
+        The ``X-Content-Type-Options: nosniff`` header is injected into every
+        response.
+        """
+        treq = self.mkTreq()
+
+        response = self.successResultOf(treq.get('http://127.0.0.1:8888/static/'))
+
+        self.assertEqual(['nosniff'], response.headers.getRawHeaders('X-Content-Type-Options'))
 
 
 class FormatForSystemdTests(SynchronousTestCase):
