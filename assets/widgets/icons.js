@@ -13,7 +13,7 @@ export function ArrowLeftIcon(props) {
 }
 
 export function ArrowRightIcon(props) {
-    return <ArrowLeftIcon {...props} style={STYLE_180} />;
+    return <ArrowLeftIcon className="icon icon-180" {...props} />;
 }
 
 // FIXME this isn't really an icon, so it shouldn't be in this file.
