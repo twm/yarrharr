@@ -80,13 +80,21 @@ class Root(FallbackResource):
     """
     Root of the Yarrharr URL hierarchy.
     """
-    def __init__(self, reactor):
-        wsgi = WSGIResource(reactor, reactor.getThreadPool(), application)
+    def __init__(self, reactor, threadpool):
+        wsgi = WSGIResource(reactor, threadpool, application)
 
         FallbackResource.__init__(self, wsgi)
 
         # Install our static file handlers.
         self.putChild(b'static', File(settings.STATIC_ROOT))
+
+    def getChildWithDefault(self, name, request):
+        # Disable the Referer header in some browsers. This is complemented by
+        # the injection of rel="noopener noreferrer" on all links by the HTML
+        # sanitizer.
+        request.setHeader(b'Referrer-Policy', b'no-referrer')
+
+        return super().getChildWithDefault(name, request)
 
 
 def updateFeeds(reactor, max_fetch=5):
@@ -125,7 +133,7 @@ def formatForSystemd(event):
     if "log_failure" in event:
         try:
             s += "\n" + event["log_failure"].getTraceback().rstrip("\n")
-        except:
+        except:  # noqa
             pass
 
     prefix = _txLevelToPriority.get(event.get("log_level")) or "<6>"
@@ -172,7 +180,7 @@ def run():
 
     log.info("Yarrharr {version} starting", version=__version__)
 
-    factory = Site(Root(reactor), logPath=None)
+    factory = Site(Root(reactor, reactor.getThreadPool()), logPath=None)
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 
