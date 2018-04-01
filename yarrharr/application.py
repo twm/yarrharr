@@ -116,6 +116,7 @@ class Root(FallbackResource):
         # the injection of rel="noopener noreferrer" on all links by the HTML
         # sanitizer.
         request.setHeader(b'Referrer-Policy', b'no-referrer')
+        request.setHeader(b'X-Content-Type-Options', b'nosniff')
 
         request.setHeader(b'Content-Security-Policy',
                           # b"default-src 'none'; "
