@@ -28,10 +28,11 @@
 Yarrharr production server via Twisted Web
 """
 
-import sys
+import io
 import json
 import logging
 from pprint import pformat
+import sys
 
 from django.conf import settings
 from twisted.logger import globalLogBeginner
@@ -55,7 +56,7 @@ class CSPReportLogger(Resource):
     isLeaf = True
 
     def render(self, request):
-        if request.method != 'POST':
+        if request.method != b'POST':
             request.setResponseCode(405)
             request.setHeader('Allow', 'POST')
             return b'HTTP 405: Method Not Allowed\n'
@@ -64,10 +65,11 @@ class CSPReportLogger(Resource):
             return b'HTTP 415: Only application/csp-report requests are accepted\n'
         # Process the JSON text produced per
         # https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
-        report = json.load(request.content)
+        report = json.load(io.TextIOWrapper(request.content, encoding='utf-8'))['csp-report']
         log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
-                  userAgent=request.requestHeaders.getRawHeaders('User-Agent'),
+                  userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent')),
                   report=pformat(report))
+        return b''  # Browser ignores the response.
 
 
 class FallbackResource(Resource):
