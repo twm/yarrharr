@@ -132,6 +132,8 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.auth.middleware.AuthenticationMiddleware',
                 'django.middleware.clickjacking.XFrameOptionsMiddleware',
             ),
+            'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
+            'SESSION_COOKIE_HTTPONLY': True,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -203,6 +205,8 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.auth.middleware.AuthenticationMiddleware',
                 'django.middleware.clickjacking.XFrameOptionsMiddleware',
             ),
+            'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
+            'SESSION_COOKIE_HTTPONLY': True,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
