@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
+import { Title } from 'widgets/Title.jsm';
 import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { Tabs } from 'widgets/Tabs.js';
@@ -37,6 +38,7 @@ export class InventoryView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
             <GlobalBar/>
+            <Title title="Manage Feeds" /g>
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
                 <InventoryLink disabled={true} className="no-underline">Manage Feeds</InventoryLink>
@@ -210,6 +212,7 @@ export class ManageFeedView extends React.PureComponent {
         const feed = this.props.feedsById[feedId];
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
+            <Title title={"Edit " + (feed.text || feed.title || feed.url)} />
             <GlobalBar />
             <header className="list-header">
                 <div className="list-header-inner bar">
@@ -291,6 +294,7 @@ export class AddFeedView extends React.PureComponent {
     render() {
         return <React.Fragment>
             <GlobalBar />
+            <Title title="Add Feed" /g>
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
                 <InventoryLink className="no-underline">Manage Feeds</InventoryLink>
