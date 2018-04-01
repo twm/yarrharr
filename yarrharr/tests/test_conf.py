@@ -120,7 +120,6 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
-                        'django.contrib.messages.context_processors.messages',
                     ],
                 },
             }],
@@ -131,7 +130,6 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.sessions.middleware.SessionMiddleware',
                 'django.middleware.csrf.CsrfViewMiddleware',
                 'django.contrib.auth.middleware.AuthenticationMiddleware',
-                'django.contrib.messages.middleware.MessageMiddleware',
                 'django.middleware.clickjacking.XFrameOptionsMiddleware',
             ),
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
@@ -139,7 +137,6 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
                 'django.contrib.sessions',
-                'django.contrib.messages',
                 'django.contrib.staticfiles',
                 'yarrharr',
             ),
@@ -194,7 +191,6 @@ class ConfTests(unittest.TestCase):
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
                         'django.template.context_processors.debug',
-                        'django.contrib.messages.context_processors.messages',
                     ],
                 },
             }],
@@ -205,7 +201,6 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.sessions.middleware.SessionMiddleware',
                 'django.middleware.csrf.CsrfViewMiddleware',
                 'django.contrib.auth.middleware.AuthenticationMiddleware',
-                'django.contrib.messages.middleware.MessageMiddleware',
                 'django.middleware.clickjacking.XFrameOptionsMiddleware',
             ),
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
@@ -213,7 +208,6 @@ class ConfTests(unittest.TestCase):
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
                 'django.contrib.sessions',
-                'django.contrib.messages',
                 'django.contrib.staticfiles',
                 'yarrharr',
             ),

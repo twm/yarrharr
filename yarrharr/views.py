@@ -27,7 +27,6 @@
 import simplejson
 import django
 import feedparser
-from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render
@@ -38,7 +37,6 @@ from twisted.logger import Logger
 
 import yarrharr
 from yarrharr.models import Article
-from yarrharr.decorators import debug_only
 
 
 log = Logger()
@@ -453,22 +451,3 @@ def robots_txt(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed(['HEAD', 'GET'])
     return HttpResponse(b'', content_type='text/plain')
-
-
-@debug_only
-@login_required
-def debug_messages(request):
-    """
-    Page which spits out a bunch of messages for debugging the styles.
-    """
-    messages.set_level(request, messages.DEBUG)
-    messages.debug(request, 'Hello, I am a debug message.')
-    messages.info(request, 'FYI, I am an info message.')
-    messages.success(request, 'Score, I am a success message.')
-    messages.warning(request, 'Uh-oh, I am a warning message.')
-    messages.error(request, 'Oh no, I am an error message.')
-
-    return render(request, 'debug/generic.html', {
-        'title': 'Messages Debug',
-        'text': 'This page helps debug styles for the Django messages app',
-    })
