@@ -67,7 +67,7 @@ class CSPReportLogger(Resource):
         # https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
         report = json.load(io.TextIOWrapper(request.content, encoding='utf-8'))['csp-report']
         log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
-                  userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent')),
+                  userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent', [])),
                   report=pformat(report))
         return b''  # Browser ignores the response.
 

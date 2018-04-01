@@ -24,6 +24,7 @@
 # OpenSSL used as well as that of the covered work.
 
 from io import StringIO
+import json
 import logging
 
 from treq.testing import StubTreq
@@ -75,6 +76,31 @@ class RootTests(SynchronousTestCase):
         response = self.successResultOf(treq.get('http://127.0.0.1:8888/static/'))
 
         self.assertEqual(['nosniff'], response.headers.getRawHeaders('X-Content-Type-Options'))
+
+    def test_csp_reporter(self):
+        """
+        The ``/csp-report`` endpoint should accept and log a Content Security
+        Policy report.
+        """
+        treq = self.mkTreq()
+
+        response = self.successResultOf(treq.post('http://127.0.0.1:8888/csp-report/', data=json.dumps({
+            'csp-report': {
+                'blocked-uri': 'self',
+                'document-uri': 'http://127.0.0.1:8888/feed/243/unread/',
+                'line-number': 26,
+                'original-policy': 'img-src *; script-src http://127.0.0.1:8888; style-src '
+                                   "http://127.0.0.1:8888; frame-ancestors 'none'; "
+                                   'form-action http://127.0.0.1:8888; report-uri '
+                                   'http://127.0.0.1:8888/csp-report',
+                'referrer': '',
+                'script-sample': '\n        var props = {"feedsById": {"1":...',
+                'source-file': 'http://127.0.0.1:8888/feed/243/unread/',
+                'violated-directive': 'script-src',
+            },
+        }).encode(), headers={'Content-Type': ['application/csp-report']}))
+
+        self.assertEqual(200, response.code)
 
 
 class FormatForSystemdTests(SynchronousTestCase):
