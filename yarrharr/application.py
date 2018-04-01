@@ -115,6 +115,15 @@ class Root(FallbackResource):
         # sanitizer.
         request.setHeader(b'Referrer-Policy', b'no-referrer')
 
+        request.setHeader(b'Content-Security-Policy',
+                          # b"default-src 'none', "
+                          b"img-src *, "
+                          b"script-src 'self' 'unsafe-inline' 'unsafe-eval', "
+                          b"style-src 'self' 'unsafe-inline', "
+                          b"frame-ancestors 'none', "
+                          b"form-action 'self', "
+                          b"report-uri '/csp-report'")
+
         return super().getChildWithDefault(name, request)
 
 
