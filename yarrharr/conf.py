@@ -182,6 +182,9 @@ def read_yarrharr_conf(files, namespace):
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     )
 
+    namespace['SESSION_ENGINE'] = 'django.contrib.sessions.backends.signed_cookies'
+    namespace['SESSION_COOKIE_HTTPONLY'] = True
+
     namespace['WSGI_APPLICATION'] = 'yarrharr.wsgi.application'
 
     namespace['INSTALLED_APPS'] = (
