@@ -118,13 +118,13 @@ class Root(FallbackResource):
         request.setHeader(b'Referrer-Policy', b'no-referrer')
 
         request.setHeader(b'Content-Security-Policy',
-                          # b"default-src 'none', "
-                          b"img-src *, "
-                          b"script-src 'self' 'unsafe-inline', "
-                          b"style-src 'self', "
-                          b"frame-ancestors 'none', "
-                          b"form-action 'self', "
-                          b"report-uri '/csp-report'")
+                          # b"default-src 'none'; "
+                          b"img-src *; "
+                          b"script-src 'self'; "
+                          b"style-src 'self'; "
+                          b"frame-ancestors 'none'; "
+                          b"form-action 'self'; "
+                          b"report-uri /csp-report")
 
         return super().getChildWithDefault(name, request)
 
