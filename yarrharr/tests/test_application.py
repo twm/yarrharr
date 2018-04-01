@@ -26,12 +26,37 @@
 from io import StringIO
 import logging
 
+from treq.testing import StubTreq
 from twisted.logger import Logger, LogPublisher, FileLogObserver
 from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.failure import Failure
+from twisted.python.threadpool import ThreadPool
+from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
 
+from ..application import Root
 from ..application import TwistedLoggerLogHandler, formatForSystemd
+
+
+class RootTests(SynchronousTestCase):
+    def test_referrer_policy(self):
+        """
+        The ``Referrer-Policy: no-referrer`` header is injected into every response.
+        """
+        reactor = MemoryReactorClock()  # unused
+        threadpool = ThreadPool(minthreads=0)  # unused
+        self.addCleanup(threadpool.stop)
+        treq = StubTreq(Root(reactor, threadpool))
+
+        # This test runs against /static/ as it is a pure-Twisted codepath. Any
+        # route handled by Django will try to run stuff in a threadpool, which
+        # requires a real reactor (or at least a much more complete fake).
+        # Someday the test suite may need to be run with Trial so that
+        # twisted.trial.unittest.TestCase's real reactor works, but we'll avoid
+        # that for now.
+        d = treq.get('http://127.0.0.1:8888/static/')
+        response = self.successResultOf(d)
+        self.assertEqual(['no-referrer'], response.headers.getRawHeaders('Referrer-Policy'))
 
 
 class FormatForSystemdTests(SynchronousTestCase):
