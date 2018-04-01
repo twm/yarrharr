@@ -179,7 +179,7 @@ class ConfTests(unittest.TestCase):
             'USE_L10N': True,
             'USE_TZ': True,
             'TIME_ZONE': 'UTC',
-            'STATIC_ROOT': 'static/',
+            'STATIC_ROOT': 'yarrharr/static/',
             'STATIC_URL': '/static/',
             'STATICFILES_FINDERS': (
                 'django.contrib.staticfiles.finders.AppDirectoriesFinder',),
