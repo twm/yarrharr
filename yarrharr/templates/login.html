@@ -14,7 +14,7 @@
 
         <p class=actions>
             <input class="text-button text-button-primary" type=submit value="Login">
-            <input type=hidden value="{{ next }}">
+            <input name="next" type=hidden value="{{ next }}">
             {% csrf_token %}
     </form>
 </div>
