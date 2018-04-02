@@ -56,7 +56,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const feedCount = Object.keys(feedsById).length;
     return <React.Fragment>
         <GlobalBar />
-        <Title title="All Feeds" />
+        <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
         <header className="list-header">
             <div className="list-header-inner bar">
                 <AllLink className="expand" filter={snapshot.filter}>
@@ -91,7 +91,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Title title={feed.text || feed.title || feed.url} />
+        <Title title={articleTitle(articlesById, articleId, feed.text || feed.title || feed.url)} />
         <header className="list-header">
             <div className="list-header-inner bar">
                 <FeedLink className="expand" disabled={!articleId} feedId={feedId} filter={snapshot.filter}>
@@ -129,7 +129,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Title title={label.text} />
+        <Title title={articleTitle(articlesById, articleId, label.text)} />
         <header className="list-header">
             <div className="list-header-inner bar">
                 <LabelLink className="expand" disabled={!articleId} labelId={labelId} filter={snapshot.filter}>
@@ -382,4 +382,11 @@ function renderArticleList(articleId, articleIds, articlesById, feedsById, onMar
         elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
     }
     return elements;
+}
+
+function articleTitle(articlesById, articleId, suffix) {
+    if (articleId && articlesById[articleId]) {
+        return (articlesById[articleId].title || "Untitled") + " - " + suffix;
+    }
+    return suffix;
 }
