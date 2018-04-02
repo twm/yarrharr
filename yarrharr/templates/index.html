@@ -2,7 +2,5 @@
 
 {% block content %}
     <div id="app"></div>
-    <script>
-        var props = {{ props|safe }};
-    </script>
+    <script id="props" type="application/json">{{ props|safe }}</script>
 {% endblock %}
