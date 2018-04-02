@@ -115,6 +115,10 @@ class CSPReportLogger(Resource):
         # Process the JSON text produced per
         # https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
         report = CSPReport.fromJSON(json.load(io.TextIOWrapper(request.content, encoding='utf-8'))['csp-report'])
+        if report.sample and report.sample.startswith(';(function installGlobalHook(window) {'):
+            # This seems to be a misbehavior in some Firefox extension.
+            # I cannot reproduce it with a clean profile.
+            return b''
         self._log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
                         userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent', [])),
                         report=report)
