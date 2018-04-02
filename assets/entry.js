@@ -13,6 +13,7 @@ import syncLocation from './syncLocation.js';
 
 import { ConnectedRouter } from './router.js'
 import { ConnectedYarrharr } from './widgets/Yarrharr.js';
+import './art/icon.svg';
 import reducer from './reducer.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
