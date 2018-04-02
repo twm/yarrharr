@@ -95,7 +95,7 @@ class CSPReport(object):
             policy=data['original-policy'],
             disposition=data.get('disposition'),
             status=data.get('status-code'),
-            sample=data.get('script-sample'),
+            sample=data.get('script-sample') or None,
             source=source,
         )
 
