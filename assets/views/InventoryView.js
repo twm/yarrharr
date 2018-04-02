@@ -38,7 +38,7 @@ export class InventoryView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
             <GlobalBar/>
-            <Title title="Manage Feeds" /g>
+            <Title title="Manage Feeds" />
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
                 <InventoryLink disabled={true} className="no-underline">Manage Feeds</InventoryLink>
@@ -294,7 +294,7 @@ export class AddFeedView extends React.PureComponent {
     render() {
         return <React.Fragment>
             <GlobalBar />
-            <Title title="Add Feed" /g>
+            <Title title="Add Feed" />
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
                 <InventoryLink className="no-underline">Manage Feeds</InventoryLink>

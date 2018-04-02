@@ -71,7 +71,7 @@ function articleReducer(state = {}, action) {
 
 import { RECEIVE_FEEDS, REQUEST_REMOVE_FEED, FAIL_REMOVE_FEED } from './actions.js';
 import { REQUEST_UPDATE_FEED, FAIL_UPDATE_FEED } from './actions.js';
-function feedReducer(state = window.props.feedsById, action) {
+function feedReducer(state = null, action) {
     if (action.type === RECEIVE_FEEDS) {
         return action.feedsById;
     } else if (action.type === REQUEST_UPDATE_FEED) {
@@ -112,7 +112,7 @@ function feedReducer(state = window.props.feedsById, action) {
     }
     return state;
 }
-function feedOrderReducer(state = window.props.feedOrder, action) {
+function feedOrderReducer(state = null, action) {
     if (action.type === RECEIVE_FEEDS) {
         return action.feedOrder;
     }
@@ -270,13 +270,13 @@ function snapshotReducer(state = defaultSnapshot, action) {
     return state;
 }
 
-function labelReducer(state = window.props.labelsById, action) {
+function labelReducer(state = null, action) {
     if (action.type === RECEIVE_LABELS) {
         return action.labelsById;
     }
     return state;
 }
-function labelOrderReducer(state = window.props.labelOrder, action) {
+function labelOrderReducer(state = null, action) {
     if (action.type === RECEIVE_LABELS) {
         return action.labelOrder;
     }

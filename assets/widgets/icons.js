@@ -13,12 +13,7 @@ export function ArrowLeftIcon(props) {
 }
 
 export function ArrowRightIcon(props) {
-    return <ArrowLeftIcon {...props} style={STYLE_180} />;
-}
-
-// FIXME this isn't really an icon, so it shouldn't be in this file.
-export function Logo(props) {
-    return <img src={window.__webpack_public_path__ + require('../art/icon.svg')} width="32" height="32" {...props} />;
+    return <ArrowLeftIcon className="icon icon-180" {...props} />;
 }
 
 export function OutboundIcon(props) {

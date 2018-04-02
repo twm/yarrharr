@@ -28,9 +28,12 @@
 Yarrharr production server via Twisted Web
 """
 
-import sys
+import io
+import json
 import logging
+import sys
 
+import attr
 from django.conf import settings
 from twisted.logger import globalLogBeginner
 from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
@@ -47,6 +50,79 @@ from .wsgi import application
 
 
 log = Logger()
+
+
+@attr.s
+class CSPReport(object):
+    url = attr.ib()
+    referrer = attr.ib()
+    resource = attr.ib()
+    violatedDirective = attr.ib()
+    effectiveDirective = attr.ib()
+    source = attr.ib()
+    sample = attr.ib()
+    status = attr.ib()
+    policy = attr.ib()
+    disposition = attr.ib()
+
+    def __str__(self):
+        bits = []
+        for a in attr.fields(self.__class__):
+            value = getattr(self, a.name)
+            if value is None:
+                continue
+            bits.append('{}={!r}'.format(a.name, value))
+        return '\n'.join(bits)
+
+    @classmethod
+    def fromJSON(cls, data):
+        """
+        Construct a :class:`CSPReport` from the serialization of a violation
+        per CSP Level 3 §5.3.
+        """
+        if {"source-file", "line-number", "column-number"} <= data.keys():
+            source = "{source-file} {line-number}:{column-number}".format_map(data)
+        elif {"source-file", "line-number"} <= data.keys():
+            source = "{source-file} {line-number}".format_map(data)
+        else:
+            source = data.get("source-file")
+        return cls(
+            url=data['document-uri'],
+            referrer=data['referrer'] or None,  # Always seems to be an empty string.
+            resource=data['blocked-uri'],
+            violatedDirective=data.get('violated-directive'),
+            effectiveDirective=data.get('effective-directive'),
+            policy=data['original-policy'],
+            disposition=data.get('disposition'),
+            status=data.get('status-code'),
+            sample=data.get('script-sample') or None,
+            source=source,
+        )
+
+
+class CSPReportLogger(Resource):
+    isLeaf = True
+    _log = Logger()
+
+    def render(self, request):
+        if request.method != b'POST':
+            request.setResponseCode(405)
+            request.setHeader('Allow', 'POST')
+            return b'HTTP 405: Method Not Allowed\n'
+        if request.requestHeaders.getRawHeaders('Content-Type') != ['application/csp-report']:
+            request.setResponseCode(415)
+            return b'HTTP 415: Only application/csp-report requests are accepted\n'
+        # Process the JSON text produced per
+        # https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
+        report = CSPReport.fromJSON(json.load(io.TextIOWrapper(request.content, encoding='utf-8'))['csp-report'])
+        if report.sample and report.sample.startswith(';(function installGlobalHook(window) {'):
+            # This seems to be a misbehavior in some Firefox extension.
+            # I cannot reproduce it with a clean profile.
+            return b''
+        self._log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
+                        userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent', [])),
+                        report=report)
+        return b''  # Browser ignores the response.
 
 
 class FallbackResource(Resource):
@@ -85,7 +161,7 @@ class Root(FallbackResource):
 
         FallbackResource.__init__(self, wsgi)
 
-        # Install our static file handlers.
+        self.putChild(b'csp-report', CSPReportLogger())
         self.putChild(b'static', File(settings.STATIC_ROOT))
 
     def getChildWithDefault(self, name, request):
@@ -93,6 +169,16 @@ class Root(FallbackResource):
         # the injection of rel="noopener noreferrer" on all links by the HTML
         # sanitizer.
         request.setHeader(b'Referrer-Policy', b'no-referrer')
+        request.setHeader(b'X-Content-Type-Options', b'nosniff')
+
+        request.setHeader(b'Content-Security-Policy',
+                          # b"default-src 'none'; "
+                          b"img-src *; "
+                          b"script-src 'self'; "
+                          b"style-src 'self'; "
+                          b"frame-ancestors 'none'; "
+                          b"form-action 'self'; "
+                          b"report-uri /csp-report")
 
         return super().getChildWithDefault(name, request)
 

@@ -219,9 +219,24 @@ def index(request):
     data = feeds_for_user(request.user)
     data.update(labels_for_user(request.user))
     snapshot_params = snapshot_params_from_query(request.GET, list(data['feedOrder']))
-    entries = entries_for_snapshot(request.user, snapshot_params)
-    data['snapshotParams'] = snapshot_params
-    data['snapshot'] = [entry.id for entry in entries]
+    articles = entries_for_snapshot(request.user, snapshot_params)
+    data['snapshot'] = {
+        'order': snapshot_params['order'],
+        'filter': snapshot_params['filter'],
+        'feedIds': snapshot_params['feeds'],
+        'include': snapshot_params['include'],
+        'response': {
+            'params': {
+                'order': snapshot_params['order'],
+                'filter': snapshot_params['filter'],
+                'feedIds': snapshot_params['feeds'],
+                'include': snapshot_params['include'],
+            },
+            'loaded': True,
+            'error': False,
+            'articleIds': [article.id for article in articles],
+        },
+    }
 
     return render(request, 'index.html', {
         'props': json_encoder.encode(data),

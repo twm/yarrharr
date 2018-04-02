@@ -4,8 +4,6 @@ import Heart from '../icons/heart-empty.svg';
 import Check from '../icons/check-empty.svg';
 import 'widgets/icons.less';
 
-const STYLE_HIDDEN = {visibility: "hidden"};
-
 export class ReadToggleLink extends React.PureComponent {
     constructor(props) {
         super(props);
@@ -48,7 +46,7 @@ export class FaveToggleLink extends React.PureComponent {
     render() {
         const iconClass = "icon icon-heart" + (this.props.fave ? "" : " icon-empty");
         if (this.props.fave == null) {
-            return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"><Heart className={iconClass} style={STYLE_HIDDEN} /></a>;
+            return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"><Heart className={iconClass + " icon-hidden"} /></a>;
         }
         const text = this.props.fave ? "Favorite" : "Not Favorite";
         const actionText = this.props.fave ? "Mark article as not favorite" : "Mark article as favorite";
