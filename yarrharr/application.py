@@ -31,9 +31,9 @@ Yarrharr production server via Twisted Web
 import io
 import json
 import logging
-from pprint import pformat
 import sys
 
+import attr
 from django.conf import settings
 from twisted.logger import globalLogBeginner
 from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
@@ -52,8 +52,57 @@ from .wsgi import application
 log = Logger()
 
 
+@attr.s
+class CSPReport(object):
+    url = attr.ib()
+    referrer = attr.ib()
+    resource = attr.ib()
+    violatedDirective = attr.ib()
+    effectiveDirective = attr.ib()
+    source = attr.ib()
+    sample = attr.ib()
+    status = attr.ib()
+    policy = attr.ib()
+    disposition = attr.ib()
+
+    def __str__(self):
+        bits = []
+        for a in attr.fields(self.__class__):
+            value = getattr(self, a.name)
+            if value is None:
+                continue
+            bits.append('{}={!r}'.format(a.name, value))
+        return '\n'.join(bits)
+
+    @classmethod
+    def fromJSON(cls, data):
+        """
+        Construct a :class:`CSPReport` from the serialization of a violation
+        per CSP Level 3 §5.3.
+        """
+        if {"source-file", "line-number", "column-number"} <= data.keys():
+            source = "{source-file} {line-number}:{column-number}".format_map(data)
+        elif {"source-file", "line-number"} <= data.keys():
+            source = "{source-file} {line-number}".format_map(data)
+        else:
+            source = data.get("source-file")
+        return cls(
+            url=data['document-uri'],
+            referrer=data['referrer'] or None,  # Always seems to be an empty string.
+            resource=data['blocked-uri'],
+            violatedDirective=data.get('violated-directive'),
+            effectiveDirective=data.get('effective-directive'),
+            policy=data['original-policy'],
+            disposition=data.get('disposition'),
+            status=data.get('status-code'),
+            sample=data.get('script-sample'),
+            source=source,
+        )
+
+
 class CSPReportLogger(Resource):
     isLeaf = True
+    _log = Logger()
 
     def render(self, request):
         if request.method != b'POST':
@@ -65,10 +114,10 @@ class CSPReportLogger(Resource):
             return b'HTTP 415: Only application/csp-report requests are accepted\n'
         # Process the JSON text produced per
         # https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
-        report = json.load(io.TextIOWrapper(request.content, encoding='utf-8'))['csp-report']
-        log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
-                  userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent', [])),
-                  report=pformat(report))
+        report = CSPReport.fromJSON(json.load(io.TextIOWrapper(request.content, encoding='utf-8'))['csp-report'])
+        self._log.debug("Content Security Policy violation reported by {userAgent!r}:\n{report}",
+                        userAgent=', '.join(request.requestHeaders.getRawHeaders('User-Agent', [])),
+                        report=report)
         return b''  # Browser ignores the response.
 
 
