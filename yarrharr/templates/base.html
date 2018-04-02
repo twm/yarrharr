@@ -11,10 +11,6 @@
         <link rel="icon" sizes="any" type="image/svg+xml" href="{% static 'icon.*.svg'|newest_static %}">
         <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static 'icon.*.png'|newest_static %}">
         <link rel="stylesheet" type="text/css" href="{% static 'main.*.css'|newest_static %}">
-        <script>
-            {# FIXME This stub prevents JS errors caused by loading the bundle on pages it doesn't render. #}
-            var props = {articlesById: {}, feedsById: {}, labelsById: {}};
-        </script>
         <script src="{% static 'vendor.*.js'|newest_static %}" defer></script>
         <script src="{% static 'main.*.js'|newest_static %}" defer></script>
     </head>

@@ -1,4 +1,11 @@
 // This file is the Webpack entry point to the whole codebase.
+//
+// Two elements are assumed to exist on the page:
+//
+// * <div id=app /> into which the app is rendered.
+// * <script id=props /> containing the initial props as JSON.
+//
+// If these are missing this file does nothing.
 import { applyMiddleware, createStore, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import { logger } from 'redux-logger';
@@ -22,16 +29,19 @@ const middleware = [
     thunk,
 ];
 if (__debug__) {
-    //middleware.push(logger);
+    // middleware.push(logger);
 }
-const store = createStore(reducer, applyMiddleware.apply(null, middleware));
-
-syncViewOptions(store, window);
-syncLocation(store, window);
 
 // Only render the app on pages that are run by JS (not, say, login pages).
 const appElement = document.getElementById("app");
-if (appElement) {
+const propsElement = document.getElementById("props");
+if (appElement && propsElement) {
+    const preloadedState = window.JSON.parse(propsElement.textContent);
+    const store = createStore(reducer, preloadedState, applyMiddleware.apply(null, middleware));
+
+    syncViewOptions(store, window);
+    syncLocation(store, window);
+
     ReactDOM.render(
         <Provider store={store}>
             <ConnectedYarrharr>
