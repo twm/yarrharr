@@ -76,25 +76,6 @@ h1 {
     font: inherit;
     line-height: 2.1rem;
 }
-.form-item-focusable() {
-    --border-color: @text_color;
-
-    background: var(--background-color);
-    border: @button_border_width solid var(--border-color);
-    border-radius: @text_padding;
-    transition: border-color 0.05s;
-
-    &:focus {
-        --border-color: @focus_blue;
-        --background-color: white;
-        --gradient-border-color: @focus_blue_dark;
-        --gradient-start: @focus_blue_light;
-        --gradient-mid: @focus_blue;
-        --gradient-end: @focus_blue;
-
-        outline: none;
-    }
-}
 
 label:not(.checkbox) {
     display: block;
@@ -116,10 +97,20 @@ input[type=url],
 input[type=email],
 select[multiple] {
     .form-item-layout;
-    .form-item-focusable;
+    --background-color: white;
+    --border-color: @quiet_text_color;
 
     color: @content_text_color;
-    --border-color: @quiet_text_color;
+    background: var(--background-color);
+    border: @button_border_width solid var(--border-color);
+    border-radius: @text_padding;
+    transition: border-color 0.05s;
+
+    &:focus {
+        --border-color: @focus_blue;
+        --background-color: white;
+        outline: none;
+    }
 }
 select[multiple] {
     height: auto; /* allow size attribute to have an effect */
@@ -127,22 +118,34 @@ select[multiple] {
 
 .text-button {
     .form-item-layout;
-    .form-item-focusable;
     cursor: pointer;
 
+    color: @content_text_color;
     --gradient-start: white;
     --gradient-mid: gray;
     --gradient-end: gray;
+    --gradient-border-color: @text_color;
 
-    border-color: var(--gradient-border-color);
-    text-shadow: var(--gradient-border-color) 0 0 .025rem; /* bump contrast */
     background: linear-gradient(to bottom, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
+    border: @button_border_width solid var(--gradient-border-color);
+    border-radius: (1.5 * @text_padding);
+    transition: border-color 0.05s;
+
+    text-shadow: var(--gradient-border-color) 0 0 .025rem; /* bump contrast */
     box-shadow: inset var(--gradient-end) 0 0 .25rem;
     padding: 0 0.75rem;
 
     &:active {
         background: linear-gradient(to top, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
         box-shadow: inset var(--gradient-end) 0 0 .25rem;
+    }
+    &:focus {
+        box-shadow: inset 0 0 0 1.5px currentColor;
+        outline: none;
+    }
+    &:active:focus {
+        box-shadow: inset 0 0 0 1.5px currentColor,
+                    inset var(--gradient-end) 0 0 .25rem;
     }
 }
 
