@@ -1,4 +1,4 @@
-@import "../globals.less";
+@import "../include.less";
 
 /**
  * <div.tabs>    // container with bottom border
@@ -9,9 +9,9 @@
  * </div>
  */
 .tabs {
-    border-bottom: 2px solid #666;
+    border-bottom: 2px solid var(--border-color);
     contain: layout style;
-    background: @content_background_color;
+    background: var(--background-color);
 }
 .tabs-tabs {
     max-width: var(--layout-max-width);
@@ -28,7 +28,7 @@
     border-style: solid;
     border-width: 2px;
     border-bottom-width: 0;
-    border-color: var(--tab-shape-color) var(--tab-shape-color) #666 var(--tab-shape-color);
+    border-color: var(--tab-shape-color) var(--tab-shape-color) var(--border-color) var(--tab-shape-color);
     background: var(--tab-background-color);
     text-decoration: none;
     line-height: 1.7;
@@ -36,9 +36,7 @@
     margin: 0 .5rem 2px 0;
 
     &:hover {
-        /* FIXME need a var for this, it was copied from .flat-button-focus */
-        --tab-shape-color: darken(@background_color, 10%);
-        --tab-background-color: darken(@background_color, 10%);
+        --tab-shape-color: var(--border-color);
     }
     &:focus {
         outline: none;
@@ -48,8 +46,8 @@
 }
 /* current tab */
 .tabs-tabs > a[aria-disabled="true"] {
-    --tab-shape-color: #666;
-    --tab-background-color: @content_background_color;
+    --tab-shape-color: var(--border-color);
+    --tab-background-color: var(--background-color);
     margin-bottom: 0;
 }
 @media screen and (max-width: 34em) {
