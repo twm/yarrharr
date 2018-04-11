@@ -28,9 +28,6 @@ function Centered(props) {
 
 
 export class InventoryView extends React.PureComponent {
-    constructor(props) {
-        super(props);
-    }
     render() {
         // XXX This ordering may change when the feed title is overridden,
         // causing the current object of focus to jump around on the page.
@@ -201,6 +198,20 @@ if (__debug__) {
 
 export const ConnectedInventoryView = connect(state => state)(InventoryView);
 
+export class LabelListView extends React.PureComponent {
+    render() {
+        return <p>TODO: List labels</p>;
+    }
+}
+
+if (__debug__) {
+    LabelListView.propTypes = {
+        labelsById: PropTypes.object.isRequired,
+        feedsById: PropTypes.object.isRequired,
+    };
+}
+
+export const ConnectedLabelListView = connect(state => state)(LabelListView);
 
 export class ManageFeedView extends React.PureComponent {
     constructor(props) {

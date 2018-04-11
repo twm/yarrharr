@@ -7,7 +7,7 @@ import { LabelIcon, FeedIcon } from 'widgets/icons.js';
 import Heart from 'icons/heart-empty.svg';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
-import { AddFeedLink, InventoryLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, InventoryLink, LabelListLink, RootLink } from 'widgets/links.js';
 import Header from 'widgets/Header.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
@@ -25,7 +25,8 @@ class RootView extends React.PureComponent {
             <Title title="Home" />
             <Tabs>
                 <RootLink disabled={true} className="no-underline">Home</RootLink>
-                <InventoryLink className="no-underline">Manage Feeds</InventoryLink>
+                <InventoryLink className="no-underline">Feeds</InventoryLink>
+                <LabelListLink className="no-underline">Labels</LabelListLink>
                 <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <div className="root">
