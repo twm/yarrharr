@@ -30,12 +30,14 @@ import unittest
 
 from treq.testing import StubTreq
 from twisted.logger import Logger, LogPublisher, FileLogObserver
+from twisted.internet import defer, task
 from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.failure import Failure
 from twisted.python.threadpool import ThreadPool
 from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
 
+from ..application import AdaptiveLoopingCall
 from ..application import CSPReport
 from ..application import Root
 from ..application import TwistedLoggerLogHandler, formatForSystemd
@@ -237,3 +239,43 @@ class FormatForSystemdTests(SynchronousTestCase):
         output = fout.getvalue()
         self.assertTrue(all(l.startswith(('<3>[', '<3>  ')) for l in output.splitlines()))
         self.assertIn('Traceback (most recent call last):\n', output)
+
+
+class AdaptiveLoopingCallTests(SynchronousTestCase):
+    def test_start(self):
+        """
+        start() immediately calls the function and schedules a call according
+        to its return value.
+        """
+        clock = task.Clock()
+        loop = AdaptiveLoopingCall(clock, lambda: 13)
+        startD = loop.start()
+
+        [call] = clock.getDelayedCalls()
+        self.assertEqual(13.0, call.getTime())
+        self.assertNoResult(startD)
+
+    def test_deferred(self):
+        """
+        The function may return a Deferred which is waited on before the next
+        call is scheduled.
+        """
+        clock = task.Clock()
+        d = defer.Deferred()
+        loop = AdaptiveLoopingCall(clock, lambda: d)
+        startD = loop.start()
+
+        self.assertEqual([], clock.getDelayedCalls())
+        self.assertNoResult(startD)
+
+        d.callback(3.5)
+
+        [call] = clock.getDelayedCalls()
+        self.assertEqual(3.5, call.getTime())
+        self.assertNoResult(startD)
+
+    def test_stop_waits(self):
+        """
+        The stop() method waits for any pending call to complete
+        """
+        # TODO

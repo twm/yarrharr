@@ -37,7 +37,7 @@ import attr
 from django.conf import settings
 from twisted.logger import globalLogBeginner
 from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
-from twisted.internet import task
+from twisted.internet import defer
 from twisted.logger import formatEvent
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
@@ -190,6 +190,7 @@ def updateFeeds(reactor, max_fetch=5):
     from .fetch import poll
 
     d = poll(reactor, max_fetch)
+    d.addCallback(lambda result: 15)
     # Last gasp error handler to avoid terminating the LoopingCall.
     d.addErrback(log.failure, "Unexpected failure polling feeds")
     return d
@@ -252,6 +253,74 @@ class TwistedLoggerLogHandler(logging.Handler):
         })
 
 
+class AdaptiveLoopingCall(object):
+    """
+    :ivar _clock: :class:`IReactorTime` implementer
+    :ivar _f: The function to call.
+    :ivar _deferred: Deferred returned by :meth:`.start()`.
+    """
+    _deferred = None
+    _call = None
+    _stopped = False
+
+    def __init__(self, clock, f):
+        """
+        :param clock: :class:`IReactorTime` provider to use when scheduling
+            calls.
+        :param f: The function to call when the loop is started. It must return
+            the number of seconds to wait before calling it again, or
+            a deferred for the same.
+        """
+        self._clock = clock
+        self._f = f
+
+    def start(self):
+        """
+        Call the function immediately, and schedule future calls according to
+        its result.
+
+        :returns:
+            :class:`Deferred` which will succeed when :meth:`stop()` is called
+            and the loop cleanly exits, or fail when the function produces
+            a failure.
+        """
+        assert self._deferred is None
+        assert self._call is None
+        assert not self._stopped
+        self._deferred = d = defer.Deferred()
+        self._callIt()
+        return d
+
+    def stop(self):
+        self._stopped = True
+        if self._call:
+            self._call.cancel()
+            self._deferred.callback(self)
+
+    def _callIt(self):
+        self._call = None
+        d = defer.maybeDeferred(self._f)
+        d.addCallback(self._schedule)
+        d.addErrback(self._failLoop)
+
+    def _schedule(self, seconds):
+        """
+        Schedule the next call.
+        """
+        assert isinstance(seconds, (int, float))
+        if self._stopped:
+            self._deferred.callback(self)
+        else:
+            self._call = self._clock.callLater(seconds, self._callIt)
+
+    def _failLoop(self, failure):
+        """
+        Terminate the loop due to an unhandled failure.
+        """
+        d, self._deferred = self._deferred, None
+        d.errback(failure)
+
+
 def run():
     from twisted.internet import reactor
 
@@ -270,9 +339,8 @@ def run():
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 
-    updateLoop = task.LoopingCall(updateFeeds, reactor)
-    # TODO: Adjust the loop period dynamically according to the time the next check is due.
-    loopEndD = updateLoop.start(15)
+    updateLoop = AdaptiveLoopingCall(updateFeeds, reactor)
+    loopEndD = updateLoop.start()
     loopEndD.addErrback(log.failure, "Polling loop broke")
 
     def stopUpdateLoop():
