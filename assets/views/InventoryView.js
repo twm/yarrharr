@@ -9,7 +9,7 @@ import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
-import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, LabelLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, attachLabel, detachLabel } from 'actions.js';
@@ -38,7 +38,8 @@ export class InventoryView extends React.PureComponent {
             <Title title="Manage Feeds" />
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
-                <InventoryLink disabled={true} className="no-underline">Manage Feeds</InventoryLink>
+                <InventoryLink disabled={true} className="no-underline">Feeds</InventoryLink>
+                <LabelListLink className="no-underline">Labels</LabelListLink>
                 <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <Centered>
@@ -53,11 +54,11 @@ export class InventoryView extends React.PureComponent {
 
         // TODO sorting
         // TODO filtering
-        return <table className="inventory-table">
+        return <table className="inventory-table feed-table">
             <thead>
                 <tr>
                     <th className="col-error"><span title="Error?">⚠️ </span></th>
-                    <th className="col-unread">Unread Articles</th>
+                    <th className="col-unread">Unread</th>
                     <th className="col-feed">Feed</th>
                     <th className="col-site-url">Site URL</th>
                     <th className="col-updated">Last Updated</th>
@@ -70,7 +71,7 @@ export class InventoryView extends React.PureComponent {
                         {feed.error ? <span title={feed.error}>⚠️ </span> : ""}
                     </td>
                     <td className="col-unread">
-                        {feed.unreadCount}
+                        <Count value={feed.unreadCount} />
                     </td>
                     <td className="col-feed">
                         <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.text || feed.title}
@@ -200,7 +201,57 @@ export const ConnectedInventoryView = connect(state => state)(InventoryView);
 
 export class LabelListView extends React.PureComponent {
     render() {
-        return <p>TODO: List labels</p>;
+        const labelList = labelsByTitle(this.props);
+        const feedList = feedsByTitle(this.props);
+        return <React.Fragment>
+            <GlobalBar />
+            <Title title="Labels" />
+            <Tabs>
+                <RootLink className="no-underline">Home</RootLink>
+                <InventoryLink className="no-underline">Feeds</InventoryLink>
+                <LabelListLink disabled={true} className="no-underline">Labels</LabelListLink>
+                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
+            </Tabs>
+            <Centered>
+                {this.renderLabels(labelList, feedList)}
+            </Centered>
+        </React.Fragment>;
+    }
+    renderLabels(labelList, feedList) {
+        if (!labelList.length) {
+            return <p>No labels.</p>
+        }
+
+        // TODO sorting
+        // TODO filtering
+        return <table className="inventory-table label-table">
+            <thead>
+                <tr>
+                    <th className="col-unread">Unread Articles</th>
+                    <th className="col-label">Label</th>
+                    <th className="col-feeds">Feeds</th>
+                    <th className="col-edit"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {labelList.map(label => <tr key={label.id}>
+                    <td className="col-unread">
+                        <Count value={label.unreadCount} />
+                    </td>
+                    <td className="col-label">
+                        <LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.text}</LabelLink>
+                    </td>
+                    <td className="col-feeds">
+                        {feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length}
+                    </td>
+                    <td className="col-edit">
+                        <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
+                            <EditIcon aria-label="Edit Label" />
+                        </InventoryLabelLink>
+                    </td>
+                </tr>)}
+            </tbody>
+        </table>;
     }
 }
 
@@ -308,7 +359,8 @@ export class AddFeedView extends React.PureComponent {
             <Title title="Add Feed" />
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
-                <InventoryLink className="no-underline">Manage Feeds</InventoryLink>
+                <InventoryLink className="no-underline">Feeds</InventoryLink>
+                <LabelListLink className="no-underline">Labels</LabelListLink>
                 <AddFeedLink disabled={true} className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <Centered>
