@@ -173,7 +173,7 @@ class InventoryItem extends React.PureComponent {
                     </select>
                 </p>
                 <div className="tools">
-                    <a className="remove-button text-button text-button-danger" role="button" href="#" onClick={this.handleClickRemove}>Remove Feed</a>
+                    <button className="remove-button text-button text-button-danger" onClick={this.handleClickRemove}>Remove</button>
                     <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
             </form>
@@ -311,7 +311,7 @@ export class ManageFeedView extends React.PureComponent {
         if (!feed) return;
         if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
             this.props.onRemoveFeed(feedId);
-            // FIXME This should have a progress indicator and redirect to the label list on success.
+            // FIXME This should have a progress indicator
         }
     }
 }
@@ -378,7 +378,7 @@ export class ManageLabelView extends React.Component {
         if (!label) return;
         if (confirm("Remove label " + label.text + "?")) {
             this.props.onRemoveLabel(labelId);
-            // FIXME This should have a progress indicator and redirect to the label list on success.
+            // FIXME This should have a progress indicator
         }
     }
 }
@@ -391,6 +391,14 @@ if (__debug__) {
         onRemoveLabel: PropTypes.func.isRequired,
     };
 }
+
+export const ConnectedManageLabelView = connect(state => state, {
+    onAttachLabel: attachLabel,
+    onAddLabel: addLabel,
+    onDetachLabel: detachLabel,
+    onRemoveLabel: removeLabel,
+})(ManageLabelView);
+
 
 class LabelForm extends React.Component {
     constructor(props) {
@@ -407,18 +415,17 @@ class LabelForm extends React.Component {
         };
         this.handleSubmit = event => {
             event.preventDefault();
-            // TODO loading indicator...
-            props.onUpdateFeed(this.props.feed.id, this.current('text'), this.current('url'), this.current('active'), this.current('labels'));
+            this.props.onSaveLabel(this.state.text, this.state.feeds);
         };
         this.handleClickRemove = event => {
             event.preventDefault();
-            props.onRemoveLabel();
+            props.onRemoveLabel(this.props.label.id);
         };
     }
     render() {
         return <form onSubmit={this.handleSubmit}>
             <p>
-                <label htmlFor="id_label_text">Name</label>
+                <label htmlFor="id_label_text">Title</label>
                 <input id="id_label_text" type="text" name="text" value={this.state.text} onChange={this.handleInputChange} />
             </p>
             <p>
@@ -429,19 +436,30 @@ class LabelForm extends React.Component {
                 </select>
             </p>
             <div className="tools">
-                <a className="remove-button text-button text-button-danger" role="button" href="#" onClick={this.handleClickRemove}>Remove</a>
+                <button className="remove-button text-button text-button-danger" onClick={this.handleClickRemove}>Remove</button>
                 <input className="text-button text-button-primary" type="submit" value="Save" />
             </div>
         </form>
     }
 }
 
-export const ConnectedManageLabelView = connect(state => state, {
-    onAttachLabel: attachLabel,
-    onAddLabel: addLabel,
-    onDetachLabel: detachLabel,
-    onRemoveLabel: removeLabel,
-})(ManageLabelView);
+if (__debug__) {
+    LabelForm.propTypes = {
+        label: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            text: PropTypes.string.isRequired,
+            feeds: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
+        }).isRequired,
+        feedList: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            text: PropTypes.string,
+            title: PropTypes.string,
+            url: PropTypes.string.isRequired,
+        }).isRequired).isRequired,
+        onSaveLabel: PropTypes.func.isRequired,
+        onRemoveLabel: PropTypes.func.isRequired,
+    };
+}
 
 
 export class AddFeedView extends React.PureComponent {
