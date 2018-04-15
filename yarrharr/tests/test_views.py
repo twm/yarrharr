@@ -31,7 +31,7 @@ from django.test import Client, TestCase
 from django.utils import timezone
 import mock
 
-# from ..models import Feed
+from ..models import Feed, Label
 
 
 class dictwith(object):
@@ -286,7 +286,10 @@ class InventoryViewTests(TestCase):
             'labelOrder': [label_a.id, label_b.id, label_c.id],
         }, response.json())
 
-    def test_remove(self):
+    def test_remove_feed(self):
+        """
+        The remove action can delete a single feed.
+        """
         feed = self.user.feed_set.create(
             url='http://example.com/feed2.xml',
             feed_title='Feed 2',
@@ -306,6 +309,50 @@ class InventoryViewTests(TestCase):
             'labelsById': {},
             'labelOrder': [],
         }, response.json())
+        self.assertRaises(Feed.DoesNotExist, Feed.objects.get, pk=feed.id)
+
+    def test_remove_labels(self):
+        """
+        The remove action can delete a single label, leaving the associated
+        feeds unaffected.
+        """
+        feed_a = self.user.feed_set.create(
+            url='http://example.com/feed-a.xml',
+            feed_title='Feed A',
+            added=timezone.now() - datetime.timedelta(days=1),
+        )
+        label_a = feed_a.label_set.create(text='A', user=self.user)
+
+        response = self.client.post('/api/inventory/', {
+            'action': 'remove',
+            'label': str(label_a.id),
+        })
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, self.user.feed_set.count())
+        self.assertEqual({
+            'feedsById': {
+                str(feed_a.id): {
+                    'id': feed_a.id,
+                    'title': 'Feed A',
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': '',
+                    'updated': '',
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': mock.ANY,
+                    'url': 'http://example.com/feed-a.xml',
+                },
+            },
+            'feedOrder': [feed_a.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
+        self.assertRaises(Label.DoesNotExist, Label.objects.get, pk=label_a.id)
 
     def test_activate(self):
         """

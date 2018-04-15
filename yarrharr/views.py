@@ -383,7 +383,7 @@ def labels(request):
 @login_required
 def inventory(request):
     """
-    Manage feeds.
+    Manipulate feeds and labels.
 
     On GET, retrieve full feed and label metadata.  On POST, the
     :param:`action` field determines what is done:
@@ -398,8 +398,12 @@ def inventory(request):
     The set of labels associated with the feed is adjusted to match the IDs
     presented in the :param:`label` parameter.
 
-    ``"remove"`` deletes the feed specified by :param:`feed`.  The operation
-    cascades to all of the articles from the feed.
+    ``"remove"`` deletes objects:
+
+     *  Feeds specified by :param:`feed`. The operation cascades to all of the
+        articles from the feed.
+     *  Labels specified by :param:`label`. This does not affect any associated
+        feeds.
 
     POST returns the full feed and label metadata just like GET, in the
     ``"labelsById"`` and ``"feedsById"`` members of the JSON response body.
@@ -430,8 +434,11 @@ def inventory(request):
                     feed.next_check = None
                 feed.save()
         elif action == 'remove':
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.delete()
+            with transaction.atomic():
+                for feed in request.user.feed_set.filter(pk__in=request.POST.getlist('feed')):
+                    feed.delete()
+                for label in request.user.label_set.filter(pk__in=request.POST.getlist('label')):
+                    label.delete()
 
         data.update(labels_for_user(request.user))
         data.update(feeds_for_user(request.user))
