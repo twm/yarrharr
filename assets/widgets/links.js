@@ -84,6 +84,10 @@ export function InventoryFeedLink(props) {
     return <ConnectedA path={`/inventory/feed/${props.feedId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
 }
 
+export function LabelListLink(props) {
+    return <ConnectedA path="/inventory/labels/" disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
+}
+
 export function InventoryLabelLink(props) {
     return <ConnectedA path={`/inventory/label/${props.labelId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
 }
