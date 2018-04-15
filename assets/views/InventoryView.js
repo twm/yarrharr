@@ -128,7 +128,7 @@ class InventoryItem extends React.PureComponent {
                 labels: null,
             });
         };
-        this.handleClickRemoveFeed = event => {
+        this.handleClickRemove = event => {
             event.preventDefault();
             props.onRemoveFeed(this.props.feed.id);
         };
@@ -173,7 +173,7 @@ class InventoryItem extends React.PureComponent {
                     </select>
                 </p>
                 <div className="tools">
-                    <a className="remove-button text-button text-button-danger" role="button" href="#" onClick={this.handleClickRemoveFeed}>Remove Feed</a>
+                    <a className="remove-button text-button text-button-danger" role="button" href="#" onClick={this.handleClickRemove}>Remove Feed</a>
                     <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
             </form>
@@ -311,6 +311,7 @@ export class ManageFeedView extends React.PureComponent {
         if (!feed) return;
         if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
             this.props.onRemoveFeed(feedId);
+            // FIXME This should have a progress indicator and redirect to the label list on success.
         }
     }
 }
@@ -331,7 +332,7 @@ export const ConnectedManageFeedView = connect(state => state, {
 })(ManageFeedView);
 
 
-export class ManageLabelView extends React.PureComponent {
+export class ManageLabelView extends React.Component {
     constructor(props) {
         super(props);
         this.handleRemoveLabel = this.handleRemoveLabel.bind(this);
@@ -362,7 +363,12 @@ export class ManageLabelView extends React.PureComponent {
                 </InventoryLabelLink>
             </Tabs>
             <Centered>
-                <p>TODO</p>
+                <div className="inventory-item">
+                    <LabelForm label={label} feedList={feedList}
+                        onRemoveLabel={this.handleRemoveLabel}
+                        onSaveLabel={this.handleSaveLabel}
+                        />
+                </div>
             </Centered>
         </React.Fragment>;
     }
@@ -372,6 +378,7 @@ export class ManageLabelView extends React.PureComponent {
         if (!label) return;
         if (confirm("Remove label " + label.text + "?")) {
             this.props.onRemoveLabel(labelId);
+            // FIXME This should have a progress indicator and redirect to the label list on success.
         }
     }
 }
@@ -383,6 +390,50 @@ if (__debug__) {
         }).isRequired,
         onRemoveLabel: PropTypes.func.isRequired,
     };
+}
+
+class LabelForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            text: props.label.text,
+            feeds: props.label.feeds,
+        };
+        this.handleInputChange = event => {
+            this.setState({[event.target.name]: event.target.value});
+        };
+        this.handleFeedsChange = event => {
+            this.setState({feeds: Array.filter(event.target.options, o => o.selected).map(o => Number(o.value))});
+        };
+        this.handleSubmit = event => {
+            event.preventDefault();
+            // TODO loading indicator...
+            props.onUpdateFeed(this.props.feed.id, this.current('text'), this.current('url'), this.current('active'), this.current('labels'));
+        };
+        this.handleClickRemove = event => {
+            event.preventDefault();
+            props.onRemoveLabel();
+        };
+    }
+    render() {
+        return <form onSubmit={this.handleSubmit}>
+            <p>
+                <label htmlFor="id_label_text">Name</label>
+                <input id="id_label_text" type="text" name="text" value={this.state.text} onChange={this.handleInputChange} />
+            </p>
+            <p>
+                <label htmlFor="id_label_feeds">Feeds</label>
+                {/* FIXME The UX here is terrible when there are many feeds.  This should probably be a list of the current feeds and a combo box which allows addition of more via search. */}
+                <select id="id_label_feeds" name="feeds" multiple={true} value={this.state.feeds} onChange={this.handleFeedsChange} size={this.props.feedList.length}>
+                    {this.props.feedList.map(feed => <option key={feed.id} value={feed.id}>{feed.text || feed.title || feed.url}</option>)}
+                </select>
+            </p>
+            <div className="tools">
+                <a className="remove-button text-button text-button-danger" role="button" href="#" onClick={this.handleClickRemove}>Remove</a>
+                <input className="text-button text-button-primary" type="submit" value="Save" />
+            </div>
+        </form>
+    }
 }
 
 export const ConnectedManageLabelView = connect(state => state, {
