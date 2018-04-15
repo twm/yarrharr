@@ -12,7 +12,7 @@ import { Count } from 'widgets/Count.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
-import { addLabel, attachLabel, detachLabel } from 'actions.js';
+import { addLabel, attachLabel, detachLabel, removeLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
@@ -332,8 +332,47 @@ export const ConnectedManageFeedView = connect(state => state, {
 
 
 export class ManageLabelView extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleRemoveLabel = this.handleRemoveLabel.bind(this);
+    }
     render() {
-        return <p>TODO: manage label {this.props.params.labelId}</p>
+        const labelId = this.props.params.labelId;
+        const label = this.props.labelsById[labelId];
+        const feedList = feedsByTitle(this.props);
+        return <React.Fragment>
+            <Title title={"Edit " + label.text} />
+            <GlobalBar />
+            <header className="list-header">
+                <div className="list-header-inner bar">
+                    <div className="expand">
+                        <div className="square">
+                            <LabelIcon aria-hidden={true} />
+                        </div>
+                        <h1>{label.text}</h1>
+                    </div>
+                </div>
+            </header>
+            <Tabs>
+                <LabelLink labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
+                <LabelLink labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
+                <LabelLink labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
+                <InventoryLabelLink disabled={true} labelId={labelId} title="Edit Label" className="no-underline">
+                    <EditIcon aria-label="Edit Label" />
+                </InventoryLabelLink>
+            </Tabs>
+            <Centered>
+                <p>TODO</p>
+            </Centered>
+        </React.Fragment>;
+    }
+    handleRemoveLabel() {
+        const labelId = this.props.params.labelId;
+        const label = this.props.labelsById[labelId];
+        if (!label) return;
+        if (confirm("Remove label " + label.text + "?")) {
+            this.props.onRemoveLabel(labelId);
+        }
     }
 }
 
@@ -342,6 +381,7 @@ if (__debug__) {
         params: PropTypes.shape({
             labelId: PropTypes.number.isRequired,
         }).isRequired,
+        onRemoveLabel: PropTypes.func.isRequired,
     };
 }
 
@@ -349,6 +389,7 @@ export const ConnectedManageLabelView = connect(state => state, {
     onAttachLabel: attachLabel,
     onAddLabel: addLabel,
     onDetachLabel: detachLabel,
+    onRemoveLabel: removeLabel,
 })(ManageLabelView);
 
 

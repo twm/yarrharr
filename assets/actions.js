@@ -678,10 +678,32 @@ export function detachLabel(feedId, labelId) {
             dispatch(receiveFeeds(feedsById, feedOrder));
         }).catch(e => {
             console.error(e);
-            alert('Failed to remove label');
+            alert('Failed to detach label');
             // TODO
         });
     }
+}
+
+export const REMOVE_LABEL = 'REMOVE_LABEL';
+export function removeLabel(labelId) {
+    return (dispatch) => {
+        dispatch({
+            type: 'REMOVE_LABEL',
+            labelId,
+        });
+        const body = new FormData();
+        body.append('action', 'remove');
+        body.append('label', labelId);
+        return post('/api/inventory/', body).then(json => {
+            const { feedsById, feedOrder, labelsById, labelOrder } = json;
+            dispatch(receiveFeeds(feedsById, feedOrder));
+            dispatch(receiveLabels(labelsById, labelOrder));
+        }).catch(e => {
+            console.error(e);
+            alert('Failed to remove label ' + labelId);
+            // TODO
+        });
+    };
 }
 
 export const SET_PATH = 'SET_PATH';
