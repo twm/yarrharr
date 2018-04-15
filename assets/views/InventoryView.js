@@ -143,7 +143,7 @@ class InventoryItem extends React.PureComponent {
         const feed = this.props.feed;
         const state = this.state;
         const labelList = this.props.labelList;
-        return <div className="inventory-item">
+        return <div>
             <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
             <div>{feed.labels.length
                 ? feed.labels.map(labelId => {
@@ -172,7 +172,7 @@ class InventoryItem extends React.PureComponent {
                         {labelList.map(label => <option key={label.id} value={label.id}>{label.text}</option>)}
                     </select>
                 </p>
-                <div className="tools">
+                <div className="inventory-tools">
                     <button className="remove-button text-button text-button-danger" onClick={this.handleClickRemove}>Remove</button>
                     <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
@@ -363,12 +363,10 @@ export class ManageLabelView extends React.Component {
                 </InventoryLabelLink>
             </Tabs>
             <Centered>
-                <div className="inventory-item">
-                    <LabelForm label={label} feedList={feedList}
-                        onRemoveLabel={this.handleRemoveLabel}
-                        onSaveLabel={this.handleSaveLabel}
-                        />
-                </div>
+                <LabelForm label={label} feedList={feedList}
+                    onRemoveLabel={this.handleRemoveLabel}
+                    onSaveLabel={this.handleSaveLabel}
+                    />
             </Centered>
         </React.Fragment>;
     }
@@ -435,7 +433,7 @@ class LabelForm extends React.Component {
                     {this.props.feedList.map(feed => <option key={feed.id} value={feed.id}>{feed.text || feed.title || feed.url}</option>)}
                 </select>
             </p>
-            <div className="tools">
+            <div className="inventory-tools">
                 <button className="remove-button text-button text-button-danger" onClick={this.handleClickRemove}>Remove</button>
                 <input className="text-button text-button-primary" type="submit" value="Save" />
             </div>

@@ -40,22 +40,14 @@
     grid-template-columns: 2rem 1fr 2rem 1.5rem;
 }
 
-.inventory-item {
-    h2 {
-        font: normal 1.25rem / 1.5rem sans-serif;
-        padding: 0 0 1rem 0;
-        margin: 0;
-    }
+.inventory-tools {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
 
-    .tools {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-between;
-
-        .remove-button, input[type=submit] {
-            flex: 0 1 auto;
-            width: auto;
-        }
+    .remove-button, input[type=submit] {
+        flex: 0 1 auto;
+        width: auto;
     }
 }
 
