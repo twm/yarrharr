@@ -12,7 +12,7 @@ import { Count } from 'widgets/Count.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink, RootLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
-import { addLabel, attachLabel, detachLabel, removeLabel } from 'actions.js';
+import { addLabel, updateLabel, removeLabel } from 'actions.js';
 import { sortedLabels } from 'views/RootView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
@@ -335,6 +335,7 @@ export const ConnectedManageFeedView = connect(state => state, {
 export class ManageLabelView extends React.Component {
     constructor(props) {
         super(props);
+        this.handleUpdateLabel = this.handleUpdateLabel.bind(this);
         this.handleRemoveLabel = this.handleRemoveLabel.bind(this);
     }
     render() {
@@ -364,14 +365,17 @@ export class ManageLabelView extends React.Component {
             </Tabs>
             <Centered>
                 <LabelForm label={label} feedList={feedList}
+                    onUpdateLabel={this.handleUpdateLabel}
                     onRemoveLabel={this.handleRemoveLabel}
-                    onSaveLabel={this.handleSaveLabel}
                     />
             </Centered>
         </React.Fragment>;
     }
-    handleRemoveLabel() {
-        const labelId = this.props.params.labelId;
+    handleUpdateLabel(labelId, text, feeds) {
+        // TODO: Progress indication, etc.
+        this.props.onUpdateLabel(labelId, text, feeds);
+    }
+    handleRemoveLabel(labelId) {
         const label = this.props.labelsById[labelId];
         if (!label) return;
         if (confirm("Remove label " + label.text + "?")) {
@@ -386,14 +390,14 @@ if (__debug__) {
         params: PropTypes.shape({
             labelId: PropTypes.number.isRequired,
         }).isRequired,
+        onUpdateLabel: PropTypes.func.isRequired,
         onRemoveLabel: PropTypes.func.isRequired,
     };
 }
 
 export const ConnectedManageLabelView = connect(state => state, {
-    onAttachLabel: attachLabel,
     onAddLabel: addLabel,
-    onDetachLabel: detachLabel,
+    onUpdateLabel: updateLabel,
     onRemoveLabel: removeLabel,
 })(ManageLabelView);
 
@@ -413,11 +417,11 @@ class LabelForm extends React.Component {
         };
         this.handleSubmit = event => {
             event.preventDefault();
-            this.props.onSaveLabel(this.state.text, this.state.feeds);
+            this.props.onUpdateLabel(this.props.label.id, this.state.text, this.state.feeds);
         };
         this.handleClickRemove = event => {
             event.preventDefault();
-            props.onRemoveLabel(this.props.label.id);
+            this.props.onRemoveLabel(this.props.label.id);
         };
     }
     render() {
@@ -454,7 +458,7 @@ if (__debug__) {
             title: PropTypes.string,
             url: PropTypes.string.isRequired,
         }).isRequired).isRequired,
-        onSaveLabel: PropTypes.func.isRequired,
+        onUpdateLabel: PropTypes.func.isRequired,
         onRemoveLabel: PropTypes.func.isRequired,
     };
 }

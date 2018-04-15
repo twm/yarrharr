@@ -536,7 +536,7 @@ export function updateFeed(feedId, text, url, active, labels) {
             labels,
         });
         const body = new FormData();
-        body.append('action', 'update');
+        body.append('action', 'update-feed');
         body.append('feed', feedId);
         body.append('title', text); // user_title on Feed
         body.append('url', url);
@@ -631,57 +631,30 @@ export function failAddLabel(text) {
     alert("Failed to add label " + text + ".");
 }
 
-export function failAttachLabel(feedId, labelId) {
-    // TODO
-    alert("Failed to add label to feed");
-    console.log("Failed to add label", labelId, "to feed", feedId);
-}
-
-export const ATTACH_LABEL = 'ATTACH_LABEL';
-export function attachLabel(feedId, labelId) {
+export const UPDATE_LABEL = 'UPDATE_LABEL';
+export function updateLabel(labelId, text, feeds) {
     return (dispatch) => {
         dispatch({
-            type: ATTACH_LABEL,
-            feedId,
+            type: 'UPDATE_LABEL',
             labelId,
+            text,
+            feeds,
         });
         const body = new FormData();
-        body.append('action', 'attach');
-        body.append('feed', feedId);
+        body.append('action', 'update-label');
         body.append('label', labelId);
-        return post('/api/labels/', body).then(json => {
+        body.append('text', text);
+        feeds.forEach(id => body.append('feed', id));
+        return post('/api/inventory/', body).then(json => {
             const { feedsById, feedOrder, labelsById, labelOrder } = json;
-            dispatch(receiveLabels(labelsById, labelOrder));
             dispatch(receiveFeeds(feedsById, feedOrder));
+            dispatch(receiveLabels(labelsById, labelOrder));
         }).catch(e => {
             console.error(e);
-            dispatch(failAttachLabel(feedId, labelId));
-        });
-    };
-}
-
-export const DETACH_LABEL = 'DETACH_LABEL';
-export function detachLabel(feedId, labelId) {
-    return (dispatch) => {
-        dispatch({
-            type: DETACH_LABEL,
-            feedId,
-            labelId,
-        });
-        const body = new FormData();
-        body.append('action', 'detach');
-        body.append('feed', feedId);
-        body.append('label', labelId);
-        return post('/api/labels/', body).then(json => {
-            const { feedsById, feedOrder, labelsById, labelOrder } = json;
-            dispatch(receiveLabels(labelsById, labelOrder));
-            dispatch(receiveFeeds(feedsById, feedOrder));
-        }).catch(e => {
-            console.error(e);
-            alert('Failed to detach label');
+            alert('Failed to save label ' + labelId);
             // TODO
         });
-    }
+    };
 }
 
 export const REMOVE_LABEL = 'REMOVE_LABEL';
