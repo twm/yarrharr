@@ -16,13 +16,16 @@ export function reltime(then, now) {
     const delta = (now - then) / 1000;
     if (delta < 2 * 60) { // < 2 minutes
         return "just now";
-    } else if (delta < 2 * 60 * 60) { // < 2 hours
+    } else if (delta < 60 * 60 * 2) { // < 2 hours
         return `${(delta / 60).toFixed(0)} minutes ago`;
-    } else if (delta < 2 * 60 * 60 * 24) { // < 2 days
+    } else if (delta < 60 * 60 * 24 * 2) { // < 2 days
         return `${(delta / 3600).toFixed(0)} hours ago`;
-    } else if (delta < 48 * 60 * 60 * 24) { // < 48 days
+    } else if (delta < 60 * 60 * 24 * 48) { // < 48 days
         return `${(delta / (60 * 60 * 24)).toFixed(0)} days ago`;
+    } else if (delta < 60 * 60 * 24 * 365) { // < 1 year
+        return `${(delta / (30 * 24 * 60 * 30)).toFixed(0)} months ago`;
     }
+    return new Date(then).toLocaleDateString();
 }
 
 /**

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Clock } from './time.jsm';
+import { Clock } from 'widgets/time.jsm';
 
 /**
  * <Yarrharr/> is the top-level container of the app. It assigns a class
