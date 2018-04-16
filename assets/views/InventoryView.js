@@ -83,7 +83,7 @@ export class InventoryView extends React.PureComponent {
                         <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
                     </td>
                     <td className="col-updated">
-                        <RelativeTime then={feed.updated} />
+                        {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}
                     </td>
                     <td className="col-edit">
                         <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
