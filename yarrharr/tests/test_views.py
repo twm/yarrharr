@@ -155,7 +155,10 @@ class InventoryViewTests(TestCase):
     def test_create(self):
         url = u'http://example.com/feed.xml'
 
-        response = self.client.post('/api/inventory/', {'action': 'create', 'url': url})
+        response = self.client.post('/api/inventory/', {
+            'action': 'create-feed',
+            'url': url,
+        })
 
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()

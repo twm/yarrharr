@@ -479,6 +479,13 @@ export function loadFeeds() {
 }
 
 export const REQUEST_ADD_FEED = 'REQUEST_ADD_FEED';
+/**
+ * Add a feed to the inventory.
+ *
+ * @param {string} url URL of the feed.
+ * @returns {Promise} A promise which resolves with the ID of the feed when
+ *      successfully added, or fails otherwise.
+ */
 export function addFeed(url) {
     return (dispatch) => {
         dispatch({
@@ -486,16 +493,14 @@ export function addFeed(url) {
             url,
         });
         const body = new FormData();
-        body.append('action', 'create');
+        body.append('action', 'create-feed');
         body.append('url', url);
         return post('/api/inventory/', body).then(json => {
-            // TODO: Handle expected error conditions.
             const { feedId, feedsById } = json;
             dispatch(receiveAddFeed(url, feedId));
             dispatch(receiveFeeds(feedsById, json.feedOrder));
-        }).catch(e => {
-            console.error("Error adding", url, "->", e);
-            dispatch(failAddFeed(url, "Unexpected error"));
+            dispatch(setPath(`/inventory/feed/${feedId}/`));
+            return feedId;
         });
     };
 }
@@ -506,15 +511,6 @@ export function receiveAddFeed(url, feedId) {
         type: RECEIVE_ADD_FEED,
         url,
         feedId,
-    };
-}
-
-export const FAIL_ADD_FEED = 'FAIL_ADD_FEED';
-export function failAddFeed(url, error) {
-    return {
-        type: FAIL_ADD_FEED,
-        url,
-        error,
     };
 }
 
@@ -685,10 +681,11 @@ export const SET_PATH = 'SET_PATH';
  * Navigate to a new URL path (relative to the Yarrharr root path).
  *
  * @param {string} path
+ * @param {string} search
  * @param {number} scrollX Initial horizontal scroll position
  * @param {number} scrollY Initial vertical scroll position
  */
-export function setPath(path, scrollX = 0, scrollY = 0) {
+export function setPath(path, search = "", scrollX = 0, scrollY = 0) {
     const match = matchPath(path);
     if (!match) {
         throw new Error(`path ${path} does not match a known route`);
@@ -703,6 +700,7 @@ export function setPath(path, scrollX = 0, scrollY = 0) {
             path,
             route,
             params,
+            search,
             scrollX,
             scrollY,
         });

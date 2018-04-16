@@ -83,7 +83,7 @@ export class InventoryView extends React.PureComponent {
                         <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
                     </td>
                     <td className="col-updated">
-                        <RelativeTime then={feed.updated} />
+                        {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}
                     </td>
                     <td className="col-edit">
                         <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
@@ -449,9 +449,13 @@ if (__debug__) {
 }
 
 
-export class AddFeedView extends React.PureComponent {
+export class AddFeedView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {url: ''};
+    }
     render() {
-        return <React.Fragment>
+        return <Fragment>
             <GlobalBar />
             <Title title="Add Feed" />
             <Tabs>
@@ -462,74 +466,135 @@ export class AddFeedView extends React.PureComponent {
             </Tabs>
             <Centered>
                 <h1>Add Feed</h1>
-                <p>Enter the URL of an Atom or RSS feed:</p>
-                <AddFeedForm className="add-feed-form" onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
-                {this.renderAdd()}
+                <AddFeedForm
+                    defaultUrl={this.props.searchParams.get('url') || ''}
+                    onAddFeed={this.props.onAddFeed}
+                    />
+                {/* TODO Find a better place for this. */}
+                <RegisterFeedReaderForm />
             </Centered>
-        </React.Fragment>;
-    }
-    renderAdd() {
-        const { url=null, error=null, feedId=null } = this.props.feedAdd;
-        if (!url) {
-            return null;
-        }
-        if (error) {
-            return <div>
-                <p>Error adding {url}</p>
-            </div>;
-        }
-        if (feedId) {
-            return <div>
-                <p>Added feed <FeedLink feedId={feedId} filter={FILTER_UNREAD}>{url}</FeedLink></p>
-            </div>;
-        }
-        return <p>Adding feed {url}</p>;
+        </Fragment>;
     }
 }
 
 AddFeedView.propTypes = {
-    /**
-     * Pre-fill the URL field with this value.
-     */
-    defaultUrl: PropTypes.string,
-    /**
-     * The current feed add operation (if one is ongoing).
-     */
-    feedAdd: PropTypes.object.isRequired,
     /**
      * A superficially valid URL has been entered by the user.  Attempt to add
      * it as a feed.
      *
      * @param {string} url Something that looks like a URL.
      */
-    onSubmit: PropTypes.func.isRequired,
+    onAddFeed: PropTypes.func.isRequired,
+    searchParams: PropTypes.object.isRequired,
 };
+
+export const ConnectedAddFeedView = connect(state => state, {onAddFeed: addFeed})(AddFeedView);
+
 
 class AddFeedForm extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {url: ''};
+        this.state = {
+            adding: false,
+            error: '',
+            url: props.defaultUrl,
+        };
         this.handleUrlChange = event => {
             this.setState({url: event.target.value});
         };
         this.handleSubmit = event => {
             event.preventDefault();
-            this.props.onSubmit(this.state.url);
+            if (this.state.adding) {
+                return;
+            }
+            // TODO form validation
+            this.setState({
+                adding: true,
+                error: '',
+            });
+            this.props.onAddFeed(this.state.url).catch(err => {
+                this.setState({
+                    adding: false,
+                    error: String(err),
+                });
+            });
         };
     }
     render() {
-        return <form className="add-feed-form" onSubmit={this.handleSubmit}>
-            <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
-            <input className="text-button text-button-primary" type="submit" value="Add" />
+        return <form onSubmit={this.handleSubmit}>
+            <p><label htmlFor="id_add_feed_url">Enter the URL of an Atom or RSS feed</label></p>
+            {this.state.adding
+                ?  <p>Adding...</p>
+                : <p className="add-feed-form">
+                    <input
+                        id="id_add_feed_url"
+                        type="url"
+                        name="url"
+                        placeholder="https://example.com/"
+                        value={this.state.url}
+                        onChange={this.handleUrlChange} />
+                    <input
+                        type="submit"
+                        className="text-button text-button-primary"
+                        value="Add" />
+                </p>}
+            {this.state.error ? <p>⚠️  {this.state.error}</p> : null}
         </form>;
     }
 }
 
+
 AddFeedForm.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    defaultUrl: PropTypes.string,
+    defaultUrl: PropTypes.string.isRequired, // May be empty
+    onAddFeed: PropTypes.func.isRequired,
 };
 
-export const ConnectedAddFeedView = connect(state => state, {
-    onSubmit: addFeed,
-})(AddFeedView);
+
+/**
+ * A button which registers Yarrharr as a feed reader so that it integrates
+ * with the Subscribe button. This is a non-standard feature which only works
+ * in Firefox. It is documented on MDN:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/registerContentHandler
+ *
+ * This button renders as nothing in browsers which don't support the
+ * navigator.registerContentHandler API.
+ */
+class RegisterFeedReaderForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+    render() {
+        if (!navigator.registerContentHandler) {
+            return null;
+        }
+        return <div className="register-feed-reader-form">
+            <h2>Firefox Integration</h2>
+            <p>
+                Firefox can discover feeds on pages you visit and add them to Yarrharr.
+            </p>
+            <ol>
+                <li>
+                    <input
+                        id="id_register_feed_reader"
+                        type="button"
+                        value="Register"
+                        className="text-button register-feed-button"
+                        onClick={this.handleClick}
+                    /> Yarrharr with Firefox.</li>
+                <li>Use the Customize menu option and drag the Subscribe button to your toolbar.</li>
+            </ol>
+            <p>
+                The Subscribe button will light up on pages with feeds.
+                Click it to add the feed to Yarrharr.
+            </p>
+        </div>;
+    }
+    handleClick(event) {
+        event.preventDefault();
+        const url = `${window.location.origin}/inventory/add/?url=%s`;
+        const appName = __debug__ ? "Yarrharr at " + window.location.origin : "Yarrharr";
+        navigator.registerContentHandler("application/vnd.mozilla.maybe.feed",
+                                         url, appName);
+    }
+}
