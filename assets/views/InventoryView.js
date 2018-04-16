@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -100,10 +100,10 @@ class InventoryItem extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            url: null,
-            active: null,
-            text: null,
-            labels: null,
+            url: props.feed.url,
+            active: props.feed.active,
+            text: props.feed.text,
+            labels: props.feed.labels,
         };
         this.handleActiveToggle = event => {
             this.setState({active: event.target.checked});
@@ -116,59 +116,44 @@ class InventoryItem extends React.PureComponent {
         };
         this.handleSubmit = event => {
             event.preventDefault();
+            // TODO Validation
             // TODO loading indicator...
-            props.onUpdateFeed(this.props.feed.id, this.current('text'), this.current('url'), this.current('active'), this.current('labels'));
-            // XXX This can cause flashing and extra re-layouts because neither
-            // setState nor action dispatch is guaranteed to take place
-            // immediately...
-            this.setState({
-                url: null,
-                active: null,
-                text: null,
-                labels: null,
-            });
+            props.onUpdateFeed(this.props.feed.id, this.state.text, this.state.url, this.state.active, this.state.labels);
         };
         this.handleClickRemove = event => {
             event.preventDefault();
             props.onRemoveFeed(this.props.feed.id);
         };
     }
-    current(name) {
-        if (this.state[name] == null) {
-            return this.props.feed[name];
-        }
-        return this.state[name];
-    }
     render() {
         const feed = this.props.feed;
         const state = this.state;
         const labelList = this.props.labelList;
-        return <div>
-            <div><a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
-            <div>{feed.labels.length
-                ? feed.labels.map(labelId => {
-                    const label = this.props.labelsById[labelId];
-                    return <Label key={labelId} feedId={feed.id} label={label} />;
-                })
-                : "No labels"}</div>
+        return <Fragment>
+            <div>Site URL: <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
             <div>Last checked {feed.checked ? <RelativeTime then={feed.checked} /> : "never"}</div>
             <div>Last updated {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}</div>
             {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
             <form onSubmit={this.handleSubmit}>
                 <p>
                     <label htmlFor="id_text">Title Override</label>
-                    <input id="id_text" type="text" name="text" value={this.current('text')} placeholder={feed.title} onChange={this.handleInputChange} />
+                    <input id="id_text" type="text" name="text" value={this.state.text} placeholder={feed.title} onChange={this.handleInputChange} />
                 </p>
                 <p>
-                    <label htmlFor="id_url">Feed URL (<a href={this.current('url')} target="_blank">link</a>)</label>
-                    <input id="id_url" type="url" name="url" value={this.current('url')} onChange={this.handleInputChange} />
+                    <label htmlFor="id_url">
+                        Feed URL
+                        {(/^https?:\/\//i.test(this.state.url))
+                            ? <Fragment> (<a href={this.state.url} target="_blank">link</a>)</Fragment>
+                            : null}
+                    </label>
+                    <input id="id_url" type="url" name="url" value={this.state.url} onChange={this.handleInputChange} />
                 </p>
                 <p>
-                    <label className="checkbox"><input type="checkbox" name="active" checked={this.current('active')} onChange={this.handleActiveToggle} /> Check this feed for updates</label>
+                    <label className="checkbox"><input type="checkbox" name="active" checked={this.state.active} onChange={this.handleActiveToggle} /> Check this feed for updates</label>
                 </p>
                 <p>
                     <label htmlFor="id_labels">Labels</label>
-                    <select id="id_labels" name="labels" multiple={true} value={this.current('labels')} onChange={this.handleLabelsChange} size={labelList.length}>
+                    <select id="id_labels" name="labels" multiple={true} value={this.state.labels} onChange={this.handleLabelsChange} size={labelList.length}>
                         {labelList.map(label => <option key={label.id} value={label.id}>{label.text}</option>)}
                     </select>
                 </p>
@@ -177,7 +162,7 @@ class InventoryItem extends React.PureComponent {
                     <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
             </form>
-        </div>;
+        </Fragment>;
     }
 }
 
