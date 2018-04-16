@@ -133,7 +133,7 @@ class InventoryItem extends React.PureComponent {
             <div>Site URL: <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
             <div>Last checked {feed.checked ? <RelativeTime then={feed.checked} /> : "never"}</div>
             <div>Last updated {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}</div>
-            {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
+            {feed.error ? <div className="feed-error"><strong>Error:</strong> {feed.error}</div> : null}
             <form onSubmit={this.handleSubmit}>
                 <p>
                     <label htmlFor="id_text">Title Override</label>
