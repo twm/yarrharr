@@ -278,4 +278,26 @@ class AdaptiveLoopingCallTests(SynchronousTestCase):
         """
         The stop() method waits for any pending call to complete
         """
-        # TODO
+        clock = task.Clock()
+        d = defer.Deferred()
+        loop = AdaptiveLoopingCall(clock, lambda: d)
+        startD = loop.start()
+
+        loop.stop()
+        self.assertNoResult(startD)
+
+        d.callback(1.0)
+        self.assertIs(loop, self.successResultOf(startD))
+
+    def test_fail_loop(self):
+        """
+        The deferred returned by start() fails when the function throws.
+        """
+        def thrower():
+            raise IndentationError
+
+        clock = task.Clock()
+        loop = AdaptiveLoopingCall(clock, thrower)
+        startD = loop.start()
+
+        self.failureResultOf(startD).trap(IndentationError)

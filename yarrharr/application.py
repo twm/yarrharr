@@ -255,6 +255,9 @@ class TwistedLoggerLogHandler(logging.Handler):
 
 class AdaptiveLoopingCall(object):
     """
+    :class:`AdaptiveLoopingCall` invokes a function periodically. Each time it
+    is called it returns the time to wait until the next invocation.
+
     :ivar _clock: :class:`IReactorTime` implementer
     :ivar _f: The function to call.
     :ivar _deferred: Deferred returned by :meth:`.start()`.
@@ -309,7 +312,8 @@ class AdaptiveLoopingCall(object):
         """
         assert isinstance(seconds, (int, float))
         if self._stopped:
-            self._deferred.callback(self)
+            d, self._deferred = self._deferred, None
+            d.callback(self)
         else:
             self._call = self._clock.callLater(seconds, self._callIt)
 
