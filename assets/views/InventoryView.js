@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -116,6 +116,7 @@ class InventoryItem extends React.PureComponent {
         };
         this.handleSubmit = event => {
             event.preventDefault();
+            // TODO Validation
             // TODO loading indicator...
             props.onUpdateFeed(this.props.feed.id, this.state.text, this.state.url, this.state.active, this.state.labels);
         };
@@ -128,7 +129,7 @@ class InventoryItem extends React.PureComponent {
         const feed = this.props.feed;
         const state = this.state;
         const labelList = this.props.labelList;
-        return <div>
+        return <Fragment>
             <div>Site URL: <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
             <div>Last checked {feed.checked ? <RelativeTime then={feed.checked} /> : "never"}</div>
             <div>Last updated {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}</div>
@@ -139,7 +140,12 @@ class InventoryItem extends React.PureComponent {
                     <input id="id_text" type="text" name="text" value={this.state.text} placeholder={feed.title} onChange={this.handleInputChange} />
                 </p>
                 <p>
-                    <label htmlFor="id_url">Feed URL (<a href={this.state.url} target="_blank">link</a>)</label>
+                    <label htmlFor="id_url">
+                        Feed URL
+                        {(/^https?:\/\//i.test(this.state.url))
+                            ? <Fragment> (<a href={this.state.url} target="_blank">link</a>)</Fragment>
+                            : null}
+                    </label>
                     <input id="id_url" type="url" name="url" value={this.state.url} onChange={this.handleInputChange} />
                 </p>
                 <p>
@@ -156,7 +162,7 @@ class InventoryItem extends React.PureComponent {
                     <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
             </form>
-        </div>;
+        </Fragment>;
     }
 }
 
