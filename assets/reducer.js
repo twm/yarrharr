@@ -4,16 +4,17 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 
 import { SET_PATH, matchPath } from './actions.js';
 
-const defaultRoute = {path: null, route: null, params: {}, scrollX: 0, scrollY: 0};
+const defaultRoute = {path: null, route: null, params: {}, search: '', scrollX: 0, scrollY: 0};
 function routeReducer(state = defaultRoute, action) {
     if (action.type === SET_PATH) {
-        if (state.path === action.path) {
+        if (state.path === action.path && state.search === action.search) {
             return state; // Nothing changed.
         }
         return {
             path: action.path,
             route: action.route,
             params: action.params,
+            search: action.search,
             scrollX: action.scrollX,
             scrollY: action.scrollY,
         };
@@ -115,26 +116,6 @@ function feedReducer(state = null, action) {
 function feedOrderReducer(state = null, action) {
     if (action.type === RECEIVE_FEEDS) {
         return action.feedOrder;
-    }
-    return state;
-}
-
-import { REQUEST_ADD_FEED, RECEIVE_ADD_FEED, FAIL_ADD_FEED } from './actions.js';
-function feedAddReducer(state = {}, action) {
-    if (action.type === REQUEST_ADD_FEED) {
-        return {
-            url: action.url,
-        };
-    } else if (action.type === RECEIVE_ADD_FEED) {
-        return {
-            url: action.url,
-            feedId: action.feedId,
-        };
-    } else if (action.type === FAIL_ADD_FEED) {
-        return {
-            url: action.url,
-            error: action.error,
-        };
     }
     return state;
 }
@@ -300,7 +281,6 @@ export default combineReducers({
     articlesById: articleReducer,
     feedsById: feedReducer,
     feedOrder: feedOrderReducer,
-    feedAdd: feedAddReducer,
     snapshot: snapshotReducer,
     labelsById: labelReducer,
     labelOrder: labelOrderReducer,

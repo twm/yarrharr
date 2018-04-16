@@ -685,10 +685,11 @@ export const SET_PATH = 'SET_PATH';
  * Navigate to a new URL path (relative to the Yarrharr root path).
  *
  * @param {string} path
+ * @param {string} search
  * @param {number} scrollX Initial horizontal scroll position
  * @param {number} scrollY Initial vertical scroll position
  */
-export function setPath(path, scrollX = 0, scrollY = 0) {
+export function setPath(path, search = "", scrollX = 0, scrollY = 0) {
     const match = matchPath(path);
     if (!match) {
         throw new Error(`path ${path} does not match a known route`);
@@ -703,6 +704,7 @@ export function setPath(path, scrollX = 0, scrollY = 0) {
             path,
             route,
             params,
+            search,
             scrollX,
             scrollY,
         });

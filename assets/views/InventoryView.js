@@ -449,9 +449,13 @@ if (__debug__) {
 }
 
 
-export class AddFeedView extends React.PureComponent {
+export class AddFeedView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {url: ''};
+    }
     render() {
-        return <React.Fragment>
+        return <Fragment>
             <GlobalBar />
             <Title title="Add Feed" />
             <Tabs>
@@ -463,52 +467,31 @@ export class AddFeedView extends React.PureComponent {
             <Centered>
                 <h1>Add Feed</h1>
                 <p>Enter the URL of an Atom or RSS feed:</p>
-                <AddFeedForm className="add-feed-form" onSubmit={this.props.onSubmit} defaultUrl={this.props.defaultUrl} />
-                {this.renderAdd()}
+                <AddFeedForm className="add-feed-form" onSubmit={this.props.onAddFeed} defaultUrl={this.props.searchParams.get('url') || ''} />
             </Centered>
-        </React.Fragment>;
-    }
-    renderAdd() {
-        const { url=null, error=null, feedId=null } = this.props.feedAdd;
-        if (!url) {
-            return null;
-        }
-        if (error) {
-            return <div>
-                <p>Error adding {url}</p>
-            </div>;
-        }
-        if (feedId) {
-            return <div>
-                <p>Added feed <FeedLink feedId={feedId} filter={FILTER_UNREAD}>{url}</FeedLink></p>
-            </div>;
-        }
-        return <p>Adding feed {url}</p>;
+        </Fragment>;
     }
 }
 
 AddFeedView.propTypes = {
-    /**
-     * Pre-fill the URL field with this value.
-     */
-    defaultUrl: PropTypes.string,
-    /**
-     * The current feed add operation (if one is ongoing).
-     */
-    feedAdd: PropTypes.object.isRequired,
     /**
      * A superficially valid URL has been entered by the user.  Attempt to add
      * it as a feed.
      *
      * @param {string} url Something that looks like a URL.
      */
-    onSubmit: PropTypes.func.isRequired,
+    onAddFeed: PropTypes.func.isRequired,
 };
+
+export const ConnectedAddFeedView = connect(state => state, {
+    onAddFeed: addFeed,
+})(AddFeedView);
+
 
 class AddFeedForm extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {url: ''};
+        this.state = {url: props.defaultUrl};
         this.handleUrlChange = event => {
             this.setState({url: event.target.value});
         };
@@ -519,17 +502,12 @@ class AddFeedForm extends React.PureComponent {
     }
     render() {
         return <form className="add-feed-form" onSubmit={this.handleSubmit}>
-            <input type="url" name="url" defaultValue={this.props.defaultUrl} value={this.state.url} onChange={this.handleUrlChange} />
-            <input className="text-button text-button-primary" type="submit" value="Add" />
+            <input type="url" name="url" value={this.state.url} onChange={this.handleUrlChange} />
+            <input className="text-button text-button-primary" type="submit" value="Go" />
         </form>;
     }
 }
 
 AddFeedForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
-    defaultUrl: PropTypes.string,
 };
-
-export const ConnectedAddFeedView = connect(state => state, {
-    onSubmit: addFeed,
-})(AddFeedView);
