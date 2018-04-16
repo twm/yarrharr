@@ -34,7 +34,7 @@ if (process.env.NODE_ENV !== 'production') {
         title: PropTypes.string.isRequired,
         author: PropTypes.string,
         content: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
+        date: PropTypes.number.isRequired,
         feed: PropTypes.shape({
             id: PropTypes.number.isRequired,
             text: PropTypes.string,
