@@ -31,7 +31,7 @@ from django.test import Client, TestCase
 from django.utils import timezone
 import mock
 
-# from ..models import Feed
+from ..models import Feed, Label
 
 
 class dictwith(object):
@@ -155,7 +155,10 @@ class InventoryViewTests(TestCase):
     def test_create(self):
         url = u'http://example.com/feed.xml'
 
-        response = self.client.post('/api/inventory/', {'action': 'create', 'url': url})
+        response = self.client.post('/api/inventory/', {
+            'action': 'create-feed',
+            'url': url,
+        })
 
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
@@ -174,8 +177,8 @@ class InventoryViewTests(TestCase):
                     'labels': [],
                     'unreadCount': 0,
                     'faveCount': 0,
-                    'checked': '',
-                    'updated': '',
+                    'checked': None,
+                    'updated': None,
                     'added': mock.ANY,
                     'error': '',
                     'active': True,
@@ -187,9 +190,9 @@ class InventoryViewTests(TestCase):
             'labelOrder': [],
         }, response.json())
 
-    def test_update(self):
+    def test_update_feed_title_and_url(self):
         """
-        A feed's user title and feed URL may be changed by the update action.
+        A feed's user title and feed URL are set by the update-feed action.
         """
         added = timezone.now() - datetime.timedelta(days=1)
         feed = self.user.feed_set.create(
@@ -202,7 +205,7 @@ class InventoryViewTests(TestCase):
         user_title = 'Feed Z'
 
         response = self.client.post('/api/inventory/', {
-            'action': 'update',
+            'action': 'update-feed',
             'feed': feed.id,
             'url': url,
             'active': 'on',
@@ -223,9 +226,9 @@ class InventoryViewTests(TestCase):
                     'labels': [],
                     'unreadCount': 0,
                     'faveCount': 0,
-                    'checked': '',
-                    'updated': '',
-                    'added': str(added),  # FIXME use RFC 3339 format
+                    'checked': None,
+                    'updated': None,
+                    'added': added.timestamp() * 1000,
                     'error': '',
                     'active': True,
                     'url': url,
@@ -252,7 +255,7 @@ class InventoryViewTests(TestCase):
         label_a = self.user.label_set.create(text='A')
 
         response = self.client.post('/api/inventory/', {
-            'action': 'update',
+            'action': 'update-feed',
             'feed': feed.id,
             'url': feed.url,
             'active': 'on',
@@ -286,7 +289,10 @@ class InventoryViewTests(TestCase):
             'labelOrder': [label_a.id, label_b.id, label_c.id],
         }, response.json())
 
-    def test_remove(self):
+    def test_remove_feed(self):
+        """
+        The remove action can delete a single feed.
+        """
         feed = self.user.feed_set.create(
             url='http://example.com/feed2.xml',
             feed_title='Feed 2',
@@ -306,10 +312,55 @@ class InventoryViewTests(TestCase):
             'labelsById': {},
             'labelOrder': [],
         }, response.json())
+        self.assertRaises(Feed.DoesNotExist, Feed.objects.get, pk=feed.id)
 
-    def test_activate(self):
+    def test_remove_labels(self):
         """
-        A feed is scheduled to be checked by the activate action.
+        The remove action can delete a single label, leaving the associated
+        feeds unaffected.
+        """
+        feed_a = self.user.feed_set.create(
+            url='http://example.com/feed-a.xml',
+            feed_title='Feed A',
+            added=timezone.now() - datetime.timedelta(days=1),
+        )
+        label_a = feed_a.label_set.create(text='A', user=self.user)
+
+        response = self.client.post('/api/inventory/', {
+            'action': 'remove',
+            'label': str(label_a.id),
+        })
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, self.user.feed_set.count())
+        self.assertEqual({
+            'feedsById': {
+                str(feed_a.id): {
+                    'id': feed_a.id,
+                    'title': 'Feed A',
+                    'text': '',
+                    'siteUrl': '',
+                    'labels': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                    'checked': None,
+                    'updated': None,
+                    'added': mock.ANY,
+                    'error': '',
+                    'active': mock.ANY,
+                    'url': 'http://example.com/feed-a.xml',
+                },
+            },
+            'feedOrder': [feed_a.id],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
+        self.assertRaises(Label.DoesNotExist, Label.objects.get, pk=label_a.id)
+
+    def test_update_feed_activate(self):
+        """
+        A feed is scheduled to be checked following an update-feed action with
+        active=on.
         """
         feed = self.user.feed_set.create(
             url='http://example.com/feed1.xml',
@@ -319,7 +370,7 @@ class InventoryViewTests(TestCase):
         )
 
         response = self.client.post('/api/inventory/', {
-            'action': 'update',
+            'action': 'update-feed',
             'feed': feed.id,
             'active': 'on',
             'title': '',
@@ -331,31 +382,20 @@ class InventoryViewTests(TestCase):
         self.assertIsNotNone(feed.next_check)
         self.assertEqual({
             'feedsById': {
-                str(feed.id): {
+                str(feed.id): dictwith({
                     'id': feed.id,
-                    'title': 'Feed 1',
-                    'text': '',
-                    'siteUrl': '',
-                    'labels': [],
-                    'unreadCount': 0,
-                    'faveCount': 0,
-                    'checked': '',
-                    'updated': '',
-                    'added': mock.ANY,
-                    'error': '',
                     'active': True,
-                    'url': 'http://example.com/feed1.xml',
-                },
+                }),
             },
             'feedOrder': [feed.id],
             'labelsById': {},
             'labelOrder': [],
         }, response.json())
 
-    def test_deactivate(self):
+    def test_update_feed_deactivate(self):
         """
-        A feed is no longer scheduled to be checked following the deactivate
-        action.
+        A feed is no longer scheduled to be checked following an update-feed
+        action with active=off.
         """
         feed = self.user.feed_set.create(
             url='http://example.com/feed1.xml',
@@ -365,7 +405,7 @@ class InventoryViewTests(TestCase):
         )
 
         response = self.client.post('/api/inventory/', {
-            'action': 'deactivate',
+            'action': 'update-feed',
             'feed': feed.id,
             'active': 'off',
             'title': '',
@@ -377,25 +417,79 @@ class InventoryViewTests(TestCase):
         self.assertIsNone(feed.next_check)
         self.assertEqual({
             'feedsById': {
-                str(feed.id): {
+                str(feed.id): dictwith({
                     'id': feed.id,
-                    'title': 'Feed 1',
-                    'text': '',
-                    'siteUrl': '',
-                    'labels': [],
-                    'unreadCount': 0,
-                    'faveCount': 0,
-                    'checked': '',
-                    'updated': '',
-                    'added': mock.ANY,
-                    'error': '',
                     'active': False,
-                    'url': 'http://example.com/feed1.xml',
-                },
+                }),
             },
             'feedOrder': [feed.id],
             'labelsById': {},
             'labelOrder': [],
+        }, response.json())
+
+    def test_update_label(self):
+        """
+        The update-label action sets the labels text and associated feeds.
+        """
+        feed_a = self.user.feed_set.create(
+            url='http://example/a',
+            feed_title='A',
+            added=timezone.now(),
+        )
+        feed_b = self.user.feed_set.create(
+            url='http://example/b',
+            feed_title='B',
+            added=timezone.now(),
+        )
+        feed_c = self.user.feed_set.create(
+            url='http://example/c',
+            feed_title='C',
+            added=timezone.now(),
+        )
+        label_a = self.user.label_set.create(
+            text='A',
+        )
+        label_a.feeds.set([feed_a, feed_c])
+
+        response = self.client.post('/api/inventory/', {
+            'action': 'update-label',
+            'label': label_a.id,
+            'feed': [feed_b.id, feed_c.id],
+            'text': 'B&C',
+        })
+
+        self.assertEqual(200, response.status_code)
+
+        # Label A was updated.
+        updated = Label.objects.get(id=label_a.id)
+        self.assertEqual("B&C", updated.text)
+        self.assertRaises(Feed.DoesNotExist, updated.feeds.get, pk=feed_a.id)
+        updated.feeds.get(pk=feed_b.id)
+        updated.feeds.get(pk=feed_c.id)
+
+        self.assertEqual({
+            'feedsById': {
+                str(feed_a.id): dictwith({
+                    'id': feed_a.id,
+                    'labels': [],
+                }),
+                str(feed_b.id): dictwith({
+                    'id': feed_b.id,
+                    'labels': [label_a.id],
+                }),
+                str(feed_c.id): dictwith({
+                    'id': feed_c.id,
+                    'labels': [label_a.id],
+                }),
+            },
+            'feedOrder': [feed_a.id, feed_b.id, feed_c.id],
+            'labelsById': {
+                str(label_a.id): dictwith({
+                    'text': 'B&C',
+                    'feeds': [feed_b.id, feed_c.id],
+                }),
+            },
+            'labelOrder': [label_a.id],
         }, response.json())
 
 

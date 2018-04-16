@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FeedLink } from "widgets/links.js";
+import { RelativeTime } from 'widgets/time.jsm';
 import { FILTER_ALL } from 'actions.js';
 import { OutboundIcon } from 'widgets/icons.js';
 import "./Article.less";
@@ -18,7 +19,7 @@ export class Article extends React.PureComponent {
                 {this.props.author
                     ? <p>By {this.props.author} from <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
                     : <p>From <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
-                <p>Posted {this.props.date}</p>
+                <p>Posted <RelativeTime then={this.props.date} /></p>
             </div>
             <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
         </article>;
@@ -33,7 +34,7 @@ if (process.env.NODE_ENV !== 'production') {
         title: PropTypes.string.isRequired,
         author: PropTypes.string,
         content: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
+        date: PropTypes.number.isRequired,
         feed: PropTypes.shape({
             id: PropTypes.number.isRequired,
             text: PropTypes.string,

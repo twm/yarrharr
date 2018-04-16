@@ -60,6 +60,20 @@ def human_sort_key(s):
     return s.lower()
 
 
+def ms_timestamp(dt):
+    """
+    Convert a :class:`datetime.datetime` to a JavaScript-style timestamp:
+    milliseconds since the UNIX epoch.
+
+    :param dt: :class:`datetime.datetime`, which may be ``None`` (which
+        propagates).
+    :returns: :class:`float` or ``None``
+    """
+    if dt is None:
+        return None
+    return dt.timestamp() * 1000
+
+
 def log_query(qs):
     log.debug('qs.query = {query}', query=qs.query)
     return qs
@@ -77,7 +91,7 @@ def json_for_entry(entry):
         'title': entry.title,
         'content': entry.content,
         'author': entry.author,
-        'date': str(entry.date),
+        'date': ms_timestamp(entry.date),
         'url': entry.url,
     }
 
@@ -93,9 +107,9 @@ def json_for_feed(feed):
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
         'siteUrl': feed.site_url,
-        'added': str(feed.added),
-        'updated': str(feed.last_updated or ''),
-        'checked': str(feed.last_checked or ''),
+        'added': ms_timestamp(feed.added),
+        'updated': ms_timestamp(feed.last_updated),
+        'checked': ms_timestamp(feed.last_checked),
         # 'nextCheck': str(feed.next_check or ''),
         'error': feed.error,
     }
@@ -383,23 +397,31 @@ def labels(request):
 @login_required
 def inventory(request):
     """
-    Manage feeds.
+    Manipulate feeds and labels.
 
     On GET, retrieve full feed and label metadata.  On POST, the
     :param:`action` field determines what is done:
 
-    ``"create"`` creates a new feed where :param:`url` is the URL of the feed
-    (and also the initial title).  The ID of the feed is returned in the
+    ``"create-feed"`` creates a new feed where :param:`url` is the URL of the
+    feed (and also the initial title).  The ID of the feed is returned in the
     ``"feedId"`` member of the response.
 
-    ``"update"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
+    ``"update-feed"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
     according to the :param:`title` and :param:`url` parameters. Iff
     :param:`active` is ``on`` then the feed is scheduled to be checked.
     The set of labels associated with the feed is adjusted to match the IDs
     presented in the :param:`label` parameter.
 
-    ``"remove"`` deletes the feed specified by :param:`feed`.  The operation
-    cascades to all of the articles from the feed.
+    ``"update-label"`` sets the :attr:`~Feed.text` according to the
+    :param:`text` parameter and adjusts the set of associated feeds to match
+    the IDs presented in the :param:`feed` parameter.
+
+    ``"remove"`` deletes objects:
+
+     *  Feeds specified by :param:`feed`. The operation cascades to all of the
+        articles from the feed.
+     *  Labels specified by :param:`label`. This does not affect any associated
+        feeds.
 
     POST returns the full feed and label metadata just like GET, in the
     ``"labelsById"`` and ``"feedsById"`` members of the JSON response body.
@@ -407,7 +429,7 @@ def inventory(request):
     if request.method == 'POST':
         action = request.POST['action']
         data = {}
-        if action == 'create':
+        if action == 'create-feed':
             feed_url = request.POST['url']
             feed = request.user.feed_set.create(
                 feed_title=feed_url,
@@ -417,7 +439,7 @@ def inventory(request):
             )
             feed.save()
             data['feedId'] = feed.id
-        elif action == 'update':
+        elif action == 'update-feed':
             with transaction.atomic():
                 feed = request.user.feed_set.get(id=request.POST['feed'])
                 feed.url = request.POST['url']
@@ -429,9 +451,21 @@ def inventory(request):
                 else:
                     feed.next_check = None
                 feed.save()
+        elif action == 'update-label':
+            with transaction.atomic():
+                label = request.user.label_set.get(id=request.POST['label'])
+                label.text = request.POST['text']
+                new_feeds = request.user.feed_set.filter(pk__in=request.POST.getlist('feed'))
+                label.feeds.set(new_feeds)
+                label.save()
         elif action == 'remove':
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            feed.delete()
+            with transaction.atomic():
+                for feed in request.user.feed_set.filter(pk__in=request.POST.getlist('feed')):
+                    feed.delete()
+                for label in request.user.label_set.filter(pk__in=request.POST.getlist('label')):
+                    label.delete()
+        else:
+            raise ValueError(action)
 
         data.update(labels_for_user(request.user))
         data.update(feeds_for_user(request.user))

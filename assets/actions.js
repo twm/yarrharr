@@ -479,6 +479,13 @@ export function loadFeeds() {
 }
 
 export const REQUEST_ADD_FEED = 'REQUEST_ADD_FEED';
+/**
+ * Add a feed to the inventory.
+ *
+ * @param {string} url URL of the feed.
+ * @returns {Promise} A promise which resolves with the ID of the feed when
+ *      successfully added, or fails otherwise.
+ */
 export function addFeed(url) {
     return (dispatch) => {
         dispatch({
@@ -486,16 +493,14 @@ export function addFeed(url) {
             url,
         });
         const body = new FormData();
-        body.append('action', 'create');
+        body.append('action', 'create-feed');
         body.append('url', url);
         return post('/api/inventory/', body).then(json => {
-            // TODO: Handle expected error conditions.
             const { feedId, feedsById } = json;
             dispatch(receiveAddFeed(url, feedId));
             dispatch(receiveFeeds(feedsById, json.feedOrder));
-        }).catch(e => {
-            console.error("Error adding", url, "->", e);
-            dispatch(failAddFeed(url, "Unexpected error"));
+            dispatch(setPath(`/inventory/feed/${feedId}/`));
+            return feedId;
         });
     };
 }
@@ -506,15 +511,6 @@ export function receiveAddFeed(url, feedId) {
         type: RECEIVE_ADD_FEED,
         url,
         feedId,
-    };
-}
-
-export const FAIL_ADD_FEED = 'FAIL_ADD_FEED';
-export function failAddFeed(url, error) {
-    return {
-        type: FAIL_ADD_FEED,
-        url,
-        error,
     };
 }
 
@@ -536,7 +532,7 @@ export function updateFeed(feedId, text, url, active, labels) {
             labels,
         });
         const body = new FormData();
-        body.append('action', 'update');
+        body.append('action', 'update-feed');
         body.append('feed', feedId);
         body.append('title', text); // user_title on Feed
         body.append('url', url);
@@ -631,57 +627,53 @@ export function failAddLabel(text) {
     alert("Failed to add label " + text + ".");
 }
 
-export function failAttachLabel(feedId, labelId) {
-    // TODO
-    alert("Failed to add label to feed");
-    console.log("Failed to add label", labelId, "to feed", feedId);
-}
-
-export const ATTACH_LABEL = 'ATTACH_LABEL';
-export function attachLabel(feedId, labelId) {
+export const UPDATE_LABEL = 'UPDATE_LABEL';
+export function updateLabel(labelId, text, feeds) {
     return (dispatch) => {
         dispatch({
-            type: ATTACH_LABEL,
-            feedId,
+            type: 'UPDATE_LABEL',
             labelId,
+            text,
+            feeds,
         });
         const body = new FormData();
-        body.append('action', 'attach');
-        body.append('feed', feedId);
+        body.append('action', 'update-label');
         body.append('label', labelId);
-        return post('/api/labels/', body).then(json => {
+        body.append('text', text);
+        feeds.forEach(id => body.append('feed', id));
+        return post('/api/inventory/', body).then(json => {
             const { feedsById, feedOrder, labelsById, labelOrder } = json;
-            dispatch(receiveLabels(labelsById, labelOrder));
             dispatch(receiveFeeds(feedsById, feedOrder));
+            dispatch(receiveLabels(labelsById, labelOrder));
         }).catch(e => {
             console.error(e);
-            dispatch(failAttachLabel(feedId, labelId));
+            alert('Failed to save label ' + labelId);
+            // TODO
         });
     };
 }
 
-export const DETACH_LABEL = 'DETACH_LABEL';
-export function detachLabel(feedId, labelId) {
+export const REMOVE_LABEL = 'REMOVE_LABEL';
+export function removeLabel(labelId) {
     return (dispatch) => {
         dispatch({
-            type: DETACH_LABEL,
-            feedId,
+            type: 'REMOVE_LABEL',
             labelId,
         });
         const body = new FormData();
-        body.append('action', 'detach');
-        body.append('feed', feedId);
+        body.append('action', 'remove');
         body.append('label', labelId);
-        return post('/api/labels/', body).then(json => {
+        return post('/api/inventory/', body).then(json => {
             const { feedsById, feedOrder, labelsById, labelOrder } = json;
-            dispatch(receiveLabels(labelsById, labelOrder));
+            setPath('/inventory/labels/');
             dispatch(receiveFeeds(feedsById, feedOrder));
+            dispatch(receiveLabels(labelsById, labelOrder));
         }).catch(e => {
             console.error(e);
-            alert('Failed to remove label');
+            alert('Failed to remove label ' + labelId);
             // TODO
         });
-    }
+    };
 }
 
 export const SET_PATH = 'SET_PATH';
@@ -689,10 +681,11 @@ export const SET_PATH = 'SET_PATH';
  * Navigate to a new URL path (relative to the Yarrharr root path).
  *
  * @param {string} path
+ * @param {string} search
  * @param {number} scrollX Initial horizontal scroll position
  * @param {number} scrollY Initial vertical scroll position
  */
-export function setPath(path, scrollX = 0, scrollY = 0) {
+export function setPath(path, search = "", scrollX = 0, scrollY = 0) {
     const match = matchPath(path);
     if (!match) {
         throw new Error(`path ${path} does not match a known route`);
@@ -707,6 +700,7 @@ export function setPath(path, scrollX = 0, scrollY = 0) {
             path,
             route,
             params,
+            search,
             scrollX,
             scrollY,
         });
@@ -727,6 +721,7 @@ export const ROUTES = [
     '/',
     '/inventory',
     '/inventory/add',
+    '/inventory/labels',
     '/inventory/feed/:feedId',
     '/inventory/label/:labelId',
     '/all/:filter',

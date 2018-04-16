@@ -27,6 +27,10 @@ export default function syncLocation(store, window) {
         return window.location.pathname;
     }
 
+    function windowSearch() {
+        return window.location.search;
+    }
+
     // Generate a random identifier for a history entry. This only needs to be
     // unique per-session, so of course this is extreme overkill.
     function makeKey() {
@@ -54,9 +58,10 @@ export default function syncLocation(store, window) {
 
     var key = history.state || makeKey();
     var popPath = null;
+    var popSearch = null;
     // scrollX/Y must be null on initial load as the browser restores scroll position.
     const {x = 0, y = 0} = getScroll(key);
-    store.dispatch(setPath(windowPath(), null, null));
+    store.dispatch(setPath(windowPath(), windowSearch(), null, null));
 
     window.onpopstate = function(event) {
         saveScroll(key);
@@ -64,7 +69,8 @@ export default function syncLocation(store, window) {
         const {x = 0, y = 0} = getScroll(key);
         // console.log(`onpopstate: ${windowPath()} ${key} -> x=${x}, y=${y}`, event);
         popPath = windowPath();
-        store.dispatch(setPath(popPath, x, y));
+        popSearch = windowSearch();
+        store.dispatch(setPath(popPath, popSearch, x, y));
     };
 
     // Save the scroll state when the page is navigated away from (e.g., an
@@ -78,7 +84,7 @@ export default function syncLocation(store, window) {
     return store.subscribe(function pushState() {
         const { route } = store.getState();
         // console.log('syncLocation callback called', route);
-        if (popPath !== null && popPath !== route.path) {
+        if (popPath !== null && popPath !== route.path && popSearch !== route.search) {
             // Ignore because we are waiting for the change made by popstate to
             // propagate to us.
             //
@@ -88,18 +94,19 @@ export default function syncLocation(store, window) {
             // console.log(`Ignoring store update with path ${route.path} because popPath is ${popPath} (waiting for popstate changes to propagate)`);
             return;
         }
-        if (popPath === route.path) {
+        if (popPath === route.path && popSearch == route.search) {
             // Ignore because we set this path from popstate. Now we can stop
             // ignoring updates.
             // console.log(`Not doing pushState for ${popPath} because the update came from popstate`);
             popPath = null;
+            popSearch = null;
             return;
         }
-        if (route.path !== windowPath()) {
+        if (route.path !== windowPath() || route.search !== windowSearch()) {
             saveScroll(key);
             key = makeKey();
-            // console.log(`pushState(${key}, '', ${route.path})`);
-            history.pushState(key, "", route.path);
+            // console.log(`pushState(${key}, '', ${route.path + route.search})`);
+            history.pushState(key, "", route.path + route.search);
         }
     });
 }

@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { setPath, ORIGIN_CLICK, ROUTES } from './actions.js';
+import { ORIGIN_CLICK, ROUTES } from './actions.js';
 
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
-import { ConnectedAddFeedView, ConnectedInventoryView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/InventoryView.js';
+import { ConnectedAddFeedView, ConnectedInventoryView, ConnectedLabelListView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/InventoryView.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
@@ -15,6 +15,7 @@ const routeToView = {
     '/': ConnectedRootView,
     '/inventory': ConnectedInventoryView,
     '/inventory/add': ConnectedAddFeedView,
+    '/inventory/labels': ConnectedLabelListView,
     '/inventory/feed/:feedId': ConnectedManageFeedView,
     '/inventory/label/:labelId': ConnectedManageLabelView,
     '/all/:filter': ConnectedAllView,
@@ -42,14 +43,21 @@ if (__debug__) {
  * Component which selects its sub-component based on the URL path.
  */
 export class Router extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            search: '',
+            searchParams: new URLSearchParams(),
+        };
+    }
     render() {
-        const { path, route, params } = this.props;
+        const { path, route, params, search } = this.props;
         if (route == null) {
             return null;  // Can't render yet.
         }
         const Component = routeToView[route];
         if (Component) {
-            return <Component params={params} />;
+            return <Component params={params} searchParams={this.state.searchParams} />;
         }
         return <p>Client-side 404: The location {path} {route} did not match a route.</p>;
     }
@@ -59,6 +67,20 @@ export class Router extends React.Component {
             window.scrollTo(this.props.scrollX, this.props.scrollY);
         }
     }
+}
+
+/**
+ * Generate the "searchParams" state, which is a parsed version of the "search"
+ * prop. A "search" prop is also generated to permit detection of when the prop
+ * has changed.
+ */
+Router.getDerivedStateFromProps = function(nextProps, prevState) {
+    if (nextProps.search !== prevState.search) {
+        const search = nextProps.search;
+        const searchParams = search ? new URLSearchParams(search.substring(1)) : new URLSearchParams();
+        return {search, searchParams};
+    }
+    return null;
 }
 
 if (__debug__) {

@@ -16,7 +16,6 @@
     }
     tr {
         display: grid;
-        grid-template-columns: 2rem 2.5rem 2fr 1fr 1fr 1.5rem;
     }
     th, td, td > a {
         display: block;
@@ -33,26 +32,26 @@
     }
 }
 
-.inventory-item {
-    h2 {
-        font: normal 1.25rem / 1.5rem sans-serif;
-        padding: 0 0 1rem 0;
-        margin: 0;
-    }
+.feed-table tr {
+    grid-template-columns: 2rem 2.5rem 2fr 1fr 1fr 1.5rem;
+}
 
-    .tools {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-between;
+.label-table tr {
+    grid-template-columns: 2rem 1fr 2rem 1.5rem;
+}
 
-        .remove-button, input[type=submit] {
-            flex: 0 1 auto;
-            width: auto;
-        }
+.inventory-tools {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+
+    .remove-button, input[type=submit] {
+        flex: 0 1 auto;
+        width: auto;
     }
 }
 
-form.add-feed-form {
+.add-feed-form {
     display: flex;
 
     input[type=url] {
@@ -62,5 +61,12 @@ form.add-feed-form {
     input[type=submit] {
         flex: 1 1 0;
         margin-left: @text_padding;
+    }
+}
+
+.register-feed-reader-form {
+    input {
+        display: inline-block;
+        width: auto;
     }
 }

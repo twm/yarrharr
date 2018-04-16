@@ -35,6 +35,7 @@ urlpatterns = (
     url(r'^inventory/$', yarrharr.views.index),
     url(r'^inventory/add/$', yarrharr.views.index),
     url(r'^inventory/feed/\d+/$', yarrharr.views.index),
+    url(r'^inventory/labels/$', yarrharr.views.index),
     url(r'^inventory/label/\d+/$', yarrharr.views.index),
     url(r'^article/\d+/$', yarrharr.views.index),
     url(r'^all/[^/]+/$', yarrharr.views.index),
