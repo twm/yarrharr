@@ -6,6 +6,7 @@ import { Title } from 'widgets/Title.jsm';
 import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import Header from 'widgets/Header.js';
 import { Tabs } from 'widgets/Tabs.js';
+import { RelativeTime } from 'widgets/time.jsm';
 import { GlobalBar } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
@@ -82,8 +83,7 @@ export class InventoryView extends React.PureComponent {
                         <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
                     </td>
                     <td className="col-updated">
-                        {/* TODO use <time> element, display relative date */}
-                        {feed.updated}
+                        <RelativeTime then={feed.updated} />
                     </td>
                     <td className="col-edit">
                         <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
@@ -151,8 +151,8 @@ class InventoryItem extends React.PureComponent {
                     return <Label key={labelId} feedId={feed.id} label={label} />;
                 })
                 : "No labels"}</div>
-            <div>Last checked {feed.checked || "never"}</div>
-            <div>Last updated {feed.updated || "never"}</div>
+            <div>Last checked {feed.checked ? <RelativeTime then={feed.checked} /> : "never"}</div>
+            <div>Last updated {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}</div>
             {feed.error ? <div style={{whiteSpace: 'pre-wrap'}}><strong>Error:</strong> {feed.error}</div> : null}
             <form onSubmit={this.handleSubmit}>
                 <p>

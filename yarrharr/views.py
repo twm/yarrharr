@@ -60,6 +60,20 @@ def human_sort_key(s):
     return s.lower()
 
 
+def ms_timestamp(dt):
+    """
+    Convert a :class:`datetime.datetime` to a JavaScript-style timestamp:
+    milliseconds since the UNIX epoch.
+
+    :param dt: :class:`datetime.datetime`, which may be ``None`` (which
+        propagates).
+    :returns: :class:`float` or ``None``
+    """
+    if dt is None:
+        return None
+    return dt.timestamp() * 1000
+
+
 def log_query(qs):
     log.debug('qs.query = {query}', query=qs.query)
     return qs
@@ -77,7 +91,7 @@ def json_for_entry(entry):
         'title': entry.title,
         'content': entry.content,
         'author': entry.author,
-        'date': str(entry.date),
+        'date': ms_timestamp(entry.date),
         'url': entry.url,
     }
 
@@ -93,9 +107,9 @@ def json_for_feed(feed):
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
         'siteUrl': feed.site_url,
-        'added': str(feed.added),
-        'updated': str(feed.last_updated or ''),
-        'checked': str(feed.last_checked or ''),
+        'added': ms_timestamp(feed.added),
+        'updated': ms_timestamp(feed.last_updated),
+        'checked': ms_timestamp(feed.last_checked),
         # 'nextCheck': str(feed.next_check or ''),
         'error': feed.error,
     }
