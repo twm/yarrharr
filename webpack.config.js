@@ -141,7 +141,7 @@ module.exports = {
     },
     module: {
         rules: [{
-            test: /\.js$/,
+            test: /\.jsm?$/,
             enforce: 'pre',
             loaders: ['eslint-loader'],
             exclude: /node_modules/,
@@ -159,7 +159,7 @@ module.exports = {
                 fallback: 'style-loader',
             }),
         }, {
-            test: /\.js$/,
+            test: /\.jsm?$/,
             loaders: ['babel-loader'],
             exclude: /node_modules/,
         }, {
