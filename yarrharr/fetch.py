@@ -54,7 +54,7 @@ from .sanitize import REVISION, html_to_text, sanitize_html
 try:
     # Seriously STFU this is not helpful.
     client._HTTP11ClientFactory.noisy = False
-except:
+except BaseException:
     # Oh hey whatever. No promises.
     pass
 
@@ -333,26 +333,35 @@ def poll(reactor, max_fetch):
     feeds_to_check = yield deferToThread(
         lambda: list(Feed.objects.filter(next_check__isnull=False).filter(
             next_check__lte=timezone.now())[:max_fetch]))
-    if not feeds_to_check:
-        return
 
-    outcomes = []
-    for feed in feeds_to_check:
+    if feeds_to_check:
+        outcomes = []
+        for feed in feeds_to_check:
+            try:
+                outcome = (yield poll_feed(feed))
+                outcomes.append((feed, outcome))
+                log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
+            except Exception:
+                log.failure("Failed to poll {feed}", feed=feed)
+                outcomes.append((feed, PollError()))
+
         try:
-            outcome = (yield poll_feed(feed))
-            outcomes.append((feed, outcome))
-            log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
+            yield deferToThread(persist_outcomes, outcomes)
         except Exception:
-            log.failure("Failed to poll {feed}", feed=feed)
-            outcomes.append((feed, PollError()))
+            log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
-    try:
-        yield deferToThread(persist_outcomes, outcomes)
-    except Exception:
-        log.failure("Failed to persist {count} outcomes", count=len(outcomes))
+    next_pending = yield deferToThread(
+        lambda: Feed.objects.filter(next_check__isnull=False).order_by(
+            'next_check').values_list('next_check', flat=True)[:1])
+    if next_pending:
+        delay = (next_pending[0] - timezone.now()).total_seconds()
     else:
-        log.info('Checking {count} feeds took {duration:.2f} sec',
-                 count=len(outcomes), duration=reactor.seconds() - start)
+        delay = 15 * 60.0  # Default to every 15 minutes
+    if delay < 0.0:
+        delay = 0.0
+    log.info('Checking {count} feeds took {duration:.2f} sec. Next check in {delay:.2f} sec.',
+             count=len(outcomes), duration=reactor.seconds() - start, delay=delay)
+    return delay
 
 
 def extract_etag(headers):

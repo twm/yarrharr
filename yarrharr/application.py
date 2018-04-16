@@ -190,7 +190,6 @@ def updateFeeds(reactor, max_fetch=5):
     from .fetch import poll
 
     d = poll(reactor, max_fetch)
-    d.addCallback(lambda result: 15)
     # Last gasp error handler to avoid terminating the LoopingCall.
     d.addErrback(log.failure, "Unexpected failure polling feeds")
     return d
