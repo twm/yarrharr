@@ -466,8 +466,10 @@ export class AddFeedView extends React.Component {
             </Tabs>
             <Centered>
                 <h1>Add Feed</h1>
-                <p>Enter the URL of an Atom or RSS feed:</p>
-                <AddFeedForm className="add-feed-form" onSubmit={this.props.onAddFeed} defaultUrl={this.props.searchParams.get('url') || ''} />
+                <AddFeedForm
+                    defaultUrl={this.props.searchParams.get('url') || ''}
+                    onAddFeed={this.props.onAddFeed}
+                    />
             </Centered>
         </Fragment>;
     }
@@ -481,33 +483,66 @@ AddFeedView.propTypes = {
      * @param {string} url Something that looks like a URL.
      */
     onAddFeed: PropTypes.func.isRequired,
+    searchParams: PropTypes.object.isRequired,
 };
 
-export const ConnectedAddFeedView = connect(state => state, {
-    onAddFeed: addFeed,
-})(AddFeedView);
+export const ConnectedAddFeedView = connect(state => state, {onAddFeed: addFeed})(AddFeedView);
 
 
 class AddFeedForm extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {url: props.defaultUrl};
+        this.state = {
+            adding: false,
+            error: '',
+            url: props.defaultUrl,
+        };
         this.handleUrlChange = event => {
             this.setState({url: event.target.value});
         };
         this.handleSubmit = event => {
             event.preventDefault();
-            this.props.onSubmit(this.state.url);
+            if (this.state.adding) {
+                return;
+            }
+            // TODO form validation
+            this.setState({
+                adding: true,
+                error: '',
+            });
+            this.props.onAddFeed(this.state.url).catch(err => {
+                this.setState({
+                    adding: false,
+                    error: String(err),
+                });
+            });
         };
     }
     render() {
-        return <form className="add-feed-form" onSubmit={this.handleSubmit}>
-            <input type="url" name="url" value={this.state.url} onChange={this.handleUrlChange} />
-            <input className="text-button text-button-primary" type="submit" value="Go" />
+        return <form onSubmit={this.handleSubmit}>
+            <p><label htmlFor="id_add_feed_url">Enter the URL of an Atom or RSS feed</label></p>
+            {this.state.adding
+                ?  <p>Adding...</p>
+                : <p className="add-feed-form">
+                    <input
+                        id="id_add_feed_url"
+                        type="url"
+                        name="url"
+                        placeholder="https://example.com/"
+                        value={this.state.url}
+                        onChange={this.handleUrlChange} />
+                    <input
+                        type="submit"
+                        className="text-button text-button-primary"
+                        value="Add" />
+                </p>}
+            {this.state.error ? <p>⚠️  {this.state.error}</p> : null}
         </form>;
     }
 }
 
+
 AddFeedForm.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
+    defaultUrl: PropTypes.string.isRequired, // May be empty
+    onAddFeed: PropTypes.func.isRequired,
 };

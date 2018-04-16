@@ -499,7 +499,7 @@ export function addFeed(url) {
             const { feedId, feedsById } = json;
             dispatch(receiveAddFeed(url, feedId));
             dispatch(receiveFeeds(feedsById, json.feedOrder));
-            // dispatch(setPath(`/inventory/feed/${feedId}/`));
+            dispatch(setPath(`/inventory/feed/${feedId}/`));
             return feedId;
         });
     };
@@ -511,15 +511,6 @@ export function receiveAddFeed(url, feedId) {
         type: RECEIVE_ADD_FEED,
         url,
         feedId,
-    };
-}
-
-export const FAIL_ADD_FEED = 'FAIL_ADD_FEED';
-export function failAddFeed(url, error) {
-    return {
-        type: FAIL_ADD_FEED,
-        url,
-        error,
     };
 }
 

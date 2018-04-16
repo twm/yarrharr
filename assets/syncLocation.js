@@ -105,7 +105,7 @@ export default function syncLocation(store, window) {
         if (route.path !== windowPath() || route.search !== windowSearch()) {
             saveScroll(key);
             key = makeKey();
-            console.log(`pushState(${key}, '', ${route.path + route.search})`);
+            // console.log(`pushState(${key}, '', ${route.path + route.search})`);
             history.pushState(key, "", route.path + route.search);
         }
     });
