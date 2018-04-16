@@ -402,8 +402,8 @@ def inventory(request):
     On GET, retrieve full feed and label metadata.  On POST, the
     :param:`action` field determines what is done:
 
-    ``"create"`` creates a new feed where :param:`url` is the URL of the feed
-    (and also the initial title).  The ID of the feed is returned in the
+    ``"create-feed"`` creates a new feed where :param:`url` is the URL of the
+    feed (and also the initial title).  The ID of the feed is returned in the
     ``"feedId"`` member of the response.
 
     ``"update-feed"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
@@ -429,7 +429,7 @@ def inventory(request):
     if request.method == 'POST':
         action = request.POST['action']
         data = {}
-        if action == 'create':
+        if action == 'create-feed':
             feed_url = request.POST['url']
             feed = request.user.feed_set.create(
                 feed_title=feed_url,

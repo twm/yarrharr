@@ -479,6 +479,13 @@ export function loadFeeds() {
 }
 
 export const REQUEST_ADD_FEED = 'REQUEST_ADD_FEED';
+/**
+ * Add a feed to the inventory.
+ *
+ * @param {string} url URL of the feed.
+ * @returns {Promise} A promise which resolves with the ID of the feed when
+ *      successfully added, or fails otherwise.
+ */
 export function addFeed(url) {
     return (dispatch) => {
         dispatch({
@@ -486,16 +493,14 @@ export function addFeed(url) {
             url,
         });
         const body = new FormData();
-        body.append('action', 'create');
+        body.append('action', 'create-feed');
         body.append('url', url);
         return post('/api/inventory/', body).then(json => {
-            // TODO: Handle expected error conditions.
             const { feedId, feedsById } = json;
             dispatch(receiveAddFeed(url, feedId));
             dispatch(receiveFeeds(feedsById, json.feedOrder));
-        }).catch(e => {
-            console.error("Error adding", url, "->", e);
-            dispatch(failAddFeed(url, "Unexpected error"));
+            // dispatch(setPath(`/inventory/feed/${feedId}/`));
+            return feedId;
         });
     };
 }
