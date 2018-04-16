@@ -343,7 +343,7 @@ def run():
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 
-    updateLoop = AdaptiveLoopingCall(updateFeeds, reactor)
+    updateLoop = AdaptiveLoopingCall(reactor, lambda: updateFeeds(reactor))
     loopEndD = updateLoop.start()
     loopEndD.addErrback(log.failure, "Polling loop broke")
 
