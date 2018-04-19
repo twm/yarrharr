@@ -271,6 +271,32 @@ class FetchTests(SynchronousTestCase):
         self.assertEqual(u'<notreallyhtml>', outcome.feed_title)
         self.assertEqual(u'It goes <bing>', outcome.articles[0].title)
 
+    def test_title_missing_atom(self):
+        """
+        An Atom feed which lacks a title produces a BozoError. This verifies an
+        invariant assumed by the MaybeUpdated.persist() method.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/no-feed-title.atom')
+        client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertIsInstance(outcome, BozoError)
+
+    def test_title_missing_rss(self):
+        """
+        An RSS feed which lacks a title produces a BozoError. This verifies an
+        invariant assumed by the MaybeUpdated.persist() method.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/no-feed-title.rss')
+        client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
+
+        outcome = self.successResultOf(poll_feed(feed, client))
+
+        self.assertIsInstance(outcome, BozoError)
+
     def test_connection_refused(self):
         """
         An expected error type when connecting produces a NetworkError.
