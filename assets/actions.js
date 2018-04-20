@@ -730,6 +730,7 @@ export const ROUTES = [
     '/label/:labelId/:filter/:articleId',
     '/feed/:feedId/:filter',
     '/feed/:feedId/:filter/:articleId',
+    '/debug',
 ];
 
 const PARAM_TYPES = {

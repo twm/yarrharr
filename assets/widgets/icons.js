@@ -141,7 +141,7 @@ export class AscDescIcon extends React.Component {
     render() {
         const w = 20;
         const h = 20;
-        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon">
+        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon" {...this.props}>
              <path d={this.buildPath(w, h, this.state.pos)} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
         </svg>;
     }

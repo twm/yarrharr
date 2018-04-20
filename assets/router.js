@@ -8,6 +8,7 @@ import { ORIGIN_CLICK, ROUTES } from './actions.js';
 import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
 import ConnectedRootView from 'views/RootView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView, ConnectedLabelListView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/InventoryView.js';
+import { ConnectedDebugView } from 'views/debug.jsm';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
@@ -24,6 +25,7 @@ const routeToView = {
     '/label/:labelId/:filter/:articleId': ConnectedLabelView,
     '/feed/:feedId/:filter': ConnectedFeedView,
     '/feed/:feedId/:filter/:articleId': ConnectedFeedView,
+    '/debug': ConnectedDebugView,
 };
 
 if (__debug__) {
