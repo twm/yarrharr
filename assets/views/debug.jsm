@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
-import { LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import Heart from 'icons/heart-empty.svg';
 import './debug.less';
@@ -25,6 +25,7 @@ class DebugView extends React.PureComponent {
             <div className="debug-icons">
                 <h2>Icons</h2>
                 <p>
+                    Home <HomeIcon />
                     Label <LabelIcon />
                     Feed <FeedIcon />
                     Left <ArrowLeftIcon />
@@ -37,6 +38,7 @@ class DebugView extends React.PureComponent {
                     Descending <AscDescIcon ascending={false} />
                 </p>
                 <p>
+                    <HomeIcon className="icon debug-icon-grid" />
                     <LabelIcon className="icon debug-icon-grid" />
                     <FeedIcon className="icon debug-icon-grid" />
                     <ArrowLeftIcon className="icon debug-icon-grid" />

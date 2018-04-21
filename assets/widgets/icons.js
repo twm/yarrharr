@@ -4,22 +4,60 @@ import './icons.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-const STYLE_180 = {transform: 'rotate(180deg)'};
+export function IconSprites(props) {
+    const w = 20;
+    const h = 20;
+    const margin = 1;
 
-export function ArrowLeftIcon(props) {
-    return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
-        <path d="M 1.5 10 L 19 10 M 9 2 L 1 10 L 9 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+    /**
+     * Draw a right-pointing arrow.
+     *
+     * @param {number} x Horizontal position of the tip of the arrow.
+     * @param {number} y Vertical position of the tip of the arrow.
+     * @param {number} bar Length of the arrow's shaft.
+     * @param {number} a The arrowhead strokes are the hypotenuse of a right isosceles triangle. a is the length of the other two sides.
+     */
+    const arrow = (x, y, bar, a) =>
+        `M ${x} ${y} L ${x - bar} ${y} M ${x - a} ${y - a} L ${x} ${y} L ${x - a} ${y + a}`;
+
+    const largeArrow = arrow(w - 2, h / 2, w - 4, 8);
+
+    const eaveHeight = 10;
+    const eaveHang = 2;
+    const roof = `M${margin} ${h - margin - eaveHeight} L${w / 2} ${margin} L${w - margin} ${h - margin - eaveHeight}`;
+    const frame = `M${margin + eaveHang} ${eaveHeight - eaveHang} L${margin + eaveHang} ${h - 2} L${w - margin - eaveHang} ${h - 2} L${w - margin - eaveHang} ${eaveHeight - eaveHang}`;
+
+    return <svg id="icon-sprites" aria-hidden={true}>
+        <symbol id="icon-home" viewBox="0 0 20 20">
+            <path d={frame} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="square" />
+            <path d={roof} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 20 20">
+            <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 20 20">
+            <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(180, ${w / 2}, ${h / 2})`} />
+        </symbol>
     </svg>;
+};
+
+
+function makeSpriteIcon(id) {
+    return function(props) {
+        return <svg width="1em" height="1em" className="icon" {...props}>
+            <use xlinkHref={id} />
+        </svg>;
+    }
 }
 
-export function ArrowRightIcon(props) {
-    return <ArrowLeftIcon className="icon icon-180" {...props} />;
-}
+export const HomeIcon = makeSpriteIcon("#icon-home");
+export const ArrowRightIcon = makeSpriteIcon("#icon-arrow-right");
+export const ArrowLeftIcon = makeSpriteIcon("#icon-arrow-left");
 
 export function OutboundIcon(props) {
-     return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
+     return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
         <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <path className="box" d="M 14.5 11 L 14.5 17.5 L 2.5 17.5 L 2.5 5.5 L 9 5.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        <path className="box" d="M 14 12 L 14 18 L 2 18 L 2 6 L 9 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
@@ -27,7 +65,7 @@ import LabelIcon from '../icons/label.svg';
 export { LabelIcon as LabelIcon };
 
 export function FeedIcon(props) {
-    return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
+    return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
         <circle cx="3.5" cy="16.5" r="2.5" fill="none" stroke="currentColor" strokeWidth="2" />
         <path d="M 1 8 A 11 11, 0, 0, 1, 12 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         <path d="M 1 2 A 17 17, 0, 0, 1, 18 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
@@ -35,7 +73,7 @@ export function FeedIcon(props) {
 }
 
 export function EditIcon(props) {
-    return <svg width="1em" height="1em" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
+    return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
         <path d="M 15 1 A 2 2, 0, 0, 1, 18 4 L 17 5 L 14 2 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         <path d="M 1 19 L 19 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
@@ -49,7 +87,7 @@ export function WideIcon(props) {
     const w = 20;
     const h = 20;
     // Padding around the icon so that it doesn't hit the edge of the viewBox, causing ugly clipping.
-    const margin = 1;
+    const margin = 2;
     // The arrowhead strokes are the hypotenuse of right isosceles triangles. a is the length of the other two sides.
     const a = 5;
     var path = '';
@@ -59,8 +97,8 @@ export function WideIcon(props) {
     path += `M ${margin} ${h / 2} L ${w - margin} ${h / 2}`;
     // Right arrowhead:
     path += `M ${w - margin - a} ${(h / 2) - a} L ${w - margin} ${h / 2} L ${w - margin - a} ${(h / 2) + a}`;
-    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
-        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} className="icon" {...props}>
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
@@ -73,15 +111,15 @@ export function NarrowIcon(props) {
     // The arrowhead strokes are the hypotenuse of right isosceles triangles. a is the length of the other two sides.
     const a = 5;
     // Length of the arrow bar.
-    const bar = 8;
+    const bar = 7;
 
     const arrow = (x, y, xmul) =>
         `M ${x} ${y} L ${x - xmul * bar} ${y} M ${x - a * xmul} ${y - a} L ${x} ${y} L ${x - a * xmul} ${y + a}`;
 
-    var path = arrow(w / 2 - 1, h / 2, 1) + arrow(w / 2 + 1, h / 2, -1);
+    var path = arrow(w / 2 - 1.5, h / 2, 1) + arrow(w / 2 + 1.5, h / 2, -1);
 
-    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon" {...props}>
-        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} className="icon" {...props}>
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
@@ -141,8 +179,8 @@ export class AscDescIcon extends React.Component {
     render() {
         const w = 20;
         const h = 20;
-        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg" className="icon" {...this.props}>
-             <path d={this.buildPath(w, h, this.state.pos)} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} className={this.props.className || "icon"} >
+             <path d={this.buildPath(w, h, this.state.pos)} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         </svg>;
     }
     buildPath(w, h, pos) {
