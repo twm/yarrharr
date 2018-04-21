@@ -48,6 +48,15 @@ export function IconSprites(props) {
             <path d="M 4 6 A 14 14, 0, 0, 1, 14 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             <path d="M 1.5 1.5 A 17 17, 0, 0, 1, 18.5 18.5 H 1.5 Z" fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
         </symbol>
+        <symbol id="icon-outbound" viewBox="0 0 20 20">
+            <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <path className="box" d="M 14 12 L 14 18 L 2 18 L 2 6 L 9 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </symbol>
+        <symbol id="icon-edit" viewBox="0 0 20 20">
+            <path d="M 15 1 A 2 2, 0, 0, 1, 18 4 L 17 5 L 14 2 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <path d="M 1 19 L 19 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </symbol>
     </svg>;
 };
 
@@ -65,21 +74,8 @@ export const ArrowRightIcon = makeSpriteIcon("#icon-arrow-right");
 export const ArrowLeftIcon = makeSpriteIcon("#icon-arrow-left");
 export const FeedIcon = makeSpriteIcon("#icon-feed");
 export const LabelIcon = makeSpriteIcon("#icon-label");
-
-export function OutboundIcon(props) {
-     return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
-        <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <path className="box" d="M 14 12 L 14 18 L 2 18 L 2 6 L 9 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>;
-}
-
-export function EditIcon(props) {
-    return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
-        <path d="M 15 1 A 2 2, 0, 0, 1, 18 4 L 17 5 L 14 2 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M 1 19 L 19 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>;
-}
+export const OutboundIcon = makeSpriteIcon("#icon-outbound");
+export const EditIcon = makeSpriteIcon("#icon-edit");
 
 /**
  * WideIcon looks like a double-headed arrow, e.g. <->.
