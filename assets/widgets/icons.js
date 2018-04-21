@@ -38,6 +38,12 @@ export function IconSprites(props) {
         <symbol id="icon-arrow-left" viewBox="0 0 20 20">
             <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(180, ${w / 2}, ${h / 2})`} />
         </symbol>
+        <symbol id="icon-feed" viewBox="0 0 20 20">
+            <circle cx="4" cy="16" r="1" fill="currentColor" stroke="none" />
+            <path d="M 4 11 A 9 9, 0, 0, 1, 9 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <path d="M 4 6 A 14 14, 0, 0, 1, 14 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <path d="M 1.5 1.5 A 17 17, 0, 0, 1, 18.5 18.5 H 1.5 Z" fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
+        </symbol>
     </svg>;
 };
 
@@ -53,6 +59,7 @@ function makeSpriteIcon(id) {
 export const HomeIcon = makeSpriteIcon("#icon-home");
 export const ArrowRightIcon = makeSpriteIcon("#icon-arrow-right");
 export const ArrowLeftIcon = makeSpriteIcon("#icon-arrow-left");
+export const FeedIcon = makeSpriteIcon("#icon-feed");
 
 export function OutboundIcon(props) {
      return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
@@ -63,14 +70,6 @@ export function OutboundIcon(props) {
 
 import LabelIcon from '../icons/label.svg';
 export { LabelIcon as LabelIcon };
-
-export function FeedIcon(props) {
-    return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
-        <circle cx="3.5" cy="16.5" r="2.5" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M 1 8 A 11 11, 0, 0, 1, 12 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M 1 2 A 17 17, 0, 0, 1, 18 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>;
-}
 
 export function EditIcon(props) {
     return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
