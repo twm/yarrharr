@@ -38,6 +38,10 @@ export function IconSprites(props) {
         <symbol id="icon-arrow-left" viewBox="0 0 20 20">
             <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(180, ${w / 2}, ${h / 2})`} />
         </symbol>
+        <symbol id="icon-label" viewBox="0 0 20 20">
+            <circle cx="5" cy="5" r="1" fill="currentColor" stroke="none" />
+            <path d="M 2 2 h 6 l 10 10 l -6 6 l -10 -10 z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </symbol>
         <symbol id="icon-feed" viewBox="0 0 20 20">
             <circle cx="4" cy="16" r="1" fill="currentColor" stroke="none" />
             <path d="M 4 11 A 9 9, 0, 0, 1, 9 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
@@ -60,6 +64,7 @@ export const HomeIcon = makeSpriteIcon("#icon-home");
 export const ArrowRightIcon = makeSpriteIcon("#icon-arrow-right");
 export const ArrowLeftIcon = makeSpriteIcon("#icon-arrow-left");
 export const FeedIcon = makeSpriteIcon("#icon-feed");
+export const LabelIcon = makeSpriteIcon("#icon-label");
 
 export function OutboundIcon(props) {
      return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
@@ -67,9 +72,6 @@ export function OutboundIcon(props) {
         <path className="box" d="M 14 12 L 14 18 L 2 18 L 2 6 L 9 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
-
-import LabelIcon from '../icons/label.svg';
-export { LabelIcon as LabelIcon };
 
 export function EditIcon(props) {
     return <svg width="1em" height="1em" viewBox="0 0 20 20" className="icon" {...props}>
