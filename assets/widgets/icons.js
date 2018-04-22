@@ -28,36 +28,38 @@ export function IconSprites(props) {
     const frame = `M${margin + eaveHang} ${eaveHeight - eaveHang} L${margin + eaveHang} ${h - 2} L${w - margin - eaveHang} ${h - 2} L${w - margin - eaveHang} ${eaveHeight - eaveHang}`;
 
     return <svg id="icon-sprites" aria-hidden={true}>
-        <symbol id="icon-home" viewBox="0 0 20 20">
-            <path d={frame} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="square" />
-            <path d={roof} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            <path d={"M7.5 17.5 l0 -7 l5 0 l0 7"} fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
-        </symbol>
-        <symbol id="icon-arrow-right" viewBox="0 0 20 20">
-            <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </symbol>
-        <symbol id="icon-arrow-left" viewBox="0 0 20 20">
-            <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(180, ${w / 2}, ${h / 2})`} />
-        </symbol>
-        <symbol id="icon-label" viewBox="0 0 20 20">
-            <circle cx="5" cy="5" r="1" fill="currentColor" stroke="none" />
-            <path d="M 2 2 h 6 l 10 10 l -6 6 l -10 -10 z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </symbol>
-        <symbol id="icon-feed" viewBox="0 0 20 20">
-            <circle cx="3" cy="17" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-            <path d="M 4 11 A 6 6, 0, 0, 1, 9 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            <path d="M 4 6 A 11 11, 0, 0, 1, 14 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            <path d="M 4 1.5 A 14 14, 0, 0, 1, 18.5 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </symbol>
-        <symbol id="icon-outbound" viewBox="0 0 20 20">
-            <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            <path className="box" d="M 14 12 L 14 18 L 2 18 L 2 6 L 9 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </symbol>
-        <symbol id="icon-edit" viewBox="0 0 20 20">
-            <path d="M 15 1 A 2 2, 0, 0, 1, 18 4 L 17 5 L 14 2 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            <path d="M 1 19 L 17 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </symbol>
+        <defs>
+            <symbol id="icon-home" viewBox="0 0 20 20">
+                <path d={frame} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="square" />
+                <path d={roof} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d={"M7.5 17.5 l0 -7 l5 0 l0 7"} fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
+            <symbol id="icon-arrow-right" viewBox="0 0 20 20">
+                <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
+            <symbol id="icon-arrow-left" viewBox="0 0 20 20">
+                <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(180, ${w / 2}, ${h / 2})`} />
+            </symbol>
+            <symbol id="icon-label" viewBox="0 0 20 20">
+                <circle cx="5" cy="5" r="1" fill="currentColor" stroke="none" />
+                <path d="M 2 2 h 6 l 10 10 l -6 6 l -10 -10 z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
+            <symbol id="icon-feed" viewBox="0 0 20 20">
+                <circle cx="3" cy="17" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
+                <path d="M 4 11 A 6 6, 0, 0, 1, 9 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d="M 4 6 A 11 11, 0, 0, 1, 14 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d="M 4 1.5 A 14 14, 0, 0, 1, 18.5 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
+            <symbol id="icon-outbound" viewBox="0 0 20 20">
+                <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path className="box" d="M 14 12 L 14 18 L 2 18 L 2 6 L 9 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
+            <symbol id="icon-edit" viewBox="0 0 20 20">
+                <path d="M 15 1 A 2 2, 0, 0, 1, 18 4 L 17 5 L 14 2 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d="M 1 19 L 17 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
+        </defs>
     </svg>;
 };
 
