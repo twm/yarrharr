@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
 import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import Heart from 'icons/heart-empty.svg';
 import './debug.less';
@@ -36,6 +37,11 @@ class DebugView extends React.PureComponent {
                     Narrow <NarrowIcon />
                     Ascending <AscDescIcon ascending={true} />
                     Descending <AscDescIcon ascending={false} />
+                    Unread <ReadToggle read={false} articleId={1} onMarkArticlesRead={() => {}} />
+                    Read <ReadToggle read={true} articleId={1} onMarkArticlesRead={() => {}} />
+                    Clickable <ToggleWrap>
+                        {(value, onToggle) => <ReadToggle read={value} onMarkArticlesRead={onToggle} articleId={1} />}
+                    </ToggleWrap>
                 </p>
                 <p>
                     <HomeIcon className="icon debug-icon-grid" />
@@ -49,6 +55,9 @@ class DebugView extends React.PureComponent {
                     <NarrowIcon className="icon debug-icon-grid" />
                     <AscDescIcon ascending={true} className="icon debug-icon-grid" />
                     <AscDescIcon ascending={false} className="icon debug-icon-grid" />
+                    <ToggleWrap>
+                        {(value, onToggle) => <ReadToggle read={value} onMarkArticlesRead={onToggle} articleId={1} iconClass="icon debug-icon-grid" />}
+                    </ToggleWrap>
                 </p>
             </div>
         </React.Fragment>;
@@ -56,3 +65,19 @@ class DebugView extends React.PureComponent {
 }
 
 export const ConnectedDebugView = connect(state => state)(DebugView);
+
+
+class ToggleWrap extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {value: false};
+        this.handleToggle = () => {
+            this.setState(state => {
+                return {value: !state.value}
+            });
+        };
+    }
+    render() {
+        return this.props.children(this.state.value, this.handleToggle);
+    }
+}
