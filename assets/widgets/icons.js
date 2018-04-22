@@ -7,7 +7,6 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 export function IconSprites(props) {
     const w = 20;
     const h = 20;
-    const margin = 1;
 
     /**
      * Draw a right-pointing arrow.
@@ -24,6 +23,7 @@ export function IconSprites(props) {
 
     const eaveHeight = 10;
     const eaveHang = 2;
+    const margin = 2;
     const roof = `M${margin} ${h - margin - eaveHeight} L${w / 2} ${margin} L${w - margin} ${h - margin - eaveHeight}`;
     const frame = `M${margin + eaveHang} ${eaveHeight - eaveHang} L${margin + eaveHang} ${h - 2} L${w - margin - eaveHang} ${h - 2} L${w - margin - eaveHang} ${eaveHeight - eaveHang}`;
 
@@ -31,6 +31,7 @@ export function IconSprites(props) {
         <symbol id="icon-home" viewBox="0 0 20 20">
             <path d={frame} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="square" />
             <path d={roof} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <path d={"M7.5 17.5 l0 -7 l5 0 l0 7"} fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
         </symbol>
         <symbol id="icon-arrow-right" viewBox="0 0 20 20">
             <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
