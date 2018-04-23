@@ -66,7 +66,7 @@ export function IconSprites(props) {
                 <path d={HEART_PATH} fill="currentColor" stroke="none" />
             </symbol>
             <symbol id="icon-follow" viewBox="-10 -10 20 20">
-                <path d="M -2 -6 l 7 7 l -7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d="M -3 -7 l 7 7 l -7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
         </defs>
     </svg>;

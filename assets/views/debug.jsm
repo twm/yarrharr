@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
-import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
@@ -30,6 +30,7 @@ class DebugView extends React.PureComponent {
                     Feed <FeedIcon />
                     Left <ArrowLeftIcon />
                     Right <ArrowRightIcon />
+                    Follow <FollowIcon />
                     Outbound <OutboundIcon />
                     Edit <EditIcon />
                     Wide <WideIcon />
@@ -53,6 +54,7 @@ class DebugView extends React.PureComponent {
                     <FeedIcon className="icon debug-icon-grid" />
                     <ArrowLeftIcon className="icon debug-icon-grid" />
                     <ArrowRightIcon className="icon debug-icon-grid" />
+                    <FollowIcon className="icon debug-icon-grid" />
                     <OutboundIcon className="icon debug-icon-grid" />
                     <EditIcon className="icon debug-icon-grid" />
                     <WideIcon className="icon debug-icon-grid" />
