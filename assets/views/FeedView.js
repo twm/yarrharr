@@ -55,21 +55,22 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     const feedCount = Object.keys(feedsById).length;
     return <React.Fragment>
-        <GlobalBar />
+        <GlobalBar>
+        </GlobalBar>
         <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
         <header className="list-header">
             <div className="list-header-inner bar">
-                <AllLink className="expand" filter={snapshot.filter}>
-                    <h1>All Feeds</h1>
-                </AllLink>
+                <div className="square">
+                </div>
+                <h1 className="expand">All Feeds</h1>
                 <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
         <Tabs>
-            <AllLink key={FILTER_UNREAD} disabled={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
-            <AllLink key={FILTER_FAVE} disabled={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
-            <AllLink key={FILTER_ALL} disabled={snapshot.filter === FILTER_ALL} filter={FILTER_ALL} className="no-underline">All</AllLink>
-            <InventoryLink title="Manage Feeds" className="no-underline">
+            <AllLink aria-selected={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
+            <AllLink aria-selected={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
+            <AllLink aria-selected={snapshot.filter === FILTER_ALL} filter={FILTER_ALL} className="no-underline">All</AllLink>
+            <InventoryLink aria-selected={false} title="Manage Feeds" className="no-underline">
                 <EditIcon aria-label="Manage Feeds" />
             </InventoryLink>
         </Tabs>
@@ -91,23 +92,21 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
         <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Title title={articleTitle(articlesById, articleId, feed.text || feed.title || feed.url)} />
+        <Title title={articleTitle(articlesById, articleId, feed.text || feed.title)} />
         <header className="list-header">
             <div className="list-header-inner bar">
-                <FeedLink className="expand" disabled={!articleId} feedId={feedId} filter={snapshot.filter}>
-                    <div className="square">
-                        <FeedIcon aria-hidden={true} />
-                    </div>
-                    <h1>{feed.text || feed.title || feed.url}</h1>
-                </FeedLink>
+                <div className="square">
+                    <FeedIcon aria-hidden={true} />
+                </div>
+                <h1 className="expand">{feed.text || feed.title}</h1>
                 <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
         <Tabs>
-            <FeedLink disabled={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
-            <FeedLink disabled={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
-            <FeedLink disabled={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
-            <InventoryFeedLink feedId={feedId} title="Edit Feed" className="no-underline">
+            <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
+            <FeedLink aria-selected={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
+            <FeedLink aria-selected={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
+            <InventoryFeedLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
                 <EditIcon aria-label="Edit Feed" />
             </InventoryFeedLink>
         </Tabs>
@@ -132,20 +131,18 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         <Title title={articleTitle(articlesById, articleId, label.text)} />
         <header className="list-header">
             <div className="list-header-inner bar">
-                <LabelLink className="expand" disabled={!articleId} labelId={labelId} filter={snapshot.filter}>
-                    <div className="square">
-                        <LabelIcon aria-hidden={true} />
-                    </div>
-                    <h1>{label.text}</h1>
-                </LabelLink>
+                <div className="square">
+                    <LabelIcon aria-hidden={true} />
+                </div>
+                <h1 className="expand">{label.text}</h1>
                 <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
         <Tabs>
-            <LabelLink disabled={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
-            <LabelLink disabled={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
-            <LabelLink disabled={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
-            <InventoryLabelLink labelId={labelId} title="Edit Label" className="no-underline">
+            <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
+            <LabelLink aria-selected={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
+            <LabelLink aria-selected={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
+            <InventoryLabelLink aria-selected={false} labelId={labelId} title="Edit Label" className="no-underline">
                 <EditIcon aria-label="Edit Label" />
             </InventoryLabelLink>
         </Tabs>
