@@ -1,26 +1,12 @@
+#icon-sprites {
+    display: none;
+}
+
 /* Icons have this class by default, which makes them a generic gray. */
 .icon {
-    color: #666;
+    color: var(--icon-color);
 }
-
-@heart_color: #9b1559;
-@check_color: #2a6e12;
 
 .icon-heart {
-    fill: @heart_color;
-    transition: fill 200ms;
-}
-.icon-check {
-    fill: @check_color;
-    transition: fill 200ms;
-}
-.icon-empty {
-    fill: white;
-}
-
-.icon-180 {
-    transform: rotate(180deg);
-}
-.icon-hidden {
-    visibility: hidden;
+    --icon-color: var(--heart-color);
 }

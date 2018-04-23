@@ -19,7 +19,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from '../actions.js';
 class A extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.handleClick = (event) => {
+        this.handleClick = event => {
             if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) {
                 return;
             }
@@ -27,80 +27,35 @@ class A extends React.PureComponent {
                 return;
             }
             event.preventDefault();
-            if (!this.props.disabled) {
-                this.props.dispatch(setPath(this.props.path));
-            }
+            this.props.dispatch(setPath(this.props.href));
         }
     }
     render() {
-        return <a
-            aria-disabled={!!this.props.disabled}
-            title={this.props.title}
-            tabIndex={this.props.disabled ? -1 : 0}
-            href={this.props.path}
-            onClick={this.handleClick}
-            className={this.props.className}
-            children={this.props.children}
-        />;
+        const {dispatch, ...props} = this.props;
+        return <a {...props} onClick={this.handleClick} />;
     }
 }
 
 const ConnectedA = connect(null, null)(A);
 
-export function AllLink(props) {
-    return <ConnectedA path={`/all/${props.filter}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
+const makeLink = transformProps => props => <ConnectedA {...transformProps(props)} />;
 
-export function AllArticleLink(props) {
-    return <ConnectedA path={`/all/${props.filter}/${props.articleId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function FeedLink(props) {
-    return <ConnectedA path={`/feed/${props.feedId}/${props.filter}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function FeedArticleLink(props) {
-    return <ConnectedA path={`/feed/${props.feedId}/${props.filter}/${props.articleId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function LabelLink(props) {
-    return <ConnectedA path={`/label/${props.labelId}/${props.filter}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function LabelArticleLink(props) {
-    return <ConnectedA path={`/label/${props.labelId}/${props.filter}/${props.articleId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-
-export function RootLink(props) {
-    return <ConnectedA path="/" disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function InventoryLink(props) {
-    return <ConnectedA path="/inventory/" disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function InventoryFeedLink(props) {
-    return <ConnectedA path={`/inventory/feed/${props.feedId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function LabelListLink(props) {
-    return <ConnectedA path="/inventory/labels/" disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function InventoryLabelLink(props) {
-    return <ConnectedA path={`/inventory/label/${props.labelId}/`} disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
-
-export function AddFeedLink(props) {
-    return <ConnectedA path="/inventory/add/" disabled={props.disabled} className={props.className} title={props.title} children={props.children} />;
-}
+export const AllLink = makeLink(({filter, ...props}) => { return { ...props, href: `/all/${filter}/` }; });
+export const AllArticleLink = makeLink(({filter, articleId, ...props}) => { return { ...props, href: `/all/${filter}/${articleId}/` }; });
+export const FeedLink = makeLink(({feedId, filter, ...props}) => { return { ...props, href: `/feed/${feedId}/${filter}/` }; });
+export const FeedArticleLink = makeLink(({feedId, filter, articleId, ...props}) => { return { ...props, href: `/feed/${feedId}/${filter}/${articleId}/` }; });
+export const LabelLink = makeLink(({labelId, filter, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/` }; });
+export const LabelArticleLink = makeLink(({labelId, filter, articleId, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/${articleId}/` }; });
+export const RootLink = makeLink((props) => { return { ...props, href: "/" }; });
+export const InventoryLink = makeLink((props) => { return { ...props, href: "/inventory/" }; });
+export const InventoryFeedLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
+export const LabelListLink = makeLink((props) => { return { ...props, href: "/inventory/labels/" }; });
+export const InventoryLabelLink = makeLink(({labelId, ...props}) => { return { ...props, href: `/inventory/label/${labelId}/` }; });
+export const AddFeedLink = makeLink((props) => { return { ...props, href: "/inventory/add/" }; });
 
 if (process.env.NODE_ENV !== 'production') {
     A.propTypes = {
-        path: PropTypes.string.isRequired,
-        disabled: PropTypes.bool,
-        title: PropTypes.string,
+        href: PropTypes.string.isRequired,
         dispatch: PropTypes.func.isRequired,
     };
     const filter = PropTypes.oneOf([FILTER_UNREAD, FILTER_FAVE, FILTER_ALL]).isRequired;

@@ -63,7 +63,7 @@ For example:
         margin: 0 auto;
         max-width: var(--layout-max-width);
         box-sizing: border-box;
-        /* You might put padding here, or sub-components may provide it. *
+        /* You might put padding here, or sub-components may provide it. */
     }
 
 The narrow width may become user-configurable some day.
@@ -97,13 +97,14 @@ Parts of the icon may be assigned classes to allow individual targeting.
 
 There are two icon definition styles:
 
-1. Write a React component in `assets/widgets/icons.js`.
+1. A simple React component in `assets/widgets/icons.js`.
    Really simple, geometric icons are often easiest to write by hand, or generate programmatically.
-   The [live JSX editor](https://reactjs.org/) on reactjs.org is handy for this.
 
-2. Author the icon in Inkscape.
-   It is converted to a React component by [svgr](https://github.com/smooth-code/svgr).
-   You'll need to manually add  `viewPort` and `class="icon"` attributes to the SVG source.
+2. A React component which references a symbol defined in the `IconSprites` (again in `icons.js`).
 
-Newer icons have `viewBox="0 0 20 20"` while older ones have `viewBox="0 0 48 48"`.
-Neither of these seem to work that well: the 20×20 icons tend to look too simplistic, while the 48×48 ones have overly fine features.
+All icons are drawn on a 20×20 grid.
+This is generally defined as`viewBox="0 0 20 20"` or `viewBox="-10 -10 20 20"`.
+The latter form is useful for symmetrical icons, as 0,0 is the center of the icon.
+
+The [live JSX editor](https://reactjs.org/) on reactjs.org can be useful when authoring icons.
+When build in development mode by `make webpack`, Yarrharr includes a page which list all of the icons at `/debug/`.

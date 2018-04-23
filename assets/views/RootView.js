@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
 import { LabelIcon, FeedIcon } from 'widgets/icons.js';
-import Heart from 'icons/heart-empty.svg';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink, LabelListLink, RootLink } from 'widgets/links.js';
@@ -24,15 +23,15 @@ class RootView extends React.PureComponent {
             <GlobalBar />
             <Title title="Home" />
             <Tabs>
-                <RootLink disabled={true} className="no-underline">Home</RootLink>
-                <InventoryLink className="no-underline">Feeds</InventoryLink>
-                <LabelListLink className="no-underline">Labels</LabelListLink>
-                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
+                <RootLink aria-selected={true} className="no-underline">Home</RootLink>
+                <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
+                <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <div className="root">
                 <ul className="root-list">
                     <li className="all-link">
-                        <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
+                        <AllLink filter={FILTER_UNREAD} className="no-underline">All Feeds</AllLink>
                     </li>
 
                     {labelList.length
@@ -40,7 +39,7 @@ class RootView extends React.PureComponent {
                             <li key={"label-" + label.id}>
                                 <LabelLink labelId={label.id} filter={FILTER_UNREAD} className="no-underline">
                                     <LabelIcon className="icon" aria-hidden={true} />
-                                    <span className="text underline">{label.text}</span>
+                                    {label.text}
                                     <Count value={label.unreadCount} />
                                 </LabelLink>
                             </li>)
@@ -51,7 +50,7 @@ class RootView extends React.PureComponent {
                             <li key={"feed-" + feed.id}>
                                 <FeedLink feedId={feed.id} filter={FILTER_UNREAD} className="no-underline">
                                     <FeedIcon className="icon" aria-hidden={true} />
-                                    <span className="text underline">{feed.text || feed.title}</span>
+                                    {feed.text || feed.title}
                                     <Count value={feed.unreadCount} />
                                 </FeedLink>
                             </li>)

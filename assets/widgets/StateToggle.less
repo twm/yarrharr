@@ -1,0 +1,38 @@
+.fave-toggle .icon {
+    color: var(--icon-color-off);
+    transition: all 200ms ease;
+}
+.fave-toggle[aria-pressed=true] .icon {
+    color: var(--heart-color);
+}
+
+.read-toggle {
+    circle {
+        stroke: var(--icon-color);
+        stroke-width: 2;
+        fill: none;
+        transition: all 100ms ease;
+    }
+    path {
+        stroke: var(--check-color);
+        stroke-width: 4;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        stroke-dasharray: 21.283737182617188;
+        stroke-dashoffset: 21.283737182617188;
+        fill: none;
+        opacity: 0;
+        transition: all 200ms ease;
+    }
+    &[aria-pressed=true] {
+        circle {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        path {
+            opacity: 1;
+            stroke-dashoffset: 0;
+        }
+    }
+}
+

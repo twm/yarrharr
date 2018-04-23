@@ -14,12 +14,12 @@
 @text_padding: 0.25rem;
 
 /* Buttons have thick borders, also used to indicate focus. */
-@button_border_width: 0.125rem;
+@button_border_width: 2px;
 
 @icon_size: 2.3rem;
 
 @bar_line_height: 1.25rem;
-@bar_height: ((2 * @bar_line_height + 2 * @text_padding + 2 * @button_border_width));
+@bar_height: calc(2 * @bar_line_height + 2 * @text_padding + 2 * @button_border_width);
 
 @content_background_color: white;
 @content_text_color: black;
@@ -39,13 +39,12 @@
     display: block;
     box-sizing: border-box;
 
-    border: @button_border_width solid transparent;
     background: transparent;
-    transition: border-color 0.05s, background 0.1s;
+    box-shadow: inset 0 0 0 0 transparent;
+    border: @button_border_width solid transparent;
 }
 
 .flat-button-focus() {
     outline: none;
-    border-color: darken(@background_color, 10%);
-    background-color: darken(@background_color, 10%);
+    box-shadow: inset 0 0 0 @button_border_width @focus_blue;
 }
