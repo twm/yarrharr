@@ -23,10 +23,10 @@ class RootView extends React.PureComponent {
             <GlobalBar />
             <Title title="Home" />
             <Tabs>
-                <RootLink disabled={true} className="no-underline">Home</RootLink>
-                <InventoryLink className="no-underline">Feeds</InventoryLink>
-                <LabelListLink className="no-underline">Labels</LabelListLink>
-                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
+                <RootLink aria-selected={true} className="no-underline">Home</RootLink>
+                <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
+                <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
             </Tabs>
             <div className="root">
                 <ul className="root-list">
