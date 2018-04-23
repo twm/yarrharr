@@ -1,16 +1,15 @@
 import React from 'react';
 import { FeedLink } from 'widgets/links.js';
-import { OutboundIcon } from 'widgets/icons.js';
-import { ReadToggleLink } from 'widgets/StateToggle.js';
+import { HeartIcon, OutboundIcon } from 'widgets/icons.js';
+import { ReadToggle } from 'widgets/StateToggle.js';
 import { RelativeTime } from 'widgets/time.jsm';
-import Heart from '../icons/heart-empty.svg';
 import "./ListArticle.less";
 
 const PLACEHOLDER = <div className="list-article"></div>;
 const BR = <br key="br" />;
 const OUTBOUND_ICON = <OutboundIcon aria-hidden={true} />;
 const HEART_ICON = <React.Fragment key="heart">
-    <Heart key="heart" className="icon-heart" />
+    <HeartIcon key="heart" />
 </React.Fragment>;
 
 export default class ListArticle extends React.PureComponent {
@@ -31,7 +30,7 @@ export default class ListArticle extends React.PureComponent {
                         props.fave ? HEART_ICON : null,
                     ],
                 })}
-                <ReadToggleLink articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
+                <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
                 <a className="outbound" href={props.url} target="_blank" title="View on source site">
                     {OUTBOUND_ICON}
                 </a>

@@ -44,6 +44,7 @@ urlpatterns = (
     url(r'^label/\d+/[^/]+/\d+/$', yarrharr.views.index),
     url(r'^feed/\d+/[^/]+/$', yarrharr.views.index),
     url(r'^feed/\d+/[^/]+/\d+/$', yarrharr.views.index),
+    url(r'^debug/$', yarrharr.views.index),
 
     # API
     url(r'^api/snapshots/$', yarrharr.views.snapshots),

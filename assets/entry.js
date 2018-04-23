@@ -20,6 +20,7 @@ import syncLocation from './syncLocation.js';
 
 import { ConnectedRouter } from './router.js'
 import { ConnectedYarrharr } from './widgets/Yarrharr.js';
+import { IconSprites } from 'widgets/icons.js';
 import './art/icon.svg';
 import reducer from './reducer.js';
 
@@ -43,11 +44,14 @@ if (appElement && propsElement) {
     syncLocation(store, window);
 
     ReactDOM.render(
-        <Provider store={store}>
-            <ConnectedYarrharr>
-                <ConnectedRouter />
-            </ConnectedYarrharr>
-        </Provider>,
+        <React.Fragment>
+            <IconSprites />
+            <Provider store={store}>
+                <ConnectedYarrharr>
+                    <ConnectedRouter />
+                </ConnectedYarrharr>
+            </Provider>
+        </React.Fragment>,
         appElement
     );
 }
