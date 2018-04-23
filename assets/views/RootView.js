@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
 import { LabelIcon, FeedIcon } from 'widgets/icons.js';
-import Heart from 'icons/heart-empty.svg';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink, LabelListLink, RootLink } from 'widgets/links.js';

@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
 import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
-import { ReadToggle } from 'widgets/StateToggle.js';
+import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
-import Heart from 'icons/heart-empty.svg';
 import './debug.less';
 
 import { Tabs } from 'widgets/Tabs.js';
@@ -42,6 +41,11 @@ class DebugView extends React.PureComponent {
                     Clickable <ToggleWrap>
                         {(value, onToggle) => <ReadToggle read={value} onMarkArticlesRead={onToggle} articleId={1} />}
                     </ToggleWrap>
+                    Unfave <FaveToggle fave={false} articleId={1} onMarkArticlesFave={() => {}} />
+                    Fave <FaveToggle fave={true} articleId={1} onMarkArticlesFave={() => {}} />
+                    Clickable <ToggleWrap>
+                        {(value, onToggle) => <FaveToggle fave={value} onMarkArticlesFave={onToggle} articleId={1} />}
+                    </ToggleWrap>
                 </p>
                 <p>
                     <HomeIcon className="icon debug-icon-grid" />
@@ -57,6 +61,9 @@ class DebugView extends React.PureComponent {
                     <AscDescIcon ascending={false} className="icon debug-icon-grid" />
                     <ToggleWrap>
                         {(value, onToggle) => <ReadToggle read={value} onMarkArticlesRead={onToggle} articleId={1} iconClass="icon debug-icon-grid" />}
+                    </ToggleWrap>
+                    <ToggleWrap>
+                        {(value, onToggle) => <FaveToggle fave={value} onMarkArticlesFave={onToggle} articleId={1} iconClass="icon debug-icon-grid" />}
                     </ToggleWrap>
                 </p>
             </div>

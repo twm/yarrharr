@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Heart from '../icons/heart-empty.svg';
-import 'widgets/icons.less';
+import { HeartIcon } from 'widgets/icons.js';
+import './StateToggle.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
@@ -19,15 +19,11 @@ export class ReadToggleLink extends React.PureComponent {
         if (read == null) {
             return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
-        const text = read ? "Read" : "Unread"
         const actionText = read ? "Mark unread" : "Mark read"
-        const iconClass = `${this.props.iconClass} icon-check ${read ? "icon-check-pressed" : ""}`;
-        const w = 20;
-        const h = 20;
-        return <a role="button" className="square" tabIndex="0" aria-label={text} title={actionText} href="#" onClick={this.handleClick}>
-            <svg width="1em" height="1em" viewBox={`${w / -2} ${h / -2} ${w} ${h}`} aria-hidden={true} className={iconClass}>
+        return <a role="button" className="read-toggle square" tabIndex="0" aria-pressed={read} aria-label="Read" title={actionText} href="#" onClick={this.handleClick}>
+            <svg width="1em" height="1em" viewBox="-10 -10 20 20" aria-hidden={true} className={this.props.iconClass}>
                 <circle cx="0" cy="0" r="7" />
-                <path d={`M-7 2 l 5 5 l 9 -11`} />
+                <path d="M-7 2 l 5 5 l 9 -11" />
             </svg>
         </a>;
     }
@@ -51,22 +47,22 @@ export class FaveToggleLink extends React.PureComponent {
         this.handleClick = (event) => {
             event.preventDefault();
             const newFlag = !this.props.fave;
-            this.setState({fave: newFlag});
             this.props.onMarkArticlesFave([this.props.articleId], newFlag);
         };
     }
     render() {
-        const iconClass = "icon icon-heart" + (this.props.fave ? "" : " icon-empty");
-        if (this.props.fave == null) {
-            return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"><Heart className={iconClass + " icon-hidden"} /></a>;
+        const fave = this.props.fave;
+        if (fave == null) {
+            return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
-        const text = this.props.fave ? "Favorite" : "Not Favorite";
-        const actionText = this.props.fave ? "Mark article as not favorite" : "Mark article as favorite";
-        return <a role="button" tabIndex="0" className="square" aria-label={text} title={actionText} href="#" onClick={this.handleClick}><Heart className={iconClass} aria-hidden={true} /></a>;
+        const actionText = fave ? "Mark article as not favorite" : "Mark article as favorite";
+        return <a role="button" className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} href="#" onClick={this.handleClick}>
+            <HeartIcon className={this.props.iconClass} aria-hidden={true} />
+        </a>;
     }
 }
 
-FaveToggleLink.defaultProps = {marking: null};
+FaveToggleLink.defaultProps = {iconClass: "icon"};
 
 if (__debug__) {
     FaveToggleLink.propTypes = {

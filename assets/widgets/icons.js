@@ -4,6 +4,9 @@ import './icons.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
+
+export const HEART_PATH = "M1 8.5 a1.5 1.5 0 0 1 -2 0 l-6.5 -6.5 a3.75 3.75 0 0 1 7.5 -7.5 a3.75 3.75 0 0 1 7.5 7.5 z";
+
 export function IconSprites(props) {
     const w = 20;
     const h = 20;
@@ -59,17 +62,24 @@ export function IconSprites(props) {
                 <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
                 <path d="M 1 19 L 17 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
+            <symbol id="icon-heart" viewBox="-10 -10 20 20">
+                <path d={HEART_PATH} fill="currentColor" stroke="none" />
+            </symbol>
         </defs>
     </svg>;
 };
 
-
-function makeSpriteIcon(id) {
-    return function(props) {
-        return <svg width="1em" height="1em" className="icon" {...props}>
+function makeSpriteIcon(id, className = "icon") {
+    const component = function(props) {
+        return <svg width="1em" height="1em" {...props}>
             <use xlinkHref={id} />
         </svg>;
     }
+    if (__debug__) {
+        component.displayName = id;
+    }
+    component.defaultProps = {className, "aria-hidden": false};
+    return component;
 }
 
 export const HomeIcon = makeSpriteIcon("#icon-home");
@@ -79,6 +89,7 @@ export const FeedIcon = makeSpriteIcon("#icon-feed");
 export const LabelIcon = makeSpriteIcon("#icon-label");
 export const OutboundIcon = makeSpriteIcon("#icon-outbound");
 export const EditIcon = makeSpriteIcon("#icon-edit");
+export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 
 /**
  * WideIcon looks like a double-headed arrow, e.g. <->.

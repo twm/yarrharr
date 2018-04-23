@@ -1,48 +1,16 @@
 #icon-sprites {
     display: none;
 }
+
 /* Icons have this class by default, which makes them a generic gray. */
 .icon {
     color: var(--icon-color);
 }
 
-@heart_color: #9b1559;
-@check_color: #2a6e12;
-
 .icon-heart {
-    fill: @heart_color;
-    transition: fill 200ms;
+    --icon-color: var(--heart-color);
 }
-.icon-check {
-    circle {
-        stroke: var(--icon-color);
-        stroke-width: 2;
-        // fill: var(--background-color);
-        fill: none;
-        transition: all 0.1s ease;
-    }
-    path {
-        stroke: @check_color;
-        stroke-width: 4;
-        stroke-linejoin: round;
-        stroke-linecap: round;
-        stroke-dasharray: 21.283737182617188;
-        stroke-dashoffset: 21.283737182617188;
-        fill: none;
-        opacity: 0;
-        transition: all 0.2s ease;
-    }
-}
-.icon-check-pressed {
-    circle {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    path {
-        opacity: 1;
-        stroke-dashoffset: 0;
-    }
-}
+
 .icon-empty {
     fill: white;
 }
