@@ -65,6 +65,9 @@ export function IconSprites(props) {
             <symbol id="icon-heart" viewBox="-10 -10 20 20">
                 <path d={HEART_PATH} fill="currentColor" stroke="none" />
             </symbol>
+            <symbol id="icon-follow" viewBox="-10 -10 20 20">
+                <path d="M -3 -7 l 7 7 l -7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
         </defs>
     </svg>;
 };
@@ -90,6 +93,7 @@ export const LabelIcon = makeSpriteIcon("#icon-label");
 export const OutboundIcon = makeSpriteIcon("#icon-outbound");
 export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
+export const FollowIcon = makeSpriteIcon("#icon-follow");
 
 /**
  * WideIcon looks like a double-headed arrow, e.g. <->.
