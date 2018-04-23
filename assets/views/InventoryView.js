@@ -259,7 +259,7 @@ export class ManageFeedView extends React.PureComponent {
         const feed = this.props.feedsById[feedId];
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
-            <Title title={"Edit " + (feed.text || feed.title || feed.url)} />
+            <Title title={"Edit " + (feed.text || feed.title)} />
             <GlobalBar />
             <header className="list-header">
                 <div className="list-header-inner bar">
@@ -292,7 +292,7 @@ export class ManageFeedView extends React.PureComponent {
     handleRemoveFeed(feedId) {
         const feed = this.props.feedsById[feedId];
         if (!feed) return;
-        if (confirm("Remove feed " + (feed.text || feed.title || feed.url) + " and associated articles?")) {
+        if (confirm("Remove feed " + (feed.text || feed.title) + " and associated articles?")) {
             this.props.onRemoveFeed(feedId);
             // FIXME This should have a progress indicator
         }
@@ -415,7 +415,7 @@ class LabelForm extends React.Component {
                 <label htmlFor="id_label_feeds">Feeds</label>
                 {/* FIXME The UX here is terrible when there are many feeds.  This should probably be a list of the current feeds and a combo box which allows addition of more via search. */}
                 <select id="id_label_feeds" name="feeds" multiple={true} value={this.state.feeds} onChange={this.handleFeedsChange} size={this.props.feedList.length}>
-                    {this.props.feedList.map(feed => <option key={feed.id} value={feed.id}>{feed.text || feed.title || feed.url}</option>)}
+                    {this.props.feedList.map(feed => <option key={feed.id} value={feed.id}>{feed.text || feed.title}</option>)}
                 </select>
             </p>
             <div className="inventory-tools">

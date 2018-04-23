@@ -27,9 +27,7 @@ export default class ListArticle extends React.PureComponent {
                 {props.renderLink({
                     articleId: props.id,
                     className: "square view-link",
-                    children: [
-                        <FollowIcon key="icon" title="View article" />
-                    ],
+                    children: <FollowIcon key="icon" title="View article" />,
                 })}
             </div>
         </div>;

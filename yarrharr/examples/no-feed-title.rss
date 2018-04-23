@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+    <channel>
+        <title></title>
+        <link>http://an.example/</link>
+        <description>
+            This feed has no title.
+        </description>
+        <item>
+            <title>Item 1</title>
+            <link>https://titlefree.example/1</link>
+            <description>Item 1 description</description>>
+        </item>
+    </channel>
+</rss>
+
