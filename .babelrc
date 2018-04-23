@@ -7,7 +7,15 @@
           "Chrome >= 60",
           "Edge >= 15"
         ]
-      }
+      },
+      "modules": false,
+      "useBuiltins": true,
+      "include": [
+        "transform-es2015-spread"
+      ],
+      "exclude": [
+        "transform-regenerator"
+      ]
     }],
     "react"
   ]
