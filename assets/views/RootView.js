@@ -31,7 +31,7 @@ class RootView extends React.PureComponent {
             <div className="root">
                 <ul className="root-list">
                     <li className="all-link">
-                        <AllLink filter={FILTER_UNREAD}>All Feeds</AllLink>
+                        <AllLink filter={FILTER_UNREAD} className="no-underline">All Feeds</AllLink>
                     </li>
 
                     {labelList.length
@@ -39,7 +39,7 @@ class RootView extends React.PureComponent {
                             <li key={"label-" + label.id}>
                                 <LabelLink labelId={label.id} filter={FILTER_UNREAD} className="no-underline">
                                     <LabelIcon className="icon" aria-hidden={true} />
-                                    <span className="text underline">{label.text}</span>
+                                    {label.text}
                                     <Count value={label.unreadCount} />
                                 </LabelLink>
                             </li>)
@@ -50,7 +50,7 @@ class RootView extends React.PureComponent {
                             <li key={"feed-" + feed.id}>
                                 <FeedLink feedId={feed.id} filter={FILTER_UNREAD} className="no-underline">
                                     <FeedIcon className="icon" aria-hidden={true} />
-                                    <span className="text underline">{feed.text || feed.title}</span>
+                                    {feed.text || feed.title}
                                     <Count value={feed.unreadCount} />
                                 </FeedLink>
                             </li>)
