@@ -22,41 +22,46 @@
     flex-flow: row nowrap;
     align-items: stretch;
 
-    a[role=button], .outbound {
+    .outbound {
         .flat-button;
         &:focus { .flat-button-focus; }
-        display: flex;
-        flex: 0 0 @bar_height;
-        align-items: center;
-        justify-content: center;
-        font-size: @icon_size;
+        flex: 1 1 100%;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-decoration: none;
+
+        .meta,
+        .title {
+            display: block;
+        }
+        .meta {
+            color: @quiet_text_color;
+        }
+        .icon {
+            position: relative;
+            padding-left: 0.5rem;
+            top: 0.1rem;
+        }
     }
 
     a {
         padding: 0.25rem;
     }
 
-    a.view-link {
-        flex: 1 1 100%;
+    .read-toggle,
+    .view-link {
         min-width: 0;
         display: block;
 
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
+        flex: 0 0 @bar_height;
+        align-items: center;
+        justify-content: center;
 
-        text-decoration: none;
         .flat-button;
         &:focus { .flat-button-focus; }
 
-        .meta {
-            color: @quiet_text_color;
-        }
-    }
-
-    .icon-heart {
-        position: relative;
-        padding-left: 0.5rem;
-        top: 0.1rem;
+        font-size: @icon_size;
     }
 }
