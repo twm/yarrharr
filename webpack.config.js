@@ -140,12 +140,12 @@ module.exports = {
         ],
     },
     module: {
-        rules: [/* FIXME Disabled because it doesn't support ... spread. {
+        rules: [{
             test: /\.jsm?$/,
             enforce: 'pre',
             loaders: ['eslint-loader'],
             exclude: /node_modules/,
-        },*/ {
+        }, {
             test: /\.less$/,
             use: extractLESS.extract({
                 use: [{
