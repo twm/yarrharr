@@ -24,7 +24,7 @@ export default class ListArticle extends React.PureComponent {
                     articleId: props.id,
                     className: "view-link",
                     children: [
-                        <span key="meta" className="meta">{props.feed.text || props.feed.title || props.feed.url} — <RelativeTime then={props.date} /></span>,
+                        <span key="meta" className="meta">{props.feed.text || props.feed.title} — <RelativeTime then={props.date} /></span>,
                         BR,
                         props.title || "Untitled",
                         props.fave ? HEART_ICON : null,
