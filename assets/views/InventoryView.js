@@ -473,16 +473,18 @@ export class AddFeedView extends React.Component {
     }
 }
 
-AddFeedView.propTypes = {
-    /**
-     * A superficially valid URL has been entered by the user.  Attempt to add
-     * it as a feed.
-     *
-     * @param {string} url Something that looks like a URL.
-     */
-    onAddFeed: PropTypes.func.isRequired,
-    searchParams: PropTypes.object.isRequired,
-};
+if (__debug__) {
+    AddFeedView.propTypes = {
+        /**
+         * A superficially valid URL has been entered by the user.  Attempt to add
+         * it as a feed.
+         *
+         * @param {string} url Something that looks like a URL.
+         */
+        onAddFeed: PropTypes.func.isRequired,
+        searchParams: PropTypes.object.isRequired,
+    };
+}
 
 export const ConnectedAddFeedView = connect(state => state, {onAddFeed: addFeed})(AddFeedView);
 
@@ -540,10 +542,12 @@ class AddFeedForm extends React.PureComponent {
 }
 
 
-AddFeedForm.propTypes = {
-    defaultUrl: PropTypes.string.isRequired, // May be empty
-    onAddFeed: PropTypes.func.isRequired,
-};
+if (__debug__) {
+    AddFeedForm.propTypes = {
+        defaultUrl: PropTypes.string.isRequired, // May be empty
+        onAddFeed: PropTypes.func.isRequired,
+    };
+}
 
 
 /**
