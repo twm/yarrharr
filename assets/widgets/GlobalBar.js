@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import HomeIcon from 'icons/home.svg';
-import { NarrowIcon, WideIcon } from 'widgets/icons.js';
+import { HomeIcon, NarrowIcon, WideIcon } from 'widgets/icons.js';
 
 import { RootLink } from 'widgets/links.js';
 
@@ -39,7 +38,7 @@ export const ConnectedLayoutToggleLink = connect(state => {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink className="square" aria-label="Home" title="Go home"><HomeIcon className="icon" aria-hidden={true} /></RootLink>
+            <RootLink className="square" aria-label="Home" title="Go home"><HomeIcon aria-hidden={true} /></RootLink>
             {this.props.children}
             <ConnectedLayoutToggleLink />
         </div>;
