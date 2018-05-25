@@ -34,7 +34,7 @@ from html5lib.constants import namespaces
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import URL
 
-REVISION = 2
+REVISION = 3
 
 STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
 SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
