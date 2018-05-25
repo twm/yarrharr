@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+const __debug__ = process.env.NODE_ENV !== 'production';
+
 /**
  * A component which watches what vertical portion of an element is visible in
  * the viewport. Following a scroll or window resize it calls the
@@ -67,8 +69,10 @@ class ScrollSpy extends React.PureComponent {
     }
 }
 
-ScrollSpy.propTypes = {
-    onVisibleChange: PropTypes.func.isRequired,
-};
+if (__debug__) {
+    ScrollSpy.propTypes = {
+        onVisibleChange: PropTypes.func.isRequired,
+    };
+}
 
 export default ScrollSpy;
