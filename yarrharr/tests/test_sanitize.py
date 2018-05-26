@@ -93,6 +93,10 @@ class SanitizeHtmlTests(unittest.TestCase):
         when setting text color, or contain ``float`` declarations.
         """
         self.assertEqual('<p>.', sanitize_html('<p style="float: left">.'))
+        self.assertEqual(
+            u'<span>.</span>',
+            sanitize_html(u'<span style="display:none">.</span>'),
+        )
 
     def test_script_dropped(self):
         """
@@ -110,7 +114,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         for s in scripts:
             self.assertEqual(u'<p>Hello, world!', sanitize_html(s))
 
-    def test_style_dropped(self):
+    def test_style_tag_dropped(self):
         """
         The content of a ``<style>`` tag is dropped, silently. Sometimes feeds
         contain styles by accident.
