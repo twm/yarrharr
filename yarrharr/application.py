@@ -35,6 +35,7 @@ import sys
 
 import attr
 from django.conf import settings
+from django.dispatch import receiver
 from twisted.logger import globalLogBeginner
 from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
 from twisted.internet import defer
@@ -46,6 +47,7 @@ from twisted.web.resource import Resource
 from twisted.internet.endpoints import serverFromString
 
 from . import __version__
+from .signals import poll_now
 from .wsgi import application
 
 
@@ -260,9 +262,15 @@ class AdaptiveLoopingCall(object):
     :ivar _clock: :class:`IReactorTime` implementer
     :ivar _f: The function to call.
     :ivar _deferred: Deferred returned by :meth:`.start()`.
+    :ivar _call: `IDelayedCall` when waiting for the next poll period.
+        Otherwise `None`.
+    :ivar bool _poked: `True` when the function should be immediately invoked
+        again after it completes.
+    :ivar bool _stopped: `True` once `stop()` has been called.
     """
     _deferred = None
     _call = None
+    _poked = False
     _stopped = False
 
     def __init__(self, clock, f):
@@ -299,6 +307,20 @@ class AdaptiveLoopingCall(object):
             self._call.cancel()
             self._deferred.callback(self)
 
+    def poke(self):
+        """
+        Run the function as soon as possible: either immediately or once it has
+        finished any current execution. This is a no-op if the service has been
+        stopped. Pokes coalesce if received while the function is executing.
+        """
+        if self._stopped or self._poked:
+            return
+        if self._call:
+            self._call.cancel()
+            self._callIt()
+        else:
+            self._poked = True
+
     def _callIt(self):
         self._call = None
         d = defer.maybeDeferred(self._f)
@@ -313,6 +335,9 @@ class AdaptiveLoopingCall(object):
         if self._stopped:
             d, self._deferred = self._deferred, None
             d.callback(self)
+        elif self._poked:
+            self._poked = False
+            self._callIt()
         else:
             self._call = self._clock.callLater(seconds, self._callIt)
 
@@ -345,6 +370,14 @@ def run():
     updateLoop = AdaptiveLoopingCall(reactor, lambda: updateFeeds(reactor))
     loopEndD = updateLoop.start()
     loopEndD.addErrback(log.failure, "Polling loop broke")
+
+    @receiver(poll_now)
+    def threadPollNow(sender, **kwargs):
+        """
+        When the `poll_now` signal is sent, trigger an immediate poll.
+        """
+        log.debug("Immediate poll triggered by {sender}", sender=sender)
+        reactor.callFromThread(updateLoop.poke)
 
     def stopUpdateLoop():
         updateLoop.stop()
