@@ -360,7 +360,7 @@ def poll(reactor, max_fetch):
     if delay < 0.0:
         delay = 0.0
     log.info('Checking {count} feeds took {duration:.2f} sec. Next check in {delay:.2f} sec.',
-             count=len(outcomes), duration=reactor.seconds() - start, delay=delay)
+             count=len(feeds_to_check), duration=reactor.seconds() - start, delay=delay)
     return delay
 
 
