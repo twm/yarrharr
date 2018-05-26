@@ -24,11 +24,40 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from contextlib import contextmanager
+from datetime import timedelta
+from unittest.mock import ANY
+
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 
 from ..models import Feed, Article
+from ..signals import poll_now
+
+
+@contextmanager
+def signal_inbox(signal):
+    """
+    Context manager which collects Django signals in a list. Use like::
+
+        with signal_inbox(some_signal) as inbox:
+            ...  # Cause the signal to be sent.
+
+        [[sender, kwargs]] = inbox
+
+    There will be one item in the inbox list per signal dispatched.
+    """
+    inbox = []
+
+    def receive(sender, **kwargs):
+        inbox.append((sender, kwargs))
+
+    signal.connect(receive)
+    try:
+        yield inbox
+    finally:
+        signal.disconnect(receive)
 
 
 class FeedTests(TestCase):
@@ -69,6 +98,36 @@ class FeedTests(TestCase):
         self.assertEqual(u'My Example Feed', f.title)
         self.assertEqual(u'My Example Feed <https://feed.example/>',
                          u'{}'.format(f))
+
+    def test_poll_now_sent_create(self):
+        """
+        Creation of a `Feed` instance with a poll time now or in the past
+        triggers the poll_now signal.
+        """
+        with signal_inbox(poll_now) as inbox:
+            f = self.user.feed_set.create(
+                next_check=timezone.now(),
+                url='https://feed.example/',
+                added=timezone.now(),
+            )
+
+        self.assertEqual([(f, {'signal': ANY})], inbox)
+
+    def test_poll_now_sent_update(self):
+        with signal_inbox(poll_now) as inbox:
+            f = self.user.feed_set.create(
+                next_check=None,
+                url='https://feed.example/',
+                added=timezone.now(),
+            )
+
+            # No signal has been sent as no poll is scheduled.
+            self.assertEqual([], inbox)
+
+            f.next_check = timezone.now() - timedelta(days=1)
+            f.save()
+
+            self.assertEqual([(f, {'signal': ANY})], inbox)
 
 
 class ArticleTests(TestCase):
