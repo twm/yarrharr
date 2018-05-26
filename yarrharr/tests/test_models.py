@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,16 +32,18 @@ from ..models import Feed, Article
 
 
 class FeedTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='admin',
+            email='admin@mailhost.example',
+            password='sesame',
+        )
+
     def test_str_feed_title(self):
         """
         The title from the feed content is used unless overridden by the user.
         """
-        f = Feed(
-            user=User.objects.create_user(
-                username='admin',
-                email='admin@mailhost.example',
-                password='sesame',
-            ),
+        f = self.user.feed_set.create(
             url='https://feed.example/',
             added=timezone.now(),
             next_check=timezone.now(),
@@ -57,12 +59,7 @@ class FeedTests(TestCase):
         A user-set title has precedence over the title given in the feed
         content.
         """
-        f = Feed(
-            user=User.objects.create_user(
-                username='admin',
-                email='admin@mailhost.example',
-                password='sesame',
-            ),
+        f = self.user.feed_set.create(
             url='https://feed.example/',
             added=timezone.now(),
             next_check=timezone.now(),
