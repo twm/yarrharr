@@ -102,7 +102,7 @@ class FeedTests(TestCase):
     def test_poll_now_sent_create(self):
         """
         Creation of a `Feed` instance with a poll time now or in the past
-        triggers the poll_now signal.
+        sends the poll_now signal.
         """
         with signal_inbox(poll_now) as inbox:
             f = self.user.feed_set.create(
@@ -114,6 +114,14 @@ class FeedTests(TestCase):
         self.assertEqual([(f, {'signal': ANY})], inbox)
 
     def test_poll_now_sent_update(self):
+        """
+        Saving a `Feed` instance with a poll time now or in the past sends the
+        poll_now signal.
+
+        Note that the actual behavior sends the signal on any save, not just
+        those which change the `next_check` field. The duplicate signals are
+        okay because polling when no feed is actually due is a no-op.
+        """
         with signal_inbox(poll_now) as inbox:
             f = self.user.feed_set.create(
                 next_check=None,
