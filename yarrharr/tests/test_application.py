@@ -100,7 +100,10 @@ class RootTests(SynchronousTestCase):
 
     def test_referrer_policy(self):
         """
-        The ``Referrer-Policy: no-referrer`` header is injected into every response.
+        The ``Referrer-Policy: same-origin`` header is injected into every response.
+        ``same-origin`` is used instead of ``no-referrer`` as <Django's CSRF
+        protection uses the Referrer header in some circumstances
+        <https://www.b-list.org/weblog/2018/mar/06/two-new-projects/>`_.
         """
         treq = self.mkTreq()
 
@@ -112,7 +115,7 @@ class RootTests(SynchronousTestCase):
         # that for now.
         response = self.successResultOf(treq.get('http://127.0.0.1:8888/static/'))
 
-        self.assertEqual(['no-referrer'], response.headers.getRawHeaders('Referrer-Policy'))
+        self.assertEqual(['same-origin'], response.headers.getRawHeaders('Referrer-Policy'))
 
     def test_x_content_type_options(self):
         """
