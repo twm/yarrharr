@@ -24,6 +24,7 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from contextlib import contextmanager
 import datetime
 
 from django.contrib.auth.models import User
@@ -32,6 +33,7 @@ from django.utils import timezone
 import mock
 
 from ..models import Feed, Label
+from ..signals import schedule_changed
 
 
 class dictwith(object):
@@ -54,6 +56,30 @@ class dictwith(object):
 
     def __repr__(self):
         return '+' + repr(self._wrapped)
+
+
+@contextmanager
+def signal_inbox(signal):
+    """
+    Context manager which collects Django signals in a list. Use like::
+
+        with signal_inbox(some_signal) as inbox:
+            ...  # Cause the signal to be sent.
+
+        [[sender, kwargs]] = inbox
+
+    There will be one item in the inbox list per signal dispatched.
+    """
+    inbox = []
+
+    def receive(sender, **kwargs):
+        inbox.append((sender, kwargs))
+
+    signal.connect(receive)
+    try:
+        yield inbox
+    finally:
+        signal.disconnect(receive)
 
 
 class LoginRedirectTests(TestCase):
@@ -155,10 +181,11 @@ class InventoryViewTests(TestCase):
     def test_create(self):
         url = u'http://example.com/feed.xml'
 
-        response = self.client.post('/api/inventory/', {
-            'action': 'create-feed',
-            'url': url,
-        })
+        with signal_inbox(schedule_changed) as schedule_changed_signals:
+            response = self.client.post('/api/inventory/', {
+                'action': 'create-feed',
+                'url': url,
+            })
 
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
@@ -189,6 +216,7 @@ class InventoryViewTests(TestCase):
             'labelsById': {},
             'labelOrder': [],
         }, response.json())
+        self.assertEqual(1, len(schedule_changed_signals))
 
     def test_update_feed_title_and_url(self):
         """
@@ -204,13 +232,14 @@ class InventoryViewTests(TestCase):
         url = 'http://example.com/feedZ.xml'
         user_title = 'Feed Z'
 
-        response = self.client.post('/api/inventory/', {
-            'action': 'update-feed',
-            'feed': feed.id,
-            'url': url,
-            'active': 'on',
-            'title': user_title,
-        })
+        with signal_inbox(schedule_changed) as schedule_changed_signals:
+            response = self.client.post('/api/inventory/', {
+                'action': 'update-feed',
+                'feed': feed.id,
+                'url': url,
+                'active': 'on',
+                'title': user_title,
+            })
 
         self.assertEqual(200, response.status_code)
         [feed] = self.user.feed_set.all()
@@ -238,6 +267,7 @@ class InventoryViewTests(TestCase):
             'labelsById': {},
             'labelOrder': [],
         }, response.json())
+        self.assertEqual(1, len(schedule_changed_signals))
 
     def test_update_labels(self):
         """

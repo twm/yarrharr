@@ -24,6 +24,7 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
 
@@ -31,13 +32,12 @@ from django.db.backends.signals import connection_created
 # Enable sqlite WAL mode so that readers don't block writers. See:
 # https://www.sqlite.org/wal.html
 # https://code.djangoproject.com/ticket/24018
+@receiver(connection_created, dispatch_uid='set_sqlite_wal_mode')
 def _set_sqlite_wal_mode(sender, connection, **kwargs):
     assert connection.vendor == 'sqlite'
     cursor = connection.cursor()
     cursor.execute('PRAGMA journal_mode=wal;')
     cursor.close()
-
-connection_created.connect(_set_sqlite_wal_mode)
 
 
 class Feed(models.Model):

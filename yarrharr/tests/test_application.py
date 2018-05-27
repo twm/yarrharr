@@ -27,15 +27,18 @@ from io import StringIO
 import json
 import logging
 import unittest
+from unittest import mock
 
 from treq.testing import StubTreq
 from twisted.logger import Logger, LogPublisher, FileLogObserver
+from twisted.internet import defer, task
 from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.failure import Failure
 from twisted.python.threadpool import ThreadPool
 from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
 
+from ..application import AdaptiveLoopingCall
 from ..application import CSPReport
 from ..application import Root
 from ..application import TwistedLoggerLogHandler, formatForSystemd
@@ -237,3 +240,118 @@ class FormatForSystemdTests(SynchronousTestCase):
         output = fout.getvalue()
         self.assertTrue(all(l.startswith(('<3>[', '<3>  ')) for l in output.splitlines()))
         self.assertIn('Traceback (most recent call last):\n', output)
+
+
+class AdaptiveLoopingCallTests(SynchronousTestCase):
+    def test_start(self):
+        """
+        start() immediately calls the function and schedules a call according
+        to its return value.
+        """
+        clock = task.Clock()
+        loop = AdaptiveLoopingCall(clock, lambda: 13)
+        startD = loop.start()
+
+        [call] = clock.getDelayedCalls()
+        self.assertEqual(13.0, call.getTime())
+        self.assertNoResult(startD)
+
+    def test_deferred(self):
+        """
+        The function may return a Deferred which is waited on before the next
+        call is scheduled.
+        """
+        clock = task.Clock()
+        d = defer.Deferred()
+        loop = AdaptiveLoopingCall(clock, lambda: d)
+        startD = loop.start()
+
+        self.assertEqual([], clock.getDelayedCalls())
+        self.assertNoResult(startD)
+
+        d.callback(3.5)
+
+        [call] = clock.getDelayedCalls()
+        self.assertEqual(3.5, call.getTime())
+        self.assertNoResult(startD)
+
+    def test_stop_waits(self):
+        """
+        The stop() method waits for any pending call to complete.
+        """
+        clock = task.Clock()
+        d = defer.Deferred()
+        loop = AdaptiveLoopingCall(clock, lambda: d)
+        startD = loop.start()
+
+        loop.stop()
+        self.assertNoResult(startD)
+
+        d.callback(1.0)
+        self.assertIs(loop, self.successResultOf(startD))
+
+    def test_fail_loop(self):
+        """
+        The deferred returned by start() fails when the function throws.
+        """
+        def thrower():
+            raise IndentationError
+
+        clock = task.Clock()
+        loop = AdaptiveLoopingCall(clock, thrower)
+        startD = loop.start()
+
+        self.failureResultOf(startD).trap(IndentationError)
+
+    def test_poke_while_sleeping(self):
+        """
+        The poke() method causes the scheduled delayed call to be cancelled and
+        the function invoked immediately.
+        """
+        clock = task.Clock()
+        func = mock.Mock(wraps=lambda: 100)
+        loop = AdaptiveLoopingCall(clock, func)
+        startD = loop.start()
+
+        loop.poke()
+
+        self.assertNoResult(startD)  # No internal failures.
+        self.assertEqual([
+            mock.call(),  # Invocation on start().
+            mock.call(),  # Invocation on poke().
+        ], func.mock_calls)
+        self.assertEqual(1, len(clock.getDelayedCalls()))
+
+    def test_poke_while_running(self):
+        """
+        The poke() method causes the function to be invoked again as soon as an
+        ongoing execution completes.
+        """
+        clock = task.Clock()
+        firstD = defer.Deferred()
+        deferreds = [firstD, defer.succeed(2.0)]
+        func = mock.Mock(wraps=lambda: deferreds.pop(0))
+        loop = AdaptiveLoopingCall(clock, func)
+        startD = loop.start()
+
+        # Now the loop is waiting on firstD.
+        self.assertEqual([], clock.getDelayedCalls())
+        self.assertEqual([mock.call()], func.mock_calls)
+
+        loop.poke()
+
+        # Still waiting on firstD.
+        self.assertEqual([], clock.getDelayedCalls())
+        self.assertEqual([mock.call()], func.mock_calls)
+
+        firstD.callback(1.0)
+
+        # Now the function has been called twice, though no clock time has
+        # elapsed.
+        self.assertEqual([
+            mock.call(),  # Invocation on start().
+            mock.call(),  # Invocation on poke().
+        ], func.mock_calls)
+        [call] = clock.getDelayedCalls()
+        self.assertEqual(2.0, call.getTime())
+        self.assertNoResult(startD)  # No internal failures.

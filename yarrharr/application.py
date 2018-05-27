@@ -35,9 +35,10 @@ import sys
 
 import attr
 from django.conf import settings
+from django.dispatch import receiver
 from twisted.logger import globalLogBeginner
 from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
-from twisted.internet import task
+from twisted.internet import defer
 from twisted.logger import formatEvent
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
@@ -46,6 +47,7 @@ from twisted.web.resource import Resource
 from twisted.internet.endpoints import serverFromString
 
 from . import __version__
+from .signals import schedule_changed
 from .wsgi import application
 
 
@@ -252,6 +254,101 @@ class TwistedLoggerLogHandler(logging.Handler):
         })
 
 
+class AdaptiveLoopingCall(object):
+    """
+    :class:`AdaptiveLoopingCall` invokes a function periodically. Each time it
+    is called it returns the time to wait until the next invocation.
+
+    :ivar _clock: :class:`IReactorTime` implementer
+    :ivar _f: The function to call.
+    :ivar _deferred: Deferred returned by :meth:`.start()`.
+    :ivar _call: `IDelayedCall` when waiting for the next poll period.
+        Otherwise `None`.
+    :ivar bool _poked: `True` when the function should be immediately invoked
+        again after it completes.
+    :ivar bool _stopped: `True` once `stop()` has been called.
+    """
+    _deferred = None
+    _call = None
+    _poked = False
+    _stopped = False
+
+    def __init__(self, clock, f):
+        """
+        :param clock: :class:`IReactorTime` provider to use when scheduling
+            calls.
+        :param f: The function to call when the loop is started. It must return
+            the number of seconds to wait before calling it again, or
+            a deferred for the same.
+        """
+        self._clock = clock
+        self._f = f
+
+    def start(self):
+        """
+        Call the function immediately, and schedule future calls according to
+        its result.
+
+        :returns:
+            :class:`Deferred` which will succeed when :meth:`stop()` is called
+            and the loop cleanly exits, or fail when the function produces
+            a failure.
+        """
+        assert self._deferred is None
+        assert self._call is None
+        assert not self._stopped
+        self._deferred = d = defer.Deferred()
+        self._callIt()
+        return d
+
+    def stop(self):
+        self._stopped = True
+        if self._call:
+            self._call.cancel()
+            self._deferred.callback(self)
+
+    def poke(self):
+        """
+        Run the function as soon as possible: either immediately or once it has
+        finished any current execution. This is a no-op if the service has been
+        stopped. Pokes coalesce if received while the function is executing.
+        """
+        if self._stopped or self._poked:
+            return
+        if self._call:
+            self._call.cancel()
+            self._callIt()
+        else:
+            self._poked = True
+
+    def _callIt(self):
+        self._call = None
+        d = defer.maybeDeferred(self._f)
+        d.addCallback(self._schedule)
+        d.addErrback(self._failLoop)
+
+    def _schedule(self, seconds):
+        """
+        Schedule the next call.
+        """
+        assert isinstance(seconds, (int, float))
+        if self._stopped:
+            d, self._deferred = self._deferred, None
+            d.callback(self)
+        elif self._poked:
+            self._poked = False
+            self._callIt()
+        else:
+            self._call = self._clock.callLater(seconds, self._callIt)
+
+    def _failLoop(self, failure):
+        """
+        Terminate the loop due to an unhandled failure.
+        """
+        d, self._deferred = self._deferred, None
+        d.errback(failure)
+
+
 def run():
     from twisted.internet import reactor
 
@@ -270,10 +367,20 @@ def run():
     endpoint = serverFromString(reactor, settings.SERVER_ENDPOINT)
     reactor.addSystemEventTrigger('before', 'startup', endpoint.listen, factory)
 
-    updateLoop = task.LoopingCall(updateFeeds, reactor)
-    # TODO: Adjust the loop period dynamically according to the time the next check is due.
-    loopEndD = updateLoop.start(15)
+    updateLoop = AdaptiveLoopingCall(reactor, lambda: updateFeeds(reactor))
+    loopEndD = updateLoop.start()
     loopEndD.addErrback(log.failure, "Polling loop broke")
+
+    @receiver(schedule_changed)
+    def threadPollNow(sender, **kwargs):
+        """
+        When the `schedule_changed` signal is sent poke the polling loop. If it
+        is sleeping this will cause it to poll immediately. Otherwise this will
+        cause it to run the poll function immediately once it returns (running
+        it again protects against races).
+        """
+        log.debug("Immediate poll triggered by {sender}", sender=sender)
+        reactor.callFromThread(updateLoop.poke)
 
     def stopUpdateLoop():
         updateLoop.stop()
