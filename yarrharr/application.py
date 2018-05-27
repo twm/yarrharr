@@ -170,7 +170,7 @@ class Root(FallbackResource):
         # Disable the Referer header in some browsers. This is complemented by
         # the injection of rel="noopener noreferrer" on all links by the HTML
         # sanitizer.
-        request.setHeader(b'Referrer-Policy', b'no-referrer')
+        request.setHeader(b'Referrer-Policy', b'same-origin')
         request.setHeader(b'X-Content-Type-Options', b'nosniff')
 
         request.setHeader(b'Content-Security-Policy',
