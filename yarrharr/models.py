@@ -27,9 +27,6 @@
 from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
-from django.utils import timezone
-
-from .signals import poll_now
 
 
 # Enable sqlite WAL mode so that readers don't block writers. See:
@@ -109,15 +106,6 @@ class Feed(models.Model):
 
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
-
-    def save(self, *args, **kwargs):
-        """
-        Save the `Feed`. Send the `twigjack.signals.poll_now` signal if the
-        next scheduled check is immediate.
-        """
-        super().save(*args, **kwargs)
-        if self.next_check is not None and timezone.now() >= self.next_check:
-            poll_now.send(self)
 
 
 class Article(models.Model):

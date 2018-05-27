@@ -36,7 +36,8 @@ from django.utils import timezone
 from twisted.logger import Logger
 
 import yarrharr
-from yarrharr.models import Article
+from .models import Article
+from .signals import schedule_changed
 
 
 log = Logger()
@@ -431,14 +432,16 @@ def inventory(request):
         data = {}
         if action == 'create-feed':
             feed_url = request.POST['url']
-            feed = request.user.feed_set.create(
-                feed_title=feed_url,
-                url=feed_url,
-                added=timezone.now(),
-                next_check=timezone.now(),  # check ASAP
-            )
-            feed.save()
+            with transaction.atomic():
+                feed = request.user.feed_set.create(
+                    feed_title=feed_url,
+                    url=feed_url,
+                    added=timezone.now(),
+                    next_check=timezone.now(),  # check ASAP
+                )
+                feed.save()
             data['feedId'] = feed.id
+            schedule_changed.send(None)
         elif action == 'update-feed':
             with transaction.atomic():
                 feed = request.user.feed_set.get(id=request.POST['feed'])
@@ -451,6 +454,7 @@ def inventory(request):
                 else:
                     feed.next_check = None
                 feed.save()
+            schedule_changed.send(None)
         elif action == 'update-label':
             with transaction.atomic():
                 label = request.user.label_set.get(id=request.POST['label'])
@@ -464,6 +468,7 @@ def inventory(request):
                     feed.delete()
                 for label in request.user.label_set.filter(pk__in=request.POST.getlist('label')):
                     label.delete()
+            schedule_changed.send(None)
         else:
             raise ValueError(action)
 

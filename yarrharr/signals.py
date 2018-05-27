@@ -30,8 +30,22 @@ Django signals
 from django.dispatch import Signal
 
 
-poll_now = Signal()
+schedule_changed = Signal()
 """
-`poll_now` is sent when a feed has been modified in the database such that is
-scheduled for immediate polling.
+The `schedule_changed` signal is sent when feeds have been modified in the
+database such that the polling schedule may be affected. This includes:
+
+* A feed is created
+* A feed is updated (the `Feed.next_check` field changes)
+* Feed(s) are deleted
+
+After these events it may be necessary to poll immediately, or to sleep longer.
+As the process is already awake and the filesystem cache hot, this is an ideal
+time to make that scheduling decision.
+
+This signal must be emitted *after* the transaction which updates the database
+has committed to ensure that the schedule changes are visible to the polling
+routine.
+
+The sender of this signal is always ``None``.
 """

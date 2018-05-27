@@ -47,7 +47,7 @@ from twisted.web.resource import Resource
 from twisted.internet.endpoints import serverFromString
 
 from . import __version__
-from .signals import poll_now
+from .signals import schedule_changed
 from .wsgi import application
 
 
@@ -371,10 +371,13 @@ def run():
     loopEndD = updateLoop.start()
     loopEndD.addErrback(log.failure, "Polling loop broke")
 
-    @receiver(poll_now)
+    @receiver(schedule_changed)
     def threadPollNow(sender, **kwargs):
         """
-        When the `poll_now` signal is sent, trigger an immediate poll.
+        When the `schedule_changed` signal is sent poke the polling loop. If it
+        is sleeping this will cause it to poll immediately. Otherwise this will
+        cause it to run the poll function immediately once it returns (running
+        it again protects against races).
         """
         log.debug("Immediate poll triggered by {sender}", sender=sender)
         reactor.callFromThread(updateLoop.poke)
