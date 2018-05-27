@@ -23,7 +23,7 @@ setup(
         # 'feedparser > 5.2.1',
         'forkparser ~= 6.1.0',
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
-        'html5lib == 0.999999999',
+        'html5lib == 1.0.1',
     ],
     extras_require={
         'dev': [
