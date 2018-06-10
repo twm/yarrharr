@@ -5,7 +5,7 @@ import { ReadToggle } from 'widgets/StateToggle.js';
 import { RelativeTime } from 'widgets/time.jsm';
 import "./ListArticle.less";
 
-const OUTBOUND_ICON = <OutboundIcon aria-hidden={true} />;
+const OUTBOUND_ICON = <span className="outbound-icon"><OutboundIcon aria-hidden={true} /></span>;
 const HEART_ICON = <HeartIcon />;
 
 export default class ListArticle extends React.PureComponent {
@@ -19,16 +19,19 @@ export default class ListArticle extends React.PureComponent {
         }
         return <div className="list-article">
             <div className="list-article-inner">
-                <a className="outbound" href={props.url} target="_blank" title="View on source site">
-                    <span className="meta">{props.feed.text || props.feed.title} — <RelativeTime then={props.date} /> {OUTBOUND_ICON}</span>
-                    <span className="title">{props.title || "Untitled"} {props.fave ? HEART_ICON : null}</span>
-                </a>
-                <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
-                {props.renderLink({
-                    articleId: props.id,
-                    className: "square view-link",
-                    children: <FollowIcon key="icon" title="View article" />,
-                })}
+                <div className="list-article-slider">
+                    <a className="outbound" href={props.url} target="_blank" title="View on source site">
+                        <span className="meta">{props.feed.text || props.feed.title} — <RelativeTime then={props.date} /></span>
+                        <span className="title">{props.title || "Untitled"} {props.fave ? HEART_ICON : null}</span>
+                        {OUTBOUND_ICON}
+                    </a>
+                    <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
+                    {props.renderLink({
+                        articleId: props.id,
+                        className: "square view-link",
+                        children: <FollowIcon key="icon" title="View article" />,
+                    })}
+                </div>
             </div>
         </div>;
     }
