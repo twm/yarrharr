@@ -15,53 +15,88 @@
 }
 
 .list-article-inner {
-    display: flex;
-    height: 100%;
+    height: @bar_height;
     max-width: var(--layout-max-width);
     margin: 0 auto;
+    overflow: hidden;
+}
+
+.list-article-slider {
+    display: flex;
     flex-flow: row nowrap;
     align-items: stretch;
+
+    .icon {
+        display: block;
+        align-self: center;
+        justify-self: center;
+    }
 
     .outbound {
         .flat-button;
         &:focus { .flat-button-focus; }
+        padding: ((2 * @button_border_width));
         flex: 1 1 100%;
+        width: 100%;
+        display: grid;
+        grid-template-areas:
+            "meta  outbound-icon"
+            "title outbound-icon";
+        grid-template-rows: 1fr 1fr;
+        grid-template-columns: 1fr @bar_height;
 
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
         text-decoration: none;
 
-        .meta,
         .title {
-            display: block;
+            grid-area: title;
+            // background: blue;
         }
         .meta {
+            grid-area: meta;
             color: @quiet_text_color;
+            text-transform: uppercase;
+            font-size: smaller;
+            // background: red;
         }
-        .icon {
-            position: relative;
-            padding-left: 0.5rem;
-            top: 0.1rem;
+        .title,
+        .meta {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
-    }
-
-    a {
-        padding: 0.25rem;
+        .outbound-icon {
+            grid-area: outbound-icon;
+            --icon-color: lightgray;
+        }
     }
 
     .read-toggle,
     .view-link {
-        min-width: 0;
-        display: block;
-
         flex: 0 0 @bar_height;
-        align-items: center;
-        justify-content: center;
 
         .flat-button;
         &:focus { .flat-button-focus; }
-
-        font-size: @icon_size;
     }
+    .read-toggle {
+        // background: purple;
+    }
+    .view-link {
+        // background: magenta;
+    }
+
+    .outbound-icon,
+    .read-toggle,
+    .view-link {
+        font-size: @icon_size;
+        display: flex;
+        flex: row nowrap;
+        align-items: center;
+        justify-content: center;
+
+        .icon {
+            flex: 0 0 auto;
+            // background: white;
+        }
+    }
+
 }
