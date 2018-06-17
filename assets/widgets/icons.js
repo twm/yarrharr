@@ -95,6 +95,14 @@ export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
 
+export function GoFullscreenIcon(props) {
+    return null;
+}
+
+export function ExitFullscreenIcon(props) {
+    return null;
+}
+
 /**
  * WideIcon looks like a double-headed arrow, e.g. <->.
  */

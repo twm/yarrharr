@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { HomeIcon, NarrowIcon, WideIcon } from 'widgets/icons.js';
+import { HomeIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon } from 'widgets/icons.js';
 
 import { RootLink } from 'widgets/links.js';
 
@@ -90,7 +90,7 @@ export class FullscreenToggle extends React.Component {
             return null;
         }
         return <button className="square" onClick={this.handleClick}>
-            {(this.state.fullscreen) ? "Exit" : "Go FS"}
+            {this.state.fullscreen ? <ExitFullscreenIcon /> : <GoFullscreenIcon />}
         </button>;
     }
 }
