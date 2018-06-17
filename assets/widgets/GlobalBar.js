@@ -29,6 +29,72 @@ export class LayoutToggleLink extends React.PureComponent {
     }
 }
 
+
+var fsEnabled, fsElProp, fsChangeEvent, fsErrorEvent, fsExitProp, fsRequestProp;
+if ('fullscreenElement' in document) {
+    fsEnabled = document.fullscreenEnabled;
+    fsElProp = 'fullscreenElement';
+    fsChangeEvent = 'fullscreenchange';
+    fsErrorEvent = 'fullscreenerror';
+    fsExitProp = 'exitFullscreen';
+    fsRequestProp = 'requestFullscreen';
+} else if ('mozFullScreenElement' in document) { // Firefox.
+    fsEnabled = document.mozFullScreenEnabled;
+    fsElProp = 'mozFullScreenElement';
+    fsChangeEvent = 'mozfullscreenchange';
+    fsErrorEvent = 'mozfullscreenerror';
+    fsExitProp = 'mozCancelFullScreen';
+    fsRequestProp = 'mozRequestFullScreen';
+} else if ('webkitFullscreenElement' in document) { // Chrome, WebKit, and Edge.
+    fsEnabled = document.webkitFullscreenEnabled;
+    fsElProp = 'webkitFullscreenElement';
+    fsChangeEvent = 'webkitfullscreenchange';
+    fsErrorEvent = 'webkitfullscreenerror';
+    fsExitProp = 'webkitExitFullscreen';
+    fsRequestProp = 'webkitRequestFullscreen';
+} else {
+    fsEnabled = false;
+}
+
+export class FullscreenToggle extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {fullscreen: this.isFullscreen()};
+        this.handleChange = event => {
+            this.setState({fullscreen: this.isFullscreen()});
+        };
+        this.handleClick = event => {
+            if (this.state.fullscreen) {
+                document[fsExitProp]();
+            } else {
+                document.documentElement[fsRequestProp]();
+            }
+        };
+        this.handleError = event => {
+            // TODO: Do this better? How often does this actually happen?
+            alert("Failed to go fullscreen.");
+        };
+    }
+    isFullscreen() {
+        return document[fsElProp] != null;
+    }
+    componentDidMount() {
+        document.addEventListener(fsChangeEvent, this.handleChange);
+        document.addEventListener(fsErrorEvent, this.handleError);
+    }
+    componentWillUnmount() {
+        document.removeEventListener(fsChangeEvent, this.handleChange);
+    }
+    render() {
+        if (!fsEnabled) {
+            return null;
+        }
+        return <button className="square" onClick={this.handleClick}>
+            {(this.state.fullscreen) ? "Exit" : "Go FS"}
+        </button>;
+    }
+}
+
 export const ConnectedLayoutToggleLink = connect(state => {
     return {layout: state.layout};
 }, {
@@ -41,6 +107,7 @@ export class GlobalBar extends React.PureComponent {
             <RootLink className="square" aria-label="Home" title="Go home"><HomeIcon aria-hidden={true} /></RootLink>
             {this.props.children}
             <ConnectedLayoutToggleLink />
+            <FullscreenToggle />
         </div>;
     }
 }
