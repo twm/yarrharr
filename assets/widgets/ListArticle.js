@@ -5,7 +5,6 @@ import { ReadToggle } from 'widgets/StateToggle.js';
 import { RelativeTime } from 'widgets/time.jsm';
 import "./ListArticle.less";
 
-const OUTBOUND_ICON = <span className="outbound-icon"><OutboundIcon aria-hidden={true} /></span>;
 const HEART_ICON = <HeartIcon />;
 
 function cancel(event) {
@@ -113,7 +112,6 @@ export default class ListArticle extends React.PureComponent {
                     <a className="outbound" href={props.url} target="_blank" title="View on source site" onDragStart={cancel}>
                         <span className="meta">{props.feed.text || props.feed.title} — <RelativeTime then={props.date} /></span>
                         <span className="title">{props.title || "Untitled"} {props.fave ? HEART_ICON : null}</span>
-                        {OUTBOUND_ICON}
                     </a>
                     <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />
                     {props.renderLink({
