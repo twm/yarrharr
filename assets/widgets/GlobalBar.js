@@ -87,10 +87,11 @@ export class FullscreenToggle extends React.Component {
     }
     render() {
         if (!fsEnabled) {
+            // Do not display the button when it is unsupported by the browser or otherwise unavailable.
             return null;
         }
-        return <button className="square" onClick={this.handleClick}>
-            {this.state.fullscreen ? <ExitFullscreenIcon /> : <GoFullscreenIcon />}
+        return <button className="square" title="Fullscreen" aria-pressed={this.state.fullscreen} onClick={this.handleClick}>
+            {this.state.fullscreen ? <ExitFullscreenIcon aria-hidden={true} /> : <GoFullscreenIcon aria-hidden={true} />}
         </button>;
     }
 }
