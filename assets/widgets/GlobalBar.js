@@ -23,9 +23,9 @@ export class LayoutToggleLink extends React.PureComponent {
         const Image = narrow ? WideIcon : NarrowIcon;
         const text = narrow ? "Wide" : "Narrow"
         const actionText = narrow ? "Switch to wide layout" : "Switch to narrow layout"
-        return <a role="button" className="square" tabIndex="0" aria-label={text} href="#" onClick={this.handleClick} title={actionText} >
+        return <button className="square" aria-label={text} onClick={this.handleClick} title={actionText} >
             <Image aria-hidden={true} />
-        </a>;
+        </button>;
     }
 }
 
