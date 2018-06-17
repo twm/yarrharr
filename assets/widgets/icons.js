@@ -96,7 +96,18 @@ export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
 
 export function GoFullscreenIcon(props) {
-    return null;
+    const w = 20;
+    const h = 20;
+    const a = 4;
+    const path = `
+    M 3 ${3 + a} L 3 3 L ${3 + a} 3
+    M ${17 - a} 17 L 17 17 L 17 ${17 -a}
+    M 3 ${17 - a} L 3 17 L ${3 + a} 17
+    M ${17 - a} 3 L 17 3 L 17 ${3 + a}
+    `;
+    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} className="icon" {...props}>
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>;
 }
 
 export function ExitFullscreenIcon(props) {
