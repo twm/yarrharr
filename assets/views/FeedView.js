@@ -376,7 +376,7 @@ function renderArticleList(articleId, articleIds, articlesById, feedsById, onMar
         const article = articlesById[id] || {loading: true};
         // FIXME Shouldn't assume all feeds have loaded.
         const feed = feedsById[article.feedId];
-        elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} {...article} />);
+        elements.push(<ListArticle key={id} renderLink={renderLink} feed={feed} onMarkArticlesRead={onMarkArticlesRead} onMarkArticlesFave={onMarkArticlesFave} {...article} />);
     }
     return elements;
 }
