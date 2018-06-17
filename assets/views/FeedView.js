@@ -9,7 +9,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { Tabs } from 'widgets/Tabs.js';
-import { GlobalBar } from 'widgets/GlobalBar.js';
+import { GlobalBar, Header } from 'widgets/GlobalBar.js';
 import { Title } from 'widgets/Title.jsm';
 import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
@@ -21,7 +21,6 @@ import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
 import { InventoryLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
-import Header from 'widgets/Header.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
@@ -56,14 +55,12 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const feedCount = Object.keys(feedsById).length;
     return <React.Fragment>
         <GlobalBar>
+            <Header>All Feeds</Header>
+            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
         <header className="list-header">
             <div className="list-header-inner bar">
-                <div className="square">
-                </div>
-                <h1 className="expand">All Feeds</h1>
-                <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
             </div>
         </header>
         <Tabs>
@@ -89,19 +86,17 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
 export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
+    const feedTitle = feed.text || feed.title
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Title title={articleTitle(articlesById, articleId, feed.text || feed.title)} />
-        <header className="list-header">
-            <div className="list-header-inner bar">
-                <div className="square">
-                    <FeedIcon aria-hidden={true} />
-                </div>
-                <h1 className="expand">{feed.text || feed.title}</h1>
-                <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        <GlobalBar>
+            <div className="square">
+                <FeedIcon aria-hidden={true} />
             </div>
-        </header>
+            <Header>{feedTitle}</Header>
+            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        </GlobalBar>
+        <Title title={articleTitle(articlesById, articleId, feedTitle)} />
         <Tabs>
             <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
             <FeedLink aria-selected={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
@@ -127,17 +122,14 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
-        <GlobalBar layout={layout} onSetLayout={onSetLayout} />
-        <Title title={articleTitle(articlesById, articleId, label.text)} />
-        <header className="list-header">
-            <div className="list-header-inner bar">
-                <div className="square">
-                    <LabelIcon aria-hidden={true} />
-                </div>
-                <h1 className="expand">{label.text}</h1>
-                <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        <GlobalBar>
+            <div className="square">
+                <LabelIcon aria-hidden={true} />
             </div>
-        </header>
+            <Header>{label.text}</Header>
+            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        </GlobalBar>
+        <Title title={articleTitle(articlesById, articleId, label.text)} />
         <Tabs>
             <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>

@@ -4,10 +4,9 @@ import { connect } from 'react-redux';
 
 import { Title } from 'widgets/Title.jsm';
 import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
-import Header from 'widgets/Header.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { RelativeTime } from 'widgets/time.jsm';
-import { GlobalBar } from 'widgets/GlobalBar.js';
+import { GlobalBar, Header } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
 import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink, RootLink } from 'widgets/links.js';
@@ -35,8 +34,10 @@ export class InventoryView extends React.PureComponent {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
-            <GlobalBar/>
-            <Title title="Manage Feeds" />
+            <GlobalBar>
+                <Header>Feeds</Header>
+            </GlobalBar>
+            <Title title="Feeds" />
             <Tabs>
                 <RootLink aria-selected={false} className="no-underline">Home</RootLink>
                 <InventoryLink aria-selected={true} className="no-underline">Feeds</InventoryLink>
@@ -189,7 +190,9 @@ export class LabelListView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
-            <GlobalBar />
+            <GlobalBar>
+                <Header>Labels</Header>
+            </GlobalBar>
             <Title title="Labels" />
             <Tabs>
                 <RootLink aria-selected={false} className="no-underline">Home</RootLink>
@@ -257,10 +260,13 @@ export class ManageFeedView extends React.PureComponent {
     render() {
         const feedId = this.props.params.feedId;
         const feed = this.props.feedsById[feedId];
+        const feedTitle = feed.text || feed.title;
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
-            <Title title={"Edit " + (feed.text || feed.title)} />
-            <GlobalBar />
+            <GlobalBar>
+                <Header>{feedTitle}</Header>
+            </GlobalBar>
+            <Title title={"Edit " + feedTitle} />
             <header className="list-header">
                 <div className="list-header-inner bar">
                     <div className="square">
@@ -326,8 +332,10 @@ export class ManageLabelView extends React.Component {
         const label = this.props.labelsById[labelId];
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
+            <GlobalBar>
+                <Header>{label.text}</Header>
+            </GlobalBar>
             <Title title={"Edit " + label.text} />
-            <GlobalBar />
             <header className="list-header">
                 <div className="list-header-inner bar">
                     <div className="square">
@@ -452,7 +460,9 @@ export class AddFeedView extends React.Component {
     }
     render() {
         return <Fragment>
-            <GlobalBar />
+            <GlobalBar>
+                <Header>Add Feed</Header>
+            </GlobalBar>
             <Title title="Add Feed" />
             <Tabs>
                 <RootLink aria-selected={false} className="no-underline">Home</RootLink>

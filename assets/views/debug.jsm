@@ -1,20 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { connect } from 'react-redux';
+
 import { Title } from 'widgets/Title.jsm';
+import { Tabs } from 'widgets/Tabs.js';
+import { GlobalBar, Header } from 'widgets/GlobalBar.js';
+
 import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
 
-import { Tabs } from 'widgets/Tabs.js';
-import { GlobalBar } from 'widgets/GlobalBar.js';
-
 class DebugView extends React.PureComponent {
     render() {
         return <React.Fragment>
-            <GlobalBar />
+            <GlobalBar>
+                <Header>Debug</Header>
+            </GlobalBar>
             <Title title="Debug" />
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
