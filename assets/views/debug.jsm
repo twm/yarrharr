@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
-import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
@@ -34,6 +34,8 @@ class DebugView extends React.PureComponent {
                     Outbound <OutboundIcon />
                     Edit <EditIcon />
                     Wide <WideIcon />
+                    GoFullscreen <GoFullscreenIcon />
+                    ExitFullscreenIcon <ExitFullscreenIcon />
                     Narrow <NarrowIcon />
                     Ascending <AscDescIcon ascending={true} />
                     Descending <AscDescIcon ascending={false} />
@@ -57,6 +59,8 @@ class DebugView extends React.PureComponent {
                     <FollowIcon className="icon debug-icon-grid" />
                     <OutboundIcon className="icon debug-icon-grid" />
                     <EditIcon className="icon debug-icon-grid" />
+                    <GoFullscreenIcon className="icon debug-icon-grid" />
+                    <ExitFullscreenIcon className="icon debug-icon-grid" />
                     <WideIcon className="icon debug-icon-grid" />
                     <NarrowIcon className="icon debug-icon-grid" />
                     <AscDescIcon ascending={true} className="icon debug-icon-grid" />
