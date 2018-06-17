@@ -50,19 +50,13 @@ if (__debug__) {
 }
 
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
-    const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
-    const feedCount = Object.keys(feedsById).length;
     return <React.Fragment>
         <GlobalBar>
             <Header>All Feeds</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
-        <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
-        <header className="list-header">
-            <div className="list-header-inner bar">
-            </div>
-        </header>
+        <Title title="All Feeds" />
         <Tabs>
             <AllLink aria-selected={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
             <AllLink aria-selected={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
@@ -71,19 +65,64 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <EditIcon aria-label="Manage Feeds" />
             </InventoryLink>
         </Tabs>
-        {renderSnapshot(snapshot.response, articleId,
-            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+        {renderSnapshot(snapshot.response,
+            () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
-        {articleId ? null : <div className="floater-wrap">
+        <div className="floater-wrap">
             <div className="floater">
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
-        </div>}
+        </div>
+    </React.Fragment>;
+}
+
+export function AllArticleView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
+    const { articleId } = params;
+    const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
+    return <React.Fragment>
+        <GlobalBar>
+            <Header>All Feeds</Header>
+            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        </GlobalBar>
+        <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
     </React.Fragment>;
 }
 
 export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
+    const { feedId, filter } = params;
+    const feed = feedsById[feedId];
+    const feedTitle = feed.text || feed.title
+    const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
+    return <React.Fragment>
+        <GlobalBar>
+            <div className="square">
+                <FeedIcon aria-hidden={true} />
+            </div>
+            <Header>{feedTitle}</Header>
+            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        </GlobalBar>
+        <Title title={feedTitle} />
+        <Tabs>
+            <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
+            <FeedLink aria-selected={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
+            <FeedLink aria-selected={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
+            <InventoryFeedLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
+                <EditIcon aria-label="Edit Feed" />
+            </InventoryFeedLink>
+        </Tabs>
+        {renderSnapshot(snapshot.response,
+            () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+            onLoadMore)}
+        <div className="floater-wrap">
+            <div className="floater">
+                <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
+            </div>
+        </div>
+    </React.Fragment>;
+}
+
+export function FeedArticleView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
     const feedTitle = feed.text || feed.title
@@ -97,28 +136,13 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         <Title title={articleTitle(articlesById, articleId, feedTitle)} />
-        <Tabs>
-            <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
-            <FeedLink aria-selected={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
-            <FeedLink aria-selected={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
-            <InventoryFeedLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
-                <EditIcon aria-label="Edit Feed" />
-            </InventoryFeedLink>
-        </Tabs>
-        {renderSnapshot(snapshot.response, articleId,
-            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            onLoadMore)}
-        {articleId ? null : <div className="floater-wrap">
-            <div className="floater">
-                <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
-            </div>
-        </div>}
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
     </React.Fragment>;
 }
 
+
 export function LabelView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
-    const { labelId, filter, articleId } = params;
+    const { labelId, filter } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <React.Fragment>
@@ -129,7 +153,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             <Header>{label.text}</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
-        <Title title={articleTitle(articlesById, articleId, label.text)} />
+        <Title title={label.text} />
         <Tabs>
             <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
@@ -138,15 +162,28 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 <EditIcon aria-label="Edit Label" />
             </InventoryLabelLink>
         </Tabs>
-        {renderSnapshot(snapshot.response, articleId,
-            () => renderArticleList(articleId, snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
-            () => renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
+        {renderSnapshot(snapshot.response,
+            () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
-        {articleId ? null : <div className="floater-wrap">
+        <div className="floater-wrap">
             <div className="floater">
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
-        </div>}
+        </div>
+    </React.Fragment>;
+}
+
+export function LabelArticleView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
+    const { labelId, filter, articleId } = params;
+    const label = labelsById[labelId];
+    const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
+    return <React.Fragment>
+        <GlobalBar>
+            <Header><LabelIcon aria-hidden={true} /> {label.text}</Header>
+            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+        </GlobalBar>
+        <Title title={articleTitle(articlesById, articleId, label.text)} />
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
     </React.Fragment>;
 }
 
@@ -157,8 +194,11 @@ const mapDispatchToProps = {
     onLoadMore: loadMore,
 };
 export const ConnectedAllView = connect(state => state, mapDispatchToProps)(AllView);
+export const ConnectedAllArticleView = connect(state => state, mapDispatchToProps)(AllArticleView);
 export const ConnectedFeedView = connect(state => state, mapDispatchToProps)(FeedView);
+export const ConnectedFeedArticleView = connect(state => state, mapDispatchToProps)(FeedArticleView);
 export const ConnectedLabelView = connect(state => state, mapDispatchToProps)(LabelView);
+export const ConnectedLabelArticleView = connect(state => state, mapDispatchToProps)(LabelArticleView);
 
 
 function MarkAllReadLink({snapshot, onMarkArticlesRead}) {
@@ -186,25 +226,21 @@ function Status(props) {
     </div>;
 }
 
-function renderSnapshot(snapshotResponse, articleId, renderArticleList, renderArticle, onLoadMore) {
-    if (articleId) {
-        return renderArticle(snapshotResponse.loaded);
-    } else {
-        if (!snapshotResponse.loaded) {
-            return <Status>Loading</Status>;
-        }
-        if (snapshotResponse.error) {
-            return <Status>Failed to load (refresh to retry)</Status>;
-        }
-        if (snapshotResponse.articleIds.length === 0) {
-            return <Status>No articles</Status>;
-        }
-        const onVisibleChange = (start, end) => {
-            const ids = snapshotResponse.articleIds;
-            onLoadMore(ids.slice(Math.floor(start * ids.length), Math.floor(end * ids.length) + 10));
-        }
-        return <ScrollSpy onVisibleChange={onVisibleChange}>{renderArticleList()}</ScrollSpy>;
+function renderSnapshot(snapshotResponse, renderArticleList, onLoadMore) {
+    if (!snapshotResponse.loaded) {
+        return <Status>Loading</Status>;
     }
+    if (snapshotResponse.error) {
+        return <Status>Failed to load (refresh to retry)</Status>;
+    }
+    if (snapshotResponse.articleIds.length === 0) {
+        return <Status>No articles</Status>;
+    }
+    const onVisibleChange = (start, end) => {
+        const ids = snapshotResponse.articleIds;
+        onLoadMore(ids.slice(Math.floor(start * ids.length), Math.floor(end * ids.length) + 10));
+    }
+    return <ScrollSpy onVisibleChange={onVisibleChange}>{renderArticleList()}</ScrollSpy>;
 }
 
 /**
@@ -356,13 +392,11 @@ if (__debug__) {
  * Render the meat of a list view. This must only be called after the
  * snapshot has loaded.
  *
- * @param {?number} articleId
- *      If not null, render this specific article instead of the whole list.
  * @param {number[]} articleIds
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticleList(articleId, articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
+function renderArticleList(articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const elements = [];
     for (let id of articleIds) {
         const article = articlesById[id] || {loading: true};
