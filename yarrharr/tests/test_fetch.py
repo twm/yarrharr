@@ -26,13 +26,13 @@
 
 from datetime import datetime, timedelta
 import hashlib
+from unittest import mock
 
 import attr
 from attr.validators import instance_of
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
-import mock
 from twisted.internet import defer, error
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.python.failure import Failure

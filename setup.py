@@ -27,7 +27,6 @@ setup(
     ],
     extras_require={
         'dev': [
-            'mock',
         ],
     },
     entry_points={
