@@ -95,6 +95,31 @@ export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
 
+function fsIcon(props, fullscreen) {
+    const s = 20;
+    const inset = 3;
+    const a = 4;
+    // TODO: Could animate this icon by tweening tipInset between these two values.
+    const tipInset = fullscreen ? inset : a + inset;
+    const path = `
+    M ${inset} ${inset + a} L ${tipInset} ${tipInset} L ${inset + a} ${inset}
+    M ${s - inset - a} ${s - inset} L ${s - tipInset} ${s - tipInset} L ${s - inset} ${s - inset -a}
+    M ${inset} ${s - inset - a} L ${tipInset} ${s - tipInset} L ${inset + a} ${s - inset}
+    M ${s - inset - a} ${inset} L ${s - tipInset} ${tipInset} L ${s - inset} ${inset + a}
+    `;
+    return <svg width="1em" height="1em" viewBox={`0 0 ${s} ${s}`} className="icon" {...props}>
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>;
+}
+
+export function GoFullscreenIcon(props) {
+    return fsIcon(props, true);
+}
+
+export function ExitFullscreenIcon(props) {
+    return fsIcon(props, false);
+}
+
 /**
  * WideIcon looks like a double-headed arrow, e.g. <->.
  */
