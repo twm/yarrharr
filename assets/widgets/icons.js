@@ -95,23 +95,29 @@ export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
 
-export function GoFullscreenIcon(props) {
-    const w = 20;
-    const h = 20;
+function fsIcon(props, fullscreen) {
+    const s = 20;
+    const inset = 3;
     const a = 4;
+    // TODO: Could animate this icon by tweening tipInset between these two values.
+    const tipInset = fullscreen ? inset : a + inset;
     const path = `
-    M 3 ${3 + a} L 3 3 L ${3 + a} 3
-    M ${17 - a} 17 L 17 17 L 17 ${17 -a}
-    M 3 ${17 - a} L 3 17 L ${3 + a} 17
-    M ${17 - a} 3 L 17 3 L 17 ${3 + a}
+    M ${inset} ${inset + a} L ${tipInset} ${tipInset} L ${inset + a} ${inset}
+    M ${s - inset - a} ${s - inset} L ${s - tipInset} ${s - tipInset} L ${s - inset} ${s - inset -a}
+    M ${inset} ${s - inset - a} L ${tipInset} ${s - tipInset} L ${inset + a} ${s - inset}
+    M ${s - inset - a} ${inset} L ${s - tipInset} ${tipInset} L ${s - inset} ${inset + a}
     `;
-    return <svg width="1em" height="1em" viewBox={`0 0 ${w} ${h}`} className="icon" {...props}>
+    return <svg width="1em" height="1em" viewBox={`0 0 ${s} ${s}`} className="icon" {...props}>
         <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
+export function GoFullscreenIcon(props) {
+    return fsIcon(props, true);
+}
+
 export function ExitFullscreenIcon(props) {
-    return null;
+    return fsIcon(props, false);
 }
 
 /**
