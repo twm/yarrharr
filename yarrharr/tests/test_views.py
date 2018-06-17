@@ -30,7 +30,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils import timezone
-import mock
+from unittest import mock
 
 from ..models import Feed, Label
 from ..signals import schedule_changed

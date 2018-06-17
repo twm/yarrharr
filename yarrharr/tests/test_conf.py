@@ -29,7 +29,7 @@ import re
 import unittest
 from tempfile import NamedTemporaryFile
 
-import mock
+from unittest import mock
 import pkg_resources
 
 from yarrharr.conf import (find_conf_files, read_yarrharr_conf,
