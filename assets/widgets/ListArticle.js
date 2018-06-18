@@ -47,7 +47,7 @@ export default class ListArticle extends React.PureComponent {
         this.x0 = null;
         this.suppressNextClick = false;
         this.onDown = event => {
-            // console.log('onDown', event.pointerId, event.pageX);
+            console.log('onDown', event.pointerId, event.pageX);
             if (this.dragPointer == null) {
                 event.target.setPointerCapture(event.pointerId);
                 this.dragPointer = event.pointerId;
@@ -58,17 +58,25 @@ export default class ListArticle extends React.PureComponent {
             if (this.dragPointer !== event.pointerId) return;
             // TODO cap dx in each direction, animate action icon and text appearing
             const dx = event.pageX - this.x0;
-            // console.log('onMove', event.pointerId, event.pageX, dx);
+            console.log('onMove', event.pointerId, event.pageX, dx);
             this.setState({dx});
+        };
+        this.onCancel = event => {
+            if (this.dragPointer !== event.pointerId) return;
+            console.log('onCancel', event);
+            this.dragPointer = null;
+            this.setState({dx: 0});
         };
         this.onUp = event => {
             if (this.dragPointer !== event.pointerId) return;
             const dx = event.pageX - this.x0;
-            // console.log('onUp', event.pointerId, event.pageX, dx);
-            if (dx < -MIN_SLIDE && dx <= -MAX_SLIDE) {
+            console.log('onUp', event.pointerId, event.pageX, dx);
+            if (dx < -MIN_SLIDE) {
+                console.log('markFave');
                 this.props.onMarkArticlesFave([this.props.id], !this.props.fave);
                 this.suppressNextClick = true;
-            } else if (dx > MAX_SLIDE && dx >= MAX_SLIDE) {
+            } else if (dx > MIN_SLIDE) {
+                console.log('markRead');
                 this.props.onMarkArticlesRead([this.props.id], !this.props.read);
                 this.suppressNextClick = true;
             }
@@ -104,7 +112,7 @@ export default class ListArticle extends React.PureComponent {
                         onPointerDown={this.onDown}
                         onPointerMove={this.onDrag}
                         onPointerUp={this.onUp}
-                        onPointerCancel={this.onUp}
+                        onPointerCancel={this.onCancel}
                         onClickCapture={this.onClickCapture}
                         onDragStart={cancel}
                         style={{transform: `translateX(${dx}px)`}}
