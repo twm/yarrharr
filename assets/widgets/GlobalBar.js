@@ -126,7 +126,7 @@ export class Header extends React.PureComponent {
     render() {
         return <React.Fragment>
             {this.props.icon || null}
-            <div className="expand">
+            <div className="bar expand">
                 {this.props.children}
             </div>
         </React.Fragment>;

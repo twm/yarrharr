@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -26,6 +26,15 @@ import './FeedView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
+function filterName(filter) {
+    switch (filter) {
+        case FILTER_UNREAD: return "Unread";
+        case FILTER_FAVE: return "Favorite";
+        case FILTER_ALL: return "All";
+    }
+    return "";
+}
+
 class OrderToggle extends React.PureComponent {
     constructor(props) {
         super(props);
@@ -49,9 +58,59 @@ if (__debug__) {
     };
 }
 
+/**
+ * SnapshotNav is displayed on article view pages to allow navigation to the
+ * previous and next articles.
+ *
+ * +----+---------------------------+-------+----+
+ * | <- |  icon   "Title"           | order | -> |
+ * | <- |  icon   "x of y filter"   | order | -> |
+ * +----+---------------------------+-------+----+
+ */
+class SnapshotNav extends React.PureComponent {
+    render() {
+        const { articleId, snapshot: {response: {articleIds}}, renderLink } = this.props;
+        const index = articleIds.indexOf(articleId);
+        const total = articleIds.length;
+        const prevId = index !== 0 ? articleIds[index - 1] : null;
+        const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
+
+        return <div className="bar expand snapshot-nav">
+            {prevId ? renderLink({
+                className: "snapshot-nav-prev square",
+                title: "Go to previous article",
+                articleId: prevId,
+                children: <ArrowLeftIcon aria-hidden={true} />,
+            }) : <span className="snapshot-nav-prev square" />}
+            {this.props.icon ? <div className="snapshot-nav-icon square">{this.props.icon}</div> : null}
+            <div className="snapshot-nav-text expand">
+                <div className="snapshot-nav-title">{this.props.title}</div>
+                <div className="snapshot-nav-status">
+                     {index + 1} of {total} {this.filterName()}
+                </div>
+            </div>
+            <OrderToggle className="snapshot-nav-order square" order={this.props.snapshot.order} onSetOrder={this.props.onSetOrder} />
+            {nextId ? renderLink({
+                className: "snapshot-nav-next square",
+                title: "Go to next article",
+                articleId: nextId,
+                children: <ArrowRightIcon aria-hidden={true} />,
+            }) : <span className="snapshot-nav-next square" />}
+        </div>
+    }
+    filterName() {
+        switch (this.props.snapshot.filter) {
+            case FILTER_UNREAD: return "unread";
+            case FILTER_FAVE: return "favorite";
+            case FILTER_ALL: return "";
+        }
+        return "";
+    }
+}
+
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
-    return <React.Fragment>
+    return <Fragment>
         <GlobalBar>
             <Header>All Feeds</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
@@ -73,20 +132,26 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
         </div>
-    </React.Fragment>;
+    </Fragment>;
 }
 
 export function AllArticleView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
-    return <React.Fragment>
+    return <Fragment>
         <GlobalBar>
-            <Header>All Feeds</Header>
-            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+            <SnapshotNav
+                // icon={<LabelIcon aria-hidden={true} />}
+                title="All Feeds"
+                articleId={articleId}
+                snapshot={snapshot}
+                renderLink={renderLink}
+                onSetOrder={onSetOrder}
+            />
         </GlobalBar>
         <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
-    </React.Fragment>;
+    </Fragment>;
 }
 
 export function FeedView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
@@ -94,12 +159,11 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const feed = feedsById[feedId];
     const feedTitle = feed.text || feed.title
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
-    return <React.Fragment>
+    return <Fragment>
         <GlobalBar>
-            <div className="square">
-                <FeedIcon aria-hidden={true} />
-            </div>
-            <Header>{feedTitle}</Header>
+            <Header>
+                <FeedIcon aria-hidden={true} /> {feedTitle}
+            </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         <Title title={feedTitle} />
@@ -119,25 +183,28 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
         </div>
-    </React.Fragment>;
+    </Fragment>;
 }
 
 export function FeedArticleView({params, feedsById, labelsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { feedId, filter, articleId } = params;
     const feed = feedsById[feedId];
-    const feedTitle = feed.text || feed.title
+    const feedTitle = feed.text || feed.title;
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
-    return <React.Fragment>
+    return <Fragment>
         <GlobalBar>
-            <div className="square">
-                <FeedIcon aria-hidden={true} />
-            </div>
-            <Header>{feedTitle}</Header>
-            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+            <SnapshotNav
+                icon={<FeedIcon aria-hidden={true} />}
+                title={feedTitle}
+                articleId={articleId}
+                snapshot={snapshot}
+                renderLink={renderLink}
+                onSetOrder={onSetOrder}
+            />
         </GlobalBar>
         <Title title={articleTitle(articlesById, articleId, feedTitle)} />
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
-    </React.Fragment>;
+    </Fragment>;
 }
 
 
@@ -145,7 +212,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const { labelId, filter } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
-    return <React.Fragment>
+    return <Fragment>
         <GlobalBar>
             <div className="square">
                 <LabelIcon aria-hidden={true} />
@@ -170,21 +237,27 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
                 <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />
             </div>
         </div>
-    </React.Fragment>;
+    </Fragment>;
 }
 
 export function LabelArticleView({params, labelsById, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
-    return <React.Fragment>
+    return <Fragment>
         <GlobalBar>
-            <Header><LabelIcon aria-hidden={true} /> {label.text}</Header>
-            <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
+            <SnapshotNav
+                icon={<LabelIcon aria-hidden={true} />}
+                title={label.text}
+                articleId={articleId}
+                snapshot={snapshot}
+                renderLink={renderLink}
+                onSetOrder={onSetOrder}
+            />
         </GlobalBar>
         <Title title={articleTitle(articlesById, articleId, label.text)} />
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
-    </React.Fragment>;
+    </Fragment>;
 }
 
 const mapDispatchToProps = {
@@ -260,7 +333,7 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
     switch (index) {
         case -2:
             // TODO Common 404 page style?
-            articleComponent = <LoadingArticle key="article" />;
+            articleComponent = <LoadingArticle />;
             article = {
                 id: articleId,
                 read: false,
@@ -268,7 +341,7 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
             };
             break;
         case -1:
-            articleComponent = <Status key="status">404: Article {articleId} does not exist</Status>;
+            articleComponent = <Status>404: Article {articleId} does not exist</Status>;
             article = {
                 id: articleId,
                 read: false,
@@ -283,90 +356,42 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
             }
             // FIXME Shouldn't assume all feeds have loaded.
             const feed = feedsById[article.feedId];
-            articleComponent = (feed && !article.loading) ? <Article key="article" feed={feed} {...article} /> : <LoadingArticle key="article" />;
+            articleComponent = (feed && !article.loading) ? <Article feed={feed} {...article} /> : <LoadingArticle />;
             prevId = index !== 0 ? articleIds[index - 1] : null;
             nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
     }
-    return [
+    return <Fragment>
         <TopBar
-            key="top"
             article={article}
             prevId={prevId}
             nextId={nextId}
             articlesById={articlesById}
             onMarkArticlesRead={onMarkArticlesRead}
             onMarkArticlesFave={onMarkArticlesFave}
-            renderLink={renderLink} />,
-        articleComponent,
+            renderLink={renderLink} />
+        {articleComponent}
         <BottomBar
-            key="bottom"
             article={article}
             prevId={prevId}
             nextId={nextId}
             articlesById={articlesById}
             onMarkArticlesRead={onMarkArticlesRead}
             onMarkArticlesFave={onMarkArticlesFave}
-            renderLink={renderLink} />,
-    ];
+            renderLink={renderLink} />
+    </Fragment>;
 }
 
 function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
-    // NB: These may not have loaded yet.
-    const prev = prevId === null ? null : articlesById[prevId];
-    const next = nextId === null ? null : articlesById[nextId];
-
     return <div className="bar">
-        {prevId ? renderLink({
-            className: "prev-link expand",
-            articleId: prevId,
-            children: [
-                <div key="icon" className="square">
-                    <ArrowLeftIcon aria-hidden={true} />
-                </div>,
-                <div key="text">
-                    <span>Previous </span>
-                    {prev && prev.title ? <span className="title">{prev.title}</span> : null}
-                </div>,
-            ],
-        }) : <span className="expand"></span>}
         {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
-        {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null }
-        {nextId ? renderLink({
-            className: "next-link square",
-            title: "Go to next article: " + (next ? (next.title || "Untitled") : ""),
-            articleId: nextId,
-            children: <ArrowRightIcon aria-hidden={true} />,
-        }) : <span className="square"></span>}
+        {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
     </div>;
 }
 
 function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
-    // NB: These may not have loaded yet.
-    const prev = prevId === null ? null : articlesById[prevId];
-    const next = nextId === null ? null : articlesById[nextId];
-
     return <div className="bar">
-        {prevId ? renderLink({
-            className: "prev-link square",
-            title: "Go to previous article: " + (prev ? (prev.title || "Untitled") : ""),
-            articleId: prevId,
-            children: <ArrowLeftIcon aria-hidden={true} />,
-        }) : null}
         {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
         {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
-        {nextId ? renderLink({
-            className: "next-link expand",
-            articleId: nextId,
-            children: [
-                <div key="text">
-                    <span>Next </span>
-                    {next && next.title ? <span className="title">{next.title}</span> : null}
-                </div>,
-                <div className="square" key="icon">
-                    <ArrowRightIcon aria-hidden={true} />
-                </div>,
-            ],
-        }) : <span className="expand"></span>}
     </div>;
 }
 
@@ -377,9 +402,6 @@ if (__debug__) {
             read: PropTypes.bool,
             fave: PropTypes.bool,
         }).isRequired,
-        prevId: PropTypes.number,  // null indicates no previous article
-        nextId: PropTypes.number,  // null indicates no next article
-        articlesById: PropTypes.object.isRequired,
         // Event handlers
         onMarkArticlesRead: PropTypes.func.isRequired,
         onMarkArticlesFave: PropTypes.func.isRequired,

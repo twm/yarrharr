@@ -25,32 +25,34 @@
     }
 }
 
-.next-link[href],
-.prev-link[href] {
-    text-decoration: none;
-    display: flex;
-    flex-flow: row nowrap;
-    div {
-        flex: 1 1 0;
+.snapshot-nav {
+    // background: #eee;
+    margin: 0 3rem;
+}
+.snapshot-nav-prev {
+}
+.snapshot-nav-icon {
+}
+.snapshot-nav-text {
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+
+    &>* {
+        flex: 1 1 auto;
         min-width: 0;
-    }
-    b, .title {
-        display: block;
-        width: 100%;
-        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-    .title {
-        text-decoration: underline;
+        white-space: nowrap;
     }
 }
-
-.prev-link.expand {
-    div:last-child { padding-right: 0.25rem; }
+.snapshot-nav-title {
+    // background: yellow;
 }
-
-.next-link.expand {
-    text-align: right;
-    div:first-child { padding-left: 0.25rem; }
+.snapshot-nav-status {
+    // background: violet;
+}
+.snapshot-nav-order {
+}
+.snapshot-nav-next {
 }
