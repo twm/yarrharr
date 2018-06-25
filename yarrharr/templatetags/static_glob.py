@@ -71,7 +71,7 @@ def newest_static(pattern):
     assert '/' not in pattern  # don't support subdirectories
     name, mtime = None, None
     for fn in os.listdir(_static_dir):  # *sigh* need Python 3 for scandir...
-        if not fnmatch.fnmatchcase(fn, pattern):
+        if not (fnmatch.fnmatchcase(fn, pattern) or fnmatch.fnmatchcase(fn, pattern + '.gz')):
             continue
 
         s = os.stat(os.path.join(_static_dir, fn))
