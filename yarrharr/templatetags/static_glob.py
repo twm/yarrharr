@@ -58,8 +58,10 @@ def newest_static(pattern):
     This combines with a Webpack output file pattern that incorporates a hash
     of the file contents to ensure that the browser always receives the latest
     file without sending cache-busting headers. Discarding all but the newest
-    files is necessary because Webpack's watch mode doesn't clear files from
-    the output directory (``CleanWebpackPlugin`` doesn't operate).
+    files is necessary because Webpack's watch mode (used in development)
+    doesn't clear files from the output directory (``CleanWebpackPlugin``
+    doesn't operate). In production the mtime checking is a no-op, as there is
+    exactly one file which matches the pattern.
 
     :param str pattern: fnmatch (glob) pattern -- see :mod:`fnmatch`
     :returns: name of the file with the greatest modification time in the directory
