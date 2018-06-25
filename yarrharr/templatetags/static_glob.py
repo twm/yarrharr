@@ -40,7 +40,7 @@ register = template.Library()
 _static_dir = os.path.join(os.path.dirname(__file__), '../static')
 
 
-@attr.s(hash=None)
+@attr.s(cmp=False)
 class NoStaticMatch(Exception):
     pattern = attr.ib()
 
