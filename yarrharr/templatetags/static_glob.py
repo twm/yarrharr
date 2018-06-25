@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ register = template.Library()
 _static_dir = os.path.join(os.path.dirname(__file__), '../static')
 
 
-@attr.s
+@attr.s(hash=None)
 class NoStaticMatch(Exception):
     pattern = attr.ib()
 
