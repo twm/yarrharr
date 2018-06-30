@@ -28,7 +28,6 @@ A template filter which matches against the yarrharr app's static files.
 """
 
 import fnmatch
-import stat
 import os
 
 import attr
