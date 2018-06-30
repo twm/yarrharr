@@ -31,6 +31,7 @@ Yarrharr production server via Twisted Web
 import io
 import json
 import logging
+import re
 import sys
 
 import attr
@@ -43,8 +44,9 @@ from twisted.logger import formatEvent
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
 from twisted.web.static import File
-from twisted.web.resource import Resource
+from twisted.web.resource import Resource, NoResource
 from twisted.internet.endpoints import serverFromString
+from twisted.python.filepath import FilePath
 
 from . import __version__
 from .signals import schedule_changed
@@ -154,6 +156,71 @@ class FallbackResource(Resource):
         return self.fallback
 
 
+class Static(Resource):
+    """
+    Serve up Yarrharr's static assets directory. The files in this directory
+    have names like::
+
+    In development, the files are served uncompressed and named like so::
+
+        main.afffb00fd22ca3ce0250.js
+        main.afffb00fd22ca3ce0250.js.map
+
+    The second dot-delimited section is a hash of the file's contents or source
+    material. As the filename changes each time the content does, these files
+    are served with a long max-age and the ``immutable`` flag in the
+    `Cache-Control`_ header.
+
+    In production, each file has two pre-compressed variants: one with
+    a ``.gz`` extension, and one with a ``.br`` extension. No uncompressed
+    variant is present (we just serve the gzip version, regardless of what the
+    browser's Accept-Encoding header says). For example::
+
+        main.afffb00fd22ca3ce0250.js.br
+        main.afffb00fd22ca3ce0250.js.map.br
+        main.afffb00fd22ca3ce0250.js.gz
+        main.afffb00fd22ca3ce0250.js.map.gz
+
+    The actual serving of the files is done by `twisted.web.static.File`, which
+    is fancy and supports range requests, conditional gets, etc.
+
+    We also automatically set the `SourceMap`_ header for requests to ``.css``
+    and ``.js`` files.
+
+    .. note::
+
+        Several features used here are gated to HTTPS origins only:
+        Cache-Control: immutable and Brotli compression both are in Firefox.
+
+    .. _cache-control: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+    .. _sourcemap: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/SourceMap
+    """
+    _dir = FilePath(settings.STATIC_ROOT)
+    _validName = re.compile(br'^[a-zA-Z0-9]+\.[a-zA-Z0-9]+(\.[a-z]+)+$')
+    _brToken = re.compile(br'(:?^|[\s,])br(:?$|\s,])', re.I)
+
+    def getChild(self, path, request):
+        if not self._validName.match(path) or path.endswith((b'.gz', b'.br')):
+            return NoResource("Not found.")
+
+        acceptEncoding = request.getHeader(b'accept-encoding') or b''
+        if self._brToken.search(acceptEncoding):
+            br = self._dir.child(path + b'.br')
+            if br.isfile():
+                return File(br.path, contentEncodings={'.br': 'br'})
+
+        gz = self._dir.child(path + b'.gz')
+        if gz.isfile():
+            return File(gz.path)
+
+        request.setHeader(b'Cache-Control', b'public, max-age=31536000, immutable')
+
+        if path.endswith((b'.js', b'.css')):
+            request.setHeader(b'SourceMap', b'./' + path + b'.map')
+
+        return File(self._dir.child(path).path)
+
+
 class Root(FallbackResource):
     """
     Root of the Yarrharr URL hierarchy.
@@ -164,7 +231,7 @@ class Root(FallbackResource):
         FallbackResource.__init__(self, wsgi)
 
         self.putChild(b'csp-report', CSPReportLogger())
-        self.putChild(b'static', File(settings.STATIC_ROOT))
+        self.putChild(b'static', Static())
 
     def getChildWithDefault(self, name, request):
         # Disable the Referer header in some browsers. This is complemented by
