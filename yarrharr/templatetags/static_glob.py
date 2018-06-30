@@ -28,7 +28,6 @@ A template filter which matches against the yarrharr app's static files.
 """
 
 import fnmatch
-import stat
 import os
 
 import attr
@@ -70,16 +69,19 @@ def newest_static(pattern):
     # TODO The result of this should be cached when not in DEBUG mode.
     assert '/' not in pattern  # don't support subdirectories
     name, mtime = None, None
-    for fn in os.listdir(_static_dir):  # *sigh* need Python 3 for scandir...
-        if not (fnmatch.fnmatchcase(fn, pattern) or fnmatch.fnmatchcase(fn, pattern + '.gz')):
+    for entry in os.scandir(_static_dir):
+        if not entry.is_file():
             continue
 
-        s = os.stat(os.path.join(_static_dir, fn))
-        if not stat.S_ISREG(s.st_mode):
+        if not (
+            fnmatch.fnmatchcase(entry.name, pattern) or
+            fnmatch.fnmatchcase(entry.name, pattern + '.gz')
+        ):
             continue
 
+        s = entry.stat()
         if mtime is None or s.st_mtime > mtime:
-            name = fn
+            name = entry.name
             mtime = s.st_mtime
 
     if name is None:
