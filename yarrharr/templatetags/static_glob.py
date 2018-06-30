@@ -62,6 +62,10 @@ def newest_static(pattern):
     doesn't operate). In production the mtime checking is a no-op, as there is
     exactly one file which matches the pattern.
 
+    Matching is also done with additional ``.gz`` and ``.br`` extensions. These
+    are stripped in the return value, as `yarrharr.application.Static` does not
+    permit them.
+
     :param str pattern: fnmatch (glob) pattern -- see :mod:`fnmatch`
     :returns: name of the file with the greatest modification time in the directory
     :raises: :exc:`NoStaticMatch` when no file matching the pattern exists
@@ -75,13 +79,17 @@ def newest_static(pattern):
 
         if not (
             fnmatch.fnmatchcase(entry.name, pattern) or
-            fnmatch.fnmatchcase(entry.name, pattern + '.gz')
+            fnmatch.fnmatchcase(entry.name, pattern + '.gz') or
+            fnmatch.fnmatchcase(entry.name, pattern + '.br')
         ):
             continue
 
         s = entry.stat()
         if mtime is None or s.st_mtime > mtime:
-            name = entry.name
+            if entry.name.endswith(('.br', '.gz')):
+                name = entry.name[:-3]
+            else:
+                name = entry.name
             mtime = s.st_mtime
 
     if name is None:
