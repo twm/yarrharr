@@ -163,8 +163,8 @@ class Static(Resource):
 
     In development, the files are served uncompressed and named like so::
 
-        main.afffb00fd22ca3ce0250.js
-        main.afffb00fd22ca3ce0250.js.map
+        main-afffb00fd22ca3ce0250.js
+        main-afffb00fd22ca3ce0250.js.map
 
     The second dot-delimited section is a hash of the file's contents or source
     material. As the filename changes each time the content does, these files
@@ -176,10 +176,10 @@ class Static(Resource):
     variant is present (we just serve the gzip version, regardless of what the
     browser's Accept-Encoding header says). For example::
 
-        main.afffb00fd22ca3ce0250.js.br
-        main.afffb00fd22ca3ce0250.js.map.br
-        main.afffb00fd22ca3ce0250.js.gz
-        main.afffb00fd22ca3ce0250.js.map.gz
+        main-afffb00fd22ca3ce0250.js.br
+        main-afffb00fd22ca3ce0250.js.map.br
+        main-afffb00fd22ca3ce0250.js.gz
+        main-afffb00fd22ca3ce0250.js.map.gz
 
     The actual serving of the files is done by `twisted.web.static.File`, which
     is fancy and supports range requests, conditional gets, etc.

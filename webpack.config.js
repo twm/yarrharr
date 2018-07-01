@@ -13,7 +13,7 @@ const MinifyPlugin = require("babel-minify-webpack-plugin");
 const production = process.env.NODE_ENV === 'production';
 
 const extractLESS = new ExtractTextPlugin({
-    filename: "[name].[contenthash:base32:20].css",
+    filename: "[name]-[contenthash:base32:20].css",
     // disable: production,
 });
 
@@ -31,7 +31,7 @@ const plugins = [
             compiler.plugin('emit', (compilation, callback) => {
                 const [filename, asset] = function() {
                     for (let filename in compilation.assets) {
-                        if (/^icon\.[^.]+\.svg$/.test(filename)) {
+                        if (/^icon-[^.]+\.svg$/.test(filename)) {
                             return [filename, compilation.assets[filename]];
                         }
                     }
@@ -176,7 +176,7 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, 'yarrharr/static'),
-        filename: '[name].[hash].js',
+        filename: '[name]-[hash].js',
     },
     plugins: plugins,
     devtool: 'source-map',
