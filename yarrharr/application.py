@@ -164,7 +164,6 @@ class Static(Resource):
     In development, the files are served uncompressed and named like so::
 
         main-afffb00fd22ca3ce0250.js
-        main-afffb00fd22ca3ce0250.js.map
 
     The second dot-delimited section is a hash of the file's contents or source
     material. As the filename changes each time the content does, these files
@@ -174,10 +173,9 @@ class Static(Resource):
     In production, each file has two pre-compressed variants: one with
     a ``.gz`` extension, and one with a ``.br`` extension. For example::
 
+        main-afffb00fd22ca3ce0250.js
         main-afffb00fd22ca3ce0250.js.br
-        main-afffb00fd22ca3ce0250.js.map.br
         main-afffb00fd22ca3ce0250.js.gz
-        main-afffb00fd22ca3ce0250.js.map.gz
 
     The actual serving of the files is done by `twisted.web.static.File`, which
     is fancy and supports range requests, conditional gets, etc.
@@ -190,26 +188,58 @@ class Static(Resource):
     .. _cache-control: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
     """
     _dir = FilePath(settings.STATIC_ROOT)
-    _validName = re.compile(br'^[a-zA-Z0-9]+\.[a-zA-Z0-9]+(\.[a-z]+)+$')
+    _validName = re.compile(br'^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$')
     _brToken = re.compile(br'(:?^|[\s,])br(:?$|\s,])', re.I)
+    _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|\s,])', re.I)
+    _contentTypes = {
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+        '.map': 'application/octet-stream',
+        '.ico': '',  # TODO
+        '.svg': '',  # TODO
+        '.png': 'image/png',
+    }
+
+    def _file(self, path, type, encoding=None):
+        """
+        Construct a `twisted.web.static.File` customized to serve Yarrharr
+        static assets.
+
+        :param path: `twisted.internet.filepath.FilePath` instance
+        :returns: `twisted.web.resource.IResource`
+        """
+        f = File(path.path)
+        f.type = type
+        f.encoding = encoding
+        return f
 
     def getChild(self, path, request):
-        if not self._validName.match(path) or path.endswith((b'.gz', b'.br')):
+        if not self._validName.match(path):
             return NoResource("Not found.")
 
+        try:
+            type = self._contentTypes[path[path.rindex(b'.') - 1:]]
+        except KeyError:
+            return NoResource("Unknown type.")
+
         acceptEncoding = request.getHeader(b'accept-encoding') or b''
+
+        file = None
         if self._brToken.search(acceptEncoding):
             br = self._dir.child(path + b'.br')
             if br.isfile():
-                return File(br.path, contentEncodings={'.br': 'br'})
+                file = self._file(br, type, 'br')
 
-        gz = self._dir.child(path + b'.gz')
-        if gz.isfile():
-            return File(gz.path)
+        if file is None and self._gzToken.search(acceptEncoding):
+            gz = self._dir.child(path + b'.gz')
+            if gz.isfile():
+                file = self._file(gz, type, 'gzip')
+
+        if file is None:
+            file = self._file(self._dir.child(path), type)
 
         request.setHeader(b'Cache-Control', b'public, max-age=31536000, immutable')
-
-        return File(self._dir.child(path).path)
+        return file
 
 
 class Root(FallbackResource):

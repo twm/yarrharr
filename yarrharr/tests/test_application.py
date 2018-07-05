@@ -29,18 +29,22 @@ import logging
 import unittest
 from unittest import mock
 
-from treq.testing import StubTreq
+import attr
+from treq.testing import HasHeaders, StubTreq
 from twisted.logger import Logger, LogPublisher, FileLogObserver
 from twisted.internet import defer, task
 from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.failure import Failure
+from twisted.python.filepath import FilePath
 from twisted.python.threadpool import ThreadPool
 from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
+from twisted.web import static
+from twisted.web.http_headers import Headers
 
 from ..application import AdaptiveLoopingCall
 from ..application import CSPReport
-from ..application import Root
+from ..application import Root, Static
 from ..application import TwistedLoggerLogHandler, formatForSystemd
 
 
@@ -85,6 +89,125 @@ class CSPReportTests(unittest.TestCase):
         })
 
         self.assertIs(report.referrer, None)
+
+
+class StaticTests(SynchronousTestCase):
+    """
+    Test `yarrharr.application.Static`.
+
+    These tests all do HEAD requests because:
+
+    1.  ``twisted.web.static.File`` uses an ``IPullProducer`` internally.
+    2.  ``HTTPChannel`` (used internally by server.Site, used internally by
+        ``treq.testing.RequestTraversalAgent``, used internally by StubTreq)
+        tries to adapt to a push producer using ``_PullToPush``.
+    3.  ``twisted.internet._producer_helpers._PullToPush`` uses the global
+        cooperator.
+    4.  The global cooperator users the global reactor to schedule work, which
+        is never started under the Django test runner.
+
+    At least, that's what I *think* is going on. There is other stuff touching
+    the global reactor too. See treq #225.
+
+    It's an ugly hack, but we rely on the Content-Length header to tell if the
+    right file is being served.
+    """
+    def setUp(self):
+        self.dir = FilePath(self.mktemp())
+        self.dir.makedirs()
+        self.static = Static()
+        self.static._dir = self.dir
+        self.treq = StubTreq(self.static)
+
+    def assertResponse(self, d, *, code=200,
+                       content_type='',
+                       content_encoding='',
+                       content_length='0'):
+        response = self.successResultOf(d)
+        self.assertEqual(200, response.code)
+        self.assertEqual([content_length],
+                         response.headers.getRawHeaders('content-length'))
+        self.assertEqual(['public, max-age=31536000, immutable'],
+                         response.headers.getRawHeaders('cache-control'))
+        self.assertEqual([content_type],
+                         response.headers.getRawHeaders('content-type', ['']))
+        self.assertEqual([content_encoding],
+                         response.headers.getRawHeaders('content-encoding', ['']))
+
+    def test_raw_js(self):
+        """
+        JS is served as application/javascript, immutable.
+        """
+        self.dir.child('foo-xxyy.js').touch()
+        self.dir.child('foo-xxyy.js.map').touch()
+
+        self.assertResponse(
+            self.treq.head('http://x/foo-xxyy.js'),
+            content_type='application/javascript',
+        )
+        self.assertResponse(
+            self.treq.head('http://x/foo-xxyy.js.map'),
+            content_type='application/octet-stream',
+        )
+
+    def test_raw_css(self):
+        """
+        CSS is served as text/css, immutable.
+        """
+        self.dir.child('bar-zz99.css').touch()
+        self.dir.child('bar-zz99.css.map').touch()
+
+        self.assertResponse(
+            self.treq.head('http://x/bar-zz99.css'),
+            content_type='text/css',
+        )
+        self.assertResponse(
+            self.treq.head('http://x/bar-zz99.css.map'),
+            content_type='application/octet-stream',
+        )
+
+    def test_accept_gzip(self):
+        self.dir.child('a-bcd.js').setContent(b'1')
+        self.dir.child('a-bcd.js.br').setContent(b'12')
+        self.dir.child('a-bcd.js.gz').setContent(b'123')
+
+        self.assertResponse(
+            self.treq.head('http://x/a-bcd.js', headers={
+                'accept-encoding': 'gzip',
+            }),
+            content_length='3',
+            content_type='application/javascript',
+            content_encoding='gzip',
+        )
+        self.assertResponse(
+            self.treq.head('http://x/a-bcd.js', headers={
+                'accept-encoding': 'x-gzip, deflate',
+            }),
+            content_length='3',
+            content_type='application/javascript',
+            content_encoding='gzip',
+        )
+        self.assertResponse(
+            self.treq.head('http://x/a-bcd.js', headers={
+                'accept-encoding': 'deflate,gzip',
+            }),
+            content_length='3',
+            content_type='application/javascript',
+            content_encoding='gzip',
+        )
+
+    def test_accept_brotli(self):
+        self.dir.child('a-bcd.js').touch()
+        self.dir.child('a-bcd.js.br').touch()
+        self.dir.child('a-bcd.js.gz').touch()
+
+        self.assertResponse(
+            self.treq.head('http://x/a-bcd.js', headers={
+                'accept-encoding': 'gzip, br',
+            }),
+            content_type='application/javascript',
+            content_encoding='br',
+        )
 
 
 class RootTests(SynchronousTestCase):
