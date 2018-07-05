@@ -172,9 +172,7 @@ class Static(Resource):
     `Cache-Control`_ header.
 
     In production, each file has two pre-compressed variants: one with
-    a ``.gz`` extension, and one with a ``.br`` extension. No uncompressed
-    variant is present (we just serve the gzip version, regardless of what the
-    browser's Accept-Encoding header says). For example::
+    a ``.gz`` extension, and one with a ``.br`` extension. For example::
 
         main-afffb00fd22ca3ce0250.js.br
         main-afffb00fd22ca3ce0250.js.map.br
@@ -184,16 +182,12 @@ class Static(Resource):
     The actual serving of the files is done by `twisted.web.static.File`, which
     is fancy and supports range requests, conditional gets, etc.
 
-    We also automatically set the `SourceMap`_ header for requests to ``.css``
-    and ``.js`` files.
-
     .. note::
 
-        Several features used here are gated to HTTPS origins only:
+        Several features used here are only available to HTTPS origins.
         Cache-Control: immutable and Brotli compression both are in Firefox.
 
     .. _cache-control: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
-    .. _sourcemap: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/SourceMap
     """
     _dir = FilePath(settings.STATIC_ROOT)
     _validName = re.compile(br'^[a-zA-Z0-9]+\.[a-zA-Z0-9]+(\.[a-z]+)+$')
@@ -214,9 +208,6 @@ class Static(Resource):
             return File(gz.path)
 
         request.setHeader(b'Cache-Control', b'public, max-age=31536000, immutable')
-
-        if path.endswith((b'.js', b'.css')):
-            request.setHeader(b'SourceMap', b'./' + path + b'.map')
 
         return File(self._dir.child(path).path)
 
