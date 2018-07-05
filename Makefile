@@ -10,18 +10,12 @@ WEBPACK ?= node_modules/.bin/webpack
 # Run ``make V=`` to see the commands run.
 V := @
 
-COMPRESS_FILES := \
-	yarrharr/static/*.css \
-	yarrharr/static/*.ico \
-	yarrharr/static/*.js \
-	yarrharr/static/*.svg
 
 webpack-prod:
 	@echo "WEBPACK"
 	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
 	$(V)if grep -q propTypes yarrharr/static/main-*.js; then echo "ERROR: propTypes found in bundle. Please remove them."; exit 1; fi
-	$(V)for f in  $(COMPRESS_FILES); do brotli --quality 11 --input $$f --output $$f.br; done
-	$(V)gzip -9 $(COMPRESS_FILES) yarrharr/static/*.map
+	$(V)tox -e compress
 
 release: webpack-prod
 	rm -rf build/lib build/bdist.*  # Work around https://github.com/pypa/wheel/issues/147
