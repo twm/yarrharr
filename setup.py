@@ -16,7 +16,7 @@ setup(
         'attrs == 18.1.0',
         'Django ~= 2.0.1',
         'Twisted[tls] ~= 18.4.0',
-        'treq ~= 17.8.0',
+        'treq >= 17.8.0',
         'pytz',
         # We are (hopefully temporarily) using a fork of feedparser as the
         # maintainer is MIA.
