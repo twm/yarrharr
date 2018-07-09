@@ -174,7 +174,7 @@ class StaticTests(SynchronousTestCase):
 
         self.assertResponse(
             self.treq.head('http://x/a-bcd.js', headers={
-                'accept-encoding': 'gzip',
+                'accept-encoding': ['gzip'],
             }),
             content_length='3',
             content_type='application/javascript',
@@ -182,7 +182,7 @@ class StaticTests(SynchronousTestCase):
         )
         self.assertResponse(
             self.treq.head('http://x/a-bcd.js', headers={
-                'accept-encoding': 'x-gzip, deflate',
+                'accept-encoding': ['x-gzip, deflate'],
             }),
             content_length='3',
             content_type='application/javascript',
@@ -190,7 +190,7 @@ class StaticTests(SynchronousTestCase):
         )
         self.assertResponse(
             self.treq.head('http://x/a-bcd.js', headers={
-                'accept-encoding': 'deflate,gzip',
+                'accept-encoding': ['deflate,gzip'],
             }),
             content_length='3',
             content_type='application/javascript',
