@@ -238,6 +238,7 @@ class Static(Resource):
         if file is None:
             file = self._file(self._dir.child(path), type)
 
+        request.setHeader(b'Vary', b'accept-encoding')
         request.setHeader(b'Cache-Control', b'public, max-age=31536000, immutable')
         return file
 
