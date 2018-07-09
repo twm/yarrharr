@@ -192,12 +192,12 @@ class Static(Resource):
     _brToken = re.compile(br'(:?^|[\s,])br(:?$|\s,])', re.I)
     _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|\s,])', re.I)
     _contentTypes = {
-        '.js': 'application/javascript',
-        '.css': 'text/css',
-        '.map': 'application/octet-stream',
-        '.ico': '',  # TODO
-        '.svg': '',  # TODO
-        '.png': 'image/png',
+        b'.js': 'application/javascript',
+        b'.css': 'text/css',
+        b'.map': 'application/octet-stream',
+        b'.ico': '',  # TODO
+        b'.svg': '',  # TODO
+        b'.png': 'image/png',
     }
 
     def _file(self, path, type, encoding=None):
@@ -217,8 +217,9 @@ class Static(Resource):
         if not self._validName.match(path):
             return NoResource("Not found.")
 
+        ext = path[path.rindex(b'.'):]
         try:
-            type = self._contentTypes[path[path.rindex(b'.') - 1:]]
+            type = self._contentTypes[ext]
         except KeyError:
             return NoResource("Unknown type.")
 
