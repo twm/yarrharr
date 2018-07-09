@@ -107,7 +107,7 @@ class StaticTests(SynchronousTestCase):
         is never started under the Django test runner.
 
     At least, that's what I *think* is going on. There is other stuff touching
-    the global reactor too. See treq #225.
+    the global reactor too. See treq #225 and #226.
 
     It's an ugly hack, but we rely on the Content-Length header to tell if the
     right file is being served.
@@ -133,6 +133,7 @@ class StaticTests(SynchronousTestCase):
                          response.headers.getRawHeaders('content-type', ['']))
         self.assertEqual([content_encoding],
                          response.headers.getRawHeaders('content-encoding', ['']))
+        self.assertEqual(['accept-encoding'], response.headers.getRawHeaders('vary'))
 
     def test_raw_js(self):
         """
