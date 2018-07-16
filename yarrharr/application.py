@@ -189,9 +189,15 @@ class Static(Resource):
     """
     _dir = FilePath(settings.STATIC_ROOT)
     _validName = re.compile(br'^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$')
-    # TODO: Check the spec to see if these should be case-insensitive.
-    _brToken = re.compile(br'(:?^|[\s,])br(:?$|[\s,])')
-    _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|[\s,])')
+    # NOTE: RFC 7231 § 5.3.4 is not completely clear about whether
+    # content-coding tokens are case-sensitive or not. The "identity" token
+    # appears in EBNF and is therefore definitely case-insensitive, but the
+    # other tokens only appear in IANA registry tables in lowercase form. In
+    # contrast, the transfer-coding possibilities are clearly defined in EBNF
+    # so are definitely case-insensitive. For content-coding every implementer
+    # seems to agree on lowercase, so I'm not going to worry about it.
+    _brToken = re.compile(br'(:?^|[\s,])br(:?$|[\s,;])')
+    _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|[\s,;])')
     _contentTypes = {
         b'.js': 'application/javascript',
         b'.css': 'text/css',
@@ -215,6 +221,23 @@ class Static(Resource):
         return f
 
     def getChild(self, path, request):
+        """
+        Serve a file for the given path.
+
+        The Content-Type header is set based on the file extension.
+
+        A limited form of content negotiation is done based on the
+        Accept-Encoding header and the files on disk. Apart from the default of
+        ``identity``, two encodings are supported:
+
+         *  ``br``, which selects any Brotli-compressed ``.br`` variant of
+            the file.
+         * ``gzip``, which selects any gzip-compressed ``.br`` variant of the
+            file. ``x-gzip`` is also supported.
+
+        qvalues are ignored as browsers don't use them. This may produce an
+        incorrect response if a variant is disabled like ``identity;q=0``.
+        """
         if not self._validName.match(path):
             return NoResource("Not found.")
 
@@ -224,7 +247,7 @@ class Static(Resource):
         except KeyError:
             return NoResource("Unknown type.")
 
-        acceptEncoding = request.getHeader(b'accept-encoding') or b''
+        acceptEncoding = request.getHeader(b'accept-encoding') or b'*'
 
         file = None
         if self._brToken.search(acceptEncoding):
