@@ -196,8 +196,8 @@ class Static(Resource):
         b'.js': 'application/javascript',
         b'.css': 'text/css',
         b'.map': 'application/octet-stream',
-        b'.ico': '',  # TODO
-        b'.svg': '',  # TODO
+        b'.ico': 'image/x-icon',
+        b'.svg': 'image/svg+xml',
         b'.png': 'image/png',
     }
 

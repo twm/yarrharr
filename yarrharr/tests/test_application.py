@@ -133,36 +133,75 @@ class StaticTests(SynchronousTestCase):
                          response.headers.getRawHeaders('content-encoding', ['']))
         self.assertEqual(['accept-encoding'], response.headers.getRawHeaders('vary'))
 
-    def test_raw_js(self):
+    def test_serve_js(self):
         """
         JS is served as application/javascript, immutable.
         """
         self.dir.child('foo-xxyy.js').touch()
-        self.dir.child('foo-xxyy.js.map').touch()
 
         self.assertResponse(
             self.agent.request(b'HEAD', b'http://x/foo-xxyy.js'),
             content_type='application/javascript',
         )
-        self.assertResponse(
-            self.agent.request(b'HEAD', b'http://x/foo-xxyy.js.map'),
-            content_type='application/octet-stream',
-        )
 
-    def test_raw_css(self):
+    def test_serve_css(self):
         """
         CSS is served as text/css, immutable.
         """
         self.dir.child('bar-zz99.css').touch()
-        self.dir.child('bar-zz99.css.map').touch()
 
         self.assertResponse(
             self.agent.request(b'HEAD', b'http://x/bar-zz99.css'),
             content_type='text/css',
         )
+
+    def test_serve_map(self):
+        """
+        Source map files are served as application/octet-stream, immutable.
+        """
+        self.dir.child('bar-zz99.css.map').touch()
+        self.dir.child('foo-xxyy.js.map').touch()
+
+        self.assertResponse(
+            self.agent.request(b'HEAD', b'http://x/foo-xxyy.js.map'),
+            content_type='application/octet-stream',
+        )
         self.assertResponse(
             self.agent.request(b'HEAD', b'http://x/bar-zz99.css.map'),
             content_type='application/octet-stream',
+        )
+
+    def test_serve_png(self):
+        """
+        PNG images are served as image/png, immutable.
+        """
+        self.dir.child('img-barq.png').touch()
+
+        self.assertResponse(
+            self.agent.request(b'HEAD', b'http://x/img-barq.png'),
+            content_type='image/png',
+        )
+
+    def test_serve_svg(self):
+        """
+        PNG images are served as image/svg+xml, immutable.
+        """
+        self.dir.child('img-blif.svg').touch()
+
+        self.assertResponse(
+            self.agent.request(b'HEAD', b'http://x/img-blif.svg'),
+            content_type='image/svg+xml',
+        )
+
+    def test_serve_ico(self):
+        """
+        ICO images are served as image/x-icon, immutable.
+        """
+        self.dir.child('img-bizf.ico').touch()
+
+        self.assertResponse(
+            self.agent.request(b'HEAD', b'http://x/img-bizf.ico'),
+            content_type='image/x-icon',
         )
 
     def test_accept_gzip(self):
