@@ -29,8 +29,7 @@ import logging
 import unittest
 from unittest import mock
 
-import attr
-from treq.testing import HasHeaders, StubTreq
+from treq.testing import RequestTraversalAgent, StubTreq
 from twisted.logger import Logger, LogPublisher, FileLogObserver
 from twisted.internet import defer, task
 from twisted.python.log import LogPublisher as LegacyLogPublisher
@@ -39,7 +38,6 @@ from twisted.python.filepath import FilePath
 from twisted.python.threadpool import ThreadPool
 from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
-from twisted.web import static
 from twisted.web.http_headers import Headers
 
 from ..application import AdaptiveLoopingCall
@@ -117,7 +115,7 @@ class StaticTests(SynchronousTestCase):
         self.dir.makedirs()
         self.static = Static()
         self.static._dir = self.dir
-        self.treq = StubTreq(self.static)
+        self.agent = RequestTraversalAgent(self.static)
 
     def assertResponse(self, d, *, code=200,
                        content_type='',
@@ -143,11 +141,11 @@ class StaticTests(SynchronousTestCase):
         self.dir.child('foo-xxyy.js.map').touch()
 
         self.assertResponse(
-            self.treq.head('http://x/foo-xxyy.js'),
+            self.agent.request(b'HEAD', b'http://x/foo-xxyy.js'),
             content_type='application/javascript',
         )
         self.assertResponse(
-            self.treq.head('http://x/foo-xxyy.js.map'),
+            self.agent.request(b'HEAD', b'http://x/foo-xxyy.js.map'),
             content_type='application/octet-stream',
         )
 
@@ -159,53 +157,76 @@ class StaticTests(SynchronousTestCase):
         self.dir.child('bar-zz99.css.map').touch()
 
         self.assertResponse(
-            self.treq.head('http://x/bar-zz99.css'),
+            self.agent.request(b'HEAD', b'http://x/bar-zz99.css'),
             content_type='text/css',
         )
         self.assertResponse(
-            self.treq.head('http://x/bar-zz99.css.map'),
+            self.agent.request(b'HEAD', b'http://x/bar-zz99.css.map'),
             content_type='application/octet-stream',
         )
 
     def test_accept_gzip(self):
+        """
+        A client which only accepts gzip gets gzip.
+        """
         self.dir.child('a-bcd.js').setContent(b'1')
         self.dir.child('a-bcd.js.br').setContent(b'12')
         self.dir.child('a-bcd.js.gz').setContent(b'123')
 
         self.assertResponse(
-            self.treq.head('http://x/a-bcd.js', headers={
+            self.agent.request(b'HEAD', b'http://x/a-bcd.js', headers=Headers({
                 'accept-encoding': ['gzip'],
-            }),
+            })),
             content_length='3',
             content_type='application/javascript',
             content_encoding='gzip',
         )
         self.assertResponse(
-            self.treq.head('http://x/a-bcd.js', headers={
+            self.agent.request(b'HEAD', b'http://x/a-bcd.js', headers=Headers({
                 'accept-encoding': ['x-gzip, deflate'],
-            }),
+            })),
             content_length='3',
             content_type='application/javascript',
             content_encoding='gzip',
         )
         self.assertResponse(
-            self.treq.head('http://x/a-bcd.js', headers={
+            self.agent.request(b'HEAD', b'http://x/a-bcd.js', headers=Headers({
                 'accept-encoding': ['deflate,gzip'],
-            }),
+            })),
             content_length='3',
             content_type='application/javascript',
             content_encoding='gzip',
         )
 
     def test_accept_brotli(self):
-        self.dir.child('a-bcd.js').touch()
-        self.dir.child('a-bcd.js.br').touch()
-        self.dir.child('a-bcd.js.gz').touch()
+        """
+        A client which accepts Brotli (br) gets it in preference to gzip.
+        """
+        self.dir.child('a-bcd.js').setContent(b'1')
+        self.dir.child('a-bcd.js.br').setContent(b'12')
+        self.dir.child('a-bcd.js.gz').setContent(b'123')
 
         self.assertResponse(
-            self.treq.head('http://x/a-bcd.js', headers={
-                'accept-encoding': 'gzip, br',
-            }),
+            self.agent.request(b'HEAD', b'http://x/a-bcd.js', headers=Headers({
+                'accept-encoding': ['br'],
+            })),
+            content_length='2',
+            content_type='application/javascript',
+            content_encoding='br',
+        )
+        self.assertResponse(
+            self.agent.request(b'HEAD', b'http://x/a-bcd.js', headers=Headers({
+                'accept-encoding': ['gzip,br'],
+            })),
+            content_length='2',
+            content_type='application/javascript',
+            content_encoding='br',
+        )
+        self.assertResponse(
+            self.agent.request(b'HEAD', b'http://x/a-bcd.js', headers=Headers({
+                'accept-encoding': ['br, deflate'],
+            })),
+            content_length='2',
             content_type='application/javascript',
             content_encoding='br',
         )

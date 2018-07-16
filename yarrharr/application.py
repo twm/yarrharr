@@ -190,8 +190,8 @@ class Static(Resource):
     _dir = FilePath(settings.STATIC_ROOT)
     _validName = re.compile(br'^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$')
     # TODO: Check the spec to see if these should be case-insensitive.
-    _brToken = re.compile(br'(:?^|[\s,])br(:?$|\s,])')
-    _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|\s,])')
+    _brToken = re.compile(br'(:?^|[\s,])br(:?$|[\s,])')
+    _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|[\s,])')
     _contentTypes = {
         b'.js': 'application/javascript',
         b'.css': 'text/css',
