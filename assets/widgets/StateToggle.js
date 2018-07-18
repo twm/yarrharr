@@ -20,12 +20,12 @@ export class ReadToggleLink extends React.PureComponent {
             return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
         const actionText = read ? "Mark unread" : "Mark read"
-        return <a role="button" className="read-toggle square" tabIndex="0" aria-pressed={read} aria-label="Read" title={actionText} href="#" onClick={this.handleClick}>
+        return <button className="read-toggle square" tabIndex="0" aria-pressed={read} aria-label="Read" title={actionText} href="#" onClick={this.handleClick}>
             <svg width="1em" height="1em" viewBox="-10 -10 20 20" aria-hidden={true} className={this.props.iconClass}>
                 <circle cx="0" cy="0" r="7" />
                 <path d="M-7 2 l 5 5 l 9 -11" />
             </svg>
-        </a>;
+        </button>;
     }
 }
 
@@ -56,9 +56,9 @@ export class FaveToggleLink extends React.PureComponent {
             return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
         const actionText = fave ? "Mark article as not favorite" : "Mark article as favorite";
-        return <a role="button" className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} href="#" onClick={this.handleClick}>
+        return <button className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} href="#" onClick={this.handleClick}>
             <HeartIcon className={this.props.iconClass} aria-hidden={true} />
-        </a>;
+        </button>;
     }
 }
 

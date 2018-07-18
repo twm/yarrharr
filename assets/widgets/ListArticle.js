@@ -33,57 +33,8 @@ const MAX_SLIDE = 70;
  *     link: article on source site                         |     |
  *                                        button: toggle read     |
  *                                           link: view in Yarrharr
- *
- * The row can also be dragged right to toggle read or left to toggle
- * fave.
  */
 export default class ListArticle extends React.PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dx: 0,
-        };
-        this.dragPointer = null;
-        this.x0 = null;
-        this.suppressNextClick = false;
-        this.onDown = event => {
-            // console.log('onDown', event.pointerId, event.pageX);
-            if (this.dragPointer == null) {
-                event.target.setPointerCapture(event.pointerId);
-                this.dragPointer = event.pointerId;
-                this.x0 = event.pageX;
-            }
-        };
-        this.onDrag = event => {
-            if (this.dragPointer !== event.pointerId) return;
-            // TODO cap dx in each direction, animate action icon and text appearing
-            const dx = event.pageX - this.x0;
-            // console.log('onMove', event.pointerId, event.pageX, dx);
-            this.setState({dx});
-        };
-        this.onUp = event => {
-            if (this.dragPointer !== event.pointerId) return;
-            const dx = event.pageX - this.x0;
-            // console.log('onUp', event.pointerId, event.pageX, dx);
-            if (dx < -MIN_SLIDE && dx <= -MAX_SLIDE) {
-                this.props.onMarkArticlesFave([this.props.id], !this.props.fave);
-                this.suppressNextClick = true;
-            } else if (dx > MAX_SLIDE && dx >= MAX_SLIDE) {
-                this.props.onMarkArticlesRead([this.props.id], !this.props.read);
-                this.suppressNextClick = true;
-            }
-            this.dragPointer = null;
-            this.setState({dx: 0});
-        }
-        this.onClickCapture = event => {
-            // Prevent buttons and links in sub-components from handling the event when dragging.
-            if (this.suppressNextClick) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.suppressNextClick = false;
-            }
-        };
-    }
     render() {
         const props = this.props;
         if (props.loading) {
@@ -92,23 +43,9 @@ export default class ListArticle extends React.PureComponent {
                 </div>
             </div>
         }
-        var {dx} = this.state;
-        if (dx < -MAX_SLIDE) {
-            dx = -MAX_SLIDE;
-        } else if (dx > MAX_SLIDE) {
-            dx = MAX_SLIDE;
-        }
         return <div className="list-article">
             <div className="list-article-inner">
-                <div className="list-article-slider"
-                        onPointerDown={this.onDown}
-                        onPointerMove={this.onDrag}
-                        onPointerUp={this.onUp}
-                        onPointerCancel={this.onUp}
-                        onClickCapture={this.onClickCapture}
-                        onDragStart={cancel}
-                        style={{transform: `translateX(${dx}px)`}}
-                    >
+                <div className="list-article-slider">
                     <a className="outbound" href={props.url} target="_blank" title="View on source site" onDragStart={cancel}>
                         <span className="meta">{props.feed.text || props.feed.title} — <RelativeTime then={props.date} /></span>
                         <span className="title">{props.title || "Untitled"} {props.fave ? HEART_ICON : null}</span>

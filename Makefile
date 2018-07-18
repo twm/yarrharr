@@ -10,10 +10,12 @@ WEBPACK ?= node_modules/.bin/webpack
 # Run ``make V=`` to see the commands run.
 V := @
 
+
 webpack-prod:
 	@echo "WEBPACK"
 	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
-	$(V)if grep -q propTypes yarrharr/static/main.*.js; then echo "ERROR: propTypes found in bundle. Please remove them."; exit 1; fi
+	$(V)if grep -q propTypes yarrharr/static/main-*.js; then echo "ERROR: propTypes found in bundle. Please remove them."; exit 1; fi
+	$(V)tox -e compress
 
 release: webpack-prod
 	rm -rf build/lib build/bdist.*  # Work around https://github.com/pypa/wheel/issues/147

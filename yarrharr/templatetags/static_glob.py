@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ A template filter which matches against the yarrharr app's static files.
 """
 
 import fnmatch
-import stat
 import os
 
 import attr
@@ -40,7 +39,7 @@ register = template.Library()
 _static_dir = os.path.join(os.path.dirname(__file__), '../static')
 
 
-@attr.s
+@attr.s(cmp=False)
 class NoStaticMatch(Exception):
     pattern = attr.ib()
 
@@ -58,8 +57,14 @@ def newest_static(pattern):
     This combines with a Webpack output file pattern that incorporates a hash
     of the file contents to ensure that the browser always receives the latest
     file without sending cache-busting headers. Discarding all but the newest
-    files is necessary because Webpack's watch mode doesn't clear files from
-    the output directory (``CleanWebpackPlugin`` doesn't operate).
+    files is necessary because Webpack's watch mode (used in development)
+    doesn't clear files from the output directory (``CleanWebpackPlugin``
+    doesn't operate). In production the mtime checking is a no-op, as there is
+    exactly one file which matches the pattern.
+
+    Matching is also done with additional ``.gz`` and ``.br`` extensions. These
+    are stripped in the return value, as `yarrharr.application.Static` does not
+    permit them.
 
     :param str pattern: fnmatch (glob) pattern -- see :mod:`fnmatch`
     :returns: name of the file with the greatest modification time in the directory
@@ -68,16 +73,23 @@ def newest_static(pattern):
     # TODO The result of this should be cached when not in DEBUG mode.
     assert '/' not in pattern  # don't support subdirectories
     name, mtime = None, None
-    for fn in os.listdir(_static_dir):  # *sigh* need Python 3 for scandir...
-        if not fnmatch.fnmatchcase(fn, pattern):
+    for entry in os.scandir(_static_dir):
+        if not entry.is_file():
             continue
 
-        s = os.stat(os.path.join(_static_dir, fn))
-        if not stat.S_ISREG(s.st_mode):
+        if not (
+            fnmatch.fnmatchcase(entry.name, pattern) or
+            fnmatch.fnmatchcase(entry.name, pattern + '.gz') or
+            fnmatch.fnmatchcase(entry.name, pattern + '.br')
+        ):
             continue
 
+        s = entry.stat()
         if mtime is None or s.st_mtime > mtime:
-            name = fn
+            if entry.name.endswith(('.br', '.gz')):
+                name = entry.name[:-3]
+            else:
+                name = entry.name
             mtime = s.st_mtime
 
     if name is None:
