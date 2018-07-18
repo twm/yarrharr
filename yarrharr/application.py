@@ -31,6 +31,7 @@ Yarrharr production server via Twisted Web
 import io
 import json
 import logging
+import re
 import sys
 
 import attr
@@ -43,8 +44,9 @@ from twisted.logger import formatEvent
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
 from twisted.web.static import File
-from twisted.web.resource import Resource
+from twisted.web.resource import Resource, NoResource
 from twisted.internet.endpoints import serverFromString
+from twisted.python.filepath import FilePath
 
 from . import __version__
 from .signals import schedule_changed
@@ -154,6 +156,118 @@ class FallbackResource(Resource):
         return self.fallback
 
 
+class Static(Resource):
+    """
+    Serve up Yarrharr's static assets directory. The files in this directory
+    have names like::
+
+    In development, the files are served uncompressed and named like so::
+
+        main-afffb00fd22ca3ce0250.js
+
+    The second dot-delimited section is a hash of the file's contents or source
+    material. As the filename changes each time the content does, these files
+    are served with a long max-age and the ``immutable`` flag in the
+    `Cache-Control`_ header.
+
+    In production, each file has two pre-compressed variants: one with
+    a ``.gz`` extension, and one with a ``.br`` extension. For example::
+
+        main-afffb00fd22ca3ce0250.js
+        main-afffb00fd22ca3ce0250.js.br
+        main-afffb00fd22ca3ce0250.js.gz
+
+    The actual serving of the files is done by `twisted.web.static.File`, which
+    is fancy and supports range requests, conditional gets, etc.
+
+    .. note::
+
+        Several features used here are only available to HTTPS origins.
+        Cache-Control: immutable and Brotli compression both are in Firefox.
+
+    .. _cache-control: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+    """
+    _dir = FilePath(settings.STATIC_ROOT)
+    _validName = re.compile(br'^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$')
+    # NOTE: RFC 7231 § 5.3.4 is not completely clear about whether
+    # content-coding tokens are case-sensitive or not. The "identity" token
+    # appears in EBNF and is therefore definitely case-insensitive, but the
+    # other tokens only appear in IANA registry tables in lowercase form. In
+    # contrast, the transfer-coding possibilities are clearly defined in EBNF
+    # so are definitely case-insensitive. For content-coding every implementer
+    # seems to agree on lowercase, so I'm not going to worry about it.
+    _brToken = re.compile(br'(:?^|[\s,])br(:?$|[\s,;])')
+    _gzToken = re.compile(br'(:?^|[\s,])(:?x-)?gzip(:?$|[\s,;])')
+    _contentTypes = {
+        b'.js': 'application/javascript',
+        b'.css': 'text/css',
+        b'.map': 'application/octet-stream',
+        b'.ico': 'image/x-icon',
+        b'.svg': 'image/svg+xml',
+        b'.png': 'image/png',
+    }
+
+    def _file(self, path, type, encoding=None):
+        """
+        Construct a `twisted.web.static.File` customized to serve Yarrharr
+        static assets.
+
+        :param path: `twisted.internet.filepath.FilePath` instance
+        :returns: `twisted.web.resource.IResource`
+        """
+        f = File(path.path)
+        f.type = type
+        f.encoding = encoding
+        return f
+
+    def getChild(self, path, request):
+        """
+        Serve a file for the given path.
+
+        The Content-Type header is set based on the file extension.
+
+        A limited form of content negotiation is done based on the
+        Accept-Encoding header and the files on disk. Apart from the default of
+        ``identity``, two encodings are supported:
+
+         *  ``br``, which selects any Brotli-compressed ``.br`` variant of
+            the file.
+         * ``gzip``, which selects any gzip-compressed ``.br`` variant of the
+            file. ``x-gzip`` is also supported.
+
+        qvalues are ignored as browsers don't use them. This may produce an
+        incorrect response if a variant is disabled like ``identity;q=0``.
+        """
+        if not self._validName.match(path):
+            return NoResource("Not found.")
+
+        ext = path[path.rindex(b'.'):]
+        try:
+            type = self._contentTypes[ext]
+        except KeyError:
+            return NoResource("Unknown type.")
+
+        acceptEncoding = request.getHeader(b'accept-encoding') or b'*'
+
+        file = None
+        if self._brToken.search(acceptEncoding):
+            br = self._dir.child(path + b'.br')
+            if br.isfile():
+                file = self._file(br, type, 'br')
+
+        if file is None and self._gzToken.search(acceptEncoding):
+            gz = self._dir.child(path + b'.gz')
+            if gz.isfile():
+                file = self._file(gz, type, 'gzip')
+
+        if file is None:
+            file = self._file(self._dir.child(path), type)
+
+        request.setHeader(b'Vary', b'accept-encoding')
+        request.setHeader(b'Cache-Control', b'public, max-age=31536000, immutable')
+        return file
+
+
 class Root(FallbackResource):
     """
     Root of the Yarrharr URL hierarchy.
@@ -164,7 +278,7 @@ class Root(FallbackResource):
         FallbackResource.__init__(self, wsgi)
 
         self.putChild(b'csp-report', CSPReportLogger())
-        self.putChild(b'static', File(settings.STATIC_ROOT))
+        self.putChild(b'static', Static())
 
     def getChildWithDefault(self, name, request):
         # Disable the Referer header in some browsers. This is complemented by

@@ -13,7 +13,7 @@ const MinifyPlugin = require("babel-minify-webpack-plugin");
 const production = process.env.NODE_ENV === 'production';
 
 const extractLESS = new ExtractTextPlugin({
-    filename: "[name].[contenthash:base32:20].css",
+    filename: "[name]-[contenthash:base32:20].css",
     // disable: production,
 });
 
@@ -31,7 +31,7 @@ const plugins = [
             compiler.plugin('emit', (compilation, callback) => {
                 const [filename, asset] = function() {
                     for (let filename in compilation.assets) {
-                        if (/^icon\.[^.]+\.svg$/.test(filename)) {
+                        if (/^icon-[^.]+\.svg$/.test(filename)) {
                             return [filename, compilation.assets[filename]];
                         }
                     }
@@ -72,6 +72,7 @@ function processFavicon(svgSource) {
 function scourFavicon(file) {
     const outfile = `${file}.scour.svg`;
     const args = [
+        '/usr/bin/scour',
         '-i', file,
         '-o', outfile,
         '--indent=none',
@@ -79,7 +80,11 @@ function scourFavicon(file) {
         '--enable-id-stripping',
         '--shorten-ids',
     ];
-    return execFile('scour', args).then(_ => readFile(outfile)).then(bufferToAsset);
+    // Travis seems to rewire /usr/bin/python to whatever version of Python is
+    // specified in the job, so it is Python 3 there. However, the scour
+    // executable installed by apt is Python 2.7 only, so we must explicitly
+    // run python2.7.
+    return execFile('python2.7', args).then(_ => readFile(outfile)).then(bufferToAsset);
 }
 
 function rasterizeFavicon(file) {
@@ -169,14 +174,14 @@ module.exports = {
             use: [{
                 loader: 'file-loader',
                 options: {
-                    name: '[name].[hash].[ext]',
+                    name: '[name]-[hash].[ext]',
                 },
             }],
         }],
     },
     output: {
         path: path.join(__dirname, 'yarrharr/static'),
-        filename: '[name].[hash].js',
+        filename: '[name]-[hash].js',
     },
     plugins: plugins,
     devtool: 'source-map',

@@ -84,9 +84,10 @@ def examples():
 @attr.s
 class StaticResource(object):
     """
-    `StaticLastModifiedResource` implements :class:`~twisted.web.resource.IResource`.
+    `StaticResource` implements :class:`~twisted.web.resource.IResource`.
     It produces a static response for all requests.
     """
+    # FIXME: Can't this be replaced with static.Data?
     content = attr.ib()
     content_type = attr.ib(default=b'application/xml')
 
