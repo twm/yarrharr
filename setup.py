@@ -15,7 +15,7 @@ setup(
     install_requires=[
         'attrs == 18.1.0',
         'Django ~= 2.0.1',
-        'Twisted[tls] == 18.7.0',
+        'Twisted[tls,http2] == 18.7.0',
         'treq >= 17.8.0',
         'pytz',
         # We are (hopefully temporarily) using a fork of feedparser as the
