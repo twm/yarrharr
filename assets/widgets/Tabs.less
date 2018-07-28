@@ -40,13 +40,12 @@
 }
 /* current tab */
 .tabs-tabs > a[aria-selected=true] {
-    --border-color: @logo_orange;
+    --border-color: var(--selected-color);
     --tab-background-color: var(--background-color);
 }
 .tabs-tabs > a:focus {
     outline: none;
-    /* FIXME need a var for this, it was copied from .form-item-focusable:focus */
-    --border-color: @focus_blue;
+    --border-color: var(--focus-color);
 }
 @media screen and (max-width: 34em) {
     .tabs-tabs {

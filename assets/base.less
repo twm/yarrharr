@@ -6,13 +6,18 @@
 
 :root {
     --layout-max-width: 50rem;
-    --text-color: @content_text_color;
-    --background-color: @content_background_color;
+
+    --background-color: white;
+    --text-color: black;
+    --quiet-text-color: lighten(black, 40%);
+
     --border-color: #ddd;
     --icon-color: #666;
     --icon-color-off: var(--border-color);
     --heart-color: #9b1559;
     --check-color: #2a6e12;
+    --focus-color: #0098ff;
+    --selected-color: #fb6500;
 }
 .layout-wide {
     --layout-max-width: none;
@@ -110,7 +115,7 @@ select[multiple] {
     transition: border-color 0.05s;
 
     &:focus {
-        --border-color: @focus_blue;
+        --border-color: var(--focus-color);
         box-shadow: inset 0 0 0 1.5px white;
         outline: none;
     }
@@ -163,10 +168,10 @@ select[multiple] {
  */
 .text-button-primary {
     color: white;
-    --gradient-border-color: @logo_orange_dark;
-    --gradient-start: @logo_orange_light;
-    --gradient-mid: @logo_orange;
-    --gradient-end: @logo_orange;
+    --gradient-border-color: #da5200;
+    --gradient-start: #f17e31;
+    --gradient-mid: #fb6500;
+    --gradient-end: #fb6500;
 }
 
 /**
