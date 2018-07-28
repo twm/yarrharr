@@ -33,11 +33,11 @@
         flex: 1 1 100%;
         width: 100%;
         display: grid;
+        // XXX: Using grid here is starting to look a little silly.
         grid-template-areas:
-            "meta  outbound-icon"
-            "title outbound-icon";
+            "meta "
+            "title";
         grid-template-rows: 1fr 1fr;
-        grid-template-columns: 1fr @bar_height;
 
         text-decoration: none;
 
@@ -57,10 +57,6 @@
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-        }
-        .outbound-icon {
-            grid-area: outbound-icon;
-            --icon-color: lightgray;
         }
     }
 
