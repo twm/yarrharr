@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="login-page">
-    <h1><img width="64" height="64" src="{% static 'icon.*.svg'|newest_static %}" alt="">Yarrharr</h1>
+    <h1><img width="64" height="64" src="{% static 'icon-*.svg'|newest_static %}" alt="">Yarrharr</h1>
 
     <form method=post action="{% url 'login' %}" class="small-form">
         {{ form.as_p }}

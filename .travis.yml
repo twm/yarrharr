@@ -20,6 +20,10 @@ matrix:
         - tox -e py37-lint
         - tox -e py37-test
     - language: node_js
+      python: "3.6"
+      install:
+        - "pip install tox"
+        - "nvm install"
       script:
         - npm install
         - make webpack-prod

@@ -19,7 +19,7 @@ The [1.0 milestone](https://github.com/twm/yarrharr/milestone/1) tracks whether 
 ## Development
 
 Yarrharr is a Python application, but also a modern web app, so its dependencies are numerous.
-The following steps work on Ubuntu 14.04 and 16.04; some modification may be necessary for Debian.
+The following steps work on Ubuntu 16.04; some modification may be necessary for Debian.
 
 The [conventions document](./conventions.md) describes some idioms used in the codebase.
 
@@ -27,7 +27,7 @@ The [conventions document](./conventions.md) describes some idioms used in the c
 
 Grab the build dependencies with:
 
-    $ sudo apt-get install inkscape icoutils git python-scour optipng \
+    $ sudo apt-get install brotli inkscape icoutils git python-scour optipng \
                            python-dev build-essential
 
 Install [install pip](https://pip.pypa.io/en/latest/installing/#get-pip), then install [Tox](http://tox.readthedocs.org/en/latest/).
