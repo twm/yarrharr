@@ -476,8 +476,6 @@ export class AddFeedView extends React.Component {
                     defaultUrl={this.props.searchParams.get('url') || ''}
                     onAddFeed={this.props.onAddFeed}
                     />
-                {/* TODO Find a better place for this. */}
-                <RegisterFeedReaderForm />
             </Centered>
         </Fragment>;
     }
@@ -557,54 +555,4 @@ if (__debug__) {
         defaultUrl: PropTypes.string.isRequired, // May be empty
         onAddFeed: PropTypes.func.isRequired,
     };
-}
-
-
-/**
- * A button which registers Yarrharr as a feed reader so that it integrates
- * with the Subscribe button. This is a non-standard feature which only works
- * in Firefox. It is documented on MDN:
- * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/registerContentHandler
- *
- * This button renders as nothing in browsers which don't support the
- * navigator.registerContentHandler API.
- */
-class RegisterFeedReaderForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleClick = this.handleClick.bind(this);
-    }
-    render() {
-        if (!navigator.registerContentHandler) {
-            return null;
-        }
-        return <div className="register-feed-reader-form">
-            <h2>Firefox Integration</h2>
-            <p>
-                Firefox can discover feeds on pages you visit and add them to Yarrharr.
-            </p>
-            <ol>
-                <li>
-                    <input
-                        id="id_register_feed_reader"
-                        type="button"
-                        value="Register"
-                        className="text-button register-feed-button"
-                        onClick={this.handleClick}
-                    /> Yarrharr with Firefox.</li>
-                <li>Use the Customize menu option and drag the Subscribe button to your toolbar.</li>
-            </ol>
-            <p>
-                The Subscribe button will light up on pages with feeds.
-                Click it to add the feed to Yarrharr.
-            </p>
-        </div>;
-    }
-    handleClick(event) {
-        event.preventDefault();
-        const url = `${window.location.origin}/inventory/add/?url=%s`;
-        const appName = __debug__ ? "Yarrharr at " + window.location.origin : "Yarrharr";
-        navigator.registerContentHandler("application/vnd.mozilla.maybe.feed",
-                                         url, appName);
-    }
 }
