@@ -24,15 +24,14 @@
 /* base tab styles */
 .tabs-tabs > a {
     --tab-shape-color: transparent;
-    --tab-background-color: transparent;
 
     border-style: solid;
     border-width: 0 0 2px 0;
     border-color: var(--border-color);
-    background: var(--tab-background-color);
+    border-radius: 4px 4px 0 0;
     text-decoration: none;
     line-height: 1.7;
-    padding: 0.125rem 4px 0 4px;
+    padding: 0.125rem 8px 0 8px;
     margin: 0 2rem 0 0;
     white-space: nowrap;
     text-align: center;
@@ -41,7 +40,6 @@
 /* current tab */
 .tabs-tabs > a[aria-selected=true] {
     --border-color: var(--selected-color);
-    --tab-background-color: var(--background-color);
 }
 .tabs-tabs > a:focus {
     outline: none;

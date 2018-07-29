@@ -14,10 +14,12 @@
     --border-color: #ddd;
     --icon-color: #666;
     --icon-color-off: var(--border-color);
-    --heart-color: #9b1559;
-    --check-color: #2a6e12;
+    --hover-background-color: #fafafa;
+
+    --heart-color: #9b1559; // TODO Make this more vibrant
+    --check-color: #2a6e12; // TODO Make this more vibrant
     --focus-color: #0098ff;
-    --selected-color: #fb6500;
+    --selected-color: hsl(24.1, 100%, 49.2%);
 }
 .layout-wide {
     --layout-max-width: none;
@@ -47,18 +49,21 @@ html {
         text-decoration-line: none;
     }
     a:visited {
-        --underline-color: rgb(199, 68, 28);
+        --underline-color: rgb(199, 68, 28); // TODO Make this more vibrant
     }
     a:visited:not([role=button]) {
         color: var(--text-color);
     }
     a:active {
-        --underline-color: rgb(185, 28, 199);
+        --underline-color: rgb(185, 28, 199); // TODO Make this more vibrant
     }
     a:link[aria-disabled=true],
     a:visited[aria-disabled=true] {
         text-decoration-line: none;
         cursor: default;
+    }
+    a:hover {
+        background: var(--hover-background-color);
     }
 }
 
