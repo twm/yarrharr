@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { showFeed, loadMore } from 'actions.js';
 import { setView, setOrder } from 'actions.js';
 import { markArticlesRead, markArticlesFave } from 'actions.js';
-import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions.js';
+import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { Tabs } from 'widgets/Tabs.js';
@@ -94,6 +94,27 @@ class SnapshotNav extends React.PureComponent {
             }) : <span className="snapshot-nav-next square" />}
         </div>
     }
+}
+
+if (__debug__) {
+    SnapshotNav.propTypes = {
+        articleId: PropTypes.number.isRequired,
+        snapshot: PropTypes.shape({
+            response: PropTypes.shape({
+                articleIds: PropTypes.arrayOf(PropTypes.number).isRequired,
+            }),
+            filter: PropTypes.oneOf([FILTER_ALL, FILTER_FAVE, FILTER_UNREAD]).isRequired,
+        }).isRequired,
+        // article: PropTypes.shape({
+        //     read: PropTypes.bool.isRequired,
+        //     fave: PropTypes.bool.isRequired,
+        // }), // NOTE: Not required (may not have loaded yet)
+        // Event handlers
+        // onMarkArticlesRead: PropTypes.func.isRequired,
+        // onMarkArticlesFave: PropTypes.func.isRequired,
+        // Render helpers
+        renderLink: PropTypes.func.isRequired,
+    };
 }
 
 function filterName(snapshot) {
