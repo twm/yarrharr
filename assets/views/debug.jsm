@@ -6,7 +6,7 @@ import { Title } from 'widgets/Title.jsm';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 
-import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { HomeIcon, GlobeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
@@ -29,6 +29,7 @@ class DebugView extends React.PureComponent {
                 <h2>Icons</h2>
                 <p>
                     Home <HomeIcon />
+                    GlobeIcon <GlobeIcon />
                     Label <LabelIcon />
                     Feed <FeedIcon />
                     Left <ArrowLeftIcon />

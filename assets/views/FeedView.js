@@ -11,7 +11,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Title } from 'widgets/Title.jsm';
-import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, GlobeIcon, LabelIcon } from 'widgets/icons.js';
+import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
