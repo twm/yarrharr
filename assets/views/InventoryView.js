@@ -263,10 +263,11 @@ export class ManageFeedView extends React.PureComponent {
         return <React.Fragment>
             <Title title={"Edit " + feedTitle} />
             <GlobalBar>
-                <Header>
+                <HomeIconLink />
+                <div className="square">
                     <FeedIcon aria-hidden={true} />
-                    {feedTitle}
-                </Header>
+                </div>
+                <Header>{feedTitle}</Header>
             </GlobalBar>
             <Tabs>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
@@ -326,10 +327,11 @@ export class ManageLabelView extends React.Component {
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
             <GlobalBar>
-                <Header>
+                <HomeIconLink />
+                <div className="square">
                     <LabelIcon aria-hidden={true} />
-                    {label.text}
-                </Header>
+                </div>
+                <Header>{label.text}</Header>
             </GlobalBar>
             <Title title={"Edit " + label.text} />
             <Tabs>

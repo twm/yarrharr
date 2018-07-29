@@ -20,7 +20,6 @@ class HomeView extends React.PureComponent {
         const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
         return <React.Fragment>
             <GlobalBar>
-                <HomeIconLink />
                 <Tabs>
                     <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
                     <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>

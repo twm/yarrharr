@@ -9,7 +9,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ARCHIVED, FILTER_ALL } from 'actions
 import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 
 import { Tabs } from 'widgets/Tabs.js';
-import { GlobalBar, Header } from 'widgets/GlobalBar.js';
+import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Title } from 'widgets/Title.jsm';
 import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, GlobeIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
@@ -112,6 +112,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <HomeIconLink />
             <div className="square">
                 <GlobeIcon aria-hidden={true} />
             </div>
@@ -143,6 +144,7 @@ export function AllArticleView({params, feedsById, layout, snapshot, articlesByI
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <HomeIconLink />
             <SnapshotNav
                 // icon={<LabelIcon aria-hidden={true} />}
                 title="All Feeds"
@@ -164,6 +166,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <HomeIconLink />
             <div className="square">
                 <FeedIcon aria-hidden={true} />
             </div>
@@ -197,6 +200,7 @@ export function FeedArticleView({params, feedsById, labelsById, layout, snapshot
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <HomeIconLink />
             <SnapshotNav
                 icon={<FeedIcon aria-hidden={true} />}
                 title={feedTitle}
@@ -218,6 +222,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <HomeIconLink />
             <div className="square">
                 <LabelIcon aria-hidden={true} />
             </div>
@@ -250,6 +255,7 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <HomeIconLink />
             <SnapshotNav
                 icon={<LabelIcon aria-hidden={true} />}
                 title={label.text}

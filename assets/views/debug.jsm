@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { Title } from 'widgets/Title.jsm';
 import { Tabs } from 'widgets/Tabs.js';
-import { GlobalBar, Header } from 'widgets/GlobalBar.js';
+import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 
 import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
@@ -14,6 +14,7 @@ import './debug.less';
 class DebugView extends React.PureComponent {
     render() {
         return <React.Fragment>
+            <HomeIconLink />
             <GlobalBar>
                 <Header>Debug</Header>
             </GlobalBar>
