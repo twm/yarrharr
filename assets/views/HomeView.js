@@ -11,10 +11,10 @@ import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header } from 'widgets/GlobalBar.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { labelsByTitle, feedsByTitle } from 'sorting.js';
-import './RootView.less';
+import './HomeView.less';
 
 
-class RootView extends React.PureComponent {
+class HomeView extends React.PureComponent {
     render() {
         const labelList = labelsByTitle(this.props).filter(l => l.unreadCount !== 0);
         const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
@@ -63,10 +63,10 @@ class RootView extends React.PureComponent {
 }
 
 if (process.env.NODE_ENV !== 'production') {
-    RootView.propTypes = {
+    HomeView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
     };
 }
 
-export default connect(state => state)(RootView);
+export default connect(state => state)(HomeView);
