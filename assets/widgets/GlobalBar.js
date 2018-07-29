@@ -110,10 +110,14 @@ export class FullscreenToggle extends React.Component {
 }
 
 
+export function HomeIconLink(props) {
+    return <RootLink aria-label="Home" title="Go home" className="square"><HomeIcon aria-hidden={true} /></RootLink>;
+}
+
+
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink className="square" aria-label="Home" title="Go home"><HomeIcon aria-hidden={true} /></RootLink>
             {this.props.children}
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />

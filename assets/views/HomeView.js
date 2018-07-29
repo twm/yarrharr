@@ -8,7 +8,7 @@ import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink, LabelListLink, RootLink } from 'widgets/links.js';
 import { Tabs } from 'widgets/Tabs.js';
-import { GlobalBar, Header } from 'widgets/GlobalBar.js';
+import { GlobalBar, HomeIconLink } from 'widgets/GlobalBar.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
 import { labelsByTitle, feedsByTitle } from 'sorting.js';
 import './HomeView.less';
@@ -20,15 +20,14 @@ class HomeView extends React.PureComponent {
         const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
         return <React.Fragment>
             <GlobalBar>
-                <Header>Yarrharr Feed Reader</Header>
+                <HomeIconLink />
+                <Tabs>
+                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
+                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
+                </Tabs>
             </GlobalBar>
             <Title title="Home" />
-            <Tabs>
-                <RootLink aria-selected={true} className="no-underline">Home</RootLink>
-                <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
-                <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
-                <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-            </Tabs>
             <div className="root">
                 <ul className="root-list">
                     <li className="all-link">

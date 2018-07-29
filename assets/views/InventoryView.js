@@ -6,10 +6,10 @@ import { Title } from 'widgets/Title.jsm';
 import { Add, EditIcon, FeedIcon, LabelIcon, Remove } from 'widgets/icons.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { RelativeTime } from 'widgets/time.jsm';
-import { GlobalBar, Header } from 'widgets/GlobalBar.js';
+import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
-import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
@@ -34,16 +34,15 @@ export class InventoryView extends React.PureComponent {
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
-            <GlobalBar>
-                <Header>Feeds</Header>
-            </GlobalBar>
             <Title title="Feeds" />
-            <Tabs>
-                <RootLink aria-selected={false} className="no-underline">Home</RootLink>
-                <InventoryLink aria-selected={true} className="no-underline">Feeds</InventoryLink>
-                <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
-                <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-            </Tabs>
+            <GlobalBar>
+                <HomeIconLink />
+                <Tabs>
+                    <InventoryLink aria-selected={true} className="no-underline">Feeds</InventoryLink>
+                    <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
+                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
+                </Tabs>
+            </GlobalBar>
             <Centered>
                 {this.renderFeeds(feedList, labelList)}
             </Centered>
@@ -190,16 +189,15 @@ export class LabelListView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
-            <GlobalBar>
-                <Header>Labels</Header>
-            </GlobalBar>
             <Title title="Labels" />
-            <Tabs>
-                <RootLink aria-selected={false} className="no-underline">Home</RootLink>
-                <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
-                <LabelListLink aria-selected={true} className="no-underline">Labels</LabelListLink>
-                <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-            </Tabs>
+            <GlobalBar>
+                <HomeIconLink />
+                <Tabs>
+                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <LabelListLink aria-selected={true} className="no-underline">Labels</LabelListLink>
+                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
+                </Tabs>
+            </GlobalBar>
             <Centered>
                 {this.renderLabels(labelList, feedList)}
             </Centered>
@@ -263,10 +261,10 @@ export class ManageFeedView extends React.PureComponent {
         const feedTitle = feed.text || feed.title;
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
+            <Title title={"Edit " + feedTitle} />
             <GlobalBar>
                 <Header>{feedTitle}</Header>
             </GlobalBar>
-            <Title title={"Edit " + feedTitle} />
             <header className="list-header">
                 <div className="list-header-inner bar">
                     <div className="square">
@@ -461,15 +459,14 @@ export class AddFeedView extends React.Component {
     render() {
         return <Fragment>
             <GlobalBar>
-                <Header>Add Feed</Header>
+                <HomeIconLink />
+                <Tabs>
+                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
+                    <AddFeedLink aria-selected={true} className="no-underline">Add Feed</AddFeedLink>
+                </Tabs>
             </GlobalBar>
             <Title title="Add Feed" />
-            <Tabs>
-                <RootLink aria-selected={false} className="no-underline">Home</RootLink>
-                <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
-                <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
-                <AddFeedLink aria-selected={true} className="no-underline">Add Feed</AddFeedLink>
-            </Tabs>
             <Centered>
                 <h1>Add Feed</h1>
                 <AddFeedForm
