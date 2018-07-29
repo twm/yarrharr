@@ -239,7 +239,7 @@ select[multiple] {
         .flat-button-focus;
     }
 
-    & .icon {
+    & > * > .icon {
         display: block;
         font-size: @icon_size;
     }
@@ -255,6 +255,13 @@ select[multiple] {
     & > .expand {
         flex: 1 1 0;
         min-width: @bar_height; /* allow shrinking below content size */
+    }
+
+    & > .header {
+        justify-content: start;
+        white-space: nowrap;
+        text-overflow: ellipsis; // TODO: get ellipsis working here.
+        overflow: hidden;
     }
 }
 

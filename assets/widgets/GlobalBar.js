@@ -130,7 +130,7 @@ export class Header extends React.PureComponent {
     render() {
         return <React.Fragment>
             {this.props.icon || null}
-            <div className="bar expand">
+            <div className="bar expand header">
                 {this.props.children}
             </div>
         </React.Fragment>;

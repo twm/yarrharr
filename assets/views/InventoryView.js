@@ -263,16 +263,11 @@ export class ManageFeedView extends React.PureComponent {
         return <React.Fragment>
             <Title title={"Edit " + feedTitle} />
             <GlobalBar>
-                <Header>{feedTitle}</Header>
+                <Header>
+                    <FeedIcon aria-hidden={true} />
+                    {feedTitle}
+                </Header>
             </GlobalBar>
-            <header className="list-header">
-                <div className="list-header-inner bar">
-                    <div className="square">
-                        <FeedIcon aria-hidden={true} />
-                    </div>
-                    <h1 className="expand">{feed.text || feed.title} {feed.active ? null : <i>(inactive)</i>}</h1>
-                </div>
-            </header>
             <Tabs>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
@@ -331,17 +326,12 @@ export class ManageLabelView extends React.Component {
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
             <GlobalBar>
-                <Header>{label.text}</Header>
+                <Header>
+                    <LabelIcon aria-hidden={true} />
+                    {label.text}
+                </Header>
             </GlobalBar>
             <Title title={"Edit " + label.text} />
-            <header className="list-header">
-                <div className="list-header-inner bar">
-                    <div className="square">
-                        <LabelIcon aria-hidden={true} />
-                    </div>
-                    <h1 className="expand">{label.text}</h1>
-                </div>
-            </header>
             <Tabs>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>

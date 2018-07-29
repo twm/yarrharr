@@ -11,7 +11,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header } from 'widgets/GlobalBar.js';
 import { Title } from 'widgets/Title.jsm';
-import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
+import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, FeedIcon, GlobeIcon, LabelIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -112,6 +112,9 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
+            <div className="square">
+                <GlobeIcon aria-hidden={true} />
+            </div>
             <Header>All Feeds</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
@@ -161,9 +164,10 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <Fragment>
         <GlobalBar>
-            <Header>
-                <FeedIcon aria-hidden={true} /> {feedTitle}
-            </Header>
+            <div className="square">
+                <FeedIcon aria-hidden={true} />
+            </div>
+            <Header>{feedTitle}</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         <Title title={feedTitle} />
