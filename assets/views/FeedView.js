@@ -400,35 +400,6 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
     </Fragment>;
 }
 
-function TopBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
-    return <div className="bar">
-        {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
-        {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
-    </div>;
-}
-
-function BottomBar({article, prevId, nextId, articlesById, onMarkArticlesRead, onMarkArticlesFave, renderLink}) {
-    return <div className="bar">
-        {article ? <ReadToggleLink className="square" articleId={article.id} read={article.read} onMarkArticlesRead={onMarkArticlesRead} /> : null}
-        {article ? <FaveToggleLink className="square" articleId={article.id} fave={article.fave} onMarkArticlesFave={onMarkArticlesFave} /> : null}
-    </div>;
-}
-
-if (__debug__) {
-    TopBar.propTypes = BottomBar.propTypes = {
-        article: PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            read: PropTypes.bool,
-            fave: PropTypes.bool,
-        }).isRequired,
-        // Event handlers
-        onMarkArticlesRead: PropTypes.func.isRequired,
-        onMarkArticlesFave: PropTypes.func.isRequired,
-        // Render helpers
-        renderLink: PropTypes.func.isRequired,
-    };
-}
-
 /**
  * Render the meat of a list view. This must only be called after the
  * snapshot has loaded.
