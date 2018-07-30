@@ -66,7 +66,7 @@ class SnapshotNav extends React.PureComponent {
         const prevId = index !== 0 ? articleIds[index - 1] : null;
         const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
 
-        return <div className="bar expand snapshot-nav">
+        return <div className="bar snapshot-nav">
             {prevId ? renderLink({
                 className: "snapshot-nav-prev square",
                 title: "Go to previous article",
@@ -394,10 +394,10 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
                 articleComponent = <LoadingArticle />;
             }
     }
-    return <Fragment>
+    return <div className="article-view">
         {articleComponent}
         {snapshotNav}
-    </Fragment>;
+    </div>;
 }
 
 /**

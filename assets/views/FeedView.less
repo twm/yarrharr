@@ -25,6 +25,11 @@
     }
 }
 
+.article-view > article {
+    // FIXME: This hack ensures that SnapshotNav is always stuck to the bottom of the screen so that the next/prev buttons are in consistent — mashable — locations.
+    min-height: calc(100vh - @bar_height - @bar_height);
+}
+
 .snapshot-nav {
     background: var(--background-color);
     border-top: 1px solid var(--border-color);
