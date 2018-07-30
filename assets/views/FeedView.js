@@ -53,10 +53,10 @@ if (__debug__) {
  * SnapshotNav is displayed on article view pages to allow navigation to the
  * previous and next articles.
  *
- * +----+------+---------------------+------+----+
- * | <- | fave |                     | read | -> |
- * | <- | fave |                     | read | -> |
- * +----+------+---------------------+------+----+
+ * +----+-----------+------+------+---------+----+
+ * | <- |           | fave | read |         | -> |
+ * | <- |           | fave | read |         | -> |
+ * +----+-----------+------+------+---------+----+
  */
 class SnapshotNav extends React.PureComponent {
     render() {
@@ -77,8 +77,8 @@ class SnapshotNav extends React.PureComponent {
             <div className="expand">
                 {/* This occupies empty space in the middle of the bar. */}
             </div>
-            <ReadToggleLink className="square" articleId={articleId} read={read} onMarkArticlesRead={onMarkArticlesRead} />
             <FaveToggleLink className="square" articleId={articleId} fave={fave} onMarkArticlesFave={onMarkArticlesFave} />
+            <ReadToggleLink className="square" articleId={articleId} read={read} onMarkArticlesRead={onMarkArticlesRead} />
             <div className="expand">
                 {/* This occupies empty space in the middle of the bar. */}
             </div>
