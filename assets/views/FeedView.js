@@ -26,15 +26,6 @@ import './FeedView.less';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
-function filterName(filter) {
-    switch (filter) {
-        case FILTER_UNREAD: return "Unread";
-        case FILTER_FAVE: return "Favorite";
-        case FILTER_ALL: return "All";
-    }
-    return "";
-}
-
 class OrderToggle extends React.PureComponent {
     constructor(props) {
         super(props);
