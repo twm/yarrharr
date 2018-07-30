@@ -249,6 +249,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <Fragment>
+        <Title title={label.text} />
         <GlobalBar>
             <HomeIconLink />
             <div className="square">
@@ -257,7 +258,6 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             <Header>{label.text}</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
-        <Title title={label.text} />
         <Tabs>
             <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
@@ -282,6 +282,7 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
     return <Fragment>
+        <Title title={articleTitle(articlesById, articleId, label.text)} />
         <GlobalBar>
             <HomeIconLink />
             <div className="square">
@@ -293,7 +294,6 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
-        <Title title={articleTitle(articlesById, articleId, label.text)} />
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
         <SnapshotNav
             articleId={articleId}
