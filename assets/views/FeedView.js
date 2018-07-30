@@ -60,7 +60,7 @@ if (__debug__) {
  */
 class SnapshotNav extends React.PureComponent {
     render() {
-        const { articleId, snapshot: {response: {articleIds}}, renderLink } = this.props;
+        const { articleId, articleIds, read, fave, onMarkArticlesRead, onMarkArticlesFave, renderLink } = this.props;
         const index = articleIds.indexOf(articleId);
         const total = articleIds.length;
         const prevId = index !== 0 ? articleIds[index - 1] : null;
@@ -77,6 +77,11 @@ class SnapshotNav extends React.PureComponent {
             <div className="expand">
                 {/* This occupies empty space in the middle of the bar. */}
             </div>
+            <ReadToggleLink className="square" articleId={articleId} read={read} onMarkArticlesRead={onMarkArticlesRead} />
+            <FaveToggleLink className="square" articleId={articleId} fave={fave} onMarkArticlesFave={onMarkArticlesFave} />
+            <div className="expand">
+                {/* This occupies empty space in the middle of the bar. */}
+            </div>
             {nextId ? renderLink({
                 className: "snapshot-nav-next square",
                 title: "Go to next article",
@@ -89,27 +94,20 @@ class SnapshotNav extends React.PureComponent {
 
 if (__debug__) {
     SnapshotNav.propTypes = {
+        articleIds: PropTypes.arrayOf(PropTypes.number).isRequired,
         articleId: PropTypes.number.isRequired,
-        snapshot: PropTypes.shape({
-            response: PropTypes.shape({
-                articleIds: PropTypes.arrayOf(PropTypes.number).isRequired,
-            }),
-            filter: PropTypes.oneOf([FILTER_ALL, FILTER_FAVE, FILTER_UNREAD]).isRequired,
-        }).isRequired,
-        // article: PropTypes.shape({
-        //     read: PropTypes.bool.isRequired,
-        //     fave: PropTypes.bool.isRequired,
-        // }), // NOTE: Not required (may not have loaded yet)
+        read: PropTypes.bool.isRequired,
+        fave: PropTypes.bool.isRequired,
         // Event handlers
-        // onMarkArticlesRead: PropTypes.func.isRequired,
-        // onMarkArticlesFave: PropTypes.func.isRequired,
+        onMarkArticlesRead: PropTypes.func.isRequired,
+        onMarkArticlesFave: PropTypes.func.isRequired,
         // Render helpers
         renderLink: PropTypes.func.isRequired,
     };
 }
 
-function filterName(snapshot) {
-    switch (snapshot.filter) {
+function filterName(filter) {
+    switch (filter) {
         case FILTER_UNREAD: return "unread";
         case FILTER_FAVE: return "favorite";
         case FILTER_ALL: return "";
@@ -121,9 +119,7 @@ function positionText(snapshot, articleId) {
         const {response: {articleIds}} = snapshot;
         const index = articleIds.indexOf(articleId);
         const total = articleIds.length;
-        const prevId = index !== 0 ? articleIds[index - 1] : null;
-        const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
-        return <Fragment>{index + 1} of {total} {filterName(snapshot)}</Fragment>;
+        return <Fragment>{index + 1} of {total} {filterName(snapshot.filter)}</Fragment>;
 }
 
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
@@ -174,11 +170,6 @@ export function AllArticleView({params, feedsById, layout, snapshot, articlesByI
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
-        <SnapshotNav
-            articleId={articleId}
-            snapshot={snapshot}
-            renderLink={renderLink}
-        />
     </Fragment>;
 }
 
@@ -235,11 +226,6 @@ export function FeedArticleView({params, feedsById, labelsById, layout, snapshot
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
-        <SnapshotNav
-            articleId={articleId}
-            snapshot={snapshot}
-            renderLink={renderLink}
-        />
     </Fragment>;
 }
 
@@ -295,11 +281,6 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
         {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
-        <SnapshotNav
-            articleId={articleId}
-            snapshot={snapshot}
-            renderLink={renderLink}
-        />
     </Fragment>;
 }
 
@@ -372,7 +353,7 @@ function renderSnapshot(snapshotResponse, renderArticleList, onLoadMore) {
 function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink) {
     const index = loaded ? articleIds.indexOf(articleId) : -2;
     console.log(`renderArticle(${articleId}, {${loaded}, ${articleIds}}, ...) -> index ${index}`);
-    var articleComponent, article = null, prevId = null, nextId = null;
+    var articleComponent, snapshotNav = null, article = null;
     switch (index) {
         case -2:
             // TODO Common 404 page style?
@@ -392,35 +373,30 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
             };
             break;
         default:
-            // XXX How to arrange for prev and next to be loaded in all cases?
             article = articlesById[articleId];
             if (__debug__ && !article) {
                 throw new Error(`renderArticle(${articleId}, ...) called before article entry added to store`);
             }
             // FIXME Shouldn't assume all feeds have loaded.
             const feed = feedsById[article.feedId];
-            articleComponent = (feed && !article.loading) ? <Article feed={feed} {...article} /> : <LoadingArticle />;
-            prevId = index !== 0 ? articleIds[index - 1] : null;
-            nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
+            if (feed && !article.loading) {
+                articleComponent = <Article feed={feed} {...article} />;
+                snapshotNav = <SnapshotNav
+                    articleIds={articleIds}
+                    articleId={articleId}
+                    read={article.read}
+                    fave={article.fave}
+                    onMarkArticlesRead={onMarkArticlesRead}
+                    onMarkArticlesFave={onMarkArticlesFave}
+                    renderLink={renderLink}
+                />;
+            } else {
+                articleComponent = <LoadingArticle />;
+            }
     }
     return <Fragment>
-        <TopBar
-            article={article}
-            prevId={prevId}
-            nextId={nextId}
-            articlesById={articlesById}
-            onMarkArticlesRead={onMarkArticlesRead}
-            onMarkArticlesFave={onMarkArticlesFave}
-            renderLink={renderLink} />
         {articleComponent}
-        <BottomBar
-            article={article}
-            prevId={prevId}
-            nextId={nextId}
-            articlesById={articlesById}
-            onMarkArticlesRead={onMarkArticlesRead}
-            onMarkArticlesFave={onMarkArticlesFave}
-            renderLink={renderLink} />
+        {snapshotNav}
     </Fragment>;
 }
 
