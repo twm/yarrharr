@@ -6,7 +6,7 @@ import { Title } from 'widgets/Title.jsm';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 
-import { HomeIcon, GlobeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { HomeIcon, GlobeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon, ReturnIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
@@ -35,6 +35,7 @@ class DebugView extends React.PureComponent {
                     Left <ArrowLeftIcon />
                     Right <ArrowRightIcon />
                     Follow <FollowIcon />
+                    Return <ReturnIcon />
                     Outbound <OutboundIcon />
                     Edit <EditIcon />
                     Wide <WideIcon />
@@ -61,6 +62,7 @@ class DebugView extends React.PureComponent {
                     <ArrowLeftIcon className="icon debug-icon-grid" />
                     <ArrowRightIcon className="icon debug-icon-grid" />
                     <FollowIcon className="icon debug-icon-grid" />
+                    <ReturnIcon className="icon debug-icon-grid" />
                     <OutboundIcon className="icon debug-icon-grid" />
                     <EditIcon className="icon debug-icon-grid" />
                     <GoFullscreenIcon className="icon debug-icon-grid" />

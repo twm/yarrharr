@@ -68,6 +68,9 @@ export function IconSprites(props) {
             <symbol id="icon-follow" viewBox="-10 -10 20 20">
                 <path d="M -3 -7 l 7 7 l -7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
+            <symbol id="icon-return" viewBox="-10 -10 20 20">
+                <path d="M 3 -7 l -7 7 l 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
         </defs>
     </svg>;
 };
@@ -94,6 +97,7 @@ export const OutboundIcon = makeSpriteIcon("#icon-outbound");
 export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
+export const ReturnIcon = makeSpriteIcon("#icon-return");
 
 function fsIcon(props, fullscreen) {
     const s = 20;
