@@ -162,8 +162,11 @@ export function AllArticleView({params, feedsById, layout, snapshot, articlesByI
             <AllLink filter={snapshot.filter} aria-label="All Feeds" title="Return to article list" className="square">
                 <ReturnIcon aria-hidden={true} />
             </AllLink>
+            <div className="square">
+                <GlobeIcon aria-hidden={true} />
+            </div>
             <Header>
-                <GlobeIcon aria-hidden={true} /> All Feeds<br />
+                All Feeds<br />
                 {positionText(snapshot, articleId)}
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
@@ -217,8 +220,11 @@ export function FeedArticleView({params, feedsById, labelsById, layout, snapshot
             <FeedLink feedId={feedId} filter={snapshot.filter} aria-label={feedTitle} title="Return to article list" className="square">
                 <ReturnIcon aria-hidden={true} />
             </FeedLink>
+            <div className="square">
+                <FeedIcon aria-hidden={true} />
+            </div>
             <Header>
-                <FeedIcon aria-hidden={true} /> {feedTitle}<br />
+                {feedTitle}<br />
                 {positionText(snapshot, articleId)}
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
@@ -272,8 +278,11 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
             <LabelLink labelId={labelId} filter={snapshot.filter} aria-label={label.text} title="Return to article list" className="square">
                 <ReturnIcon aria-hidden={true} />
             </LabelLink>
+            <div className="square">
+                <LabelIcon aria-hidden={true} />
+            </div>
             <Header>
-                <LabelIcon aria-hidden={true} /> {label.text}<br />
+                {label.text}<br />
                 {positionText(snapshot, articleId)}
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
