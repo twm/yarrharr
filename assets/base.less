@@ -227,16 +227,18 @@ select[multiple] {
     line-height: @bar_line_height;
     contain: size layout style;
 
-    & > * {
+    & > a[href],
+    & > button {
         .flat-button;
+        &:hover { .flat-button-hover; }
+        &:focus { .flat-button-focus; }
+    }
+
+    & > * {
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    & > a[href]:focus,
-    & > button:focus {
-        .flat-button-focus;
+        box-sizing: border-box;
     }
 
     & > * > .icon {
