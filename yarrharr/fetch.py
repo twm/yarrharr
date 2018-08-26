@@ -338,7 +338,7 @@ def poll(reactor, max_fetch):
         outcomes = []
         for feed in feeds_to_check:
             try:
-                outcome = (yield poll_feed(feed))
+                outcome = (yield poll_feed(feed, reactor))
                 outcomes.append((feed, outcome))
                 log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
             except Exception:
@@ -387,12 +387,13 @@ def extract_last_modified(headers):
 
 
 @defer.inlineCallbacks
-def poll_feed(feed, client=treq):
+def poll_feed(feed, clock, client=treq):
     """
     Do the parts of updating the feed which don't involve the database: fetch
     the feed content and parse it.
 
     :param feed: The :class:`~yarrharr.models.Feed` to poll
+    :param clock: :class:`twisted.internet.interfaces.IReactorTime`
     :param str url: URL to retrieve
     """
     headers = {
