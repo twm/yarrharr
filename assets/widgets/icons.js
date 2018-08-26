@@ -252,7 +252,7 @@ if (__debug__) {
 
 export class GlobeIcon extends React.PureComponent {
     render() {
-        return <svg width="1em" height="1em" viewBox="-10 -10 20 20" className="icon">
+        return <svg width="1em" height="1em" viewBox="-10 -10 20 20" className="icon" {...this.props}>
             <ellipse cx="0" cy="0" rx="8" ry="8" fill="none" stroke="currentColor" strokeWidth="2" />
             {/* TODO: Finish this */}
         </svg>;
