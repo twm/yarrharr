@@ -252,9 +252,20 @@ if (__debug__) {
 
 export class GlobeIcon extends React.PureComponent {
     render() {
-        return <svg width="1em" height="1em" viewBox="-10 -10 20 20" className="icon">
-            <ellipse cx="0" cy="0" rx="8" ry="8" fill="none" stroke="currentColor" strokeWidth="2" />
-            {/* TODO: Finish this */}
+        // viewBox chosen so that the center of the globe is at (0, 0)
+        return <svg width="1em" height="1em" viewBox="-10 -10 20 20" className="icon" {...this.props}>
+            <g transform="rotate(30)">
+                {/* The globe outline: */}
+                <ellipse cx="0" cy="0" rx="7" ry="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                {/* Lines on the globe: */}
+                <path d="M0,-6.5 A1,2 0 0 0 0,6.5 A1,2 0 0 0 0,-6.5 L0,6.5" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M-6.5,0 A2,1 0 0 0 6.5,0" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M-6.0,-2 A3,1 0 0 0 6.0,-2" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M-5.0,-4.5 A4,1 0 0 0 5.0,-4.5" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+            </g>
+            {/* The globe base:
+            <path d="M-4 9 l8 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            */}
         </svg>;
     }
 }

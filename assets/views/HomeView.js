@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { Title } from 'widgets/Title.jsm';
-import { LabelIcon, FeedIcon } from 'widgets/icons.js';
+import { GlobeIcon, LabelIcon, FeedIcon } from 'widgets/icons.js';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AddFeedLink, InventoryLink, LabelListLink, RootLink } from 'widgets/links.js';
@@ -30,14 +30,17 @@ class HomeView extends React.PureComponent {
             <div className="root">
                 <ul className="root-list">
                     <li className="all-link">
-                        <AllLink filter={FILTER_UNREAD} className="no-underline">All Feeds</AllLink>
+                        <AllLink filter={FILTER_UNREAD} className="no-underline">
+                            <GlobeIcon aria-hidden={true} />
+                            All Feeds
+                        </AllLink>
                     </li>
 
                     {labelList.length
                         ? labelList.map((label) =>
                             <li key={"label-" + label.id}>
                                 <LabelLink labelId={label.id} filter={FILTER_UNREAD} className="no-underline">
-                                    <LabelIcon className="icon" aria-hidden={true} />
+                                    <LabelIcon aria-hidden={true} />
                                     {label.text}
                                     <Count value={label.unreadCount} />
                                 </LabelLink>
@@ -48,7 +51,7 @@ class HomeView extends React.PureComponent {
                         ? feedList.map((feed) =>
                             <li key={"feed-" + feed.id}>
                                 <FeedLink feedId={feed.id} filter={FILTER_UNREAD} className="no-underline">
-                                    <FeedIcon className="icon" aria-hidden={true} />
+                                    <FeedIcon aria-hidden={true} />
                                     {feed.text || feed.title}
                                     <Count value={feed.unreadCount} />
                                 </FeedLink>

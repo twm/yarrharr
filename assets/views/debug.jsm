@@ -14,11 +14,11 @@ import './debug.less';
 class DebugView extends React.PureComponent {
     render() {
         return <React.Fragment>
-            <HomeIconLink />
+            <Title title="Debug" />
             <GlobalBar>
+                <HomeIconLink />
                 <Header>Debug</Header>
             </GlobalBar>
-            <Title title="Debug" />
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
                 <InventoryLink className="no-underline">Feeds</InventoryLink>
@@ -57,6 +57,7 @@ class DebugView extends React.PureComponent {
                 </p>
                 <p>
                     <HomeIcon className="icon debug-icon-grid" />
+                    <GlobeIcon className="icon debug-icon-grid" />
                     <LabelIcon className="icon debug-icon-grid" />
                     <FeedIcon className="icon debug-icon-grid" />
                     <ArrowLeftIcon className="icon debug-icon-grid" />
