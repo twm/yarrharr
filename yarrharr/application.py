@@ -41,12 +41,14 @@ from twisted.logger import globalLogBeginner
 from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
 from twisted.internet import defer
 from twisted.logger import formatEvent
+from twisted.logger import FilteringLogObserver, ILogFilterPredicate, PredicateResult
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.resource import Resource, NoResource
 from twisted.internet.endpoints import serverFromString
 from twisted.python.filepath import FilePath
+from zope.interface import implementer
 
 from . import __version__
 from .signals import schedule_changed
@@ -349,6 +351,32 @@ def formatForSystemd(event):
     return prefix + s.replace("\n", "\n" + prefix + "  ") + "\n"
 
 
+@implementer(ILogFilterPredicate)
+def dropUnhandledHTTP2Shutdown(event):
+    """
+    Suppress the log messages which result from an unhandled error in HTTP/2
+    connection shutdown. See #282 and Twisted #9462.
+
+    This log message is relayed from the :mod:`twisted.python.log` so the
+    fields are a little odd:
+
+     *  ``'log_namespace'`` is ``'log_legacy'``, and there is a ``'system'``
+        field with a value of ``'-'``.
+     *  ``'log_text'`` contains the actual log text, including a pre-formatted
+        traceback.
+     *  ``'failure'`` used instead of ``'log_failure'``.
+    """
+    if event.get('log_namespace') != 'log_legacy':
+        return PredicateResult.maybe
+    if event.get('log_level') != LogLevel.critical:
+        return PredicateResult.maybe
+    if 'failure' not in event or not event['failure'].check(AttributeError):
+        return PredicateResult.maybe
+    if event['log_text'].startswith('Unhandled Error') and "no attribute 'shutdown'" in event['log_text']:
+        return PredicateResult.no
+    return PredicateResult.maybe
+
+
 class TwistedLoggerLogHandler(logging.Handler):
     publisher = globalLogPublisher
 
@@ -479,8 +507,11 @@ def run():
     logging._srcfile = None  # Disable expensive collection of location information.
     root.setLevel(logging.DEBUG if settings.DEBUG else logging.INFO)
     root.addHandler(TwistedLoggerLogHandler())
-    globalLogBeginner.beginLoggingTo([FileLogObserver(sys.stdout, formatForSystemd)],
-                                     redirectStandardIO=False)
+    observer = FilteringLogObserver(
+        FileLogObserver(sys.stdout, formatForSystemd),
+        [dropUnhandledHTTP2Shutdown],
+    )
+    globalLogBeginner.beginLoggingTo([observer], redirectStandardIO=False)
 
     log.info("Yarrharr {version} starting", version=__version__)
 
