@@ -11,7 +11,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Title } from 'widgets/Title.jsm';
-import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon } from 'widgets/icons.js';
+import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon, ReturnIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -125,6 +125,7 @@ function positionText(snapshot, articleId) {
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
     return <Fragment>
+        <Title title="All Feeds" />
         <GlobalBar>
             <HomeIconLink />
             <div className="square">
@@ -133,7 +134,6 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             <Header>All Feeds</Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
-        <Title title="All Feeds" />
         <Tabs>
             <AllLink aria-selected={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
             <AllLink aria-selected={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
@@ -159,12 +159,11 @@ export function AllArticleView({params, feedsById, layout, snapshot, articlesByI
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
         <GlobalBar>
-            <HomeIconLink />
-            <div className="square">
-                <GlobeIcon aria-hidden={true} />
-            </div>
+            <AllLink filter={snapshot.filter} aria-label="All Feeds" title="Return to article list" className="square">
+                <ReturnIcon aria-hidden={true} />
+            </AllLink>
             <Header>
-                All Feeds<br />
+                <GlobeIcon aria-hidden={true} /> All Feeds<br />
                 {positionText(snapshot, articleId)}
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
@@ -215,12 +214,11 @@ export function FeedArticleView({params, feedsById, labelsById, layout, snapshot
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, feedTitle)} />
         <GlobalBar>
-            <HomeIconLink />
-            <div className="square">
-                <FeedIcon aria-hidden={true} />
-            </div>
+            <FeedLink feedId={feedId} filter={snapshot.filter} aria-label={feedTitle} title="Return to article list" className="square">
+                <ReturnIcon aria-hidden={true} />
+            </FeedLink>
             <Header>
-                {feedTitle}<br />
+                <FeedIcon aria-hidden={true} /> {feedTitle}<br />
                 {positionText(snapshot, articleId)}
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
@@ -267,20 +265,20 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
+    const returnLink = <LabelLink labelId={labelId}>^</LabelLink>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, label.text)} />
         <GlobalBar>
-            <HomeIconLink />
-            <div className="square">
-                <LabelIcon aria-hidden={true} />
-            </div>
+            <LabelLink labelId={labelId} filter={snapshot.filter} aria-label={label.text} title="Return to article list" className="square">
+                <ReturnIcon aria-hidden={true} />
+            </LabelLink>
             <Header>
-                {label.text}<br />
+                <LabelIcon aria-hidden={true} /> {label.text}<br />
                 {positionText(snapshot, articleId)}
             </Header>
             <OrderToggle key={ORDER_TAIL} order={snapshot.order} onSetOrder={onSetOrder} />
         </GlobalBar>
-        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink)}
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, returnLink)}
     </Fragment>;
 }
 
