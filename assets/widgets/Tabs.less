@@ -9,72 +9,58 @@
  * </div>
  */
 .tabs {
-    border-bottom: 2px solid var(--border-color);
     contain: layout style;
     background: var(--background-color);
+    flex-basis: 100%;
 }
 .tabs-tabs {
     max-width: var(--layout-max-width);
     display: flex;
-    margin: 0 auto -2px auto;
-    padding: 0 0 0 .5rem;
-    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0 0 2px 0;
+}
+.layout-wide .tabs-tabs {
+    margin: 0 4px;
 }
 /* base tab styles */
 .tabs-tabs > a {
     --tab-shape-color: transparent;
-    --tab-background-color: transparent;
 
     border-style: solid;
-    border-width: 2px;
-    border-bottom-width: 0;
-    border-color: var(--tab-shape-color) var(--tab-shape-color) var(--border-color) var(--tab-shape-color);
-    background: var(--tab-background-color);
+    border-width: 0 0 2px 0;
+    border-color: var(--border-color);
+    border-radius: 4px 4px 0 0;
     text-decoration: none;
     line-height: 1.7;
-    padding: 0.125rem 1rem 0 1rem;
-    margin: 0 .5rem 2px 0;
-
-    &:hover {
-        --tab-shape-color: var(--border-color);
-    }
-    &:focus {
-        outline: none;
-        /* FIXME need a var for this, it was copied from .form-item-focusable:focus */
-        --tab-shape-color: @focus_blue;
-    }
+    padding: 0.125rem 8px 0 8px;
+    margin: 0 2rem 0 0;
+    white-space: nowrap;
+    text-align: center;
+    text-overflow: ellipsis;
 }
 /* current tab */
 .tabs-tabs > a[aria-selected=true] {
-    --tab-shape-color: var(--border-color);
-    --tab-background-color: var(--background-color);
-    margin-bottom: 0;
+    --border-color: var(--selected-color);
+}
+.tabs-tabs > a:focus {
+    outline: none;
+    --border-color: var(--focus-color);
 }
 @media screen and (max-width: 34em) {
     .tabs-tabs {
-        padding: 0;
+        justify-content: space-around;
     }
     .tabs-tabs > a {
-        margin-left: 0;
-        margin-right: 2px; /* Prevent borders from abutting, which looks bad. */
-        padding-left: 0.1rem;
-        padding-right: 0.1rem;
+        margin: 0 4px 0 0; /* Prevent borders from abutting, which looks bad. */
+        padding-left: 3%;
+        padding-right: 3%;
         line-height: 2.0; /* Increases height so tabs are more tappable. */
-        flex-basis: 100%;
-        text-align: center;
-        white-space: nowrap;
-        text-overflow: ellipsis;
     }
     .tabs-tabs > a + a {
-        border-left-width: 2px;
     }
     .tabs-tabs > a:first-child {
-        border-left-width: 0;
     }
     .tabs-tabs > a:last-child {
-        border-right-width: 0;
         margin-right: 0;
     }
 }
-/* TODO: Check what happens in very narrow windows. */
-/* TODO: Make less ugly. */

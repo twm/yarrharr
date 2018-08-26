@@ -5,26 +5,26 @@ import { connect } from 'react-redux';
 
 import { ORIGIN_CLICK, ROUTES } from './actions.js';
 
-import { ConnectedAllView, ConnectedFeedView, ConnectedLabelView } from 'views/FeedView.js';
-import ConnectedRootView from 'views/RootView.js';
+import { ConnectedAllView, ConnectedAllArticleView, ConnectedFeedArticleView, ConnectedFeedView, ConnectedLabelView, ConnectedLabelArticleView } from 'views/FeedView.js';
+import ConnectedHomeView from 'views/HomeView.js';
 import { ConnectedAddFeedView, ConnectedInventoryView, ConnectedLabelListView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/InventoryView.js';
 import { ConnectedDebugView } from 'views/debug.jsm';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
 const routeToView = {
-    '/': ConnectedRootView,
+    '/': ConnectedHomeView,
     '/inventory': ConnectedInventoryView,
     '/inventory/add': ConnectedAddFeedView,
     '/inventory/labels': ConnectedLabelListView,
     '/inventory/feed/:feedId': ConnectedManageFeedView,
     '/inventory/label/:labelId': ConnectedManageLabelView,
     '/all/:filter': ConnectedAllView,
-    '/all/:filter/:articleId': ConnectedAllView,
+    '/all/:filter/:articleId': ConnectedAllArticleView,
     '/label/:labelId/:filter': ConnectedLabelView,
-    '/label/:labelId/:filter/:articleId': ConnectedLabelView,
+    '/label/:labelId/:filter/:articleId': ConnectedLabelArticleView,
     '/feed/:feedId/:filter': ConnectedFeedView,
-    '/feed/:feedId/:filter/:articleId': ConnectedFeedView,
+    '/feed/:feedId/:filter/:articleId': ConnectedFeedArticleView,
     '/debug': ConnectedDebugView,
 };
 

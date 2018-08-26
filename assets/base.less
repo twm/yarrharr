@@ -6,13 +6,20 @@
 
 :root {
     --layout-max-width: 50rem;
-    --text-color: @content_text_color;
-    --background-color: @content_background_color;
+
+    --background-color: white;
+    --text-color: black;
+    --quiet-text-color: lighten(black, 40%);
+
     --border-color: #ddd;
     --icon-color: #666;
     --icon-color-off: var(--border-color);
-    --heart-color: #9b1559;
-    --check-color: #2a6e12;
+    --hover-background-color: #fafafa;
+
+    --heart-color: #9b1559; // TODO Make this more vibrant
+    --check-color: #2a6e12; // TODO Make this more vibrant
+    --focus-color: #0098ff;
+    --selected-color: hsl(24.1, 100%, 49.2%);
 }
 .layout-wide {
     --layout-max-width: none;
@@ -42,18 +49,21 @@ html {
         text-decoration-line: none;
     }
     a:visited {
-        --underline-color: rgb(199, 68, 28);
+        --underline-color: rgb(199, 68, 28); // TODO Make this more vibrant
     }
     a:visited:not([role=button]) {
         color: var(--text-color);
     }
     a:active {
-        --underline-color: rgb(185, 28, 199);
+        --underline-color: rgb(185, 28, 199); // TODO Make this more vibrant
     }
     a:link[aria-disabled=true],
     a:visited[aria-disabled=true] {
         text-decoration-line: none;
         cursor: default;
+    }
+    a:hover {
+        background: var(--hover-background-color);
     }
 }
 
@@ -66,7 +76,7 @@ h1 {
 }
 
 :focus {
-    outline: 1px dotted;
+    outline: 1px dotted var(--focus-color);
 }
 
 /**
@@ -86,7 +96,7 @@ h1 {
 label:not(.checkbox) {
     display: block;
     font-size: 0.9rem;
-    color: @text_color;
+    color: var(--quiet-text-color);
 }
 
 label.checkbox {
@@ -110,7 +120,7 @@ select[multiple] {
     transition: border-color 0.05s;
 
     &:focus {
-        --border-color: @focus_blue;
+        --border-color: var(--focus-color);
         box-shadow: inset 0 0 0 1.5px white;
         outline: none;
     }
@@ -163,10 +173,10 @@ select[multiple] {
  */
 .text-button-primary {
     color: white;
-    --gradient-border-color: @logo_orange_dark;
-    --gradient-start: @logo_orange_light;
-    --gradient-mid: @logo_orange;
-    --gradient-end: @logo_orange;
+    --gradient-border-color: #da5200;
+    --gradient-start: #f17e31;
+    --gradient-mid: #fb6500;
+    --gradient-end: #fb6500;
 }
 
 /**
@@ -229,7 +239,7 @@ select[multiple] {
         .flat-button-focus;
     }
 
-    & .icon {
+    & > * > .icon {
         display: block;
         font-size: @icon_size;
     }
@@ -245,6 +255,13 @@ select[multiple] {
     & > .expand {
         flex: 1 1 0;
         min-width: @bar_height; /* allow shrinking below content size */
+    }
+
+    & > .header {
+        justify-content: start;
+        white-space: nowrap;
+        text-overflow: ellipsis; // TODO: get ellipsis working here.
+        overflow: hidden;
     }
 }
 
@@ -301,6 +318,6 @@ form.small-form {
 footer {
     padding: 3em 0.25em;
     text-align: center;
-    background: @background_color;
-    color: @text_color;
+    background: #fafafa;
+    color: #141414;
 }

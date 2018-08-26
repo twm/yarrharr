@@ -25,32 +25,14 @@
     }
 }
 
-.next-link[href],
-.prev-link[href] {
-    text-decoration: none;
-    display: flex;
-    flex-flow: row nowrap;
-    div {
-        flex: 1 1 0;
-        min-width: 0;
-    }
-    b, .title {
-        display: block;
-        width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .title {
-        text-decoration: underline;
-    }
+.article-view > article {
+    // FIXME: This hack ensures that SnapshotNav is always stuck to the bottom of the screen so that the next/prev buttons are in consistent — mashable — locations.
+    min-height: calc(100vh - @bar_height - @bar_height);
 }
 
-.prev-link.expand {
-    div:last-child { padding-right: 0.25rem; }
-}
-
-.next-link.expand {
-    text-align: right;
-    div:first-child { padding-left: 0.25rem; }
+.snapshot-nav {
+    background: var(--background-color);
+    border-top: 1px solid var(--border-color);
+    position: sticky;
+    bottom: 0;
 }
