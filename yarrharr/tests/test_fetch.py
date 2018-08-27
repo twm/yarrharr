@@ -373,6 +373,38 @@ class FetchTests(SynchronousTestCase):
             result,
         )
 
+    def test_timeout_response(self):
+        """
+        A timeout when making the request produces a NetworkError.
+        """
+        feed = FetchFeed()
+        client = StubTreq(BlackHoleResource())
+
+        d = poll_feed(feed, self.clock, client)
+        self.clock.advance(30 + 1)
+        result = self.successResultOf(d)
+
+        self.assertEqual(
+            NetworkError('Request timed out after 30 seconds'),
+            result,
+        )
+
+    def test_timeout_body(self):
+        """
+        A timeout when reading the response body produces a NetworkError.
+        """
+        feed = FetchFeed()
+        client = StubTreq(ForeverBodyResource())
+
+        d = poll_feed(feed, self.clock, client)
+        self.clock.advance(30 + 1)
+        result = self.successResultOf(d)
+
+        self.assertEqual(
+            NetworkError('Reading the response body timed out after 30 seconds'),
+            result,
+        )
+
     def test_410_gone(self):
         """
         A 410 HTTP status code translates to a Gone result.
