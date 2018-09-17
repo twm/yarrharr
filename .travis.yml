@@ -1,29 +1,29 @@
-dist: xenial
-sudo: true
 matrix:
   include:
     - language: python
       python: "3.5"
-      install: "sudo pip install tox"
+      install: "pip install tox"
       script:
         - tox -e py35-lint
         - tox -e py35-test
     - language: python
       python: "3.6"
-      install: "sudo pip install tox"
+      install: "pip install tox"
       script:
         - tox -e py36-lint
         - tox -e py36-test
     - language: python
       python: "3.7"
-      install: "sudo pip install tox"
+      dist: xenial
+      sudo: true
+      install: "pip install tox"
       script:
         - tox -e py37-lint
         - tox -e py37-test
     - language: node_js
       python: "3.6"
       install:
-        - "sudo pip install tox"
+        - "pip install tox"
         - "nvm install"
       script:
         - npm install
