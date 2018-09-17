@@ -68,6 +68,9 @@ export function IconSprites(props) {
             <symbol id="icon-follow" viewBox="-10 -10 20 20">
                 <path d="M -3 -7 l 7 7 l -7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
+            <symbol id="icon-return" viewBox="-10 -10 20 20">
+                <path d="M 3 -7 l -7 7 l 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </symbol>
         </defs>
     </svg>;
 };
@@ -94,6 +97,7 @@ export const OutboundIcon = makeSpriteIcon("#icon-outbound");
 export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
+export const ReturnIcon = makeSpriteIcon("#icon-return");
 
 function fsIcon(props, fullscreen) {
     const s = 20;
@@ -246,6 +250,25 @@ if (__debug__) {
     };
 }
 
+export class GlobeIcon extends React.PureComponent {
+    render() {
+        // viewBox chosen so that the center of the globe is at (0, 0)
+        return <svg width="1em" height="1em" viewBox="-10 -10 20 20" className="icon" {...this.props}>
+            <g transform="rotate(30)">
+                {/* The globe outline: */}
+                <ellipse cx="0" cy="0" rx="7" ry="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                {/* Lines on the globe: */}
+                <path d="M0,-6.5 A1,2 0 0 0 0,6.5 A1,2 0 0 0 0,-6.5 L0,6.5" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M-6.5,0 A2,1 0 0 0 6.5,0" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M-6.0,-2 A3,1 0 0 0 6.0,-2" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                <path d="M-5.0,-4.5 A4,1 0 0 0 5.0,-4.5" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+            </g>
+            {/* The globe base:
+            <path d="M-4 9 l8 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            */}
+        </svg>;
+    }
+}
 
 /* Copy this into https://reactjs.org/
 

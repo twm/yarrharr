@@ -1,21 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { connect } from 'react-redux';
+
 import { Title } from 'widgets/Title.jsm';
-import { HomeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, WideIcon, NarrowIcon, AscDescIcon } from 'widgets/icons.js';
+import { Tabs } from 'widgets/Tabs.js';
+import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
+
+import { HomeIcon, GlobeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon, ReturnIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
 
-import { Tabs } from 'widgets/Tabs.js';
-import { GlobalBar } from 'widgets/GlobalBar.js';
-
 class DebugView extends React.PureComponent {
     render() {
         return <React.Fragment>
-            <GlobalBar />
             <Title title="Debug" />
+            <GlobalBar>
+                <HomeIconLink />
+                <Header>Debug</Header>
+            </GlobalBar>
             <Tabs>
                 <RootLink className="no-underline">Home</RootLink>
                 <InventoryLink className="no-underline">Feeds</InventoryLink>
@@ -26,14 +29,18 @@ class DebugView extends React.PureComponent {
                 <h2>Icons</h2>
                 <p>
                     Home <HomeIcon />
+                    GlobeIcon <GlobeIcon />
                     Label <LabelIcon />
                     Feed <FeedIcon />
                     Left <ArrowLeftIcon />
                     Right <ArrowRightIcon />
                     Follow <FollowIcon />
+                    Return <ReturnIcon />
                     Outbound <OutboundIcon />
                     Edit <EditIcon />
                     Wide <WideIcon />
+                    GoFullscreen <GoFullscreenIcon />
+                    ExitFullscreenIcon <ExitFullscreenIcon />
                     Narrow <NarrowIcon />
                     Ascending <AscDescIcon ascending={true} />
                     Descending <AscDescIcon ascending={false} />
@@ -50,13 +57,17 @@ class DebugView extends React.PureComponent {
                 </p>
                 <p>
                     <HomeIcon className="icon debug-icon-grid" />
+                    <GlobeIcon className="icon debug-icon-grid" />
                     <LabelIcon className="icon debug-icon-grid" />
                     <FeedIcon className="icon debug-icon-grid" />
                     <ArrowLeftIcon className="icon debug-icon-grid" />
                     <ArrowRightIcon className="icon debug-icon-grid" />
                     <FollowIcon className="icon debug-icon-grid" />
+                    <ReturnIcon className="icon debug-icon-grid" />
                     <OutboundIcon className="icon debug-icon-grid" />
                     <EditIcon className="icon debug-icon-grid" />
+                    <GoFullscreenIcon className="icon debug-icon-grid" />
+                    <ExitFullscreenIcon className="icon debug-icon-grid" />
                     <WideIcon className="icon debug-icon-grid" />
                     <NarrowIcon className="icon debug-icon-grid" />
                     <AscDescIcon ascending={true} className="icon debug-icon-grid" />

@@ -338,7 +338,7 @@ def poll(reactor, max_fetch):
         outcomes = []
         for feed in feeds_to_check:
             try:
-                outcome = (yield poll_feed(feed))
+                outcome = (yield poll_feed(feed, reactor))
                 outcomes.append((feed, outcome))
                 log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
             except Exception:
@@ -386,13 +386,54 @@ def extract_last_modified(headers):
     return lm
 
 
+@attr.s(cmp=False)
+class RequestTimeout(defer.CancelledError):
+    timeout = attr.ib()
+
+    def __str__(self):
+        return "Request timed out after {} seconds".format(self.timeout)
+
+    @classmethod
+    def onTimeoutCancel(cls, result, timeout):
+        """
+        Convert any failure into a `RequestTimeout` failure.
+
+        This is intended for use as the *onTimeoutCancel* argument to
+        `Defer.addTimeout`.
+        """
+        if isinstance(result, Failure):
+            return Failure(cls(timeout))
+        return result
+
+
+@attr.s(cmp=False)
+class ResponseTimeout(defer.CancelledError):
+    timeout = attr.ib()
+
+    def __str__(self):
+        return "Reading the response body timed out after {} seconds".format(self.timeout)
+
+    @classmethod
+    def onTimeoutCancel(cls, result, timeout):
+        """
+        Convert any failure into a `ResponseTimeout` failure.
+
+        This is intended for use as the *onTimeoutCancel* argument to
+        `Defer.addTimeout`.
+        """
+        if isinstance(result, Failure):
+            return Failure(cls(timeout))
+        return result
+
+
 @defer.inlineCallbacks
-def poll_feed(feed, client=treq):
+def poll_feed(feed, clock, client=treq):
     """
     Do the parts of updating the feed which don't involve the database: fetch
     the feed content and parse it.
 
     :param feed: The :class:`~yarrharr.models.Feed` to poll
+    :param clock: :class:`twisted.internet.interfaces.IReactorTime`
     :param str url: URL to retrieve
     """
     headers = {
@@ -410,9 +451,12 @@ def poll_feed(feed, client=treq):
         conditional_get = BadStatus(304)
 
     try:
-        response = yield client.get(feed.url, timeout=30, headers=headers)
-        raw_bytes = yield response.content()
+        response = yield client.get(feed.url, headers=headers).addTimeout(30, clock, RequestTimeout.onTimeoutCancel)
+        raw_bytes = yield response.content().addTimeout(30, clock, ResponseTimeout.onTimeoutCancel)
     except (
+        # One of the timeouts above expired.
+        RequestTimeout,
+        ResponseTimeout,
         # DNS resolution failed. I'm not sure how exactly this is distinct from
         # UnknownHostError which is a subclass of ConnectError, but this is
         # what I have observed. Perhaps this is what HostnameEndpoint produces.

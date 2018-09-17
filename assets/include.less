@@ -4,39 +4,18 @@
  * This file must not contain any concrete styles.
  */
 
-@background_color: rgba(250, 250, 250, 1.0);
-@text_color: rgb(20, 20, 20);
-
-@toolbar_height: 2.5rem;
-@toolbar_background_color: darken(@content_background_color, 10%);
-
 /* There is always this much padding between text and the edge of stuff. */
 @text_padding: 0.25rem;
 
 /* Buttons have thick borders, also used to indicate focus. */
 @button_border_width: 2px;
 
-@icon_size: 2.3rem;
+@icon_size: 2.0rem;
 
 @bar_line_height: 1.25rem;
 @bar_height: calc(2 * @bar_line_height + 2 * @text_padding + 2 * @button_border_width);
 
-@content_background_color: white;
-@content_text_color: black;
-@quiet_text_color: lighten(@content_text_color, 40%);
-
-@logo_orange_light: #f17e31;
-@logo_orange: #fb6500;
-@logo_orange_dark: #da5200;
-
-@focus_blue_light: #37ABE5;
-@focus_blue: #0098ff;
-@focus_blue_dark: #0070bb;
-
-@narrow_width: 50rem;
-
 .flat-button() {
-    display: block;
     box-sizing: border-box;
     border: none;
     padding: 0; /* Otherwise Firefox assigns padding in button:active to simulate "press". */
@@ -45,7 +24,11 @@
     box-shadow: inset 0 0 0 0 transparent;
 }
 
+.flat-button-hover() {
+    background: var(--hover-background-color);
+}
+
 .flat-button-focus() {
     outline: none;
-    box-shadow: inset 0 0 0 @button_border_width @focus_blue;
+    box-shadow: inset 0 0 0 @button_border_width var(--focus-color);
 }

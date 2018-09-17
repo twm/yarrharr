@@ -33,12 +33,13 @@ from attr.validators import instance_of
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
-from twisted.internet import defer, error
+from twisted.internet import defer, error, task
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.python.failure import Failure
-from twisted.web import http, static
+from twisted.web import http, server, static
+from twisted.web.client import readBody
 from twisted.web.resource import ErrorPage, IResource
-from treq.testing import StubTreq
+from treq.testing import StubTreq, RequestTraversalAgent
 from pkg_resources import resource_filename, resource_string
 import pytz
 from zope.interface import implementer
@@ -215,6 +216,57 @@ class StaticEtagResourceTests(SynchronousTestCase):
         self.assertEqual(b'', body)
 
 
+@implementer(IResource)
+@attr.s
+class BlackHoleResource(object):
+    """
+    `BlackHoleResource` accepts all requests but never responds.
+    """
+    isLeaf = True
+
+    def render(self, request):
+        return server.NOT_DONE_YET
+
+
+class BlackHoleResourceTests(SynchronousTestCase):
+    def test_no_response(self):
+        agent = RequestTraversalAgent(BlackHoleResource())
+
+        d = agent.request(b'GET', b'http://an.example/')
+
+        self.assertNoResult(d)
+
+
+@implementer(IResource)
+@attr.s
+class ForeverBodyResource(object):
+    """
+    `ForeverBodyResource` responds with headers, but never writes a
+    response body.
+    """
+    isLeaf = True
+
+    content_type = attr.ib(default='application/xml')
+
+    def render(self, request):
+        request.responseHeaders.setRawHeaders(b'Content-Type', [self.content_type])
+        request.write(b'')  # Flush headers.
+        return server.NOT_DONE_YET
+
+
+class ForeverBodyResourceTests(SynchronousTestCase):
+    def test_no_body(self):
+        """
+        `ForeverBodyResource` returns response headers, but no body.
+        """
+        agent = RequestTraversalAgent(ForeverBodyResource())
+
+        response = self.successResultOf(agent.request(b'GET', b'https://an.example/'))
+        d = readBody(response)
+
+        self.assertNoResult(d)
+
+
 @attr.s
 class ErrorTreq(object):
     """
@@ -228,6 +280,14 @@ class ErrorTreq(object):
 
 
 class FetchTests(SynchronousTestCase):
+    """
+    Test `yarrharr.fetch.poll_feed()`.
+
+    :ivar clock: `twisted.internet.task.Clock` instance
+    """
+    def setUp(self):
+        self.clock = task.Clock()
+
     def test_raw_content_not_sanitized(self):
         """
         feedparser's HTML sanitization is disabled so that we can implement
@@ -237,7 +297,7 @@ class FetchTests(SynchronousTestCase):
         xml = resource_string('yarrharr', 'examples/html-script.rss')
         client = StubTreq(StaticResource(xml))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIn(u'<script>', outcome.articles[0].raw_content)
 
@@ -249,7 +309,7 @@ class FetchTests(SynchronousTestCase):
         xml = resource_string('yarrharr', 'examples/html-title.atom')
         client = StubTreq(StaticResource(xml))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, MaybeUpdated)
         self.assertEqual(u'Feed with HTML <title/>', outcome.feed_title)
@@ -266,7 +326,7 @@ class FetchTests(SynchronousTestCase):
         xml = resource_string('yarrharr', 'examples/htmlish-title.rss')
         client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, MaybeUpdated)
         self.assertEqual(u'<notreallyhtml>', outcome.feed_title)
@@ -281,7 +341,7 @@ class FetchTests(SynchronousTestCase):
         xml = resource_string('yarrharr', 'examples/no-feed-title.atom')
         client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, BozoError)
 
@@ -294,7 +354,7 @@ class FetchTests(SynchronousTestCase):
         xml = resource_string('yarrharr', 'examples/no-feed-title.rss')
         client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, BozoError)
 
@@ -306,10 +366,42 @@ class FetchTests(SynchronousTestCase):
         client = ErrorTreq(error.ConnectionRefusedError(
             '111: Connection refused'))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(
             NetworkError('Connection was refused by other side: 111: Connection refused.'),
+            result,
+        )
+
+    def test_timeout_response(self):
+        """
+        A timeout when making the request produces a NetworkError.
+        """
+        feed = FetchFeed()
+        client = StubTreq(BlackHoleResource())
+
+        d = poll_feed(feed, self.clock, client)
+        self.clock.advance(30 + 1)
+        result = self.successResultOf(d)
+
+        self.assertEqual(
+            NetworkError('Request timed out after 30 seconds'),
+            result,
+        )
+
+    def test_timeout_body(self):
+        """
+        A timeout when reading the response body produces a NetworkError.
+        """
+        feed = FetchFeed()
+        client = StubTreq(ForeverBodyResource())
+
+        d = poll_feed(feed, self.clock, client)
+        self.clock.advance(30 + 1)
+        result = self.successResultOf(d)
+
+        self.assertEqual(
+            NetworkError('Reading the response body timed out after 30 seconds'),
             result,
         )
 
@@ -320,7 +412,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed()
         client = StubTreq(ErrorPage(410, 'Gone', 'Gone'))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(Gone(), result)
 
@@ -331,7 +423,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed()
         client = StubTreq(ErrorPage(404, 'Not Found', '???'))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(BadStatus(404), result)
 
@@ -343,7 +435,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed(digest=digest)
         client = StubTreq(StaticResource(EMPTY_RSS))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(Unchanged(u'digest'), result)
 
@@ -356,7 +448,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed(etag=b'"abcd"')
         client = StubTreq(StaticEtagResource(EMPTY_RSS, b'"abcd"'))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(Unchanged(u'etag'), result)
 
@@ -368,7 +460,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed(etag=b'"abcd"')
         client = StubTreq(StaticEtagResource(EMPTY_RSS, '"1234"'))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(MaybeUpdated(
             feed_title=u'Empty RSS feed',
@@ -391,7 +483,7 @@ class FetchTests(SynchronousTestCase):
             last_modified='Tue, 7 Feb 2017 10:25:00 GMT',
         ))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(Unchanged(u'last-modified'), result)
 
@@ -406,7 +498,7 @@ class FetchTests(SynchronousTestCase):
             last_modified=u'Tue, 7 Feb 2017 10:25:00 GMT',
         ))
 
-        result = self.successResultOf(poll_feed(feed, client))
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(MaybeUpdated(
             feed_title=u'Empty RSS feed',
@@ -426,7 +518,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed('http://an.example/nofeed.html')
         client = StubTreq(StaticResource(SOME_HTML, b'text/html'))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(BozoError(code=200, content_type=u'text/html', error=mock.ANY), outcome)
 
@@ -438,7 +530,7 @@ class FetchTests(SynchronousTestCase):
         feed = FetchFeed('https://an.example/0byte')
         client = StubTreq(StaticResource(b'', b'text/html'))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertEqual(BozoError(code=200, content_type=u'text/html', error=u'Unknown error'), outcome)
 
@@ -452,7 +544,7 @@ class FetchTests(SynchronousTestCase):
         xml = resource_string('yarrharr', 'examples/updated-only.atom')
         client = StubTreq(StaticResource(xml))
 
-        outcome = self.successResultOf(poll_feed(feed, client))
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, MaybeUpdated)
         self.assertEqual([

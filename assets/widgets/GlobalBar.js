@@ -23,11 +23,24 @@ export class LayoutToggleLink extends React.PureComponent {
         const Image = narrow ? WideIcon : NarrowIcon;
         const text = narrow ? "Wide" : "Narrow"
         const actionText = narrow ? "Switch to wide layout" : "Switch to narrow layout"
-        return <a role="button" className="square" tabIndex="0" aria-label={text} href="#" onClick={this.handleClick} title={actionText} >
+        return <button className="square" aria-label={text} onClick={this.handleClick} title={actionText} >
             <Image aria-hidden={true} />
-        </a>;
+        </button>;
     }
 }
+
+if (__debug__) {
+    LayoutToggleLink.propTypes = {
+        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
+        onSetLayout: PropTypes.func.isRequired,
+    };
+}
+
+export const ConnectedLayoutToggleLink = connect(state => {
+    return {layout: state.layout};
+}, {
+    onSetLayout: setLayout,
+})(LayoutToggleLink);
 
 
 var fsEnabled, fsElProp, fsChangeEvent, fsErrorEvent, fsExitProp, fsRequestProp;
@@ -96,16 +109,15 @@ export class FullscreenToggle extends React.Component {
     }
 }
 
-export const ConnectedLayoutToggleLink = connect(state => {
-    return {layout: state.layout};
-}, {
-    onSetLayout: setLayout,
-})(LayoutToggleLink);
+
+export function HomeIconLink(props) {
+    return <RootLink aria-label="Home" title="Go home" className="square"><HomeIcon aria-hidden={true} /></RootLink>;
+}
+
 
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <RootLink className="square" aria-label="Home" title="Go home"><HomeIcon aria-hidden={true} /></RootLink>
             {this.props.children}
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />
@@ -113,9 +125,20 @@ export class GlobalBar extends React.PureComponent {
     }
 }
 
+
+export class Header extends React.PureComponent {
+    render() {
+        return <React.Fragment>
+            {this.props.icon || null}
+            <div className="bar expand header">
+                {this.props.children}
+            </div>
+        </React.Fragment>;
+    }
+}
+
 if (__debug__) {
-    LayoutToggleLink.propTypes = {
-        layout: PropTypes.oneOf([LAYOUT_NARROW, LAYOUT_WIDE]).isRequired,
-        onSetLayout: PropTypes.func.isRequired,
+    Header.propTypes = {
+        icon: PropTypes.element,
     };
 }

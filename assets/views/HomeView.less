@@ -17,14 +17,14 @@
 
         a {
             .flat-button;
+            &:hover { .flat-button-hover; }
+            &:focus { .flat-button-focus; }
+
             display: flex;
             align-items: center;
             justify-content: left;
             height: @bar_height;
             padding: 0 @text_padding;
-        }
-        a:focus {
-            .flat-button-focus;
         }
 
         .icon {
