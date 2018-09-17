@@ -798,7 +798,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     date=new_date,
                     url=u'https://example.com/blah-blah',
                     guid=u'',
-                    raw_content=u'<p>Hello, world!</p>'
+                    raw_content=u'<p>Hello, world!</p>',
                 ),
             ],
             etag=b'',
@@ -848,7 +848,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     date=new_date,
                     url='https://example.com/blah-blah',
                     guid='',
-                    raw_content=u'<p>Hello, world!</p>'
+                    raw_content=u'<p>Hello, world!</p>',
                 ),
             ],
             etag=b'',
