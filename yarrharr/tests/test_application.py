@@ -337,6 +337,16 @@ class RootTests(SynchronousTestCase):
 
         self.assertEqual(200, response.code)
 
+    def test_favicon_404(self):
+        """
+        Requests to ``/favicon.ico`` produce a 404 error.
+        """
+        treq = self.mkTreq()
+
+        response = self.successResultOf(treq.get('http://127.0.0.1:8888/favicon.ico'))
+
+        self.assertEqual(404, response.code)
+
 
 class FormatForSystemdTests(SynchronousTestCase):
     def test_logger_namespace(self):
