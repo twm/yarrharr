@@ -127,8 +127,13 @@ class Article(models.Model):
         articles.
     :ivar raw_content: The raw, unsanitized HTML from the feed.
     :ivar content: The sanitized HTML to present to the user.
-    :ivar content_rev: Revision number of the sanitizer which generated
-        content. This is used to lazily migrate old HTML.
+    :ivar content_snippet:
+        The first 200 characters of text in *content*. Displayed as a preview
+        of the article in the list view.
+    :ivar content_rev:
+        Revision number of the sanitizer which generated *content* and
+        *content_snippet*. This is used to migrate old HTML by comparison with
+        `yarrharr.sanitize.REVISION`.
     """
     feed = models.ForeignKey(Feed, related_name='articles', on_delete=models.CASCADE)
     read = models.BooleanField()
@@ -141,6 +146,7 @@ class Article(models.Model):
     guid = models.TextField(blank=True, default='')
     raw_content = models.TextField()
     content = models.TextField()
+    content_snippet = models.TextField(blank=True, default='')
     content_rev = models.IntegerField(default=0)
 
     def __str__(self):
