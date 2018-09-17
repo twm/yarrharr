@@ -202,6 +202,7 @@ class MaybeUpdated(object):
         match, match_type = self._match_article(feed, upsert)
 
         if not match:
+            content = sanitize_html(upsert.raw_content)
             created = feed.articles.create(
                 read=False,
                 fave=False,
@@ -214,7 +215,8 @@ class MaybeUpdated(object):
                 date=upsert.date or timezone.now(),
                 guid=upsert.guid,
                 raw_content=upsert.raw_content,
-                content=sanitize_html(upsert.raw_content),
+                content=content,
+                content_snippet=html_to_text(content)[:255],
                 content_rev=REVISION,
             )
             created.save()
@@ -239,6 +241,7 @@ class MaybeUpdated(object):
                 match.date = upsert.date
             match.raw_content = upsert.raw_content
             match.content = sanitize_html(upsert.raw_content)
+            match.content_snippet = html_to_text(match.content)[:255]
             match.save()
             log.debug("  updated {updated!a} based on {match_type}",
                       updated=match, match_type=match_type)
