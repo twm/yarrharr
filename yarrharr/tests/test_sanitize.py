@@ -272,10 +272,11 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<img class="wp-smiley">`` which represents an emoticon (rather than
         an emoji) is left as-is.
         """
-        self.assertEqual(
+        # FIXME: the order of the attributes varies as dicts aren't ordered...
+        self.assertIn(sanitize_html('<img alt=";-)" class="wp-smiley">'), (
             '<img alt=;-) class=wp-smiley>',
-            sanitize_html('<img alt=";-)" class="wp-smiley">'),
-        )
+            '<img class=wp-smiley alt=;-)>',
+        ))
 
 
 def print_tokens(html):

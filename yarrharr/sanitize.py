@@ -341,7 +341,6 @@ def _wp_smileys(source):
     class_attr = (None, 'class')
     alt_attr = (None, 'alt')
     for token in source:
-        print(token)
         if (
             token['type'] == 'EmptyTag' and
             token['name'] == 'img' and
