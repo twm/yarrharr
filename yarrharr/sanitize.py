@@ -34,7 +34,7 @@ from html5lib.constants import namespaces
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import URL
 
-REVISION = 3
+REVISION = 4
 
 STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
 SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
@@ -75,6 +75,7 @@ def sanitize_html(html):
     source = _ExtractTitleTextFilter(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
+    source = _wp_smileys(source)
     return serializer.render(source)
 
 
@@ -327,3 +328,35 @@ def _video_attrs(source):
             token['data'][preload_attr] = 'metadata'
             token['data'].pop(autoplay_attr, None)
         yield token
+
+
+def _wp_smileys(source):
+    """
+    Replace emoji which WordPress has turned into images into the textual
+    equivalent.
+
+    See <https://codex.wordpress.org/Using_Smilies> for more on WordPress smilies.
+    """
+    html_ns = namespaces['html']
+    class_attr = (None, 'class')
+    alt_attr = (None, 'alt')
+    for token in source:
+        print(token)
+        if (
+            token['type'] == 'EmptyTag' and
+            token['name'] == 'img' and
+            token['namespace'] == html_ns and
+            token['data'].get(class_attr) == 'wp-smiley' and
+            alt_attr in token['data']
+        ):
+            alt = token['data'][alt_attr]
+            try:
+                alt.encode('ascii')
+            except UnicodeEncodeError:
+                # Smells like Emoji.
+                yield {'type': 'Characters', 'data': alt}
+            else:
+                # Emoticon
+                yield token
+        else:
+            yield token
