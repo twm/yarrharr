@@ -28,6 +28,8 @@ from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
 
+from yarrharr.sanitize import REVISION, html_to_text, sanitize_html
+
 
 # Enable sqlite WAL mode so that readers don't block writers. See:
 # https://www.sqlite.org/wal.html
@@ -151,6 +153,16 @@ class Article(models.Model):
 
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
+
+    def set_raw_content(self, raw_content):
+        """
+        Set the `raw_content` field, also updating the derived `content` and
+        `content_snippet` fields.
+        """
+        self.raw_content = raw_content
+        self.content = content = sanitize_html(raw_content)
+        self.content_snippet = html_to_text(content)[:255]
+        self.content_rev = REVISION
 
 
 class Label(models.Model):

@@ -49,7 +49,7 @@ import pytz
 
 from . import __version__
 from .models import Feed
-from .sanitize import REVISION, html_to_text, sanitize_html
+from .sanitize import html_to_text
 
 try:
     # Seriously STFU this is not helpful.
@@ -202,7 +202,6 @@ class MaybeUpdated(object):
         match, match_type = self._match_article(feed, upsert)
 
         if not match:
-            content = sanitize_html(upsert.raw_content)
             created = feed.articles.create(
                 read=False,
                 fave=False,
@@ -214,11 +213,8 @@ class MaybeUpdated(object):
                 # current date so that they get the date the feed was fetched.
                 date=upsert.date or timezone.now(),
                 guid=upsert.guid,
-                raw_content=upsert.raw_content,
-                content=content,
-                content_snippet=html_to_text(content)[:255],
-                content_rev=REVISION,
             )
+            created.set_raw_content(upsert.raw_content)
             created.save()
             log.debug("  created {created!a} (No match for GUID {guid!r} or URL {url!r})",
                       created=created, guid=upsert.guid, url=upsert.url)
@@ -239,9 +235,7 @@ class MaybeUpdated(object):
                 # The feed may not give a date. In that case leave the date
                 # that was assigned when the entry was first discovered.
                 match.date = upsert.date
-            match.raw_content = upsert.raw_content
-            match.content = sanitize_html(upsert.raw_content)
-            match.content_snippet = html_to_text(match.content)[:255]
+            match.set_raw_content(upsert.raw_content)
             match.save()
             log.debug("  updated {updated!a} based on {match_type}",
                       updated=match, match_type=match_type)

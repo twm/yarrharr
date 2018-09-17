@@ -28,7 +28,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from yarrharr.models import Article
-from yarrharr.sanitize import REVISION, html_to_text, sanitize_html
+from yarrharr.sanitize import REVISION
 
 
 def need_update():
@@ -48,9 +48,7 @@ class Command(BaseCommand):
                 if not batch:
                     break
                 for article in batch:
-                    article.content = sanitize_html(article.raw_content)
-                    article.content_snippet = html_to_text(article.content)[:255]
-                    article.content_rev = REVISION
+                    article.set_raw_content(article.raw_content)
                     article.save()
                 count += len(batch)
             self.stdout.write(self.style.SUCCESS("Updated {} articles".format(count)))
