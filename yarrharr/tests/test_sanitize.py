@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -256,6 +256,27 @@ class SanitizeHtmlTests(unittest.TestCase):
             u'<video controls preload=metadata></video>',
             sanitize_html(html),
         )
+
+    def test_wp_smiley_emoji(self):
+        """
+        ``<img class="wp-smiley">`` is replaced with its alt text when the alt
+        text is an emoji.
+        """
+        self.assertEqual(
+            "✨",
+            sanitize_html('<img alt="✨" class="wp-smiley">'),
+        )
+
+    def test_wp_smiley_emoticon(self):
+        """
+        ``<img class="wp-smiley">`` which represents an emoticon (rather than
+        an emoji) is left as-is.
+        """
+        # FIXME: the order of the attributes varies as dicts aren't ordered...
+        self.assertIn(sanitize_html('<img alt=";-)" class="wp-smiley">'), (
+            '<img alt=;-) class=wp-smiley>',
+            '<img class=wp-smiley alt=;-)>',
+        ))
 
 
 def print_tokens(html):
