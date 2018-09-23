@@ -49,16 +49,14 @@ def human_sort_key(s):
     Generate a sort key given a string. The sort key is guaranteed to have
     a few properties:
 
-    * It is ASCII case insensitive.
+    * It is case insensitive.
     * It discards non-alphanumeric characters.
 
     :param str s: A human-readable string
     :returns:
         A case-normalized version of `s` less non-alphanumeric characters.
     """
-    s = u''.join(c for c in s if c.isalnum() or c.isspace())
-    # TODO: Once ported to Python 3, use s.casefold()
-    return s.lower()
+    return ''.join(c for c in s.casefold() if c.isalnum() or c.isspace())
 
 
 def ms_timestamp(dt):

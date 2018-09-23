@@ -28,7 +28,7 @@ from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
 
-from yarrharr.sanitize import REVISION, html_to_text, sanitize_html
+from .sanitize import REVISION, html_to_text, sanitize_html
 
 
 # Enable sqlite WAL mode so that readers don't block writers. See:
