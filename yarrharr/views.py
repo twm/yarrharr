@@ -78,20 +78,21 @@ def log_query(qs):
     return qs
 
 
-def json_for_entry(entry):
+def json_for_article(article):
     """
-    Translate a Yarr feed entry into the JSON data for an article.
+    Translate a `yarrharr.Article` into the JSON data for an article.
     """
     return {
-        'feedId': entry.feed.id,
-        'id': entry.id,
-        'read': entry.read,
-        'fave': entry.fave,
-        'title': entry.title,
-        'content': entry.content,
-        'author': entry.author,
-        'date': ms_timestamp(entry.date),
-        'url': entry.url,
+        'feedId': article.feed.id,
+        'id': article.id,
+        'read': article.read,
+        'fave': article.fave,
+        'title': article.title,
+        'snippet': article.content_snippet,
+        'content': article.content,
+        'author': article.author,
+        'date': ms_timestamp(article.date),
+        'url': article.url,
     }
 
 
@@ -275,7 +276,7 @@ def snapshots(request):
         # Include the first 10 articles for instant display.
         # TODO: It would be better to include metadata for a larger number of
         # articles.
-        'articlesById': {article.id: json_for_entry(article) for article in articles[:10]}
+        'articlesById': {article.id: json_for_article(article) for article in articles[:10]},
     }
     return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')
@@ -303,7 +304,7 @@ def articles(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
     qs = articles_for_request(request)
-    data = {entry.id: json_for_entry(entry) for entry in qs}
+    data = {article.id: json_for_article(article) for article in qs}
     return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')
 
@@ -334,7 +335,7 @@ def flags(request):
     if updates:
         qs.update(**updates)
     data = {
-        'articlesById': {entry.id: json_for_entry(entry) for entry in qs.all()},
+        'articlesById': {article.id: json_for_article(article) for article in qs.all()},
     }
     return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')
