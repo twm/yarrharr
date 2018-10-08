@@ -26,6 +26,7 @@
 
 from __future__ import unicode_literals
 
+from io import StringIO
 import re
 from collections import OrderedDict
 
@@ -36,29 +37,96 @@ from hyperlink import URL
 
 REVISION = 4
 
-STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
-SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
-OBJECT_TAG = '{http://www.w3.org/1999/xhtml}object'
+
+def html_tag(tag):
+    return '{http://www.w3.org/1999/xhtml}' + tag
+
+
+_IMG_TAG = html_tag('img')
+
+_DROP_TAGS = frozenset([
+    html_tag('datalist'),
+    html_tag('object'),
+    html_tag('script'),
+    html_tag('style'),
+    html_tag('template'),
+])
+
+_NO_WHITESPACE_TAGS = frozenset([
+    html_tag('a'),
+    html_tag('abbr'),
+    html_tag('b'),
+    html_tag('bdo'),
+    html_tag('cite'),
+    html_tag('code'),
+    html_tag('datalist'),
+    html_tag('del'),
+    html_tag('em'),
+    html_tag('i'),
+    html_tag('img'),
+    html_tag('ins'),
+    html_tag('kbd'),
+    html_tag('label'),
+    html_tag('link'),
+    html_tag('mark'),
+    html_tag('math'),
+    html_tag('meta'),
+    html_tag('meter'),
+    html_tag('noscript'),
+    html_tag('q'),
+    html_tag('ruby'),
+    html_tag('samp'),
+    html_tag('small'),
+    html_tag('span'),
+    html_tag('strong'),
+    html_tag('sub'),
+    html_tag('sup'),
+    html_tag('time'),
+    html_tag('var'),
+    html_tag('wbr'),
+]) | _DROP_TAGS
+
+_WHITESPACE_RE = re.compile(r'[ \t\r\n]{2,}', re.U)
 
 
 def html_to_text(html):
     """
-    Extract the text from the given HTML fragment.
+    Convert HTML to representative text.
+
+    All HTML tags are dropped. The content of non-visible tags like
+    ``<script>`` and ``<style>`` tags is dropped. Other elements are replaced
+    by their textual content. A single space is injected between `non-phrasing
+    content <https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Phrasing_content>`_.
+
+    Whitespace is normalized to approximate what CSS's ``white-space: normal``
+    `would do on display <https://www.w3.org/TR/CSS2/text.html#white-space-model>`_
+    to minimize the size of the resulting string.  Leading and trailing
+    whitespace is dropped.
+
+    :param str html: HTML string
+    :returns: Plain text
     """
     tree = html5lib.parseFragment(html)
-    bits = []
+    buf = StringIO()
 
     def visit(el):
-        if el.tag != STYLE_TAG and el.tag != SCRIPT_TAG:
+        needs_ws = el.tag not in _NO_WHITESPACE_TAGS
+        if el.tag == _IMG_TAG:
+            buf.write(el.get('alt', '🖼️'))
+        elif el.tag not in _DROP_TAGS:
             if el.text is not None:
-                bits.append(el.text)
+                if needs_ws:
+                    buf.write(' ')
+                buf.write(el.text)
             for child in el:
                 visit(child)
         if el.tail is not None:
-            bits.append(el.tail)
+            if needs_ws:
+                buf.write(' ')
+            buf.write(el.tail)
 
     visit(tree)
-    return u''.join(bits)
+    return _WHITESPACE_RE.sub(' ', buf.getvalue()).strip()
 
 
 def sanitize_html(html):

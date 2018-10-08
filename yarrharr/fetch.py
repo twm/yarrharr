@@ -33,6 +33,7 @@ from __future__ import unicode_literals, print_function
 from io import BytesIO
 from datetime import datetime, timedelta
 import hashlib
+import html
 
 import attr
 from django.db import transaction
@@ -49,7 +50,7 @@ import pytz
 
 from . import __version__
 from .models import Feed
-from .sanitize import REVISION, html_to_text, sanitize_html
+from .sanitize import html_to_text
 
 try:
     # Seriously STFU this is not helpful.
@@ -136,10 +137,10 @@ class MaybeUpdated(object):
                   upsert_count=len(self.articles), feed=feed)
 
         for upsert in self.articles:
-            try:
+            # try:
                 self._upsert_article(feed, upsert)
-            except Exception:
-                log.failure("Failed to upsert {upsert}", upsert=upsert)
+            # except Exception:
+            #     log.failure("Failed to upsert {upsert}", upsert=upsert)
 
         schedule(feed)
         feed.save()
@@ -206,17 +207,14 @@ class MaybeUpdated(object):
                 read=False,
                 fave=False,
                 author=upsert.author,
-                title=upsert.title,
                 url=upsert.url,
                 # Sometimes feeds lack dates on entries (e.g.
                 # <http://antirez.com/rss>); in this case default to the
                 # current date so that they get the date the feed was fetched.
                 date=upsert.date or timezone.now(),
                 guid=upsert.guid,
-                raw_content=upsert.raw_content,
-                content=sanitize_html(upsert.raw_content),
-                content_rev=REVISION,
             )
+            created.set_content(upsert.raw_title, upsert.raw_content)
             created.save()
             log.debug("  created {created!a} (No match for GUID {guid!r} or URL {url!r})",
                       created=created, guid=upsert.guid, url=upsert.url)
@@ -224,21 +222,19 @@ class MaybeUpdated(object):
 
         # Check if we need to update.
         if (match.author != upsert.author or
-                match.title != upsert.title or
+                match.raw_title != upsert.raw_title or
                 match.url != match.url or
                 match.guid != match.guid or
                 (upsert.date and match.date != upsert.date) or
                 match.raw_content != upsert.raw_content):
             match.author = upsert.author
-            match.title = upsert.title
             match.url = upsert.url
             match.guid = upsert.guid
             if upsert.date:
                 # The feed may not give a date. In that case leave the date
                 # that was assigned when the entry was first discovered.
                 match.date = upsert.date
-            match.raw_content = upsert.raw_content
-            match.content = sanitize_html(upsert.raw_content)
+            match.set_content(upsert.raw_title, upsert.raw_content)
             match.save()
             log.debug("  updated {updated!a} based on {match_type}",
                       updated=match, match_type=match_type)
@@ -247,7 +243,7 @@ class MaybeUpdated(object):
 @attr.s(slots=True, frozen=True)
 class ArticleUpsert(object):
     author = attr.ib()
-    title = attr.ib()
+    raw_title = attr.ib()
     url = attr.ib()
     date = attr.ib()
     guid = attr.ib()
@@ -348,6 +344,7 @@ def poll(reactor, max_fetch):
         try:
             yield deferToThread(persist_outcomes, outcomes)
         except Exception:
+            raise
             log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
     next_pending = yield deferToThread(
@@ -511,7 +508,7 @@ def poll_feed(feed, clock, client=treq):
     for entry in parsed['entries']:
         articles.append(ArticleUpsert(
             author=entry.get('author', u''),
-            title=extract_title(entry['title_detail']),
+            raw_title=extract_title(entry['title_detail']),
             url=entry.get('link', u''),
             date=extract_date(entry),
             guid=entry.get('id', u''),
@@ -531,11 +528,11 @@ def poll_feed(feed, clock, client=treq):
         defer.returnValue(BozoError(
             code=response.code,
             content_type=u', '.join(response.headers.getRawHeaders(u'content-type')),
-            error=str(parsed.get('bozo_exception', 'Unknown error'))
+            error=str(parsed.get('bozo_exception', 'Unknown error')),
         ))
     else:
         defer.returnValue(MaybeUpdated(
-            feed_title=extract_title(parsed_feed['title_detail']),
+            feed_title=html_to_text(extract_title(parsed_feed['title_detail'])),
             site_url=parsed_feed.get('link', u''),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
@@ -597,15 +594,15 @@ def as_datetime(t):
 
 def extract_title(title_detail):
     """
-    Given a feedparser `title_detail object`_, return a plain text version of
+    Given a feedparser `title_detail object`_, return a HTML version of
     the title.
 
     .. _title_detail object: https://pythonhosted.org/feedparser/reference-feed-title_detail.html
     """
     if title_detail['type'] == u'text/plain':
-        return title_detail['value']
+        return html.escape(title_detail['value'])
     else:
-        return html_to_text(title_detail['value'])
+        return title_detail['value']
 
 
 def extract_date(entry):

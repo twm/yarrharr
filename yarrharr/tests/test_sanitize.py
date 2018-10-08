@@ -31,7 +31,7 @@ from pprint import pprint
 
 import html5lib
 
-from ..fetch import sanitize_html, html_to_text
+from ..sanitize import sanitize_html, html_to_text
 
 
 class HtmlToTextTests(unittest.TestCase):
@@ -69,6 +69,37 @@ class HtmlToTextTests(unittest.TestCase):
             u'ABC',
             html_to_text(u'A<script>bbbab</script>B<b>C</b>'),
         )
+
+    def test_block_spaces(self):
+        """
+        Whitespace is injected between block-level tags as needed to separate
+        them in the resulting text.
+        """
+        self.assertEqual(
+            'a bc d',
+            html_to_text('<p>a<p>b<span>c</span><div>d'),
+        )
+
+    def test_img_alt(self):
+        """
+        An ``<img>`` tag is replaced with its alt text, falling back to the
+        🖼️ emoji when no alt text is present.
+        """
+        self.assertEqual('', html_to_text('<img alt="">'))
+        self.assertEqual(':)', html_to_text('<img alt=":)">'))
+        self.assertEqual('🖼️', html_to_text('<img>'))
+
+    def test_strip_whitespace(self):
+        """
+        Any leading or trailing whitespace is removed.
+        """
+        for html in [
+            (' hello, world\n'),
+            ('hello, world\t\t '),
+            ('<span> hello</span>, world '),
+            ('hello, <b>world\n</b>'),
+        ]:
+            self.assertEqual('hello, world', html_to_text(html))
 
 
 class SanitizeHtmlTests(unittest.TestCase):

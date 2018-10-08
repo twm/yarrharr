@@ -28,6 +28,8 @@ from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
 
+from . import sanitize
+
 
 # Enable sqlite WAL mode so that readers don't block writers. See:
 # https://www.sqlite.org/wal.html
@@ -119,32 +121,66 @@ class Article(models.Model):
     The following attributes are taken directly from the feed content:
 
     :ivar author: Author of the article.
-    :ivar title: Title of the article.
     :ivar url: Link back to the canonical version of the article.
     :ivar date: Date of the article.
     :ivar guid:
         The GUID of the article from the feed which may be used to de-duplicate
         articles.
+    :ivar raw_title: The raw HTML version of the title from the feed.
     :ivar raw_content: The raw, unsanitized HTML from the feed.
+
+    These attributes are derived from the others (see :meth:`.set_content()`):
+
+    :ivar title: Title of the article as safe plain text.
     :ivar content: The sanitized HTML to present to the user.
-    :ivar content_rev: Revision number of the sanitizer which generated
-        content. This is used to lazily migrate old HTML.
+    :ivar content_snippet:
+        The first 200 characters of text in *content*. Displayed as a preview
+        of the article in the list view.
+    :ivar content_rev:
+        Revision number of the sanitizer which generated *content* and
+        *content_snippet*. This is used to migrate old HTML by comparison with
+        `yarrharr.sanitize.REVISION`.
     """
     feed = models.ForeignKey(Feed, related_name='articles', on_delete=models.CASCADE)
     read = models.BooleanField()
     fave = models.BooleanField()
 
     author = models.TextField(blank=True)
-    title = models.TextField(blank=True)
     url = models.TextField(blank=True)
     date = models.DateTimeField()
     guid = models.TextField(blank=True, default='')
+    raw_title = models.TextField(blank=True, default='')
     raw_content = models.TextField()
+
+    title = models.TextField(blank=True)
     content = models.TextField()
+    content_snippet = models.TextField(blank=True, default='')
     content_rev = models.IntegerField(default=0)
 
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
+
+    def set_content(self, raw_title, raw_content):
+        """
+        Set article title and content.
+
+        This directly set the `raw_title` and `raw_content` fields and also
+        sets the derived fields:
+
+          * `title` — plain text title
+          * `content` — sanitized HTML
+          * `content_snippet` — a short plain text prefix of the HTML
+          * `content_rev` — revision number of the sanitization scheme
+        """
+        self.raw_title = raw_title
+        self.raw_content = raw_content
+        self.title = title = sanitize.html_to_text(raw_title)
+        self.content = content = sanitize.sanitize_html(raw_content)
+        text = sanitize.html_to_text(content)
+        if text.startswith(title):
+            text = text[len(title):].lstrip()
+        self.content_snippet = text[:255]
+        self.content_rev = sanitize.REVISION
 
 
 class Label(models.Model):
