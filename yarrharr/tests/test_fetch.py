@@ -60,9 +60,9 @@ class FetchFeed(object):
     fetching works.
     """
     url = attr.ib(default=u'http://an.example/feed.xml')
-    last_modified = attr.ib(default=b'', converter=bytes, validator=instance_of(bytes))
-    etag = attr.ib(default=b'', converter=bytes, validator=instance_of(bytes))
-    digest = attr.ib(default=b'', converter=bytes, validator=instance_of(bytes))
+    last_modified = attr.ib(default=b'', validator=instance_of(bytes))
+    etag = attr.ib(default=b'', validator=instance_of(bytes))
+    digest = attr.ib(default=b'', validator=instance_of(bytes))
 
 
 def examples():
@@ -301,9 +301,9 @@ class FetchTests(SynchronousTestCase):
 
         self.assertIn(u'<script>', outcome.articles[0].raw_content)
 
-    def test_title_html(self):
+    def test_feed_title_html(self):
         """
-        HTML in feed and article titles is sanitized.
+        HTML in the feed title is sanitized.
         """
         feed = FetchFeed()
         xml = resource_string('yarrharr', 'examples/html-title.atom')
@@ -313,14 +313,30 @@ class FetchTests(SynchronousTestCase):
 
         self.assertIsInstance(outcome, MaybeUpdated)
         self.assertEqual(u'Feed with HTML <title/>', outcome.feed_title)
-        self.assertEqual(u'<b>Entry with Escaped HTML &lt;title/&gt;</b>',
-                         outcome.articles[0].title)
+
+    def test_raw_title_html(self):
+        """
+        HTML in article titles is sanitized passes through in the `raw_title`
+        field.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/html-title.atom')
+        client = StubTreq(StaticResource(xml))
+
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
+
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual(u'Feed with HTML <title/>', outcome.feed_title)
+        self.assertEqual(
+            '&lt;b&gt;Entry with Escaped HTML &amp;lt;title/&amp;gt;&lt;/b&gt;',
+            outcome.articles[0].raw_title,
+        )
 
     def test_title_htmlish(self):
         """
         Sometimes feeds have plain text titles which resemble HTML. feedparser
         may translate such a title into plain text. When it does this we must
-        pass through the result without attempting to remove HTML tags.
+        escape the text so that it is valid HTML in the `raw_title` field.
         """
         feed = FetchFeed()
         xml = resource_string('yarrharr', 'examples/htmlish-title.rss')
@@ -329,8 +345,8 @@ class FetchTests(SynchronousTestCase):
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, MaybeUpdated)
-        self.assertEqual(u'<notreallyhtml>', outcome.feed_title)
-        self.assertEqual(u'It goes <bing>', outcome.articles[0].title)
+        self.assertEqual('<notreallyhtml>', outcome.feed_title)
+        self.assertEqual('It goes &lt;bing&gt;', outcome.articles[0].raw_title)
 
     def test_title_missing_atom(self):
         """
@@ -619,7 +635,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah Blah',
+                    raw_title='Blah Blah',
                     url=u'https://example.com/blah-blah',
                     date=timezone.now(),
                     guid=u'doesnotexist',
@@ -659,7 +675,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah Blah',
+                    raw_title=u'Blah Blah',
                     url=u'https://example.com/blah-blah',
                     date=None,
                     guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
@@ -689,8 +705,8 @@ class MaybeUpdatedTests(DjangoTestCase):
             date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
             url=u'http://example.com/blah-blah',
             guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
-            raw_content=b'',
-            content=b'',
+            raw_content='',
+            content='',
         )
         mu = MaybeUpdated(
             feed_title=u'After',
@@ -698,7 +714,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah Blah',
+                    raw_title='Blah Blah',
                     url=u'https://example.com/blah-blah',
                     date=timezone.now(),
                     guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
@@ -737,8 +753,8 @@ class MaybeUpdatedTests(DjangoTestCase):
             date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
             url='http://www.example.com/blah-blah',
             guid='http://example.com/1',
-            raw_content=b'',
-            content=b'',
+            raw_content='',
+            content='',
         )
         mu = MaybeUpdated(
             feed_title='After',
@@ -746,7 +762,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author='Joe Bloggs',
-                    title='Blah Blah',
+                    raw_title='Blah Blah',
                     url='https://www2.example.com/blah-blah',
                     date=timezone.now(),
                     guid='https://example.com/1',
@@ -780,13 +796,14 @@ class MaybeUpdatedTests(DjangoTestCase):
         self.feed.articles.create(
             read=True,
             fave=False,
-            author=u'???',
-            title=u'???',
+            author='???',
+            raw_title='???',
+            title='???',
             date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
             url=u'https://example.com/blah-blah',
             guid=u'',  # Must not have a GUID to match by URL
-            raw_content=b'',
-            content=b'',
+            raw_content='',
+            content='',
         )
         mu = MaybeUpdated(
             feed_title=u'Blah Blah',
@@ -794,7 +811,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah Blah',
+                    raw_title='Blah Blah',
                     date=new_date,
                     url=u'https://example.com/blah-blah',
                     guid=u'',
@@ -814,11 +831,10 @@ class MaybeUpdatedTests(DjangoTestCase):
             read=True,  # It does not become unread due to the update.
             fave=False,
             author=u'Joe Bloggs',
-            title=u'Blah Blah',
+            raw_title='Blah Blah',
             date=new_date,
             url=u'https://example.com/blah-blah',
-            raw_content=u'<p>Hello, world!</p>',
-            content=u'<p>Hello, world!',
+            raw_content='<p>Hello, world!</p>',
         )
 
     def test_persist_article_https_to_http_url_match(self):
@@ -831,12 +847,13 @@ class MaybeUpdatedTests(DjangoTestCase):
             read=True,
             fave=True,
             author='???',
+            raw_title='???',
             title='???',
             date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
             url='http://example.com/blah-blah',
             guid='',  # Must not have a GUID to match by URL
-            raw_content=b'',
-            content=b'',
+            raw_content='',
+            content='',
         )
         mu = MaybeUpdated(
             feed_title='Blah Blah',
@@ -844,7 +861,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author='Joe Bloggs',
-                    title='Blah Blah',
+                    raw_title='Blah Blah',
                     date=new_date,
                     url='https://example.com/blah-blah',
                     guid='',
@@ -864,7 +881,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             read=True,  # It does not become unread due to the update.
             fave=True,
             author=u'Joe Bloggs',
-            title=u'Blah Blah',
+            raw_title='Blah Blah',
             date=new_date,
             url=u'https://example.com/blah-blah',
         )
@@ -879,7 +896,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             articles=[
                 ArticleUpsert(
                     author=u'Joe Bloggs',
-                    title=u'Blah Blah',
+                    raw_title='Blah &amp; Blah',
                     url=u'https://example.com/blah-blah',
                     date=timezone.now(),
                     guid=u'49e3c525-724c-44d8-ad0c-d78bd216d003',
@@ -898,10 +915,13 @@ class MaybeUpdatedTests(DjangoTestCase):
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
-            title=u'Blah Blah',
-            raw_content=u'<p>Hello, <style>...</style>world'
-                        u'<script type="text/javascript">alert("lololol")</script>!',
-            content=u'<p>Hello, world!',
+            raw_title='Blah &amp; Blah',
+            title='Blah & Blah',
+            raw_content=(
+                '<p>Hello, <style>...</style>world'
+                '<script type="text/javascript">alert("lololol")</script>!'
+            ),
+            content='<p>Hello, world!',
         )
 
 

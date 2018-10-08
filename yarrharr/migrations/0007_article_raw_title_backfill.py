@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,32 +23,29 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from django.core.management.base import BaseCommand
-from django.db import transaction
+import html
 
-from yarrharr.models import Article
-from yarrharr.sanitize import REVISION
+from django.db import migrations
 
 
-def need_update():
-    return Article.objects.exclude(content_rev=REVISION).only("raw_content")
+def backfill_article_raw_title(apps, schema_editor):
+    """
+    Backfill the `yarrharr.models.Article.raw_title` column with an
+    HTML-escaped version of the `title` column.
+    """
+    Article = apps.get_model('yarrharr', 'Article')
+
+    for article in Article.objects.all().only('title', 'raw_title'):
+        article.raw_title = html.escape(article.title)
+        article.save()
 
 
-class Command(BaseCommand):
-    help = 'Update article HTML for sanitizer changes'
+class Migration(migrations.Migration):
 
-    def handle(self, *args, **options):
-        count = 0
-        estimate = need_update().count()
-        self.stdout.write(self.style.SUCCESS("{} articles need update".format(estimate)))
-        while True:
-            with transaction.atomic():
-                batch = list(need_update()[:100])
-                if not batch:
-                    break
-                for article in batch:
-                    article.set_content(article.raw_title, article.raw_content)
-                    article.save()
-                count += len(batch)
-            self.stdout.write(self.style.SUCCESS("Updated {} articles".format(count)))
-        self.stdout.write(self.style.SUCCESS("Finished: updated {} articles".format(count)))
+    dependencies = [
+        ('yarrharr', '0006_article_content_snippet'),
+    ]
+
+    operations = [
+        migrations.RunPython(backfill_article_raw_title),
+    ]

@@ -70,6 +70,13 @@ class HtmlToTextTests(unittest.TestCase):
             html_to_text(u'A<script>bbbab</script>B<b>C</b>'),
         )
 
+    def test_block_spaces(self):
+        """
+        Whitespace is injected between block-level tags as needed to separate
+        them in the resulting text.
+        """
+        assert False
+
 
 class SanitizeHtmlTests(unittest.TestCase):
     def test_id_attr_dropped(self):

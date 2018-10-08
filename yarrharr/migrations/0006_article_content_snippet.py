@@ -15,4 +15,9 @@ class Migration(migrations.Migration):
             name='content_snippet',
             field=models.TextField(blank=True, default=''),
         ),
+        migrations.AddField(
+            model_name='article',
+            name='raw_title',
+            field=models.TextField(blank=True, default=''),
+        ),
     ]

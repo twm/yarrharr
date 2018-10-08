@@ -24,6 +24,7 @@ release: webpack-prod
 .PHONY: devserver
 devserver:
 	tox -e run -- django-admin migrate
+	tox -e run -- django-admin updatehtml
 	tox -e run -- django-admin runserver 127.0.0.1:8888
 
 .PHONY: realserver

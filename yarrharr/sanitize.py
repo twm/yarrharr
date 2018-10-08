@@ -38,6 +38,7 @@ REVISION = 4
 
 STYLE_TAG = '{http://www.w3.org/1999/xhtml}style'
 SCRIPT_TAG = '{http://www.w3.org/1999/xhtml}script'
+TEMPLATE_TAG = '{http://www.w3.org/1999/xhtml}template'
 OBJECT_TAG = '{http://www.w3.org/1999/xhtml}object'
 
 
@@ -49,7 +50,7 @@ def html_to_text(html):
     bits = []
 
     def visit(el):
-        if el.tag != STYLE_TAG and el.tag != SCRIPT_TAG:
+        if el.tag != STYLE_TAG and el.tag != SCRIPT_TAG and el.tag != TEMPLATE_TAG:
             if el.text is not None:
                 bits.append(el.text)
             for child in el:
