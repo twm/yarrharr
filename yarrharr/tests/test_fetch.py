@@ -60,9 +60,9 @@ class FetchFeed(object):
     fetching works.
     """
     url = attr.ib(default=u'http://an.example/feed.xml')
-    last_modified = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
-    etag = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
-    digest = attr.ib(default=b'', convert=bytes, validator=instance_of(bytes))
+    last_modified = attr.ib(default=b'', converter=bytes, validator=instance_of(bytes))
+    etag = attr.ib(default=b'', converter=bytes, validator=instance_of(bytes))
+    digest = attr.ib(default=b'', converter=bytes, validator=instance_of(bytes))
 
 
 def examples():
@@ -130,7 +130,7 @@ class StaticLastModifiedResource(object):
     brittle implementations (rumor says this is necessary).
     """
     content = attr.ib()
-    last_modified = attr.ib(convert=str)
+    last_modified = attr.ib(converter=str)
     content_type = attr.ib(default=b'application/xml')
 
     isLeaf = True
