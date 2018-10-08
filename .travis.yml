@@ -15,7 +15,9 @@ matrix:
         - tox -e py36-test
     - language: python
       python: "3.7"
-      install: "pip install tox"
+      dist: xenial
+      sudo: true
+      install: "sudo pip install tox"
       script:
         - tox -e py37-lint
         - tox -e py37-test
