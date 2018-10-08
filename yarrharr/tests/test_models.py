@@ -98,3 +98,78 @@ class ArticleTests(TestCase):
 
         self.assertEqual("Some Article <https://feed.example/1>",
                          u'{}'.format(a))
+
+
+class ArticleSetContentTests(TestCase):
+    """
+    Test the `yarrharr.models.Article.set_content()` method.
+    """
+    def setUp(self):
+        self.article = Article(
+            feed=Feed(
+                user=User.objects.create_user(
+                    username='user',
+                    email='user@mailhost.example',
+                    password='sesame',
+                ),
+                url='https://feed.example/',
+                added=timezone.now(),
+                next_check=timezone.now(),
+                feed_title='Example Feed',
+            ),
+            read=False,
+            fave=False,
+            author='',
+            url='https://feed.example/1',
+            date=timezone.now(),
+            guid='1',
+        )
+
+    def test_set_raw(self):
+        """
+        The `set_content()` method sets the `title` and `raw_content` fields.
+        """
+        self.article.set_content('Title', '<p>Content</p>')
+
+        self.assertEqual('Title', self.article.raw_title)
+        self.assertEqual('<p>Content</p>', self.article.raw_content)
+
+    def test_derived(self):
+        """
+        The `set_content()` method sets fields derived from the raw content:
+
+          * `content` — sanitized HTML
+          * `content_snippet` — textual prefix of the HTML
+          * `content_rev` — revision number of the sanitization scheme
+        """
+        self.article.set_content('Title', (
+            '<p>' + '1' * 100 + '</p>' +
+            '<script>.</script>' +
+            '<p>' + '2' * 100 + '</p>' +
+            '<p>' + '3' * 100 + '</p>'
+        ))
+
+        self.assertEqual('Title', self.article.title)
+        self.assertEqual(
+            (
+                '<p>' + '1' * 100 +
+                '<p>' + '2' * 100 +
+                '<p>' + '3' * 100
+            ),
+            self.article.content,
+        )
+        self.assertEqual(
+            '1' * 100 + ' ' + '2' * 100 + ' ' + '3' * 53,
+            self.article.content_snippet,
+        )
+
+    def test_title_prefix(self):
+        """
+        When the snippet of an article begins with the same text as the title,
+        remove that prefix. This is common in webcomic feeds, where the feed
+        entry title tends to be the same as the alt text of the comic image.
+        """
+        self.article.set_content('TITLE', 'TITLE content content content')
+
+        self.assertEqual('TITLE', self.article.title)
+        self.assertEqual('content content content', self.article.content_snippet)

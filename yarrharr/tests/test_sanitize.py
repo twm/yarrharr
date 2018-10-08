@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ from pprint import pprint
 
 import html5lib
 
-from ..fetch import sanitize_html, html_to_text
+from ..sanitize import sanitize_html, html_to_text
 
 
 class HtmlToTextTests(unittest.TestCase):
@@ -69,6 +69,37 @@ class HtmlToTextTests(unittest.TestCase):
             u'ABC',
             html_to_text(u'A<script>bbbab</script>B<b>C</b>'),
         )
+
+    def test_block_spaces(self):
+        """
+        Whitespace is injected between block-level tags as needed to separate
+        them in the resulting text.
+        """
+        self.assertEqual(
+            'a bc d',
+            html_to_text('<p>a<p>b<span>c</span><div>d'),
+        )
+
+    def test_img_alt(self):
+        """
+        An ``<img>`` tag is replaced with its alt text, falling back to the
+        🖼️ emoji when no alt text is present.
+        """
+        self.assertEqual('', html_to_text('<img alt="">'))
+        self.assertEqual(':)', html_to_text('<img alt=":)">'))
+        self.assertEqual('🖼️', html_to_text('<img>'))
+
+    def test_strip_whitespace(self):
+        """
+        Any leading or trailing whitespace is removed.
+        """
+        for html in [
+            (' hello, world\n'),
+            ('hello, world\t\t '),
+            ('<span> hello</span>, world '),
+            ('hello, <b>world\n</b>'),
+        ]:
+            self.assertEqual('hello, world', html_to_text(html))
 
 
 class SanitizeHtmlTests(unittest.TestCase):
@@ -153,6 +184,20 @@ class SanitizeHtmlTests(unittest.TestCase):
             u'</object>'
         )
         self.assertEqual(u'<p>Level 1<br>Level 2', sanitize_html(html))
+
+    def test_link_tag_dropped(self):
+        """
+        ``<link>`` tags are dropped.
+        """
+        html = '<link type="stylesheet" href="..."><p>...'
+        self.assertEqual('<p>...', sanitize_html(html))
+
+    def test_meta_tag_dropped(self):
+        """
+        ``<meta>`` tags are dropped.
+        """
+        html = '<meta charset="utf-8"><p>...'
+        self.assertEqual('<p>...', sanitize_html(html))
 
     def test_img_passes_through(self):
         """
@@ -256,6 +301,27 @@ class SanitizeHtmlTests(unittest.TestCase):
             u'<video controls preload=metadata></video>',
             sanitize_html(html),
         )
+
+    def test_wp_smiley_emoji(self):
+        """
+        ``<img class="wp-smiley">`` is replaced with its alt text when the alt
+        text is an emoji.
+        """
+        self.assertEqual(
+            "✨",
+            sanitize_html('<img alt="✨" class="wp-smiley">'),
+        )
+
+    def test_wp_smiley_emoticon(self):
+        """
+        ``<img class="wp-smiley">`` which represents an emoticon (rather than
+        an emoji) is left as-is.
+        """
+        # FIXME: the order of the attributes varies as dicts aren't ordered...
+        self.assertIn(sanitize_html('<img alt=";-)" class="wp-smiley">'), (
+            '<img alt=;-) class=wp-smiley>',
+            '<img class=wp-smiley alt=;-)>',
+        ))
 
 
 def print_tokens(html):

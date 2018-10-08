@@ -45,7 +45,7 @@ from twisted.logger import FilteringLogObserver, ILogFilterPredicate, PredicateR
 from twisted.web.wsgi import WSGIResource
 from twisted.web.server import Site
 from twisted.web.static import File
-from twisted.web.resource import Resource, NoResource
+from twisted.web.resource import ErrorPage, Resource, NoResource
 from twisted.internet.endpoints import serverFromString
 from twisted.python.filepath import FilePath
 from zope.interface import implementer
@@ -288,6 +288,9 @@ class Root(FallbackResource):
 
         self.putChild(b'csp-report', CSPReportLogger())
         self.putChild(b'static', Static())
+        # Handle requests for /favicon.ico at the Twisted level so that they
+        # don't make it down to Django, which logs 404s as errors:
+        self.putChild(b'favicon.ico', ErrorPage(404, 'Not Found', ''))
 
     def getChildWithDefault(self, name, request):
         # Disable the Referer header in some browsers. This is complemented by
