@@ -159,7 +159,7 @@ class ArticleSetContentTests(TestCase):
             self.article.content,
         )
         self.assertEqual(
-            '1' * 100 + ' ' + '2' * 100 + ' ' + '3' * 52,
+            '1' * 100 + ' ' + '2' * 100 + ' ' + '3' * 53,
             self.article.content_snippet,
         )
 
@@ -169,4 +169,7 @@ class ArticleSetContentTests(TestCase):
         remove that prefix. This is common in webcomic feeds, where the feed
         entry title tends to be the same as the alt text of the comic image.
         """
-        assert False
+        self.article.set_content('TITLE', 'TITLE content content content')
+
+        self.assertEqual('TITLE', self.article.title)
+        self.assertEqual('content content content', self.article.content_snippet)

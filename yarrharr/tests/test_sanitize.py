@@ -75,7 +75,31 @@ class HtmlToTextTests(unittest.TestCase):
         Whitespace is injected between block-level tags as needed to separate
         them in the resulting text.
         """
-        assert False
+        self.assertEqual(
+            'a bc d',
+            html_to_text('<p>a<p>b<span>c</span><div>d'),
+        )
+
+    def test_img_alt(self):
+        """
+        An ``<img>`` tag is replaced with its alt text, falling back to the
+        🖼️ emoji when no alt text is present.
+        """
+        self.assertEqual('', html_to_text('<img alt="">'))
+        self.assertEqual(':)', html_to_text('<img alt=":)">'))
+        self.assertEqual('🖼️', html_to_text('<img>'))
+
+    def test_strip_whitespace(self):
+        """
+        Any leading or trailing whitespace is removed.
+        """
+        for html in [
+            (' hello, world\n'),
+            ('hello, world\t\t '),
+            ('<span> hello</span>, world '),
+            ('hello, <b>world\n</b>'),
+        ]:
+            self.assertEqual('hello, world', html_to_text(html))
 
 
 class SanitizeHtmlTests(unittest.TestCase):
