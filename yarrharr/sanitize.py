@@ -137,6 +137,7 @@ def sanitize_html(html):
     serializer = html5lib.serializer.HTMLSerializer(sanitize=True)
     source = html5lib.getTreeWalker('etree')(tree)
     source = _strip_attrs(source)
+    source = _drop_empty_tags(source)
     source = _ReplaceObjectFilter(source)
     source = _ElideFilter(source)
     source = _ReplaceYoutubeEmbedFilter(source)
@@ -160,14 +161,36 @@ def _strip_attrs(source):
         yield token
 
 
+def _drop_empty_tags(source):
+    """
+    Drop certain empty tags:
+
+      * ``<meta>``
+      * ``<link>``
+    """
+    tags = frozenset((
+        (namespaces['html'], 'meta'),
+        (namespaces['html'], 'link'),
+    ))
+
+    for token in source:
+        if token['type'] == 'EmptyTag' and (token['namespace'], token['name']) in tags:
+            continue
+        yield token
+
+
 class _ElideFilter(BaseFilter):
     """
-    ``<script>`` and ``<style>`` tags are dropped entirely, including their
-    content.
+    Some tags are dropped entirely, including their content:
+
+      * ``<script>``
+      * ``<style>``
+      * ``<template>``
     """
     _elide_tags = frozenset((
         (namespaces['html'], 'script'),
         (namespaces['html'], 'style'),
+        (namespaces['html'], 'template'),
     ))
 
     def __iter__(self):

@@ -185,6 +185,20 @@ class SanitizeHtmlTests(unittest.TestCase):
         )
         self.assertEqual(u'<p>Level 1<br>Level 2', sanitize_html(html))
 
+    def test_link_tag_dropped(self):
+        """
+        ``<link>`` tags are dropped.
+        """
+        html = '<link type="stylesheet" href="..."><p>...'
+        self.assertEqual('<p>...', sanitize_html(html))
+
+    def test_meta_tag_dropped(self):
+        """
+        ``<meta>`` tags are dropped.
+        """
+        html = '<meta charset="utf-8"><p>...'
+        self.assertEqual('<p>...', sanitize_html(html))
+
     def test_img_passes_through(self):
         """
         ``<img>`` tags are safe and pass right through.
