@@ -106,6 +106,10 @@ class Feed(models.Model):
 
     title = property(lambda self: self.user_title or self.feed_title or self.url)
 
+    all_count = models.IntegerField(default=0)
+    unread_count = models.IntegerField(default=0)
+    fave_count = models.IntegerField(default=0)
+
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
 

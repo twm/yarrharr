@@ -28,7 +28,7 @@ import simplejson
 import django
 import feedparser
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
@@ -102,8 +102,8 @@ def json_for_feed(feed):
         'title': feed.feed_title,
         'text': feed.user_title,
         'active': feed.next_check is not None,
-        'unreadCount': feed.articles.filter(read=False).count(),
-        'faveCount': feed.articles.filter(fave=True).count(),
+        'unreadCount': feed.unread_count,
+        'faveCount': feed.fave_count,
         'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
         'url': feed.url,
         'siteUrl': feed.site_url,
@@ -149,8 +149,10 @@ def json_for_label(label):
         'id': label.id,
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
-        'unreadCount': Article.objects.filter(read=False).filter(feed__in=label.feeds.all()).count(),
-        'faveCount': Article.objects.filter(fave=True).filter(feed__in=label.feeds.all()).count(),
+        **label.feeds.all().aggregate(
+            unreadCount=Sum('unread_count'),
+            faveCount=Sum('fave_count'),
+        ),
     }
 
 
