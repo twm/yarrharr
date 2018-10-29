@@ -158,7 +158,7 @@ class InventoryItem extends React.PureComponent {
                     </select>
                 </p>
                 <div className="inventory-tools">
-                    <button className="remove-button text-button text-button-danger" onClick={this.handleClickRemove}>Remove</button>
+                    <input className="remove-button text-button text-button-danger" type="button" value="Remove" onClick={this.handleClickRemove} />
                     <input className="text-button text-button-primary" type="submit" value="Save" />
                 </div>
             </form>
@@ -417,7 +417,7 @@ class LabelForm extends React.Component {
                 </select>
             </p>
             <div className="inventory-tools">
-                <button className="remove-button text-button text-button-danger" onClick={this.handleClickRemove}>Remove</button>
+                <input className="remove-button text-button text-button-danger" type="button" value="Remove" onClick={this.handleClickRemove} />
                 <input className="text-button text-button-primary" type="submit" value="Save" />
             </div>
         </form>
