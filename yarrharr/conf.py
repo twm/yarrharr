@@ -46,6 +46,9 @@ server_endpoint = tcp:8888:interface=127.0.0.1
 ; Must be kept in sync with server_endpoint, or may vary if proxying is in
 ; effect.
 external_url = http://127.0.0.1:8888
+; Is Yarrharr deployed behind a reverse proxy such as Apache or nginx?
+; If so, it will obey the X-Forwarded-For header.
+proxied = no
 static_root = /var/lib/yarrharr/static/
 ; URL of the files at static_root.  Normally this should only be overridden in
 ; development mode.
@@ -124,7 +127,7 @@ def read_yarrharr_conf(files, namespace):
             'PASSWORD': conf.get('db', 'password'),
             'HOST': conf.get('db', 'host'),
             'PORT': conf.get('db', 'port'),
-        }
+        },
     }
 
     external_url = urlparse(conf.get('yarrharr', 'external_url'))
@@ -135,6 +138,7 @@ def read_yarrharr_conf(files, namespace):
             external_url.path)
         raise ValueError(msg)
     namespace['ALLOWED_HOSTS'] = [external_url.hostname]
+    namespace['USE_X_FORWARDED_HOST'] = conf.getboolean('yarrharr', 'proxied')
 
     # Config for the Twisted production server.
     namespace['SERVER_ENDPOINT'] = conf.get('yarrharr', 'server_endpoint')
@@ -184,6 +188,7 @@ def read_yarrharr_conf(files, namespace):
 
     namespace['SESSION_ENGINE'] = 'django.contrib.sessions.backends.signed_cookies'
     namespace['SESSION_COOKIE_HTTPONLY'] = True
+    namespace['SESSION_COOKIE_SECURE'] = external_url.scheme == 'https'
 
     namespace['WSGI_APPLICATION'] = 'yarrharr.wsgi.application'
 
