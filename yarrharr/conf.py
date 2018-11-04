@@ -46,6 +46,10 @@ server_endpoint = tcp:8888:interface=127.0.0.1
 ; Must be kept in sync with server_endpoint, or may vary if proxying is in
 ; effect.
 external_url = http://127.0.0.1:8888
+; Is Yarrharr deployed behind a reverse proxy such as Apache, nginx, or
+; haproxy? Set to "x-forwarded" to respect the X-Forwarded-Host and
+; X-Forwarded-Port headers.
+proxied = no
 static_root = /var/lib/yarrharr/static/
 ; URL of the files at static_root.  Normally this should only be overridden in
 ; development mode.
@@ -124,17 +128,27 @@ def read_yarrharr_conf(files, namespace):
             'PASSWORD': conf.get('db', 'password'),
             'HOST': conf.get('db', 'host'),
             'PORT': conf.get('db', 'port'),
-        }
+        },
     }
 
     external_url = urlparse(conf.get('yarrharr', 'external_url'))
     if external_url.path != '':
         # Ensure that the URL doesn't contain a path, as some day we will
         # probably want to add the ability to add a prefix to the path.
-        msg = "external_url must not include path: remove {!r}".format(
-            external_url.path)
+        msg = "external_url must not include path: remove {!r}".format(external_url.path)
         raise ValueError(msg)
     namespace['ALLOWED_HOSTS'] = [external_url.hostname]
+
+    # The proxied config is an enumeration to ensure it can be extended to
+    # support the Forwarded header (RFC 7239) in the future. We require expicit
+    # configuration rather than auto-detecting these headers because the
+    # frontend proxy *must* be configured to strip whatever header is in use,
+    # lest clients be able to forge it.
+    proxied = conf.get('yarrharr', 'proxied')
+    if proxied not in {'no', 'x-forwarded'}:
+        msg = "proxied must be 'no' or 'x-forwarded', not {!r}".format(proxied)
+        raise ValueError(msg)
+    namespace['USE_X_FORWARDED_HOST'] = proxied == 'x-forwarded'
 
     # Config for the Twisted production server.
     namespace['SERVER_ENDPOINT'] = conf.get('yarrharr', 'server_endpoint')
@@ -184,6 +198,7 @@ def read_yarrharr_conf(files, namespace):
 
     namespace['SESSION_ENGINE'] = 'django.contrib.sessions.backends.signed_cookies'
     namespace['SESSION_COOKIE_HTTPONLY'] = True
+    namespace['SESSION_COOKIE_SECURE'] = external_url.scheme == 'https'
 
     namespace['WSGI_APPLICATION'] = 'yarrharr.wsgi.application'
 

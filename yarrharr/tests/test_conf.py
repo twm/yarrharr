@@ -108,6 +108,7 @@ class ConfTests(unittest.TestCase):
             'USE_I18N': True,
             'USE_L10N': True,
             'USE_TZ': True,
+            'USE_X_FORWARDED_HOST': False,
             'TIME_ZONE': 'UTC',
             'STATIC_ROOT': '/var/lib/yarrharr/static/',
             'STATIC_URL': '/static/',
@@ -134,6 +135,7 @@ class ConfTests(unittest.TestCase):
             ),
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
+            'SESSION_COOKIE_SECURE': False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -180,6 +182,7 @@ class ConfTests(unittest.TestCase):
             'USE_I18N': True,
             'USE_L10N': True,
             'USE_TZ': True,
+            'USE_X_FORWARDED_HOST': False,
             'TIME_ZONE': 'UTC',
             'STATIC_ROOT': 'yarrharr/static/',
             'STATIC_URL': '/static/',
@@ -207,6 +210,7 @@ class ConfTests(unittest.TestCase):
             ),
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
+            'SESSION_COOKIE_SECURE': False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -217,3 +221,29 @@ class ConfTests(unittest.TestCase):
             ),
             'LOGGING_CONFIG': None,
         })
+
+    def test_read_prod_proxy_config(self):
+        """
+        A configuration suitable for deployment behind a reverse proxy sets:
+
+          * ``external_url`` to the reverse proxy's external URL.
+          * ``proxied = x-forwarded`` to accept forwarded headers from the
+            proxy.
+        """
+        with NamedTemporaryFile() as f:
+            f.write(
+                b'[yarrharr]\n'
+                b'external_url = https://f.q.d.n\n'
+                b'server_endpoint = tcp:8182:interface=127.0.0.1\n'
+                b'proxied = x-forwarded\n'
+                b'[secrets]\n'
+                b'secret_key = sarlona\n',
+            )
+            f.flush()
+
+            settings = {}
+            read_yarrharr_conf([f.name], settings)
+
+        self.assertEqual(['f.q.d.n'], settings['ALLOWED_HOSTS'])
+        self.assertEqual('tcp:8182:interface=127.0.0.1', settings['SERVER_ENDPOINT'])
+        self.assertTrue(settings['USE_X_FORWARDED_HOST'])
