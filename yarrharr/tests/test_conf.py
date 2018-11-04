@@ -221,3 +221,29 @@ class ConfTests(unittest.TestCase):
             ),
             'LOGGING_CONFIG': None,
         })
+
+    def test_read_prod_proxy_config(self):
+        """
+        A configuration suitable for deployment behind a reverse proxy sets:
+
+          * ``external_url`` to the reverse proxy's external URL.
+          * ``proxied = x-forwarded`` to accept forwarded headers from the
+            proxy.
+        """
+        with NamedTemporaryFile() as f:
+            f.write(
+                b'[yarrharr]\n'
+                b'external_url = https://f.q.d.n\n'
+                b'server_endpoint = tcp:8182:interface=127.0.0.1\n'
+                b'proxied = x-forwarded\n'
+                b'[secrets]\n'
+                b'secret_key = sarlona\n',
+            )
+            f.flush()
+
+            settings = {}
+            read_yarrharr_conf([f.name], settings)
+
+        self.assertEqual(['f.q.d.n'], settings['ALLOWED_HOSTS'])
+        self.assertEqual('tcp:8182:interface=127.0.0.1', settings['SERVER_ENDPOINT'])
+        self.assertTrue(settings['USE_X_FORWARDED_HOST'])
