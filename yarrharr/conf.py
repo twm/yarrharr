@@ -47,7 +47,8 @@ server_endpoint = tcp:8888:interface=127.0.0.1
 ; effect.
 external_url = http://127.0.0.1:8888
 ; Is Yarrharr deployed behind a reverse proxy such as Apache, nginx, or
-; haproxy? Set to "x-forwarded-host" to respect that header.
+; haproxy? Set to "x-forwarded" to respect the X-Forwarded-Host and
+; X-Forwarded-Port headers.
 proxied = no
 static_root = /var/lib/yarrharr/static/
 ; URL of the files at static_root.  Normally this should only be overridden in
