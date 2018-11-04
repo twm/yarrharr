@@ -108,6 +108,7 @@ class ConfTests(unittest.TestCase):
             'USE_I18N': True,
             'USE_L10N': True,
             'USE_TZ': True,
+            'USE_X_FORWARDED_HOST': False,
             'TIME_ZONE': 'UTC',
             'STATIC_ROOT': '/var/lib/yarrharr/static/',
             'STATIC_URL': '/static/',
@@ -134,6 +135,7 @@ class ConfTests(unittest.TestCase):
             ),
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
+            'SESSION_COOKIE_SECURE': False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -180,6 +182,7 @@ class ConfTests(unittest.TestCase):
             'USE_I18N': True,
             'USE_L10N': True,
             'USE_TZ': True,
+            'USE_X_FORWARDED_HOST': False,
             'TIME_ZONE': 'UTC',
             'STATIC_ROOT': 'yarrharr/static/',
             'STATIC_URL': '/static/',
@@ -207,6 +210,7 @@ class ConfTests(unittest.TestCase):
             ),
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
+            'SESSION_COOKIE_SECURE': False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
