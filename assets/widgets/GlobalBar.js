@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
-import { HomeIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon } from 'widgets/icons.js';
+import { setTheme, THEME_LIGHT, THEME_DARK } from 'actions.js';
+import { HomeIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
 
 import { RootLink } from 'widgets/links.js';
 
@@ -41,6 +42,39 @@ export const ConnectedLayoutToggleLink = connect(state => {
 }, {
     onSetLayout: setLayout,
 })(LayoutToggleLink);
+
+
+export class ThemeToggle extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleClick = event => {
+            event.preventDefault();
+            const newTheme = this.props.theme === THEME_LIGHT ? THEME_DARK : THEME_LIGHT;
+            this.props.onSetTheme(newTheme);
+        };
+    }
+    render() {
+        const dark = this.props.theme === THEME_DARK;
+        const Image = dark ? SunIcon : MoonIcon;
+        const actionText = dark ? "Switch to light theme" : "Switch to dark theme";
+        return <button className="square" aria-pressed={dark} aria-label="Dark theme" onClick={this.handleClick} title={actionText}>
+            <Image aria-hidden={true} />
+        </button>;
+    }
+}
+
+if (__debug__) {
+    ThemeToggle.propTypes = {
+        theme: PropTypes.oneOf([THEME_LIGHT, THEME_DARK]).isRequired,
+        onSetTheme: PropTypes.func.isRequired,
+    };
+}
+
+export const ConnectedThemeToggle = connect(state => {
+    return {theme: state.theme};
+}, {
+    onSetTheme: setTheme,
+})(ThemeToggle);
 
 
 var fsEnabled, fsElProp, fsChangeEvent, fsErrorEvent, fsExitProp, fsRequestProp;
@@ -97,6 +131,7 @@ export class FullscreenToggle extends React.Component {
     }
     componentWillUnmount() {
         document.removeEventListener(fsChangeEvent, this.handleChange);
+        document.removeEventListener(fsErrorEvent, this.handleError);
     }
     render() {
         if (!fsEnabled) {
@@ -119,6 +154,7 @@ export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
             {this.props.children}
+            <ConnectedThemeTiggle />
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />
         </div>;

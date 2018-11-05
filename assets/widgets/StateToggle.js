@@ -20,7 +20,7 @@ export class ReadToggleLink extends React.PureComponent {
             return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
         const actionText = read ? "Mark unread" : "Mark read"
-        return <button className="read-toggle square" tabIndex="0" aria-pressed={read} aria-label="Read" title={actionText} href="#" onClick={this.handleClick}>
+        return <button className="read-toggle square" aria-pressed={read} aria-label="Read" title={actionText} onClick={this.handleClick}>
             <svg width="1em" height="1em" viewBox="-10 -10 20 20" aria-hidden={true} className={this.props.iconClass}>
                 <circle cx="0" cy="0" r="7" />
                 <path d="M-7 2 l 5 5 l 9 -11" />
