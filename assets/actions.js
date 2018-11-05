@@ -18,6 +18,27 @@ export function validLayout(layout) {
     return false;
 }
 
+export const SET_THEME = 'SET_THEME';
+export const THEME_LIGHT = 'light';
+export const THEME_DARK = 'dark';
+export function setTheme(theme) {
+    if (__debug__ && !validTheme(theme)) {
+        throw new Error(`Invalid theme '${theme}'`);
+    }
+    return {
+        type: SET_THEME,
+        theme,
+    };
+}
+export function validTheme(theme) {
+    switch (theme) {
+        case THEME_LIGHT:
+        case THEME_DARK:
+            return true;
+    }
+    return false;
+}
+
 export const SET_SNAPSHOT_PARAMS = 'SET_SNAPSHOT_PARAMS';
 
 export const FILTER_UNREAD = 'unread';
