@@ -87,6 +87,7 @@ class ConfTests(unittest.TestCase):
             read_yarrharr_conf([f.name], settings)
 
         self.assertEqual(settings, {
+            'ATOMIC_REQUESTS': True,
             'DEBUG': False,
             'DATABASES': {
                 'default': {
@@ -160,6 +161,7 @@ class ConfTests(unittest.TestCase):
             f.close()
 
         self.assertEqual(settings, {
+            'ATOMIC_REQUESTS': True,
             'DEBUG': True,
             'DATABASES': {
                 'default': {

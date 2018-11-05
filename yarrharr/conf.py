@@ -130,6 +130,7 @@ def read_yarrharr_conf(files, namespace):
             'PORT': conf.get('db', 'port'),
         },
     }
+    namespace['ATOMIC_REQUESTS'] = True
 
     external_url = urlparse(conf.get('yarrharr', 'external_url'))
     if external_url.path != '':

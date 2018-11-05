@@ -24,6 +24,7 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from django.db import transaction
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -173,3 +174,184 @@ class ArticleSetContentTests(TestCase):
 
         self.assertEqual('TITLE', self.article.title)
         self.assertEqual('content content content', self.article.content_snippet)
+
+
+class FeedArticleCountTriggerTests(TestCase):
+    """
+    Test the SQL triggers which update the `Feed.all_count`,
+    `Feed.unread_count`, and `Feed.fave_count` fields when articles are
+    updated.
+
+    :ivar int feed_id:
+        Primary key of the feed created by setUp() that is associated with the
+        article.
+    :ivar int other_feed_id:
+        Primary key of a feed created by setUp() that is *not* associated with
+        any articles. The counts of this feed should remain zero.
+    :ivar int article_id:
+        Primary key of the article created by setUp().
+    """
+    @classmethod
+    def setUpTestData(cls):
+        f1 = Feed.objects.create(
+            user=User.objects.create_user(
+                username='user',
+                email='user@mailhost.example',
+                password='sesame',
+            ),
+            url='https://feed.example/1',
+            added=timezone.now(),
+            next_check=timezone.now(),
+            feed_title='Feed with articles',
+        )
+        f2 = Feed.objects.create(
+            user=f1.user,
+            url='https://feed.example/2',
+            added=timezone.now(),
+            next_check=timezone.now(),
+            feed_title='Feed without articles',
+        )
+        a = Article.objects.create(
+            read=False,
+            fave=False,
+            feed=f1,
+            author='',
+            url='https://feed.example/1',
+            date=timezone.now(),
+            guid='1',
+        )
+
+        cls.feed_id = f1.pk
+        cls.other_feed_id = f2.pk
+        cls.article_id = a.pk
+
+    def assertCounts(self, *, all, unread, fave):
+        """
+        Assert the state of the feed's counters.
+
+        This always goes to the database.
+
+        :returns: (all, unread, fave) tuple of counts
+        """
+        f1 = Feed.objects.get(pk=self.feed_id)
+        f2 = Feed.objects.get(pk=self.other_feed_id)
+        self.assertEqual({
+            'all': all,
+            'unread': unread,
+            'fave': fave,
+        }, {
+            'all': f1.all_count,
+            'unread': f1.unread_count,
+            'fave': f1.fave_count,
+        })
+        self.assertEqual((0, 0, 0), (f2.all_count, f2.unread_count, f2.fave_count))
+
+    def test_initial(self):
+        """
+        Test the initial feed counts.
+        """
+        self.assertCounts(all=1, unread=1, fave=0)
+
+    def test_mark_read(self):
+        """
+        Marking an article read decrements the unread count.
+        """
+        a = Article.objects.get(pk=self.article_id)
+        a.read = True
+        a.save()
+
+        self.assertCounts(all=1, unread=0, fave=0)
+
+        a.read = True
+        a.save()
+
+        self.assertCounts(all=1, unread=0, fave=0)
+
+        a.read = False
+        a.save()
+
+        self.assertCounts(all=1, unread=1, fave=0)
+
+    def test_mark_fave(self):
+        """
+        Marking an article fave increments the fave count, and vice-versa.
+        """
+        a = Article.objects.get(pk=self.article_id)
+        a.fave = True
+        a.save()
+
+        self.assertCounts(all=1, unread=1, fave=1)
+
+        a.fave = False
+        a.save()
+
+        self.assertCounts(all=1, unread=1, fave=0)
+
+    def test_create_article(self):
+        """
+        Creating and deleting articles increments the counters according to the
+        flags on the article.
+        """
+        kw = dict(feed_id=self.feed_id, author='', url='https://feed.example/2', date=timezone.now(), guid='2')
+
+        a2 = Article.objects.create(read=False, fave=False, **kw)
+        self.assertCounts(all=2, unread=2, fave=0)
+
+        a3 = Article.objects.create(read=True, fave=True, **kw)
+        self.assertCounts(all=3, unread=2, fave=1)
+
+        a2.delete()
+        self.assertCounts(all=2, unread=1, fave=1)
+
+        a3.delete()
+        self.assertCounts(all=1, unread=1, fave=0)
+
+    def test_bulk(self):
+        """
+        A transaction involving multiple articles updates the counters
+        correctly in aggregate. This test:
+
+          1. Creates 10 articles in a transaction, all unread and faved.
+          2. Checks the counters increased by 10.
+          3. Bulk marks read 5 of them.
+          4. Checks the unread counter decreased by 5.
+          5. Deletes 5 of those articles in another transaction.
+          4. Checks the counters decreased by 5.
+        """
+        with transaction.atomic():
+            articles = [
+                Article.objects.create(
+                    read=False,
+                    fave=True,
+                    feed_id=self.feed_id,
+                    author='',
+                    url='https://feed.example/' + str(i),
+                    date=timezone.now(),
+                    guid=str(i),
+                ) for i in range(10)
+            ]
+        self.assertCounts(all=11, unread=11, fave=10)
+
+        Article.objects.filter(id__in=[a.pk for a in articles[:5]]).update(read=True)
+        self.assertCounts(all=11, unread=6, fave=10)
+
+        Article.objects.filter(id__in=[a.pk for a in articles[-5:]]).update(fave=False)
+        self.assertCounts(all=11, unread=6, fave=5)
+
+        with transaction.atomic():
+            for a in articles[-5:]:
+                a.delete()
+        self.assertCounts(all=6, unread=1, fave=5)
+
+    def test_reset(self):
+        """
+        Updates which don't actually change the value of flags don't change
+        counters.
+        """
+        qs = Article.objects.filter(pk=self.article_id)
+
+        qs.update(read=False)
+        self.assertCounts(all=1, unread=1, fave=0)
+
+        qs.update(fave=False)
+        self.assertCounts(all=1, unread=1, fave=0)
