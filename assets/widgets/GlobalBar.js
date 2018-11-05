@@ -154,7 +154,7 @@ export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
             {this.props.children}
-            <ConnectedThemeTiggle />
+            <ConnectedThemeToggle />
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />
         </div>;
