@@ -10,6 +10,8 @@
     --background-color: white;
     --text-color: black;
     --quiet-text-color: lighten(black, 40%);
+    --footer-background-color: #fafafa;
+    --foter-text-color: #141414;
 
     --border-color: #ddd;
     --icon-color: #666;
@@ -115,7 +117,7 @@ select[multiple] {
     .form-item-layout;
 
     color: var(--text-color);
-    background: white;
+    background: var(--background-color);
     border: @button_border_width solid var(--border-color);
     transition: border-color 0.05s;
 
@@ -320,6 +322,6 @@ form.small-form {
 footer {
     padding: 3em 0.25em;
     text-align: center;
-    background: #fafafa;
-    color: #141414;
+    background: var(--footer-background-color);
+    color: var(--footer-text-color):
 }
