@@ -17,6 +17,7 @@ import ReactDOM from 'react-dom';
 import './base.less';
 import syncViewOptions from './syncViewOptions.js';
 import syncLocation from './syncLocation.js';
+import syncThemeClass from './syncThemeClass.jsm';
 
 import { ConnectedRouter } from './router.js'
 import { ConnectedYarrharr } from './widgets/Yarrharr.js';
@@ -41,6 +42,7 @@ if (appElement && propsElement) {
     const store = createStore(reducer, preloadedState, applyMiddleware.apply(null, middleware));
 
     syncViewOptions(store, window);
+    syncThemeClass(store, document.documentElement);
     syncLocation(store, window);
 
     ReactDOM.render(

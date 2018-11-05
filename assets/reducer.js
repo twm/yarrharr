@@ -276,6 +276,18 @@ function layoutReducer(state = LAYOUT_NARROW, action) {
 }
 
 
+import { SET_THEME, THEME_LIGHT, THEME_DARK, validTheme } from './actions.js';
+function themeReducer(state = THEME_LIGHT, action) {
+    if (action.type === SET_THEME) {
+        if (__debug__ && !validTheme(action.theme)) {
+            throw new Error("invalid theme " + action.theme);
+        }
+        return action.theme;
+    }
+    return state;
+}
+
+
 export default combineReducers({
     route: routeReducer,
     articlesById: articleReducer,
@@ -285,4 +297,5 @@ export default combineReducers({
     labelsById: labelReducer,
     labelOrder: labelOrderReducer,
     layout: layoutReducer,
+    theme: themeReducer,
 });

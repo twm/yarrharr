@@ -10,6 +10,8 @@
     --background-color: white;
     --text-color: black;
     --quiet-text-color: lighten(black, 40%);
+    --footer-background-color: #fafafa;
+    --foter-text-color: #141414;
 
     --border-color: #ddd;
     --icon-color: #666;
@@ -21,6 +23,19 @@
     --focus-color: #0098ff;
     --selected-color: hsl(24.1, 100%, 49.2%);
 }
+
+:root.theme-dark {
+    --background-color: black;
+    --text-color: white;
+    --quiet-text-color: darken(white, 40%);
+    --footer-background-color: #111;
+    --footer-text-color: #eee;
+
+    --border-color: #222;
+    --icon-color: #eee;
+    --hover-background-color: #111;
+}
+
 .layout-wide {
     --layout-max-width: none;
 }
@@ -115,13 +130,13 @@ select[multiple] {
     .form-item-layout;
 
     color: var(--text-color);
-    background: white;
+    background: var(--background-color);
     border: @button_border_width solid var(--border-color);
     transition: border-color 0.05s;
 
     &:focus {
         --border-color: var(--focus-color);
-        box-shadow: inset 0 0 0 1.5px white;
+        box-shadow: inset 0 0 0 1.5px var(--background-color);
         outline: none;
     }
     & ::placeholder {
@@ -320,6 +335,6 @@ form.small-form {
 footer {
     padding: 3em 0.25em;
     text-align: center;
-    background: #fafafa;
-    color: #141414;
+    background: var(--footer-background-color);
+    color: var(--footer-text-color);
 }

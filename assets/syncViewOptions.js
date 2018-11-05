@@ -1,5 +1,5 @@
-import { setView, setLayout, setOrder } from './actions.js';
-import { validView, validLayout, validOrder } from './actions.js';
+import { setLayout, setOrder, setTheme } from './actions.js';
+import { validLayout, validOrder, validTheme } from './actions.js';
 
 const __debug__ = process.env.NODE_ENV !== 'production';
 
@@ -19,11 +19,12 @@ const __debug__ = process.env.NODE_ENV !== 'production';
 export default function syncViewOptions(store, window) {
     const storage = window.localStorage;
 
-    var layout, order;
+    var layout, order, theme;
 
     function readFromLocalStorage() {
         var storedLayout = storage.getItem('layout');
         var storedOrder = storage.getItem('order');
+        var storedTheme = storage.getItem('theme');
 
         // If the key is not present in the Storage then we will get null, which
         // will fail the validity check.
@@ -35,6 +36,10 @@ export default function syncViewOptions(store, window) {
             store.dispatch(setOrder(storedOrder));
             order = storedOrder;
         }
+        if (validTheme(storedTheme)) {
+            store.dispatch(setTheme(storedTheme));
+            theme = storedTheme;
+        }
     }
 
     readFromLocalStorage();
@@ -44,15 +49,18 @@ export default function syncViewOptions(store, window) {
         const state = store.getState();
         if (state.layout !== layout
                 || state.snapshot.order !== order
+                || state.theme !== theme
         ) {
-            if (__debug__) {
-                console.log('Writing layout and order to localStorage');
-            }
             layout = state.layout;
             order = state.snapshot.order;
+            theme = state.theme;
+            if (__debug__) {
+                console.log('Writing layout=%s, order=%s, and theme=%s to localStorage', layout, order, theme);
+            }
             try {
                 storage.setItem('layout', layout);
                 storage.setItem('order', order);
+                storage.setItem('theme', theme);
             } catch(e) {
                 // Safari in private browsing mode?  Oh well.
                 if (__debug__) {
