@@ -23,10 +23,12 @@
 # the resulting work.  Corresponding Source for a non-source form of
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
+from datetime import timedelta
 
 from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
+from django.utils import timezone
 
 from . import sanitize
 
@@ -112,6 +114,19 @@ class Feed(models.Model):
 
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
+
+    def schedule(self):
+        """
+        Update the `next_check` timestamp.
+        """
+        if self.next_check is None:
+            # The feed was disabled while we were checking it. Do not schedule
+            # another check.
+            #
+            # XXX: We could still clobber the field due to read-modify-write.
+            return
+
+        self.next_check = timezone.now() + timedelta(days=1)
 
 
 class Article(models.Model):
