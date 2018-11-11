@@ -106,14 +106,21 @@ class FeedScheduleTests(TestCase):
         now_patch.start()
         self.addCleanup(now_patch.stop)
 
-    def add_article(self, date):
+    def add_article(self, since):
+        """
+        Add an article to :attr:`.feed`.
+
+        :param since: How long has it been since the article was posted?
+            Subtracted from :attr:`.now` to produce the article's date.
+        :type since: datetime.timedelta
+        """
         self.feed.articles.create(
             read=False,
             fave=False,
             author='',
             title='Article',
             url='https://feed.example/article',
-            date=date,
+            date=self.now - since,
             guid='',
             raw_content='...',
             content='...',
@@ -143,7 +150,7 @@ class FeedScheduleTests(TestCase):
         A single article is not enough to establish a pattern, so the default
         of one day hence applies.
         """
-        self.add_article(self.now - timedelta(days=1))
+        self.add_article(timedelta(days=1))
 
         self.feed.schedule()
 
@@ -153,9 +160,9 @@ class FeedScheduleTests(TestCase):
         """
         The ideal delay is computed as the minimum gap between recent articles.
         """
-        self.add_article(self.now - timedelta(days=1, minutes=90))
-        self.add_article(self.now - timedelta(days=1, minutes=30))  # +60m
-        self.add_article(self.now - timedelta(days=1))              # +30m
+        self.add_article(timedelta(days=1, minutes=90))
+        self.add_article(timedelta(days=1, minutes=30))  # +60m
+        self.add_article(timedelta(days=1))              # +30m
 
         self.feed.schedule()
 
@@ -166,11 +173,11 @@ class FeedScheduleTests(TestCase):
         When the minimum gap between articles is less than the 15 minute
         minimum, the minimum applies.
         """
-        self.add_article(self.now - timedelta(days=1, minutes=1))
-        self.add_article(self.now - timedelta(days=1, seconds=1))  # +59s
-        self.add_article(self.now - timedelta(days=1))             # +1s
-        self.add_article(self.now - timedelta(days=1))             # +0
-        self.add_article(self.now - timedelta(days=1))             # +0
+        self.add_article(timedelta(days=1, minutes=1))
+        self.add_article(timedelta(days=1, seconds=1))  # +59s
+        self.add_article(timedelta(days=1))             # +1s
+        self.add_article(timedelta(days=1))             # +0
+        self.add_article(timedelta(days=1))             # +0
 
         self.feed.schedule()
 
@@ -181,9 +188,9 @@ class FeedScheduleTests(TestCase):
         When the minimum gap between articles exceeds the 1 day maximum, the
         maximum applies.
         """
-        self.add_article(self.now - timedelta(days=12))
-        self.add_article(self.now - timedelta(days=10))  # +2d
-        self.add_article(self.now - timedelta(days=7))   # +3d
+        self.add_article(timedelta(days=12))
+        self.add_article(timedelta(days=10))  # +2d
+        self.add_article(timedelta(days=7))   # +3d
 
         self.feed.schedule()
 
@@ -195,8 +202,8 @@ class FeedScheduleTests(TestCase):
         scheduling decisions. Here, there are two articles 30 minutes apart but
         they are 15 days old, so the default interval applies.
         """
-        self.add_article(self.now - timedelta(days=15, minutes=30))
-        self.add_article(self.now - timedelta(days=15))  # +30m
+        self.add_article(timedelta(days=15, minutes=30))
+        self.add_article(timedelta(days=15))  # +30m
 
         self.feed.schedule()
 
