@@ -319,7 +319,7 @@ def updateFeeds(reactor, max_fetch=5):
 
     d = poll(reactor, max_fetch)
     # Last gasp error handler to avoid terminating the LoopingCall.
-    d.addErrback(log.failure, "Unexpected failure polling feeds")
+    d.addErrback(lambda f: log.failure("Unexpected failure polling feeds", f))
     return d
 
 
@@ -524,7 +524,7 @@ def run():
 
     updateLoop = AdaptiveLoopingCall(reactor, lambda: updateFeeds(reactor))
     loopEndD = updateLoop.start()
-    loopEndD.addErrback(log.failure, "Polling loop broke")
+    loopEndD.addErrback(lambda f: log.failure("Polling loop broke", f))
 
     @receiver(schedule_changed)
     def threadPollNow(sender, **kwargs):
