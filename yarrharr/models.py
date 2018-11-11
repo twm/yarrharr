@@ -129,19 +129,19 @@ class Feed(models.Model):
             return
 
         now = self._now()
-        article_dates = (
+        article_dates = list(
             self.articles
             .filter(date__gt=now - timedelta(weeks=2), date__lt=now)
             .order_by('-date')
-            .values_list('date', flat=True)
+            .values_list('date', flat=True)[:100],
         )
 
         if len(article_dates) >= 2:
-            delta = min(second - first
+            delta = min(first - second
                         for first, second
                         in zip(article_dates[:-1], article_dates[1:]))
         else:
-            delta = timedelta(days=1)
+            delta = timedelta(days=2)
 
         min_delta = timedelta(minutes=15)
         if delta < min_delta:

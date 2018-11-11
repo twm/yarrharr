@@ -119,14 +119,24 @@ class FeedScheduleTests(TestCase):
             content='...',
         )
 
+    def assert_scheduled(self, expected):
+        """
+        :param expected: How soon the next check should be relative to :attr:`now`.
+        :type expected: datetime.timedelta
+        """
+        actual = self.feed.next_check - self.now
+        self.assertEqual(expected, actual, (
+            '\nNext check should be {} from'
+            '\nnow, but found it is {} from now.'
+        ).format(expected, actual))
+
     def test_no_articles(self):
         """
         When no articles are present the next check is scheduled for a day hence.
         """
         self.feed.schedule()
 
-        self.assertEqual(self.now + timedelta(days=1),
-                         self.feed.next_check)
+        self.assert_scheduled(timedelta(days=1))
 
     def test_one_article(self):
         """
@@ -137,17 +147,60 @@ class FeedScheduleTests(TestCase):
 
         self.feed.schedule()
 
-        self.assertEqual(self.now + timedelta(days=1),
-                         self.feed.next_check)
+        self.assert_scheduled(timedelta(days=1))
 
     def test_take_minimum(self):
-        ...
+        """
+        The ideal delay is computed as the minimum gap between recent articles.
+        """
+        self.add_article(self.now - timedelta(days=1, minutes=90))
+        self.add_article(self.now - timedelta(days=1, minutes=30))  # +60m
+        self.add_article(self.now - timedelta(days=1))              # +30m
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(minutes=30))
 
     def test_15min_minimum(self):
-        ...
+        """
+        When the minimum gap between articles is less than the 15 minute
+        minimum, the minimum applies.
+        """
+        self.add_article(self.now - timedelta(days=1, minutes=1))
+        self.add_article(self.now - timedelta(days=1, seconds=1))  # +59s
+        self.add_article(self.now - timedelta(days=1))             # +1s
+        self.add_article(self.now - timedelta(days=1))             # +0
+        self.add_article(self.now - timedelta(days=1))             # +0
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(minutes=15))
 
     def test_1day_max(self):
-        ...
+        """
+        When the minimum gap between articles exceeds the 1 day maximum, the
+        maximum applies.
+        """
+        self.add_article(self.now - timedelta(days=12))
+        self.add_article(self.now - timedelta(days=10))  # +2d
+        self.add_article(self.now - timedelta(days=7))   # +3d
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(days=1))
+
+    def test_too_old(self):
+        """
+        Only articles from the last two weeks are considered when making
+        scheduling decisions. Here, there are two articles 30 minutes apart but
+        they are 15 days old, so the default interval applies.
+        """
+        self.add_article(self.now - timedelta(days=15, minutes=30))
+        self.add_article(self.now - timedelta(days=15))  # +30m
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(days=1))
 
 
 class ArticleTests(TestCase):
