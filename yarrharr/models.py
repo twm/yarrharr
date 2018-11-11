@@ -120,6 +120,15 @@ class Feed(models.Model):
     def schedule(self):
         """
         Update the `next_check` timestamp.
+
+        This has no effect when checking of the feed is disabled. Otherwise, it
+        attempts to guess how frequently the feed updates based on the dates of
+        articles from the last two weeks. This guess is the minimum time between
+        articles, clamped to between 15 minutes and 1 day.
+
+        Only inspecting recent articles allows a feed which goes dead to "age
+        out" to the default of 1 day. When no articles are known the default
+        interval is 1 day.
         """
         if self.next_check is None:
             # The feed was disabled while we were checking it. Do not schedule
