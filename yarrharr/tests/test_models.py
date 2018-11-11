@@ -137,6 +137,18 @@ class FeedScheduleTests(TestCase):
             '\nnow, but found it is {} from now.'
         ).format(expected, actual))
 
+    def test_disabled(self):
+        """
+        `schedule()` has no effect when checking has been disabled by setting
+        `next_check` to None.
+        """
+        self.feed.next_check = None
+        self.feed.save()
+
+        self.feed.schedule()
+
+        self.assertIs(None, self.feed.next_check)
+
     def test_no_articles(self):
         """
         When no articles are present the next check is scheduled for a day hence.
