@@ -23,6 +23,8 @@
 # the resulting work.  Corresponding Source for a non-source form of
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
+from datetime import timedelta
+from unittest.mock import patch
 
 from django.db import transaction
 from django.test import TestCase
@@ -70,6 +72,82 @@ class FeedTests(TestCase):
         self.assertEqual(u'My Example Feed', f.title)
         self.assertEqual(u'My Example Feed <https://feed.example/>',
                          u'{}'.format(f))
+
+
+class FeedScheduleTests(TestCase):
+    """
+    Test `Feed.schedule()`
+
+    :ivar now: aware `datetime.datetime` representing the current time. The
+        `Feed` class is patched so that it always gets this time.
+
+    :ivar feed: `Feed` instance under test. The feed has no articles unless
+        they are added in the test (see :meth:`.add_article()`).
+    """
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create_user(
+            username='threads',
+            email='threads@mailhost.example',
+            password='sesame',
+        )
+        cls.feed = user.feed_set.create(
+            url='https://feed.example',
+            added=timezone.now(),
+            next_check=timezone.now(),
+            feed_title=u'Feed',
+            user_title=u'',
+        )
+
+    def setUp(self):
+        self.now = timezone.now()
+        now_patch = patch('yarrharr.models.Feed._now',
+                          new=staticmethod(lambda: self.now))
+        now_patch.start()
+        self.addCleanup(now_patch.stop)
+
+    def add_article(self, date):
+        self.feed.articles.create(
+            read=False,
+            fave=False,
+            author='',
+            title='Article',
+            url='https://feed.example/article',
+            date=date,
+            guid='',
+            raw_content='...',
+            content='...',
+        )
+
+    def test_no_articles(self):
+        """
+        When no articles are present the next check is scheduled for a day hence.
+        """
+        self.feed.schedule()
+
+        self.assertEqual(self.now + timedelta(days=1),
+                         self.feed.next_check)
+
+    def test_one_article(self):
+        """
+        A single article is not enough to establish a pattern, so the default
+        of one day hence applies.
+        """
+        self.add_article(self.now - timedelta(days=1))
+
+        self.feed.schedule()
+
+        self.assertEqual(self.now + timedelta(days=1),
+                         self.feed.next_check)
+
+    def test_take_minimum(self):
+        ...
+
+    def test_15min_minimum(self):
+        ...
+
+    def test_1day_max(self):
+        ...
 
 
 class ArticleTests(TestCase):

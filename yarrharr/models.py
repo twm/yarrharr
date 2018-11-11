@@ -112,6 +112,8 @@ class Feed(models.Model):
     unread_count = models.IntegerField(default=0)
     fave_count = models.IntegerField(default=0)
 
+    _now = staticmethod(timezone.now)
+
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
 
@@ -126,7 +128,7 @@ class Feed(models.Model):
             # XXX: We could still clobber the field due to read-modify-write.
             return
 
-        now = timezone.now()
+        now = self._now()
         article_dates = (
             self.articles
             .filter(date__gt=now - timedelta(weeks=2), date__lt=now)
@@ -134,12 +136,12 @@ class Feed(models.Model):
             .values_list('date', flat=True)
         )
 
-        if len(article_dates) > 2:
+        if len(article_dates) >= 2:
             delta = min(second - first
                         for first, second
                         in zip(article_dates[:-1], article_dates[1:]))
         else:
-            delta = timedelta()
+            delta = timedelta(days=1)
 
         min_delta = timedelta(minutes=15)
         if delta < min_delta:
