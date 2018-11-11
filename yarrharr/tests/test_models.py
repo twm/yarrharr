@@ -24,7 +24,6 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 from datetime import timedelta
-from unittest.mock import patch
 
 from django.db import transaction
 from django.test import TestCase
@@ -91,20 +90,18 @@ class FeedScheduleTests(TestCase):
             email='threads@mailhost.example',
             password='sesame',
         )
-        cls.feed = user.feed_set.create(
+        cls.now = timezone.now()
+        cls.feed_id = user.feed_set.create(
             url='https://feed.example',
-            added=timezone.now(),
-            next_check=timezone.now(),
+            added=cls.now,
+            next_check=cls.now,
             feed_title=u'Feed',
             user_title=u'',
-        )
+        ).pk
 
     def setUp(self):
-        self.now = timezone.now()
-        now_patch = patch('yarrharr.models.Feed._now',
-                          new=staticmethod(lambda: self.now))
-        now_patch.start()
-        self.addCleanup(now_patch.stop)
+        self.feed = Feed.objects.get(pk=self.feed_id)
+        self.feed._now = lambda: self.now
 
     def add_article(self, since):
         """
