@@ -200,6 +200,7 @@ def read_yarrharr_conf(files, namespace):
     namespace['SESSION_ENGINE'] = 'django.contrib.sessions.backends.signed_cookies'
     namespace['SESSION_COOKIE_HTTPONLY'] = True
     namespace['SESSION_COOKIE_SECURE'] = external_url.scheme == 'https'
+    namespace['CSRF_TOKEN_SECURE'] = external_url.scheme == 'https'
 
     namespace['WSGI_APPLICATION'] = 'yarrharr.wsgi.application'
 

@@ -137,6 +137,7 @@ class ConfTests(unittest.TestCase):
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
             'SESSION_COOKIE_SECURE': False,
+            'CSRF_TOKEN_SECURE': False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -213,6 +214,7 @@ class ConfTests(unittest.TestCase):
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
             'SESSION_COOKIE_SECURE': False,
+            'CSRF_TOKEN_SECURE': False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -249,3 +251,5 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(['f.q.d.n'], settings['ALLOWED_HOSTS'])
         self.assertEqual('tcp:8182:interface=127.0.0.1', settings['SERVER_ENDPOINT'])
         self.assertTrue(settings['USE_X_FORWARDED_HOST'])
+        self.assertTrue(settings['SESSION_COOKIE_SECURE'])
+        self.assertTrue(settings['CSRF_TOKEN_SECURE'])
