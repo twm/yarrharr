@@ -31,7 +31,7 @@ Feed fetcher based on Twisted Web
 from __future__ import unicode_literals, print_function
 
 from io import BytesIO
-from datetime import datetime, timedelta
+from datetime import datetime
 import hashlib
 import html
 
@@ -80,7 +80,7 @@ class BadStatus(object):
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u'Fetch failed: HTTP status {}'.format(self.code)
-        schedule(feed)
+        feed.schedule()
         feed.save()
 
 
@@ -96,7 +96,7 @@ class Unchanged(object):
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = u''
-        schedule(feed)
+        feed.schedule()
         feed.save()
 
 
@@ -142,7 +142,7 @@ class MaybeUpdated(object):
             # except Exception:
             #     log.failure("Failed to upsert {upsert}", upsert=upsert)
 
-        schedule(feed)
+        feed.schedule()
         feed.save()
 
     def _match_article(self, feed, upsert):
@@ -272,7 +272,7 @@ class BozoError(object):
         feed.digest = b''
         feed.error = u'Fetch failed: processing HTTP {} {} response produced error: {}'.format(
             self.code, self.content_type, self.error)
-        schedule(feed)
+        feed.schedule()
         feed.save()
 
 
@@ -288,7 +288,7 @@ class NetworkError(object):
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = self.error
-        schedule(feed)
+        feed.schedule()
         feed.save()
 
 
@@ -305,7 +305,7 @@ class PollError(object):
     def persist(self, feed):
         feed.last_checked = timezone.now()
         feed.error = self.failure.getTraceback()
-        schedule(feed)
+        feed.schedule()
         feed.save()
 
 
@@ -561,19 +561,6 @@ def persist_outcomes(outcomes):
                 # any update as it doesn't matter any more.
                 continue
             outcome.persist(feed)
-
-
-def schedule(feed):
-    """
-    Update the `next_check` timestamp on a feed.
-    """
-    if feed.next_check is None:
-        # The feed was disabled while we were checking it. Do not schedule
-        # another check.
-        return
-    # TODO: Schedule the next check according to how frequently new articles
-    # are posted.
-    feed.next_check = timezone.now() + timedelta(days=1)
 
 
 def as_datetime(t):

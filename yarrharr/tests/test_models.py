@@ -23,6 +23,7 @@
 # the resulting work.  Corresponding Source for a non-source form of
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
+from datetime import timedelta
 
 from django.db import transaction
 from django.test import TestCase
@@ -70,6 +71,152 @@ class FeedTests(TestCase):
         self.assertEqual(u'My Example Feed', f.title)
         self.assertEqual(u'My Example Feed <https://feed.example/>',
                          u'{}'.format(f))
+
+
+class FeedScheduleTests(TestCase):
+    """
+    Test `Feed.schedule()`
+
+    :ivar now: aware `datetime.datetime` representing the current time. The
+        `Feed` class is patched so that it always gets this time.
+
+    :ivar feed: `Feed` instance under test. The feed has no articles unless
+        they are added in the test (see :meth:`.add_article()`).
+    """
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create_user(
+            username='threads',
+            email='threads@mailhost.example',
+            password='sesame',
+        )
+        cls.now = timezone.now()
+        cls.feed_id = user.feed_set.create(
+            url='https://feed.example',
+            added=cls.now,
+            next_check=cls.now,
+            feed_title=u'Feed',
+            user_title=u'',
+        ).pk
+
+    def setUp(self):
+        self.feed = Feed.objects.get(pk=self.feed_id)
+        self.feed._now = lambda: self.now
+
+    def add_article(self, since):
+        """
+        Add an article to :attr:`.feed`.
+
+        :param since: How long has it been since the article was posted?
+            Subtracted from :attr:`.now` to produce the article's date.
+        :type since: datetime.timedelta
+        """
+        self.feed.articles.create(
+            read=False,
+            fave=False,
+            author='',
+            title='Article',
+            url='https://feed.example/article',
+            date=self.now - since,
+            guid='',
+            raw_content='...',
+            content='...',
+        )
+
+    def assert_scheduled(self, expected):
+        """
+        :param expected: How soon the next check should be relative to :attr:`now`.
+        :type expected: datetime.timedelta
+        """
+        actual = self.feed.next_check - self.now
+        self.assertEqual(expected, actual, (
+            '\nNext check should be {} from'
+            '\nnow, but found it is {} from now.'
+        ).format(expected, actual))
+
+    def test_disabled(self):
+        """
+        `schedule()` has no effect when checking has been disabled by setting
+        `next_check` to None.
+        """
+        self.feed.next_check = None
+        self.feed.save()
+
+        self.feed.schedule()
+
+        self.assertIs(None, self.feed.next_check)
+
+    def test_no_articles(self):
+        """
+        When no articles are present the next check is scheduled for a day hence.
+        """
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(days=1))
+
+    def test_one_article(self):
+        """
+        A single article is not enough to establish a pattern, so the default
+        of one day hence applies.
+        """
+        self.add_article(timedelta(days=1))
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(days=1))
+
+    def test_take_minimum(self):
+        """
+        The ideal delay is computed as the minimum gap between recent articles.
+        """
+        self.add_article(timedelta(days=1, minutes=90))
+        self.add_article(timedelta(days=1, minutes=30))  # +60m
+        self.add_article(timedelta(days=1))              # +30m
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(minutes=30))
+
+    def test_15min_minimum(self):
+        """
+        When the minimum gap between articles is less than the 15 minute
+        minimum, the minimum applies.
+        """
+        self.add_article(timedelta(days=1, minutes=1))
+        self.add_article(timedelta(days=1, seconds=1))  # +59s
+        self.add_article(timedelta(days=1))             # +1s
+        self.add_article(timedelta(days=1))             # +0
+        self.add_article(timedelta(days=1))             # +0
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(minutes=15))
+
+    def test_1day_max(self):
+        """
+        When the minimum gap between articles exceeds the 1 day maximum, the
+        maximum applies.
+        """
+        self.add_article(timedelta(days=12))
+        self.add_article(timedelta(days=10))  # +2d
+        self.add_article(timedelta(days=7))   # +3d
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(days=1))
+
+    def test_too_old(self):
+        """
+        Only articles from the last two weeks are considered when making
+        scheduling decisions. Here, there are two articles 30 minutes apart but
+        they are 15 days old, so the default interval applies.
+        """
+        self.add_article(timedelta(days=15, minutes=30))
+        self.add_article(timedelta(days=15))  # +30m
+
+        self.feed.schedule()
+
+        self.assert_scheduled(timedelta(days=1))
 
 
 class ArticleTests(TestCase):

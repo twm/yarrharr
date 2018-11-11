@@ -23,10 +23,12 @@
 # the resulting work.  Corresponding Source for a non-source form of
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
+from datetime import timedelta
 
 from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
+from django.utils import timezone
 
 from . import sanitize
 
@@ -110,8 +112,53 @@ class Feed(models.Model):
     unread_count = models.IntegerField(default=0)
     fave_count = models.IntegerField(default=0)
 
+    _now = staticmethod(timezone.now)
+
     def __str__(self):
         return u'{} <{}>'.format(self.title, self.url)
+
+    def schedule(self):
+        """
+        Update the `next_check` timestamp.
+
+        This has no effect when checking of the feed is disabled. Otherwise, it
+        attempts to guess how frequently the feed updates based on the dates of
+        articles from the last two weeks. This guess is the minimum time between
+        articles, clamped to between 15 minutes and 1 day.
+
+        Only inspecting recent articles allows a feed which goes dead to "age
+        out" to the default of 1 day. When no articles are known the default
+        interval is 1 day.
+        """
+        if self.next_check is None:
+            # The feed was disabled while we were checking it. Do not schedule
+            # another check.
+            #
+            # XXX: We could still clobber the field due to read-modify-write.
+            return
+
+        now = self._now()
+        article_dates = list(
+            self.articles
+            .filter(date__gt=now - timedelta(weeks=2), date__lt=now)
+            .order_by('-date')
+            .values_list('date', flat=True)[:100],
+        )
+
+        if len(article_dates) >= 2:
+            delta = min(first - second
+                        for first, second
+                        in zip(article_dates[:-1], article_dates[1:]))
+        else:
+            delta = timedelta(days=2)
+
+        min_delta = timedelta(minutes=15)
+        if delta < min_delta:
+            delta = min_delta
+        max_delta = timedelta(days=1)
+        if delta > max_delta:
+            delta = max_delta
+        self.next_check = now + delta
 
 
 class Article(models.Model):
