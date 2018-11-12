@@ -336,6 +336,7 @@ def flags(request):
     qs = articles_for_request(request)
     if updates:
         qs.update(**updates)
+    log_query(qs)
     data = {
         'articlesById': {article.id: json_for_article(article) for article in qs.all()},
     }
