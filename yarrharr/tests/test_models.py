@@ -26,6 +26,7 @@
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -502,3 +503,52 @@ class FeedArticleCountTriggerTests(TestCase):
 
         qs.update(fave=False)
         self.assertCounts(all=1, unread=1, fave=0)
+
+
+class FeedCountConstraintTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.feed_id = Feed.objects.create(
+            user=User.objects.create_user(
+                username='user',
+                email='user@mailhost.example',
+                password='sesame',
+            ),
+            url='https://feed.example/f.xml',
+            added=timezone.now(),
+            next_check=timezone.now(),
+            feed_title='Feed with articles',
+        ).pk
+
+    def test_negative_all(self):
+        with self.assertRaises(IntegrityError):
+            Feed.objects.filter(id=self.feed_id).update(all_count=-1)
+
+    def test_negative_unread(self):
+        with self.assertRaises(IntegrityError):
+            Feed.objects.filter(id=self.feed_id).update(unread_count=-1)
+
+    def test_negative_fave(self):
+        with self.assertRaises(IntegrityError):
+            Feed.objects.filter(id=self.feed_id).update(fave_count=-1)
+
+    def test_update_by_trigger(self):
+        f = Feed.objects.get(id=self.feed_id)
+        a = f.articles.create(
+            read=False,
+            fave=True,
+            author='',
+            title='Article',
+            url='https://feed.example/article',
+            date=timezone.now(),
+            guid='',
+            raw_content='...',
+            content='...',
+        )
+        f.all_count = 0
+        f.unread_count = 0
+        f.fave_count = 0
+        f.save()
+
+        with self.assertRaises(IntegrityError):
+            a.delete()
