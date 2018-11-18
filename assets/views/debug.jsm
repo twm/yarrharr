@@ -6,7 +6,7 @@ import { Title } from 'widgets/Title.jsm';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 
-import { HomeIcon, GlobeIcon, LabelIcon, FeedIcon, ArrowLeftIcon, ArrowRightIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon, ReturnIcon } from 'widgets/icons.js';
+import { GlobeIcon, LabelIcon, FeedIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon, ReturnIcon, PrevIcon, NextIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
 import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
@@ -28,12 +28,10 @@ class DebugView extends React.PureComponent {
             <div className="debug-icons">
                 <h2>Icons</h2>
                 <p>
-                    Home <HomeIcon />
+                    {/*Home <HomeIcon />*/}
                     GlobeIcon <GlobeIcon />
                     Label <LabelIcon />
                     Feed <FeedIcon />
-                    Left <ArrowLeftIcon />
-                    Right <ArrowRightIcon />
                     Follow <FollowIcon />
                     Return <ReturnIcon />
                     Outbound <OutboundIcon />
@@ -54,14 +52,14 @@ class DebugView extends React.PureComponent {
                     Clickable <ToggleWrap>
                         {(value, onToggle) => <FaveToggle fave={value} onMarkArticlesFave={onToggle} articleId={1} />}
                     </ToggleWrap>
+                    Next <NextIcon />
+                    Prev <PrevIcon />
                 </p>
                 <p>
-                    <HomeIcon className="icon debug-icon-grid" />
+                    {/*<HomeIcon className="icon debug-icon-grid" />*/}
                     <GlobeIcon className="icon debug-icon-grid" />
                     <LabelIcon className="icon debug-icon-grid" />
                     <FeedIcon className="icon debug-icon-grid" />
-                    <ArrowLeftIcon className="icon debug-icon-grid" />
-                    <ArrowRightIcon className="icon debug-icon-grid" />
                     <FollowIcon className="icon debug-icon-grid" />
                     <ReturnIcon className="icon debug-icon-grid" />
                     <OutboundIcon className="icon debug-icon-grid" />
@@ -78,6 +76,8 @@ class DebugView extends React.PureComponent {
                     <ToggleWrap>
                         {(value, onToggle) => <FaveToggle fave={value} onMarkArticlesFave={onToggle} articleId={1} iconClass="icon debug-icon-grid" />}
                     </ToggleWrap>
+                    <NextIcon className="icon debug-icon-grid" />
+                    <PrevIcon className="icon debug-icon-grid" />
                 </p>
             </div>
         </React.Fragment>;
