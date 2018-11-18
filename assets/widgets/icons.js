@@ -37,11 +37,11 @@ export function IconSprites(props) {
                 <path d={roof} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
                 <path d={"M7.5 17.5 l0 -7 l5 0 l0 7"} fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
-            <symbol id="icon-arrow-right" viewBox="0 0 20 20">
-                <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <symbol id="icon-prev" viewBox="0 0 20 20">
+                <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(-90, ${w / 2}, ${h / 2})`}  />
             </symbol>
-            <symbol id="icon-arrow-left" viewBox="0 0 20 20">
-                <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(180, ${w / 2}, ${h / 2})`} />
+            <symbol id="icon-next" viewBox="0 0 20 20">
+                <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(90, ${w / 2}, ${h / 2})`} />
             </symbol>
             <symbol id="icon-label" viewBox="0 0 20 20">
                 <circle cx="5" cy="5" r="1" fill="currentColor" stroke="none" />
@@ -95,8 +95,6 @@ function makeSpriteIcon(id, className = "icon") {
 }
 
 export const HomeIcon = makeSpriteIcon("#icon-home");
-export const ArrowRightIcon = makeSpriteIcon("#icon-arrow-right");
-export const ArrowLeftIcon = makeSpriteIcon("#icon-arrow-left");
 export const FeedIcon = makeSpriteIcon("#icon-feed");
 export const LabelIcon = makeSpriteIcon("#icon-label");
 export const OutboundIcon = makeSpriteIcon("#icon-outbound");
@@ -104,6 +102,8 @@ export const EditIcon = makeSpriteIcon("#icon-edit");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
 export const ReturnIcon = makeSpriteIcon("#icon-return");
+export const PrevIcon = makeSpriteIcon("#icon-prev");
+export const NextIcon = makeSpriteIcon("#icon-next");
 export const SunIcon = makeSpriteIcon("#icon-sun");
 export const MoonIcon = makeSpriteIcon("#icon-moon");
 

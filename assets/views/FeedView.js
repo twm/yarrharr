@@ -11,7 +11,7 @@ import { ORDER_TAIL, ORDER_DATE } from 'actions.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Title } from 'widgets/Title.jsm';
-import { AscDescIcon, ArrowLeftIcon, ArrowRightIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon, ReturnIcon } from 'widgets/icons.js';
+import { AscDescIcon, PrevIcon, NextIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon, ReturnIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
 import { RootLink } from 'widgets/links.js';
@@ -76,14 +76,14 @@ class SnapshotNav extends React.PureComponent {
                 className: "snapshot-nav-prev square",
                 title: "Go to previous article",
                 articleId: prevId,
-                children: <ArrowLeftIcon aria-hidden={true} />,
+                children: <PrevIcon aria-hidden={true} />,
             }) : <span className="snapshot-nav-prev square" />}
             {this.props.icon ? <div className="snapshot-nav-icon square">{this.props.icon}</div> : null}
             {nextId ? renderLink({
                 className: "snapshot-nav-next square",
                 title: "Go to next article",
                 articleId: nextId,
-                children: <ArrowRightIcon aria-hidden={true} />,
+                children: <NextIcon aria-hidden={true} />,
             }) : <span className="snapshot-nav-next square" />}
         </div>
     }
