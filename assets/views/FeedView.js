@@ -53,10 +53,10 @@ if (__debug__) {
  * SnapshotNav is displayed on article view pages to allow navigation to the
  * previous and next articles.
  *
- * +----+-----------+------+------+---------+----+
- * | <- |           | fave | read |         | -> |
- * | <- |           | fave | read |         | -> |
- * +----+-----------+------+------+---------+----+
+ * +-------------------+------+------+-----+-----+
+ * |                   | fave | read |  ↓  |  ↑  |
+ * |                   | fave | read |     |     |
+ * +-------------------+------+------+-----+-----+
  */
 class SnapshotNav extends React.PureComponent {
     render() {
@@ -67,6 +67,11 @@ class SnapshotNav extends React.PureComponent {
         const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
 
         return <div className="bar snapshot-nav">
+            <div className="expand">
+                {/* This occupies empty space at the left of the bar. */}
+            </div>
+            <FaveToggleLink className="square" articleId={articleId} fave={fave} onMarkArticlesFave={onMarkArticlesFave} />
+            <ReadToggleLink className="square" articleId={articleId} read={read} onMarkArticlesRead={onMarkArticlesRead} />
             {prevId ? renderLink({
                 className: "snapshot-nav-prev square",
                 title: "Go to previous article",
@@ -74,14 +79,6 @@ class SnapshotNav extends React.PureComponent {
                 children: <ArrowLeftIcon aria-hidden={true} />,
             }) : <span className="snapshot-nav-prev square" />}
             {this.props.icon ? <div className="snapshot-nav-icon square">{this.props.icon}</div> : null}
-            <div className="expand">
-                {/* This occupies empty space in the middle of the bar. */}
-            </div>
-            <FaveToggleLink className="square" articleId={articleId} fave={fave} onMarkArticlesFave={onMarkArticlesFave} />
-            <ReadToggleLink className="square" articleId={articleId} read={read} onMarkArticlesRead={onMarkArticlesRead} />
-            <div className="expand">
-                {/* This occupies empty space in the middle of the bar. */}
-            </div>
             {nextId ? renderLink({
                 className: "snapshot-nav-next square",
                 title: "Go to next article",
