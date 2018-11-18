@@ -32,11 +32,13 @@ export function IconSprites(props) {
 
     return <svg id="icon-sprites" aria-hidden={true}>
         <defs>
+            {/*
             <symbol id="icon-home" viewBox="0 0 20 20">
                 <path d={frame} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="square" />
                 <path d={roof} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
                 <path d={"M7.5 17.5 l0 -7 l5 0 l0 7"} fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
+            */}
             <symbol id="icon-prev" viewBox="0 0 20 20">
                 <path d={largeArrow} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" transform={`rotate(-90, ${w / 2}, ${h / 2})`}  />
             </symbol>
@@ -94,7 +96,7 @@ function makeSpriteIcon(id, className = "icon") {
     return component;
 }
 
-export const HomeIcon = makeSpriteIcon("#icon-home");
+// export const HomeIcon = makeSpriteIcon("#icon-home");
 export const FeedIcon = makeSpriteIcon("#icon-feed");
 export const LabelIcon = makeSpriteIcon("#icon-label");
 export const OutboundIcon = makeSpriteIcon("#icon-outbound");
