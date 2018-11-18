@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { setTheme, THEME_LIGHT, THEME_DARK } from 'actions.js';
-import { HomeIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
+import { ReturnIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
 
 import { RootLink } from 'widgets/links.js';
 
@@ -146,7 +146,7 @@ export class FullscreenToggle extends React.Component {
 
 
 export function HomeIconLink(props) {
-    return <RootLink aria-label="Home" title="Go home" className="square"><HomeIcon aria-hidden={true} /></RootLink>;
+    return <RootLink aria-label="Home" title="Go home" className="square"><ReturnIcon aria-hidden={true} /></RootLink>;
 }
 
 
