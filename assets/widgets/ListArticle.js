@@ -12,16 +12,6 @@ function cancel(event) {
 }
 
 /**
- * The row must be slid at least this many pixels to trigger an action.
- */
-const MIN_SLIDE = 40;
-/**
- * The maximum number of pixels the row can be slid. It will stop moving after
- * this point.
- */
-const MAX_SLIDE = 70;
-
-/**
  * ListArticle displays article metadata in a few lines of text, along with
  * some links and buttons.
  *
