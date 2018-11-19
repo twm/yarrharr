@@ -36,7 +36,7 @@ import hashlib
 import html
 
 import attr
-from django.db import transaction
+from django.db import connection, transaction
 from django.utils import timezone
 import feedparser
 from feedparser.http import ACCEPT_HEADER
@@ -553,7 +553,7 @@ def persist_outcomes(outcomes):
         be stale.
     """
     for feed, outcome in outcomes:
-        with transaction.atomic():
+        with transaction.atomic(), connection.execute_wrapper(log_queries):
             try:
                 feed = Feed.objects.get(id=feed.id)
             except Feed.DoesNotExist:
