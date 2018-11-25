@@ -50,10 +50,9 @@ export function IconSprites(props) {
                 <path d="M 2 2 h 6 l 10 10 l -6 6 l -10 -10 z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
             <symbol id="icon-feed" viewBox="0 0 20 20">
-                <circle cx="3" cy="17" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                <path d="M 4 11 A 6 6, 0, 0, 1, 9 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-                <path d="M 4 6 A 11 11, 0, 0, 1, 14 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-                <path d="M 4 1.5 A 14 14, 0, 0, 1, 18.5 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <circle cx="6" cy="15" r="2" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M 4 8.0 A 08 08, 0, 0, 1, 13 17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                <path d="M 4 3.0 A 13 13, 0, 0, 1, 18 17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
             <symbol id="icon-outbound" viewBox="0 0 20 20">
                 <path className="arrow" d="M 17.5 2.5 L 9 11 M 10 2 L 18 2 L 18 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
@@ -122,7 +121,7 @@ function fsIcon(props, fullscreen) {
     M ${s - inset - a} ${inset} L ${s - tipInset} ${tipInset} L ${s - inset} ${inset + a}
     `;
     return <svg width="1em" height="1em" viewBox={`0 0 ${s} ${s}`} className="icon" {...props}>
-        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
