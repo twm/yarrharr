@@ -121,7 +121,7 @@ function fsIcon(props, fullscreen) {
     M ${s - inset - a} ${inset} L ${s - tipInset} ${tipInset} L ${s - inset} ${inset + a}
     `;
     return <svg width="1em" height="1em" viewBox={`0 0 ${s} ${s}`} className="icon" {...props}>
-        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={path} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>;
 }
 
