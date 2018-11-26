@@ -27,7 +27,7 @@
 import simplejson
 import django
 import feedparser
-from django.db import transaction
+from django.db import connection, transaction
 from django.db.models import Q, Sum
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -38,6 +38,7 @@ from twisted.logger import Logger
 import yarrharr
 from .models import Article
 from .signals import schedule_changed
+from .sql import log_on_error
 
 
 log = Logger()
@@ -71,11 +72,6 @@ def ms_timestamp(dt):
     if dt is None:
         return None
     return dt.timestamp() * 1000
-
-
-def log_query(qs):
-    log.debug('qs.query = {query}', query=qs.query)
-    return qs
 
 
 def json_for_article(article):
@@ -335,8 +331,8 @@ def flags(request):
             updates['fave'] = False
     qs = articles_for_request(request)
     if updates:
-        qs.update(**updates)
-    log_query(qs)
+        with connection.execute_wrapper(log_on_error):
+            qs.update(**updates)
     data = {
         'articlesById': {article.id: json_for_article(article) for article in qs.all()},
     }
