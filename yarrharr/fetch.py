@@ -495,13 +495,17 @@ def poll_feed(feed, clock, client=treq):
         error.ConnectionLost,
         # Making the connection timed out (probably something is dropping traffic):
         error.ConnectingCancelledError,
-    ) as e:
-        # TODO # A TLS cert error looks like:
+        # The response was not fully received. Usually this is the subclass
+        # ResponseNeverReceived wrapping a TLS error like:
+        #
         #   Traceback (most recent call last):
         #       Failure: twisted.web._newclient.ResponseNeverReceived:
         #       [<twisted.python.failure.Failure OpenSSL.SSL.Error: [('SSL
         #       routines', 'tls_process_server_certificate', 'certificate
         #       verify failed')]>]
+        client.ResponseFailed,
+        client.RequestTransmissionFailed,
+    ) as e:
         defer.returnValue(NetworkError(str(e)))
 
     if response.code == 410:
