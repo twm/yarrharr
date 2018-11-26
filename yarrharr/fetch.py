@@ -365,13 +365,14 @@ def poll(reactor, max_fetch):
                     # a while, but interactive requests should fail fast.
                     #
                     # [1]: https://www.sqlite.org/rescode.html#busy
-                    # [2]: https://github.com/ghaering/pysqlite/blob/e728ffbcaeb7bfae1d6b7165369bd0ae16cabf95/src/util.c#L74-L84
+                    # [2]: https://github.com/ghaering/pysqlite/blob/e728ffbcaeb7bfae1d6b7165369bd0ae/src/util.c#L74-L84
                     # [3]: https://www.sqlite.org/c3ref/errcode.html
                     # [4]: https://docs.djangoproject.com/en/2.1/ref/databases/#database-is-locked-errors
                     if str(e) != 'database is locked' or attempt >= 10:
                         raise
                     attempt += 1
-                    log.debug("Database lock contention while persisting {count} outcomes: will retry (attempt {attempt})",
+                    log.debug(("Database lock contention while persisting {count} outcomes:"
+                               " will retry (attempt {attempt})"),
                               count=len(outcomes), attempt=attempt)
         except Exception:
             log.failure("Failed to persist {count} outcomes", count=len(outcomes))
