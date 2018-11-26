@@ -375,6 +375,8 @@ def poll(reactor, max_fetch):
                     log.debug(("Database lock contention while persisting {count} outcomes:"
                                " will retry (attempt {attempt})"),
                               count=len(outcomes), attempt=attempt)
+                else:
+                    break
         except Exception:
             log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
@@ -455,7 +457,7 @@ class ResponseTimeout(defer.CancelledError):
 
 
 @defer.inlineCallbacks
-def poll_feed(feed, clock, client=treq):
+def poll_feed(feed, clock, treq=treq):
     """
     Do the parts of updating the feed which don't involve the database: fetch
     the feed content and parse it.
@@ -479,7 +481,7 @@ def poll_feed(feed, clock, client=treq):
         conditional_get = BadStatus(304)
 
     try:
-        response = yield client.get(feed.url, headers=headers).addTimeout(30, clock, RequestTimeout.onTimeoutCancel)
+        response = yield treq.get(feed.url, headers=headers).addTimeout(30, clock, RequestTimeout.onTimeoutCancel)
         raw_bytes = yield response.content().addTimeout(30, clock, ResponseTimeout.onTimeoutCancel)
     except (
         # One of the timeouts above expired.
@@ -497,13 +499,19 @@ def poll_feed(feed, clock, client=treq):
         # Making the connection timed out (probably something is dropping traffic):
         error.ConnectingCancelledError,
     ) as e:
-        # TODO # A TLS cert error looks like:
+        defer.returnValue(NetworkError(str(e)))
+    except (
+        # The response was not fully received. Usually this is the subclass
+        # ResponseNeverReceived wrapping a TLS error like:
+        #
         #   Traceback (most recent call last):
         #       Failure: twisted.web._newclient.ResponseNeverReceived:
-        #       [<twisted.python.failure.Failure OpenSSL.SSL.Error: [('SSL
-        #       routines', 'tls_process_server_certificate', 'certificate
-        #       verify failed')]>]
-        defer.returnValue(NetworkError(str(e)))
+        #       [<twisted.python.failure.Failure OpenSSL.SSL.Error: [
+        #        ('SSL routines', 'tls_process_server_certificate', 'certificate verify failed')]>]
+        client.ResponseFailed,
+        client.RequestTransmissionFailed,
+    ) as e:
+        defer.returnValue(NetworkError('\n'.join(str(f.value) for f in e.reasons)))
 
     if response.code == 410:
         defer.returnValue(Gone())

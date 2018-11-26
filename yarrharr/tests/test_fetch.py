@@ -37,7 +37,7 @@ from twisted.internet import defer, error, task
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.python.failure import Failure
 from twisted.web import http, server, static
-from twisted.web.client import readBody
+from twisted.web.client import readBody, ResponseNeverReceived
 from twisted.web.resource import ErrorPage, IResource
 from treq.testing import StubTreq, RequestTraversalAgent
 from pkg_resources import resource_filename, resource_string
@@ -377,6 +377,28 @@ class FetchTests(SynchronousTestCase):
     def test_connection_refused(self):
         """
         An expected error type when connecting produces a NetworkError.
+        """
+        feed = FetchFeed()
+        client = ErrorTreq(ResponseNeverReceived([
+            # IndentationError is subbing in here for this weird OpenSSL thing:
+            #
+            #     Failure: twisted.web._newclient.ResponseNeverReceived:
+            #     [<twisted.python.failure.Failure OpenSSL.SSL.Error: [
+            #      ('SSL routines', 'tls_process_server_certificate',
+            #       'certificate verify failed')]>]
+            Failure(IndentationError('TLS certificate verify failed')),
+        ]))
+
+        result = self.successResultOf(poll_feed(feed, self.clock, client))
+
+        self.assertEqual(
+            NetworkError('TLS certificate verify failed'),
+            result,
+        )
+
+    def test_tls_cert_error(self):
+        """
+        A TLS certificate error produces a NetworkError.
         """
         feed = FetchFeed()
         client = ErrorTreq(error.ConnectionRefusedError(
