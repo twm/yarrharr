@@ -36,6 +36,7 @@ Use these functions like::
 See `database instrumentation <https://docs.djangoproject.com/en/2.1/topics/db/instrumentation/>`_
 in the Django documentation for more information.
 """
+import reprlib
 
 from twisted.logger import Logger
 
@@ -46,7 +47,7 @@ def log_queries(execute, sql, params, many, context):
     """
     Log every query executed.
     """
-    log.debug('Query {sql} params={params!r} many={many!r}', sql=sql, params=params, many=many)
+    log.debug('Query {sql} params={params} many={many!r}', sql=sql, params=reprlib.repr(params), many=many)
     return execute(sql, params, many, context)
 
 
@@ -57,5 +58,5 @@ def log_on_error(execute, sql, params, many, context):
     try:
         return execute(sql, params, many, context)
     except Exception:
-        log.debug('Query {sql} params={params!r} many={many!r}', sql=sql, params=params, many=many)
+        log.debug('Query {sql} params={params} many={many!r}', sql=sql, params=reprlib.repr(params), many=many)
         raise
