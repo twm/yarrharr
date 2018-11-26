@@ -56,7 +56,8 @@ class Command(BaseCommand):
 
         self.stdout.write("{:,d} feeds were audited.".format(feeds))
         style = self.style.WARNING if sum(counts.values()) > 0 else self.style.SUCCESS
-        self.stdout.write(style("{all:,d} all, {unread:,d} unread, {fave:,d} fave counters were off.".format_map(counts)))
+        self.stdout.write(style(("{all:,d} all, {unread:,d} unread,"
+                                 " {fave:,d} fave counters were off.").format_map(counts)))
 
     def _audit_feed(self, feed, mutate, counts):
         for name, count in (
@@ -68,7 +69,8 @@ class Command(BaseCommand):
             current = getattr(feed, attr)
             if current == count:
                 continue
-            self.stdout.write(self.style.WARNING("{:<7} {:<7,d} {:<7,d} pk={} {}".format(name, current, count, feed.pk, feed)))
+            self.stdout.write(self.style.WARNING("{:<7} {:<7,d} {:<7,d} pk={} {}".format(
+                name, current, count, feed.pk, feed)))
             if mutate:
                 Feed.objects.filter(pk=feed.pk).update(**{attr: count})
             counts[name] += 1
