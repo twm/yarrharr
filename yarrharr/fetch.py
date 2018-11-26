@@ -454,7 +454,7 @@ class ResponseTimeout(defer.CancelledError):
 
 
 @defer.inlineCallbacks
-def poll_feed(feed, clock, client=treq):
+def poll_feed(feed, clock, treq=treq):
     """
     Do the parts of updating the feed which don't involve the database: fetch
     the feed content and parse it.
@@ -478,7 +478,7 @@ def poll_feed(feed, clock, client=treq):
         conditional_get = BadStatus(304)
 
     try:
-        response = yield client.get(feed.url, headers=headers).addTimeout(30, clock, RequestTimeout.onTimeoutCancel)
+        response = yield treq.get(feed.url, headers=headers).addTimeout(30, clock, RequestTimeout.onTimeoutCancel)
         raw_bytes = yield response.content().addTimeout(30, clock, ResponseTimeout.onTimeoutCancel)
     except (
         # One of the timeouts above expired.
