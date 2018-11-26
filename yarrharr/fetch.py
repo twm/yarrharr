@@ -138,13 +138,15 @@ class MaybeUpdated(object):
                   upsert_count=len(self.articles), feed=feed)
 
         for upsert in self.articles:
-            # try:
-                self._upsert_article(feed, upsert)
-            # except Exception:
-            #     log.failure("Failed to upsert {upsert}", upsert=upsert)
+            self._upsert_article(feed, upsert)
 
         feed.schedule()
-        feed.save()
+        # As a workaround for #323, only save the fields which have been
+        # touched. We *must not* save the all_count or unread_count fields lest
+        # we clobber the values set by the triggers.
+        feed.save(update_fields=['last_checked', 'error', 'feed_title',
+                                 'site_url', 'etag', 'last_modified', 'digest',
+                                 'next_check'])
 
     def _match_article(self, feed, upsert):
         """

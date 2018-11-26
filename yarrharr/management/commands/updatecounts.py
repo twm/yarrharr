@@ -34,32 +34,43 @@ class Command(BaseCommand):
     help = 'Audit feed article counts'
     requires_migration_checks = True
 
+    def add_arguments(self, parser):
+        parser.add_argument('--mutate', default=True, action='store_true',
+                            help="Modify the database")
+        parser.add_argument('--dry-run', action='store_false', dest='mutate',
+                            help="Don't actually modify the database, just list feeds with bad counters")
+
     def handle(self, *args, **options):
+        mutate = options['mutate']
         feeds = 0
-        fixes = 0
+        counts = {
+            'all': 0,
+            'unread': 0,
+            'fave': 0,
+        }
+        self.stdout.write("{:<7} {:<7} {:<7} {}".format('Counter', 'Current', 'Valid', 'Feed'))
         with transaction.atomic():
             for feed in Feed.objects.all().order_by('feed_title').iterator():
                 feeds += 1
-                fixes += self._audit_feed(feed)
-        self.stdout.write(self.style.SUCCESS("{:,d} counters fixed. {:,d} feeds were audited.".format(fixes, feeds)))
+                self._audit_feed(feed, mutate, counts)
 
-    def _audit_feed(self, feed):
-        all = feed.articles.all().count()
-        unread = feed.articles.filter(read=False).count()
-        fave = feed.articles.filter(fave=True).count()
+        self.stdout.write("{:,d} feeds were audited.".format(feeds))
+        style = self.style.WARNING if sum(counts.values()) > 0 else self.style.SUCCESS
+        self.stdout.write(style(("{all:,d} all, {unread:,d} unread,"
+                                 " {fave:,d} fave counters were off.").format_map(counts)))
 
-        fixes = 0
-        if feed.all_count != all:
-            feed.all_count = all
-            fixes += 1
-        if feed.unread_count != unread:
-            feed.unread_count = unread
-            fixes += 1
-        if feed.fave_count != fave:
-            feed.fave_count = fave
-            fixes += 1
-
-        if fixes > 0:
-            feed.save()
-            self.stdout.write(self.style.WARNING("Fixed {} counts on feed {}".format(fixes, feed)))
-        return fixes
+    def _audit_feed(self, feed, mutate, counts):
+        for name, count in (
+            ('all', feed.articles.all().count()),
+            ('unread', feed.articles.filter(read=False).count()),
+            ('fave', feed.articles.filter(fave=True).count()),
+        ):
+            attr = name + '_count'
+            current = getattr(feed, attr)
+            if current == count:
+                continue
+            self.stdout.write(self.style.WARNING("{:<7} {:<7,d} {:<7,d} pk={} {}".format(
+                name, current, count, feed.pk, feed)))
+            if mutate:
+                Feed.objects.filter(pk=feed.pk).update(**{attr: count})
+            counts[name] += 1
