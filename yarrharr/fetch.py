@@ -374,6 +374,8 @@ def poll(reactor, max_fetch):
                     log.debug(("Database lock contention while persisting {count} outcomes:"
                                " will retry (attempt {attempt})"),
                               count=len(outcomes), attempt=attempt)
+                else:
+                    break
         except Exception:
             log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
