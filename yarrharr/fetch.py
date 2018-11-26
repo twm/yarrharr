@@ -51,6 +51,7 @@ import pytz
 from . import __version__
 from .models import Feed
 from .sanitize import html_to_text
+from .sql import log_queries
 
 try:
     # Seriously STFU this is not helpful.
