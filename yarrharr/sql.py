@@ -43,11 +43,12 @@ from twisted.logger import Logger
 log = Logger()
 
 
-def log_queries(execute, sql, params, many, context):
+def log_mutations(execute, sql, params, many, context):
     """
-    Log every query executed.
+    Log every non-SELECT query executed.
     """
-    log.debug('Query {sql} params={params} many={many!r}', sql=sql, params=reprlib.repr(params), many=many)
+    if not sql.startswith('SELECT '):
+        log.debug('Query {sql} params={params} many={many!r}', sql=sql, params=reprlib.repr(params), many=many)
     return execute(sql, params, many, context)
 
 

@@ -51,7 +51,7 @@ import pytz
 from . import __version__
 from .models import Feed
 from .sanitize import html_to_text
-from .sql import log_queries
+from .sql import log_mutations
 
 try:
     # Seriously STFU this is not helpful.
@@ -592,7 +592,7 @@ def persist_outcomes(outcomes):
         be stale.
     """
     for feed, outcome in outcomes:
-        with transaction.atomic(), connection.execute_wrapper(log_queries):
+        with transaction.atomic(), connection.execute_wrapper(log_mutations):
             try:
                 feed = Feed.objects.get(id=feed.id)
             except Feed.DoesNotExist:
