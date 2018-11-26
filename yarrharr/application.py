@@ -317,9 +317,16 @@ def updateFeeds(reactor, max_fetch=5):
     """
     from .fetch import poll
 
+    def _failed(reason):
+        """
+        Log unexpected errors and schedule a retry in one second.
+        """
+        log.failure("Unexpected failure polling feeds", failure=reason)
+        return 1.0  # seconds until next poll
+
     d = poll(reactor, max_fetch)
     # Last gasp error handler to avoid terminating the LoopingCall.
-    d.addErrback(lambda f: log.failure("Unexpected failure polling feeds", f))
+    d.addErrback(_failed)
     return d
 
 

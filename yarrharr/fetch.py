@@ -36,7 +36,7 @@ import hashlib
 import html
 
 import attr
-from django.db import connection, transaction
+from django.db import connection, transaction, OperationalError
 from django.utils import timezone
 import feedparser
 from feedparser.http import ACCEPT_HEADER
@@ -342,9 +342,39 @@ def poll(reactor, max_fetch):
                 outcomes.append((feed, PollError()))
 
         try:
-            yield deferToThread(persist_outcomes, outcomes)
+            attempt = 0
+            while True:
+                try:
+                    yield deferToThread(persist_outcomes, outcomes)
+                except OperationalError as e:
+                    # We want to retry on SQLITE_BUSY [1], which indicates that
+                    # the connection could not be established because another
+                    # thread had the database locked. Unfortunately pysqlite
+                    # doesn't expose the error code in a structured form, only
+                    # as a string [2]. The sqlite3_errmsg function used to
+                    # retrieve this string doesn't make any promises about the
+                    # stability of the string over releases [3] but it seems
+                    # unlikely to change in practice. So this is a bit gross
+                    # but not really a problem.
+                    #
+                    # Note there is no need for a sleep when we retry because
+                    # sqlite brings its own(default 5 seconds, but this can be
+                    # configured in the Django DATABASES setting [4]).  We
+                    # retry here rather than increasing that setting because
+                    # that setting is global. It's fine for the poller to wait
+                    # a while, but interactive requests should fail fast.
+                    #
+                    # [1]: https://www.sqlite.org/rescode.html#busy
+                    # [2]: https://github.com/ghaering/pysqlite/blob/e728ffbcaeb7bfae1d6b7165369bd0ae/src/util.c#L74-L84
+                    # [3]: https://www.sqlite.org/c3ref/errcode.html
+                    # [4]: https://docs.djangoproject.com/en/2.1/ref/databases/#database-is-locked-errors
+                    if str(e) != 'database is locked' or attempt >= 10:
+                        raise
+                    attempt += 1
+                    log.debug(("Database lock contention while persisting {count} outcomes:"
+                               " will retry (attempt {attempt})"),
+                              count=len(outcomes), attempt=attempt)
         except Exception:
-            raise
             log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
     next_pending = yield deferToThread(
