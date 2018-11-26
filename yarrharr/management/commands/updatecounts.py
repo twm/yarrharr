@@ -34,16 +34,24 @@ class Command(BaseCommand):
     help = 'Audit feed article counts'
     requires_migration_checks = True
 
+    def add_arguments(self, parser):
+        parser.add_argument('--mutate', default=True, action='store_true',
+                            help="Modify the database")
+        parser.add_argument('--dry-run', action='store_false', dest='mutate',
+                            help="Don't actually modify the database, just list feeds with bad counters")
+
     def handle(self, *args, **options):
+        mutate = options['mutate']
         feeds = 0
         fixes = 0
         with transaction.atomic():
             for feed in Feed.objects.all().order_by('feed_title').iterator():
                 feeds += 1
-                fixes += self._audit_feed(feed)
-        self.stdout.write(self.style.SUCCESS("{:,d} counters fixed. {:,d} feeds were audited.".format(fixes, feeds)))
+                fixes += self._audit_feed(feed, mutate)
+        if mutate:
+            self.stdout.write(self.style.SUCCESS("{:,d} counters fixed. {:,d} feeds were audited.".format(fixes, feeds)))
 
-    def _audit_feed(self, feed):
+    def _audit_feed(self, feed, mutate):
         all = feed.articles.all().count()
         unread = feed.articles.filter(read=False).count()
         fave = feed.articles.filter(fave=True).count()
@@ -60,6 +68,7 @@ class Command(BaseCommand):
             fixes += 1
 
         if fixes > 0:
-            feed.save()
-            self.stdout.write(self.style.WARNING("Fixed {} counts on feed {}".format(fixes, feed)))
+            if mutate:
+                feed.save()
+            self.stdout.write(self.style.WARNING("{} bad counts on feed pk={} {}".format(fixes, feed.pk, feed)))
         return fixes
