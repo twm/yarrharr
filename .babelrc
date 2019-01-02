@@ -1,14 +1,16 @@
 {
-  presets: [
-    [
-      '@babel/preset-env',
-      {
-        modules: false
+  "presets": [
+    ["@babel/preset-env", {
+      "modules": false,
+      "targets": {
+        "browsers": [
+          "Firefox >= 54",
+          "Chrome >= 60",
+          "Edge >= 15"
+        ]
       }
-    ],
-    '@babel/preset-react'
+    }],
+    "@babel/preset-react"
   ],
-  plugins: [
-    'react-hot-loader/babel'
-  ]
+  "plugins": ["react-hot-loader/babel"]
 }
