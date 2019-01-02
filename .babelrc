@@ -1,15 +1,14 @@
 {
-  "presets": [
-    ["env", {
-      "targets": {
-        "browsers": [
-          "Firefox >= 54",
-          "Chrome >= 60",
-          "Edge >= 15"
-        ]
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        modules: false
       }
-    }],
-    "react"
+    ],
+    '@babel/preset-react'
   ],
-  "plugins": ["transform-object-rest-spread"]
+  plugins: [
+    'react-hot-loader/babel'
+  ]
 }
