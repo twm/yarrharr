@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const FaviconPlugin = require('./favicon.js');
 
 const config = {
@@ -62,6 +63,21 @@ const config = {
     ],
     devtool: "source-map",
     optimization: {
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    // warnings: true,
+                    compress: {
+                        ecma: 6,
+                        module: true,
+                        passes: 7,
+                    },
+                    mangle: {
+                        module: true,
+                    },
+                },
+            }),
+        ],
         runtimeChunk: 'single',
         splitChunks: {
             cacheGroups: {
