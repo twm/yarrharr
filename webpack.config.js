@@ -1,6 +1,10 @@
 const webpack = require('webpack');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const FaviconPlugin = require('./favicon.js');
+
+const production = process.env.NODE_ENV === 'production';
+
 
 const config = {
     entry: './assets/entry.js',
@@ -59,6 +63,7 @@ const config = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': '"production"', // TODO: Parameterize
         }),
+        new FaviconPlugin(),
         // TODO: HMR plugin? or does that go in devServer?
     ],
     devtool: "source-map",
