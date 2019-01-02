@@ -24,15 +24,13 @@ const config = {
         // }, {
             test: /\.less$/,
             use: [{
-                // loader: 'style-loader', // FIXME WP4: Restore separate CSS file
                 loader: MiniCssExtractPlugin.loader,
             }, {
                 loader: 'css-loader',
-                // FIXME WP4
-                // options: {minimize: production},
+                options: {sourceMap: true}
             }, {
                 loader: 'less-loader',
-                options: {strictMath: true, noIeCompat: true},
+                options: {strictMath: true, noIeCompat: true, sourceMap: true},
             }],
         }, {
             test: /\.jsm?$/,
