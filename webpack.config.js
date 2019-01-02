@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const config = {
     entry: './assets/entry.js',
@@ -23,7 +24,8 @@ const config = {
         // }, {
             test: /\.less$/,
             use: [{
-                loader: 'style-loader', // FIXME WP4: Restore separate CSS file
+                // loader: 'style-loader', // FIXME WP4: Restore separate CSS file
+                loader: MiniCssExtractPlugin.loader,
             }, {
                 loader: 'css-loader',
                 // FIXME WP4
@@ -53,7 +55,13 @@ const config = {
         filename: '[name]-[contenthash].js',
     },
     plugins: [
-        // TODO
+        new MiniCssExtractPlugin({
+            filename: "[name]-[contenthash].css",
+        }),
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"', // TODO: Parameterize
+        }),
+        // TODO: HMR plugin? or does that go in devServer?
     ],
     devtool: "source-map",
     optimization: {
