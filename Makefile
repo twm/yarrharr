@@ -14,7 +14,7 @@ V := @
 webpack-prod:
 	@echo "WEBPACK"
 	$(V)rm -rf yarrharr/static
-	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
+	$(V)NODE_ENV=production npm run build-prod
 	$(V)if grep -q propTypes yarrharr/static/main-*.js; then echo "ERROR: propTypes found in bundle. Please remove them."; exit 1; fi
 	$(V)tox -e compress
 
@@ -42,8 +42,10 @@ poll-feeds:
 force-poll:
 	tox -e run -- django-admin forcepoll
 
+# TODO: Switch this to use webpack's dev server for hot module reloading.
 webpack:
-	$(WEBPACK) --watch --progress
+	$(V)NODE_ENV=development npm run build-dev
+
 
 clean:
 	-rm -rf yarrharr/static
