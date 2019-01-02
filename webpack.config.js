@@ -3,9 +3,6 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FaviconPlugin = require('./favicon.js');
 
-const production = process.env.NODE_ENV === 'production';
-
-
 const config = {
     entry: './assets/entry.js',
     resolve: {
@@ -59,9 +56,6 @@ const config = {
     plugins: [
         new MiniCssExtractPlugin({
             filename: "[name]-[contenthash].css",
-        }),
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': '"production"', // TODO: Parameterize
         }),
         new FaviconPlugin(),
         // TODO: HMR plugin? or does that go in devServer?
