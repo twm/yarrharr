@@ -36,7 +36,7 @@ import hashlib
 import html
 
 import attr
-from django.db import connection, transaction, OperationalError
+from django.db import transaction, OperationalError
 from django.utils import timezone
 import feedparser
 from feedparser.http import ACCEPT_HEADER
@@ -51,7 +51,6 @@ import pytz
 from . import __version__
 from .models import Feed
 from .sanitize import html_to_text
-from .sql import log_mutations
 
 try:
     # Seriously STFU this is not helpful.
@@ -594,7 +593,7 @@ def persist_outcomes(outcomes):
         be stale.
     """
     for feed, outcome in outcomes:
-        with transaction.atomic(), connection.execute_wrapper(log_mutations):
+        with transaction.atomic():
             try:
                 feed = Feed.objects.get(id=feed.id)
             except Feed.DoesNotExist:
