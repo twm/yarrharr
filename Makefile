@@ -13,6 +13,7 @@ V := @
 
 webpack-prod:
 	@echo "WEBPACK"
+	$(V)rm -rf yarrharr/static
 	$(V)NODE_ENV=production $(WEBPACK) --bail --profile --json > webpack-stats.json
 	$(V)if grep -q propTypes yarrharr/static/main-*.js; then echo "ERROR: propTypes found in bundle. Please remove them."; exit 1; fi
 	$(V)tox -e compress
