@@ -89,10 +89,6 @@ const config = {
     output: {
         path: path.resolve(__dirname, 'yarrharr/static'),
         filename: hotify('[name]-[contenthash].js'),
-        // The publicPath seems to be required for HMR but we don't want to
-        // hardcode it in other modes because the deployment address is not
-        // known.
-        publicPath: runmode === DEV_HOT ? 'http://127.0.0.1:8888/static/' : null,
     },
     plugins: [
         new MiniCssExtractPlugin({
@@ -103,7 +99,6 @@ const config = {
             __debug__: JSON.stringify(runmode !== RELEASE),
             __hot__: JSON.stringify(runmode === DEV_HOT),
         }),
-        new webpack.HotModuleReplacementPlugin(),
     ],
     devtool: "source-map",
     optimization: {
@@ -147,7 +142,15 @@ const config = {
             },
         },
     },
-    devServer: {
+};
+
+if (runmode === DEV_HOT) {
+    // The publicPath seems to be required for HMR but we don't want to
+    // hardcode it in other runmodes because the deployment address is not
+    // known.
+    config.output.publicPath = 'http://127.0.0.1:8888/static/';
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+    config.devServer = {
         allowedHosts: ['127.0.0.1'],
         host: '127.0.0.1',
         port: 8888,
@@ -158,7 +161,7 @@ const config = {
         },
         publicPath: '/static/',
         contentBase: path.join(__dirname, 'yarrharr/static'),
-    },
+    };
 }
 
 module.exports = config;
