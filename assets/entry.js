@@ -25,7 +25,6 @@ import { IconSprites } from 'widgets/icons.js';
 import './art/icon.svg';
 import reducer from './reducer.js';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 const middleware = [
     thunk,

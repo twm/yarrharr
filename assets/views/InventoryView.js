@@ -17,7 +17,6 @@ import { sortedLabels } from 'views/HomeView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './InventoryView.less';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 
 function Centered(props) {

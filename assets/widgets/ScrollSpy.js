@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 /**
  * A component which watches what vertical portion of an element is visible in

@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 import { SET_PATH, matchPath } from './actions.js';
 

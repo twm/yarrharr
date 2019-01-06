@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import './Count.less';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 export function Count({value}) {
     if (value === 0) {

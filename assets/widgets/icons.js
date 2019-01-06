@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './icons.less';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 
 export const HEART_PATH = "M1 8.5 a1.5 1.5 0 0 1 -2 0 l-6.5 -6.5 a3.75 3.75 0 0 1 7.5 -7.5 a3.75 3.75 0 0 1 7.5 7.5 z";

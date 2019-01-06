@@ -1,7 +1,6 @@
 import { setLayout, setOrder, setTheme } from './actions.js';
 import { validLayout, validOrder, validTheme } from './actions.js';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 /**
  * Persist portions of the store to localStorage so that page reloads don't

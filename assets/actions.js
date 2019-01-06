@@ -1,4 +1,3 @@
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 export const SET_LAYOUT = 'SET_LAYOUT';
 export const LAYOUT_NARROW = 'narrow';

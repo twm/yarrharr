@@ -24,7 +24,6 @@ import { InventoryLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/li
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 class OrderToggle extends React.PureComponent {
     constructor(props) {

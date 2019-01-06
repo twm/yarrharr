@@ -68,21 +68,26 @@ const config = {
                 terserOptions: {
                     ecma: 6,
                     module: true,
-                    // warnings: true,
-                    define: {
-                        // Tersify refuses to do code elimination when the constant is defined
-                        // as "const __debug__ = process.env.NODE_ENV !== 'production'", but
-                        // this seems to work:
-                        __debug__: false,
-                    },
                     compress: {
-                        // booleans: false, // Prevents conversion of false -> !1
+                        global_defs: {
+                            // Tersify refuses to do code elimination when the constant is defined
+                            // as "const __debug__ = process.env.NODE_ENV !== 'production'": it
+                            // translates that comparison to false (actually !1) but doesn't
+                            // propagate the value like uglify did. However, if we define __debug__
+                            // directly here code elimination works.
+                            __debug__: false,
+                        },
                     },
                     mangle: {
-                        reserved: ['__debug__'],
+                        // Never mangle these names so that the build script can grep for them as
+                        // a sanity check. Note that propTypes would normally never be mangled, but
+                        // __debug__ would be.
+                        reserved: ['__debug__', 'propTypes'],
                     },
                     output: {
+                        // Keep the line length sane to make inspecting the bundle easier.
                         max_line_len: 180,
+                        // TODO: Insert a license comment.
                     },
                 },
             }),
