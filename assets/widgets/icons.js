@@ -75,7 +75,7 @@ export function IconSprites(props) {
                 <circle cx="0" cy="0" r="5" fill="currentColor" stroke="none" />
             </symbol>
             <symbol id="icon-moon" viewBox="-10 -10 20 20">
-                <circle cx="0" cy="0" r="5" fill="currentColor" stroke="none" />
+                <path d="M 5 -5 A 6 6 0 1 0 5 5 A 4.25 4.25 0 1 1 5 -5 z" fill="currentColor" stroke="none" transform="rotate(-30)" />
             </symbol>
         </defs>
     </svg>;
