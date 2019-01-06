@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013–2018 Tom Most <twm@freecog.net>
+# Copyright © 2013–2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@ USER_CONF_GLOB = '/etc/yarrharr/*.ini'
 DEFAULT_CONF = """\
 [yarrharr]
 debug = no
+; Are we running in a Webpack hot module replacement context? Development only.
+hot = no
 ; Per twisted.internet.endpoints.serverFromString
 server_endpoint = tcp:8888:interface=127.0.0.1
 ; Must be kept in sync with server_endpoint, or may vary if proxying is in
@@ -119,6 +121,7 @@ def read_yarrharr_conf(files, namespace):
         raise UnreadableConfError(files_unread)
 
     namespace['DEBUG'] = conf.getboolean('yarrharr', 'debug')
+    namespace['HOT'] = conf.getboolean('yarrharr', 'hot')
 
     namespace['DATABASES'] = {
         'default': {
@@ -172,7 +175,10 @@ def read_yarrharr_conf(files, namespace):
 
     # Template context processors. This list is missing most of the processors
     # in the default list as Yarrharr's templates don't use them.
-    context_processors = ['django.contrib.auth.context_processors.auth']
+    context_processors = [
+        'django.contrib.auth.context_processors.auth',
+        'yarrharr.context_processors.hot',
+    ]
     if namespace['DEBUG']:
         # When in debug mode, display SQL queries for requests coming from the
         # loopback interface.

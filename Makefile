@@ -25,7 +25,7 @@ release: webpack-release
 devserver:
 	tox -e run -- django-admin migrate
 	tox -e run -- django-admin updatehtml
-	tox -e run -- django-admin runserver 127.0.0.1:8887
+	YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8887
 
 .PHONY: realserver
 realserver:

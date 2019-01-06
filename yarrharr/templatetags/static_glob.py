@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import os
 
 import attr
 from django import template
+from django.conf import settings
 from django.template.defaultfilters import stringfilter
 
 
@@ -75,7 +76,7 @@ def newest_static(pattern):
 
     # When using Webpack's dev server to do hot module reloading the files are
     # served from memory with static names.
-    if not os.path.isdir(_static_dir):
+    if settings.HOT:
         return pattern.replace('*', 'hot')
 
     name, mtime = None, None
