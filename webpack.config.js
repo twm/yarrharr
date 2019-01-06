@@ -66,14 +66,23 @@ const config = {
         minimizer: [
             new TerserPlugin({
                 terserOptions: {
+                    ecma: 6,
+                    module: true,
                     // warnings: true,
+                    define: {
+                        // Tersify refuses to do code elimination when the constant is defined
+                        // as "const __debug__ = process.env.NODE_ENV !== 'production'", but
+                        // this seems to work:
+                        __debug__: false,
+                    },
                     compress: {
-                        ecma: 6,
-                        module: true,
-                        passes: 7,
+                        // booleans: false, // Prevents conversion of false -> !1
                     },
                     mangle: {
-                        module: true,
+                        reserved: ['__debug__'],
+                    },
+                    output: {
+                        max_line_len: 180,
                     },
                 },
             }),
