@@ -7,7 +7,7 @@ if sys.version_info.major == 2:
 
 setup(
     name='yarrharr',
-    version='0.18.0',
+    version='0.19.0',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
@@ -46,6 +46,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
     ],
     packages=find_packages(),
