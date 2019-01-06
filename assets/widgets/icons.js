@@ -72,10 +72,17 @@ export function IconSprites(props) {
                 <path d="M 3 -7 l -7 7 l 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
             <symbol id="icon-sun" viewBox="-10 -10 20 20">
-                <circle cx="0" cy="0" r="5" fill="currentColor" stroke="none" />
+                <circle cx="0" cy="0" r="3" fill="currentColor" stroke="none" />
+                <g id="icon-sun-rays">
+                    <path d="M 0 6 l 0 2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M 0 6 l 0 2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" transform="rotate(45)" />
+                </g>
+                <use xlinkHref="#icon-sun-rays" transform="rotate(90)" />
+                <use xlinkHref="#icon-sun-rays" transform="rotate(180)" />
+                <use xlinkHref="#icon-sun-rays" transform="rotate(270)" />
             </symbol>
             <symbol id="icon-moon" viewBox="-10 -10 20 20">
-                <circle cx="0" cy="0" r="5" fill="currentColor" stroke="none" />
+                <path d="M 5 -5 A 6 6 0 1 0 5 5 A 4.25 4.25 0 1 1 5 -5 z" fill="currentColor" stroke="none" transform="rotate(-30)" />
             </symbol>
         </defs>
     </svg>;
