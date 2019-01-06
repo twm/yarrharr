@@ -2,9 +2,8 @@
   "name": "yarrharr",
   "private": true,
   "scripts": {
-    "build-dev": "webpack -d --mode development --watch",
-    "build-prod": "webpack -p --mode production",
-    "devserver": "webpack-dev-server --hot --watch --mode development"
+    "webpack": "webpack",
+    "webpack-dev-server": "webpack-dev-server"
   },
   "dependencies": {
     "normalize.css": "^7.0.0",
