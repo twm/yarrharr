@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2014–2018 Tom Most <twm@freecog.net>
+# Copyright © 2014–2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,
             'DEBUG': False,
+            'HOT': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -122,6 +123,7 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
+                        'yarrharr.context_processors.hot',
                     ],
                 },
             }],
@@ -149,12 +151,11 @@ class ConfTests(unittest.TestCase):
             'LOGGING_CONFIG': None,
         })
 
-    def test_read_test_config(self):
+    def test_read_dev_config(self):
         """
-        Once ``secret_key`` is defined, the read succeeds and gives settings
-        appropriate for the app installed globally on a Debian system.
+        The development config decodes as expected.
         """
-        f = pkg_resources.resource_stream('yarrharr.tests', 'test_config.ini')
+        f = pkg_resources.resource_stream('yarrharr.tests', 'dev.ini')
         settings = {}
         try:
             read_yarrharr_conf([f.name], settings)
@@ -164,6 +165,7 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,
             'DEBUG': True,
+            'HOT': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -198,6 +200,7 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
+                        'yarrharr.context_processors.hot',
                         'django.template.context_processors.debug',
                     ],
                 },

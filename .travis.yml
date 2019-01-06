@@ -1,34 +1,37 @@
-sudo: false
+dist: xenial
 matrix:
   include:
-    - language: python
+    - name: "Test: Python 3.5"
+      language: python
       python: "3.5"
       install: "pip install tox"
       script:
         - tox -e py35-lint
         - tox -e py35-test
-    - language: python
+    - name: "Test: Python 3.6"
+      language: python
       python: "3.6"
       install: "pip install tox"
       script:
         - tox -e py36-lint
         - tox -e py36-test
-    - language: python
+    - name: "Test: Python 3.7"
+      language: python
       python: "3.7"
-      dist: xenial
       sudo: true
       install: "sudo pip install tox"
       script:
         - tox -e py37-lint
         - tox -e py37-test
-    - language: python
+    - name: "Webpack Build"
+      language: python
       python: "3.6"
       install:
         - "pip install tox"
         - "nvm install"
       script:
         - npm install
-        - make webpack-prod
+        - make webpack-release
       addons:
         apt:
           packages:

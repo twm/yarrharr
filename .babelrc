@@ -1,6 +1,7 @@
 {
   "presets": [
-    ["env", {
+    ["@babel/preset-env", {
+      "modules": false,
       "targets": {
         "browsers": [
           "Firefox >= 54",
@@ -9,7 +10,7 @@
         ]
       }
     }],
-    "react"
+    "@babel/preset-react"
   ],
-  "plugins": ["transform-object-rest-spread"]
+  "plugins": ["react-hot-loader/babel"]
 }

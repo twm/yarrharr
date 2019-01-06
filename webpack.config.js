@@ -1,168 +1,75 @@
-const path = require('path');
-const { promisify } = require('util');
-const { mkdir: mkdirCallback, readFile: readFileCallback, writeFile: writeFileCallback } = require('fs');
-const mkdir = promisify(mkdirCallback);
-const readFile = promisify(readFileCallback);
-const writeFile = promisify(writeFileCallback);
-const { execFile: execFileCallback, spawn } = require('child_process');
-const execFile = promisify(execFileCallback)
 const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const MinifyPlugin = require("babel-minify-webpack-plugin");
-const production = process.env.NODE_ENV === 'production';
+const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const FaviconPlugin = require('./favicon.js');
 
-const extractLESS = new ExtractTextPlugin({
-    filename: "[name]-[contenthash:base32:20].css",
-    // disable: production,
-});
+/**
+ * Yarrharr's Webpack build has three modes, defined by these constants. The
+ * RUNMODE environment variable must have one of these values.
+ *
+ * - RELEASE — production build with minification, etc. Artifacts are written
+ *   to yarrharr/static/ with content-hashed filenames.
+ * - DEV_STATIC — like the development build but still has debug assertions.
+ * - DEV_HOT — webpack-dev-server with hot module replacement enabled. This
+ *   also requires a running Django development server (see the readme).
+ */
+const RELEASE = 'release';
+const DEV_STATIC = 'dev-static';
+const DEV_HOT = 'dev-hot';
 
-const plugins = [
-    new webpack.NoEmitOnErrorsPlugin(),
-    new CleanWebpackPlugin([path.join(__dirname, 'yarrharr/static')]),
-    extractLESS,
-    new webpack.DefinePlugin({
-        'process.env': {
-            NODE_ENV: JSON.stringify(production ? 'production' : 'development'),
-        },
-    }),
-    {
-        apply: function rasterizeFaviconPlugin(compiler) {
-            compiler.plugin('emit', (compilation, callback) => {
-                const [filename, asset] = function() {
-                    for (let filename in compilation.assets) {
-                        if (/^icon-[^.]+\.svg$/.test(filename)) {
-                            return [filename, compilation.assets[filename]];
-                        }
-                    }
-                }();
-                if (!asset) {
-                    console.error("icon asset not found")
-                    callback();
-                    return
-                }
-                processFavicon(asset.source()).then(([svgAsset, touchAsset, icoAsset]) => {
-                    compilation.assets[filename] = svgAsset;
-                    compilation.assets[filename.slice(0, -3) + 'png'] = touchAsset;
-                    compilation.assets[filename.slice(0, -3) + 'ico'] = icoAsset;
-                    callback();
-                }).catch(callback);
-            });
-        },
-    },
-]
-
-
-function processFavicon(svgSource) {
-    const dir = path.join(__dirname, 'build');
-    const file = path.join(dir, 'favicon.svg');
-    return mkdir(dir)
-        .catch(e => {
-            // XXX WTF is there really no structured error info in Node?!
-            if (e.code === 'EEXIST') {
-                return null;
-            }
-            throw e;
-        })
-        .then(_ => writeFile(file, svgSource))
-        .then(_ => Promise.all([scourFavicon(file), rasterizeFavicon(file)]))
-        .then(([svgAsset, [touchAsset, icoAsset]]) => [svgAsset, touchAsset, icoAsset]);
+const runmode = process.env.RUNMODE;
+if (![RELEASE, DEV_STATIC, DEV_HOT].includes(runmode)) {
+    throw new Error(`Invalid RUNMODE environment variable '${runmode}'`);
 }
 
-function scourFavicon(file) {
-    const outfile = `${file}.scour.svg`;
-    const args = [
-        '/usr/bin/scour',
-        '-i', file,
-        '-o', outfile,
-        '--indent=none',
-        '--enable-comment-stripping',
-        '--enable-id-stripping',
-        '--shorten-ids',
-    ];
-    // Travis seems to rewire /usr/bin/python to whatever version of Python is
-    // specified in the job, so it is Python 3 there. However, the scour
-    // executable installed by apt is Python 2.7 only, so we must explicitly
-    // run python2.7.
-    return execFile('python2.7', args).then(_ => readFile(outfile)).then(bufferToAsset);
-}
-
-function rasterizeFavicon(file) {
-    return new Promise((resolve, reject) => {
-        const inkscape = spawn('inkscape', ['--shell'])
-        const outfiles = [];
-        var output = '';
-        inkscape.stdout.on('data', s => { output += s; })
-        inkscape.stderr.on('data', s => { output += s; });
-        inkscape.on('close', code => {
-            if (code !== 0) {
-                reject(new Error(`Inkscape exited ${code}:\n${output}`));
-            } else {
-                resolve(outfiles);
-            }
-        });
-        [152, 16, 24, 32, 64].forEach(size => {
-            const outfile = `${file}.${size}.png`;
-            inkscape.stdin.write(`${file} --export-png=${outfile} -w ${size} -h ${size} --export-area-page\n`);
-            outfiles.push(outfile);
-        });
-        inkscape.stdin.end();
-    }).then(([touch, ...icoSizes]) => {
-        const ico = `${file}.ico`;
-        return Promise.all([
-            execFile('optipng', ['-quiet', touch]).then(_ => readFile(touch)).then(bufferToAsset),
-            execFile('icotool', ['--create', '-o', ico].concat(icoSizes)).then(_ => readFile(ico)).then(bufferToAsset),
-        ]);
-    });
-}
-
-function bufferToAsset(buffer) {
-    if (!(buffer instanceof Buffer)) {
-        throw new Error(`${buffer} is not a Buffer`);
+/**
+ * Replace "[hash]" and "[contenthash]" with "hot", as expected for hot module
+ * reloading.
+ *
+ * This must match the name generated by the latest_static Django template tag
+ * defined in yarrharr/templatetags/static_glob.js
+ */
+function hotify(namePattern) {
+    if (runmode === DEV_HOT) {
+        return namePattern.replace(/\[(content)?hash\]/, 'hot');
     }
-    return {
-        source() { return buffer; },
-        size() { return buffer.length; },
-    };
+    return namePattern;
 }
 
-if (production) {
-    plugins.push(new webpack.optimize.CommonsChunkPlugin({
-        name: 'vendor',
-    }));
-    plugins.push(new MinifyPlugin({}, {sourceMap: true}));
-}
-
-module.exports = {
-    entry: {
-        main: path.join(__dirname, 'assets/entry.js'),
-        vendor: ['react', 'react-dom', 'react-redux', 'redux-thunk', 'redux-logger'],
-    },
+const config = {
+    mode: runmode === RELEASE ? 'production' : 'development',
+    entry: './assets/entry.js',
     resolve: {
         modules: [
             path.join(__dirname, 'assets'),
             'node_modules',
         ],
+        extensions: [
+            '.js',
+            '.jsm',
+        ],
     },
     module: {
         rules: [{
-            test: /\.jsm?$/,
-            enforce: 'pre',
-            loaders: ['eslint-loader'],
-            exclude: /node_modules/,
-        }, {
+        // FIXME WP4: Restore eslint
+            // test: /\.jsm?$/,
+            // enforce: 'pre',
+            // loaders: ['eslint-loader'],
+            // exclude: /node_modules/,
+        // }, {
             test: /\.less$/,
-            use: extractLESS.extract({
-                use: [{
-                    loader: 'css-loader',
-                    options: {minimize: production},
-                }, {
-                    loader: 'less-loader',
-                    options: {strictMath: true, noIeCompat: true},
-                }],
-                // Used when disabled above (for compatibility with HMR?):
-                fallback: 'style-loader',
-            }),
+            use: [{
+                // Use style-loader for hot module reloading. Otherwise extract
+                // CSS to files.
+                loader: runmode === DEV_HOT ? 'style-loader' : MiniCssExtractPlugin.loader,
+            }, {
+                loader: 'css-loader',
+                options: {sourceMap: true}
+            }, {
+                loader: 'less-loader',
+                options: {strictMath: true, noIeCompat: true, sourceMap: true},
+            }],
         }, {
             test: /\.jsm?$/,
             loaders: ['babel-loader'],
@@ -174,15 +81,87 @@ module.exports = {
             use: [{
                 loader: 'file-loader',
                 options: {
-                    name: '[name]-[hash].[ext]',
+                    name: hotify('[name]-[hash].[ext]'),
                 },
             }],
         }],
     },
     output: {
-        path: path.join(__dirname, 'yarrharr/static'),
-        filename: '[name]-[hash].js',
+        path: path.resolve(__dirname, 'yarrharr/static'),
+        filename: hotify('[name]-[contenthash].js'),
     },
-    plugins: plugins,
-    devtool: 'source-map',
+    plugins: [
+        new MiniCssExtractPlugin({
+            filename: hotify("[name]-[contenthash].css"),
+        }),
+        new FaviconPlugin(),
+        new webpack.DefinePlugin({
+            __debug__: JSON.stringify(runmode !== RELEASE),
+            __hot__: JSON.stringify(runmode === DEV_HOT),
+        }),
+    ],
+    devtool: "source-map",
+    optimization: {
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    ecma: 6,
+                    module: true,
+                    compress: {
+                        global_defs: {
+                            // Tersify refuses to do code elimination when the constant is defined
+                            // as "const __debug__ = process.env.NODE_ENV !== 'production'": it
+                            // translates that comparison to false (actually !1) but doesn't
+                            // propagate the value like uglify did. However, if we define __debug__
+                            // directly here code elimination works.
+                            __debug__: runmode !== RELEASE,
+                        },
+                    },
+                    mangle: {
+                        // Never mangle these names so that the build script can grep for them as
+                        // a sanity check. Note that propTypes would normally never be mangled, but
+                        // __debug__ would be.
+                        reserved: ['__debug__', 'propTypes'],
+                    },
+                    output: {
+                        // Keep the line length sane to make inspecting the bundle easier.
+                        max_line_len: 180,
+                        // TODO: Insert a license comment.
+                    },
+                },
+            }),
+        ],
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\\/]node_modules[\\\/]/,
+                    name: 'vendor',
+                    chunks: 'all'
+                },
+            },
+        },
+    },
 };
+
+if (runmode === DEV_HOT) {
+    // The publicPath seems to be required for HMR but we don't want to
+    // hardcode it in other runmodes because the deployment address is not
+    // known.
+    config.output.publicPath = 'http://127.0.0.1:8888/static/';
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+    config.devServer = {
+        allowedHosts: ['127.0.0.1'],
+        host: '127.0.0.1',
+        port: 8888,
+        hot: true,
+        index: '', // Proxy / instead of serving a file.
+        proxy: {
+            '/': 'http://127.0.0.1:8887',  // Django dev server.
+        },
+        publicPath: '/static/',
+        contentBase: path.join(__dirname, 'yarrharr/static'),
+    };
+}
+
+module.exports = config;

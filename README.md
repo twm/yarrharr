@@ -56,9 +56,12 @@ Run the Django development server via Tox with:
 
     $ make devserver
 
-In another terminal, run the [Webpack](http://webpack.github.io/) build process with:
+In another terminal, run the [Webpack](http://webpack.github.io/) development server with:
 
     $ make webpack
+
+The Webpack dev server is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
+It has [hot module replacement](https://webpack.js.org/guides/hot-module-replacement/) configured, so the page will automatically update as you edit the source files in [./assets/](./assets/).
 
 If you make changes to the Django models you can generate migrations by running `django-admin` under Tox::
 
@@ -74,6 +77,14 @@ To schedule an immediate check of all feeds:
 
     $ make force-poll
 
+## Running the `yarrharr` Executable
+
+To run the `yarrharr` Twisted executable in a development, stop the Django and Webpack dev servers and run:
+
+    $ make realserver
+
+Yarrharr is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
+
 ## Releasing Yarrharr
 
  1. Bump the version number in ``setup.py``.
@@ -83,7 +94,7 @@ To schedule an immediate check of all feeds:
 
 ## License
 
-Copyright © 2013, 2014, 2015, 2016, 2017, 2018 Tom Most
+Copyright © 2013, 2014, 2015, 2016, 2017, 2018, 2019 Tom Most
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the [GNU General Public License](./COPYING) as published by the Free Software

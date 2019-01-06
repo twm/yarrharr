@@ -4,7 +4,6 @@ import { LabelLink } from 'widgets/links.js';
 import { FILTER_UNREAD } from '../actions.js';
 import "./Label.less";
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 /**
  * <Label> displays the name of a label as a link to that label's view.

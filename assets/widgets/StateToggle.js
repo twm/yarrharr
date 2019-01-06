@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { HeartIcon } from 'widgets/icons.js';
 import './StateToggle.less';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 export class ReadToggleLink extends React.PureComponent {
     constructor(props) {

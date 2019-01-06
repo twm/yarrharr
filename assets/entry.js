@@ -10,6 +10,7 @@ import { applyMiddleware, createStore, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import { logger } from 'redux-logger';
 import { Provider } from 'react-redux';
+import { hot } from 'react-hot-loader';
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -25,7 +26,6 @@ import { IconSprites } from 'widgets/icons.js';
 import './art/icon.svg';
 import reducer from './reducer.js';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 const middleware = [
     thunk,
@@ -33,6 +33,8 @@ const middleware = [
 if (__debug__) {
     // middleware.push(logger);
 }
+
+const Wrapper = __hot__ ? hot(module)(React.Fragment) : React.Fragment;
 
 // Only render the app on pages that are run by JS (not, say, login pages).
 const appElement = document.getElementById("app");
@@ -46,14 +48,14 @@ if (appElement && propsElement) {
     syncLocation(store, window);
 
     ReactDOM.render(
-        <React.Fragment>
+        <Wrapper>
             <IconSprites />
             <Provider store={store}>
                 <ConnectedYarrharr>
                     <ConnectedRouter />
                 </ConnectedYarrharr>
             </Provider>
-        </React.Fragment>,
+        </Wrapper>,
         appElement
     );
 }

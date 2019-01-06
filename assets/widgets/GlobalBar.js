@@ -8,7 +8,6 @@ import { ReturnIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon,
 
 import { RootLink } from 'widgets/links.js';
 
-const __debug__ = process.env.NODE_ENV !== 'production';
 
 export class LayoutToggleLink extends React.PureComponent {
     constructor(props) {
