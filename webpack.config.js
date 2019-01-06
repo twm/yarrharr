@@ -4,7 +4,21 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const FaviconPlugin = require('./favicon.js');
 
+const RELEASE = 'release';
+const DEV_STATIC = 'dev-static';
+const DEV_HOT = 'dev-hot';
+
+const runmode = DEV_HOT;
+
+function hotify(namePattern) {
+    if (runmode === DEV_HOT) {
+        return namePattern.replace(/\[(content)?hash\]/, 'hot');
+    }
+    return namePattern;
+}
+
 const config = {
+    mode: runmode === RELEASE ? 'production' : 'development',
     entry: './assets/entry.js',
     resolve: {
         modules: [
@@ -26,7 +40,9 @@ const config = {
         // }, {
             test: /\.less$/,
             use: [{
-                loader: MiniCssExtractPlugin.loader,
+                // Use style-loader for hot module reloading. Otherwise extract
+                // CSS to files.
+                loader: runmode === DEV_HOT ? 'style-loader' : MiniCssExtractPlugin.loader,
             }, {
                 loader: 'css-loader',
                 options: {sourceMap: true}
@@ -45,21 +61,25 @@ const config = {
             use: [{
                 loader: 'file-loader',
                 options: {
-                    name: '[name]-[hash].[ext]',
+                    name: hotify('[name]-[hash].[ext]'),
                 },
             }],
         }],
     },
     output: {
         path: path.resolve(__dirname, 'yarrharr/static'),
-        filename: '[name]-[contenthash].js',
+        filename: hotify('[name]-[contenthash].js'),
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: "[name]-[contenthash].css",
+            filename: hotify("[name]-[contenthash].css"),
         }),
         new FaviconPlugin(),
-        // TODO: HMR plugin? or does that go in devServer?
+        new webpack.DefinePlugin({
+            __debug__: JSON.stringify(runmode !== RELEASE),
+            __hot__: JSON.stringify(runmode === DEV_HOT),
+        }),
+        new webpack.HotModuleReplacementPlugin(),
     ],
     devtool: "source-map",
     optimization: {
@@ -75,7 +95,7 @@ const config = {
                             // translates that comparison to false (actually !1) but doesn't
                             // propagate the value like uglify did. However, if we define __debug__
                             // directly here code elimination works.
-                            __debug__: false,
+                            __debug__: false, // FIXME runmode !== RELEASE,
                         },
                     },
                     mangle: {
@@ -104,7 +124,16 @@ const config = {
         },
     },
     devServer: {
-        contentBase: './dist' // FIXME
+        allowedHosts: ['127.0.0.1'],
+        host: '127.0.0.1',
+        port: 8889,
+        hot: true,
+        index: '', // Proxy / instead of serving a file.
+        proxy: {
+            '/': 'http://127.0.0.1:8888',  // Django dev server.
+        },
+        publicPath: 'http://127.0.0.1:8889/static/',
+        contentBase: path.join(__dirname, 'yarrharr/static'),
     },
 }
 

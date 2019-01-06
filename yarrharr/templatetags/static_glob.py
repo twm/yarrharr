@@ -72,6 +72,12 @@ def newest_static(pattern):
     """
     # TODO The result of this should be cached when not in DEBUG mode.
     assert '/' not in pattern  # don't support subdirectories
+
+    # When using Webpack's dev server to do hot module reloading the files are
+    # served from memory with static names.
+    if not os.path.isdir(_static_dir):
+        return pattern.replace('*', 'hot')
+
     name, mtime = None, None
     for entry in os.scandir(_static_dir):
         if not entry.is_file():

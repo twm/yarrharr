@@ -43,9 +43,11 @@ poll-feeds:
 force-poll:
 	tox -e run -- django-admin forcepoll
 
-# TODO: Switch this to use webpack's dev server for hot module reloading.
 webpack:
-	$(V)NODE_ENV=development npm run build-dev
+	# Remove the static directory so that the latest_static templatetag knows
+	# we are in HMR mode:
+	$(V)rm -rf yarrharr/static
+	$(V)NODE_ENV=development npm run devserver
 
 
 clean:
