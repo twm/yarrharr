@@ -31,7 +31,7 @@ devserver:
 realserver:
 	NODE_ENV=development RUNMODE=dev-static npm run webpack
 	tox -e run -- django-admin migrate
-	tox -e run -- django-admin collectstatic
+	tox -e run -- django-admin collectstatic --noinput
 	tox -e run -- yarrharr
 
 .PHONY: poll-feeds
