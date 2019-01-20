@@ -17,16 +17,16 @@ export class Article extends React.PureComponent {
             </h1>
             <div className="meta">
                 {this.props.author
-                    ? <p>By {this.props.author} from <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
-                    : <p>From <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
-                <p>Posted <RelativeTime then={this.props.date} /></p>
+                    ? <p>By {this.props.author} on <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
+                    : <p>On <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
+                <p><RelativeTime then={this.props.date} /></p>
             </div>
             <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
         </article>;
     }
 }
 
-if (process.env.NODE_ENV !== 'production') {
+if (__debug__) {
     Article.propTypes = {
         // Data attributes
         id: PropTypes.number.isRequired,
