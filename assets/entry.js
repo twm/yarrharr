@@ -10,7 +10,6 @@ import { applyMiddleware, createStore, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import { logger } from 'redux-logger';
 import { Provider } from 'react-redux';
-import { hot } from 'react-hot-loader';
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -23,6 +22,8 @@ import syncThemeClass from './syncThemeClass.jsm';
 import { ConnectedRouter } from './router.js'
 import { ConnectedYarrharr } from './widgets/Yarrharr.js';
 import { IconSprites } from 'widgets/icons.js';
+import { FocusVisibleObserver } from 'widgets/FocusVisibleObserver.js';
+import { HotWrapper } from 'widgets/HotWrapper.js';
 import './art/icon.svg';
 import reducer from './reducer.js';
 
@@ -33,8 +34,6 @@ const middleware = [
 if (__debug__) {
     // middleware.push(logger);
 }
-
-const Wrapper = __hot__ ? hot(module)(React.Fragment) : React.Fragment;
 
 // Only render the app on pages that are run by JS (not, say, login pages).
 const appElement = document.getElementById("app");
@@ -48,14 +47,16 @@ if (appElement && propsElement) {
     syncLocation(store, window);
 
     ReactDOM.render(
-        <Wrapper>
-            <IconSprites />
-            <Provider store={store}>
+        <Provider store={store}>
+            <HotWrapper>
+                <IconSprites />
                 <ConnectedYarrharr>
-                    <ConnectedRouter />
+                    <FocusVisibleObserver>
+                        <ConnectedRouter />
+                    </FocusVisibleObserver>
                 </ConnectedYarrharr>
-            </Provider>
-        </Wrapper>,
+            </HotWrapper>
+        </Provider>,
         appElement
     );
 }
