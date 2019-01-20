@@ -12,7 +12,7 @@ export class FocusVisibleObserver extends React.Component {
     constructor(props) {
         super(props);
         this.state = {keys: false};
-        this.keyEvent = () => {
+        this.keyEvent = (e) => {
             // TODO: Modifier-only key events shouldn't change this state
             // (e.g., Alt-Tab or Ctrl-Click).
             this.setState({keys: true});
@@ -22,6 +22,7 @@ export class FocusVisibleObserver extends React.Component {
         };
     }
     applyClass() {
+        // console.log('applyClass %s', this.state.keys);
         const classes = document.body.classList;
         if (this.state.keys) {
             classes.add(FOCUS_VISIBLE_CLASS);
@@ -32,8 +33,9 @@ export class FocusVisibleObserver extends React.Component {
     render() {
         this.applyClass();
         return <div
-            onKeyDown={this.keyEvent}
-            onClick={this.nonKeyEvent}
+                // onKeyDown={this.keyEvent}
+            onKeyUp={this.keyEvent}
+            onMouseDown={this.nonKeyEvent}
             children={this.props.children}
         />;
     }
