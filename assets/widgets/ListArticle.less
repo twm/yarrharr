@@ -29,7 +29,7 @@
     .outbound {
         .flat-button;
         &:hover { .flat-button-hover; }
-        &:focus { .flat-button-focus; }
+        body.inputmode-keyboard &:focus { .flat-button-focus; }
         padding: ((2 * @button_border_width));
         flex: 1 1 100%;
         width: 100%;
@@ -76,7 +76,7 @@
 
         .flat-button;
         &:hover { .flat-button-hover; }
-        &:focus { .flat-button-focus; }
+        body.inputmode-keyboard &:focus { .flat-button-focus; }
     }
     .read-toggle {
         // background: purple;

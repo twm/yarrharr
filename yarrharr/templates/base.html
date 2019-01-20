@@ -19,7 +19,7 @@
         <script src="{% static 'vendor-*.js'|newest_static %}" defer></script>
         <script src="{% static 'main-*.js'|newest_static %}" defer></script>
     </head>
-    <body>
+    <body class="inputmode-keyboard">
         <main role=main>
             {% block content %}{% endblock %}
         </main>

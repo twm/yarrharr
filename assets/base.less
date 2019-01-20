@@ -91,8 +91,15 @@ h1 {
     font-weight: normal;
 }
 
-:focus {
+/* Suppress focus indicators unless keyboard input is in effect. This will
+ * hopefully be replaced with the pseudo-class :focus-visible in time, but
+ * browser support is nearly nonexistent right now and hasn't improved in the
+ * last year. */
+body.inputmode-keyboard :focus {
     outline: 1px dotted var(--focus-color);
+}
+body:not(.inputmode-keyboard) :focus {
+    outline: none;
 }
 
 /**
@@ -172,11 +179,11 @@ select[multiple] {
         background: linear-gradient(to top, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
         box-shadow: inset var(--gradient-end) 0 0 .25rem;
     }
-    &:focus {
+    body.inputmode-keyboard &:focus {
         box-shadow: inset 0 0 0 1.5px currentColor;
         outline: none;
     }
-    &:active:focus {
+    body.inputmode-keyboard &:active:focus {
         box-shadow: inset 0 0 0 1.5px currentColor,
                     inset var(--gradient-end) 0 0 .25rem;
     }
@@ -247,7 +254,7 @@ select[multiple] {
     & > button {
         .flat-button;
         &:hover { .flat-button-hover; }
-        &:focus { .flat-button-focus; }
+        body.inputmode-keyboard &:focus { .flat-button-focus; }
     }
 
     & > * {
