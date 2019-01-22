@@ -16,13 +16,21 @@ export class ReadToggleLink extends React.PureComponent {
     render() {
         const read = this.props.read;
         if (read == null) {
-            return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
+            return <button className="read-toggle-button" aria-pressed={false} aria-label="Read" aria-disabled={true} tabIndex={-1} />;
         }
         const actionText = read ? "Mark unread" : "Mark read"
         return <button className="read-toggle square" aria-pressed={read} aria-label="Read" title={actionText} onClick={this.handleClick}>
-            <svg width="1em" height="1em" viewBox="-10 -10 20 20" aria-hidden={true} className={this.props.iconClass}>
-                <circle cx="0" cy="0" r="7" />
-                <path d="M-7 2 l 5 5 l 9 -11" />
+            <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden={true} className={this.props.iconClass}>
+                <defs>
+                    {/* This would be defined in <IconSprite />, but referencing it as url(#check-mask) it doesn't work if I put it there. Duplicate IDs, oh well. */}
+                    <mask id="check-mask">
+                        <use xlinkHref="#icon-check" color="white" />
+                    </mask>
+                </defs>
+                <g mask="url(#check-mask)">
+                    <rect className="inactive" width="1" height="1" />
+                    <rect className="active" width="1" height="1" />
+                </g>
             </svg>
         </button>;
     }
@@ -55,8 +63,19 @@ export class FaveToggleLink extends React.PureComponent {
             return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
         const actionText = fave ? "Mark article as not favorite" : "Mark article as favorite";
-        return <button className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} href="#" onClick={this.handleClick}>
-            <HeartIcon className={this.props.iconClass} aria-hidden={true} />
+        return <button className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} onClick={this.handleClick}>
+            <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden={true} className={this.props.iconClass}>
+                <defs>
+                    {/* This would be defined in <IconSprite />, but referencing it as url(#check-mask) it doesn't work if I put it there. Duplicate IDs, oh well. */}
+                    <mask id="heart-mask">
+                        <use xlinkHref="#icon-heart" color="white" />
+                    </mask>
+                </defs>
+                <g mask="url(#heart-mask)">
+                    <rect className="inactive" width="1" height="1" />
+                    <rect className="active" width="1" height="1" />
+                </g>
+            </svg>
         </button>;
     }
 }
