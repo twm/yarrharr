@@ -16,7 +16,7 @@ export class ReadToggleLink extends React.PureComponent {
     render() {
         const read = this.props.read;
         if (read == null) {
-            return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
+            return <button className="read-toggle-button" aria-pressed={false} aria-label="Read" aria-disabled={true} tabIndex={-1} />;
         }
         const actionText = read ? "Mark unread" : "Mark read"
         return <button className="read-toggle square" aria-pressed={read} aria-label="Read" title={actionText} onClick={this.handleClick}>
@@ -63,7 +63,7 @@ export class FaveToggleLink extends React.PureComponent {
             return <a role="button" className="square" aria-disabled={true} tabIndex={-1} href="#"></a>;
         }
         const actionText = fave ? "Mark article as not favorite" : "Mark article as favorite";
-        return <button className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} href="#" onClick={this.handleClick}>
+        return <button className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} onClick={this.handleClick}>
             <HeartIcon className={this.props.iconClass} aria-hidden={true} />
         </button>;
     }
