@@ -17,11 +17,11 @@
 
 .read-toggle {
     .inactive {
-        fill: var(--check-color);
+        fill: var(--icon-color-off);
     }
     .active {
-        fill: var(--icon-color-off);
-        transform: translateX(100%);
+        fill: var(--check-color);
+        transform: translateX(-100%);
         transition: transform 150ms ease-in;
     }
     &[aria-pressed=true] .active {
