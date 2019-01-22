@@ -20,16 +20,16 @@ export class ReadToggleLink extends React.PureComponent {
         }
         const actionText = read ? "Mark unread" : "Mark read"
         return <button className="read-toggle square" aria-pressed={read} aria-label="Read" title={actionText} onClick={this.handleClick}>
-            <svg width="1em" height="1em" viewBox="-10 -10 20 20" aria-hidden={true} className={this.props.iconClass}>
+            <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden={true} className={this.props.iconClass}>
                 <defs>
                     {/* This would be defined in <IconSprite />, but referencing it as url(#check-mask) it doesn't work if I put it there. Duplicate IDs, oh well. */}
                     <mask id="check-mask">
-                        <path d="M-7 2 l 5 5 l 9 -11" stroke="white" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" fill="none" />
+                        <use xlinkHref="#icon-check" color="white" />
                     </mask>
                 </defs>
                 <g mask="url(#check-mask)">
-                    <rect className="inactive" x="-10" y="-10" width="20" height="20" />
-                    <rect className="active" x="-10" y="-10" width="20" height="20" />
+                    <rect className="inactive" width="1" height="1" />
+                    <rect className="active" width="1" height="1" />
                 </g>
             </svg>
         </button>;

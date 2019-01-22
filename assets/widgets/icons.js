@@ -62,6 +62,9 @@ export function IconSprites(props) {
                 <path d="M 13 3 L 16 6 L 6 16 L 2 17 L 3 13 Z" fill="currentColor" stroke="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
                 <path d="M 1 19 L 17 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             </symbol>
+            <symbol id="icon-check" viewBox="-10 -10 20 20">
+                <path d="M-7 2 l 5 5 l 9 -11" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" fill="none" />
+            </symbol>
             <symbol id="icon-heart" viewBox="-10 -10 20 20">
                 <path d={HEART_PATH} fill="currentColor" stroke="none" />
             </symbol>
@@ -106,6 +109,7 @@ export const FeedIcon = makeSpriteIcon("#icon-feed");
 export const LabelIcon = makeSpriteIcon("#icon-label");
 export const OutboundIcon = makeSpriteIcon("#icon-outbound");
 export const EditIcon = makeSpriteIcon("#icon-edit");
+export const CheckIcon = makeSpriteIcon("#icon-check", "icon icon-check");
 export const HeartIcon = makeSpriteIcon("#icon-heart", "icon icon-heart");
 export const FollowIcon = makeSpriteIcon("#icon-follow");
 export const ReturnIcon = makeSpriteIcon("#icon-return");
