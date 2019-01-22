@@ -7,32 +7,16 @@
 }
 
 .read-toggle {
-    circle {
-        stroke: var(--icon-color-off);
-        stroke-width: 2;
-        fill: none;
-        transition: all 100ms ease;
+    .inactive {
+        fill: var(--check-color);
     }
-    path {
-        stroke: var(--check-color);
-        stroke-width: 4;
-        stroke-linejoin: round;
-        stroke-linecap: round;
-        stroke-dasharray: 21.283737182617188;
-        stroke-dashoffset: 21.283737182617188;
-        fill: none;
-        opacity: 0;
-        transition: all 200ms ease;
+    .active {
+        fill: var(--icon-color-off);
+        transform: translateX(100%);
+        transition: transform 150ms ease-in;
     }
-    &[aria-pressed=true] {
-        circle {
-            transform: scale(0.5);
-            opacity: 0;
-        }
-        path {
-            opacity: 1;
-            stroke-dashoffset: 0;
-        }
+    &[aria-pressed=true] .active {
+        transform: translateX(0);
     }
 }
 
