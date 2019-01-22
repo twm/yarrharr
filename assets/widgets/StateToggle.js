@@ -64,7 +64,18 @@ export class FaveToggleLink extends React.PureComponent {
         }
         const actionText = fave ? "Mark article as not favorite" : "Mark article as favorite";
         return <button className="fave-toggle square" tabIndex="0" aria-pressed={fave} aria-label="Favorite" title={actionText} onClick={this.handleClick}>
-            <HeartIcon className={this.props.iconClass} aria-hidden={true} />
+            <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden={true} className={this.props.iconClass}>
+                <defs>
+                    {/* This would be defined in <IconSprite />, but referencing it as url(#check-mask) it doesn't work if I put it there. Duplicate IDs, oh well. */}
+                    <mask id="heart-mask">
+                        <use xlinkHref="#icon-heart" color="white" />
+                    </mask>
+                </defs>
+                <g mask="url(#heart-mask)">
+                    <rect className="inactive" width="1" height="1" />
+                    <rect className="active" width="1" height="1" />
+                </g>
+            </svg>
         </button>;
     }
 }
