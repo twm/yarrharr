@@ -37,7 +37,10 @@ export default class ListArticle extends React.PureComponent {
             <div className="list-article-inner">
                 <div className="list-article-slider">
                     <a className="outbound" href={props.url} target="_blank" title="View on source site" onDragStart={cancel}>
-                        <span className="meta1">{props.feed.text || props.feed.title} — <RelativeTime then={props.date} /></span>
+                        <span className="meta1">
+                            {props.feed.text || props.feed.title} — <RelativeTime then={props.date} />
+                            {props.author ? <React.Fragment> — {props.author}</React.Fragment> : null}
+                        </span>
                         <span className="meta2"><span className="title">{props.title || "Untitled"}</span> {props.fave ? HEART_ICON : null} <span className="snippet">{props.snippet}</span></span>
                     </a>
                     <ReadToggle articleId={props.id} read={props.read} onMarkArticlesRead={props.onMarkArticlesRead} />

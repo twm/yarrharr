@@ -9,18 +9,18 @@ import "./Article.less";
 export class Article extends React.PureComponent {
     render() {
         return <article>
+            <div className="meta">
+                <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink> — <RelativeTime then={this.props.date} />
+                {this.props.author
+                    ? <React.Fragment> — {this.props.author} </React.Fragment>
+                    : null}
+            </div>
             <h1>
                 <a href={this.props.url} target="_blank">
                     <span>{this.props.title || "Untitled"}</span>
                     <OutboundIcon aria-hidden={true} />
                 </a>
             </h1>
-            <div className="meta">
-                {this.props.author
-                    ? <p>By {this.props.author} on <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>
-                    : <p>On <FeedLink feedId={this.props.feedId} filter={FILTER_ALL}>{this.props.feed.text || this.props.feed.title}</FeedLink></p>}
-                <p><RelativeTime then={this.props.date} /></p>
-            </div>
             <div className="content" dangerouslySetInnerHTML={{__html: this.props.content}} />
         </article>;
     }
