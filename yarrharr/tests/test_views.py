@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -521,6 +521,19 @@ class InventoryViewTests(TestCase):
             },
             'labelOrder': [label_a.id],
         }, response.json())
+
+
+class ManifestTests(TestCase):
+    def test_get(self):
+        """
+        The manifest is valid JSON served with the application/manifest+json
+        content type.
+        """
+        response = Client().get('/manifest.webmanifest')
+        self.assertEqual(response.status_code)
+
+        manifest = response.json()
+        self.assertEqual('Yarrharr', manifest['name'])
 
 
 class RobotsTxtTests(TestCase):
