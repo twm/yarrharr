@@ -529,8 +529,14 @@ class ManifestTests(TestCase):
         The manifest is valid JSON served with the application/manifest+json
         content type.
         """
-        response = Client().get('/manifest.webmanifest')
-        self.assertEqual(response.status_code)
+        # Setting HOT to True prevents the latest_static template tag from
+        # listing files in the static directory which doesn't necessarily exist
+        # (particularly on CI).
+        with self.settings(HOT=True):
+            response = Client().get('/manifest.webmanifest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('application/manifest+json', response['Content-Type'])
 
         manifest = response.json()
         self.assertEqual('Yarrharr', manifest['name'])
