@@ -374,6 +374,20 @@ class FetchTests(SynchronousTestCase):
 
         self.assertIsInstance(outcome, BozoError)
 
+    def test_entry_without_title(self):
+        """
+        An entry in a RSS feed may lack a title. This resolves to an empty
+        string for the raw_title.
+        """
+        feed = FetchFeed()
+        xml = resource_string('yarrharr', 'examples/no-item-title.rss')
+        client = StubTreq(StaticResource(xml, b'text/xml; charset=utf-8'))
+
+        outcome = self.successResultOf(poll_feed(feed, self.clock, client))
+
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual('', outcome.articles[0].raw_title)
+
     def test_connection_refused(self):
         """
         An expected error type when connecting produces a NetworkError.

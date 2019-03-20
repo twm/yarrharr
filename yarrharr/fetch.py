@@ -548,7 +548,7 @@ def poll_feed(feed, clock, treq=treq):
     for entry in parsed['entries']:
         articles.append(ArticleUpsert(
             author=entry.get('author', u''),
-            raw_title=extract_title(entry['title_detail']),
+            raw_title=extract_title(entry.get('title_detail')),
             url=entry.get('link', u''),
             date=extract_date(entry),
             guid=entry.get('id', u''),
@@ -624,8 +624,16 @@ def extract_title(title_detail):
     Given a feedparser `title_detail object`_, return a HTML version of
     the title.
 
+    :param title_detail:
+        A feed or `entry title_detail`_ dict. If `None`, the result is an empty
+        string.
+
     .. _title_detail object: https://pythonhosted.org/feedparser/reference-feed-title_detail.html
+
+    .. _entry title_detail: https://pythonhosted.org/feedparser/reference-entry-title_detail.html
     """
+    if title_detail is None:
+        return ''
     if title_detail['type'] == u'text/plain':
         return html.escape(title_detail['value'])
     else:
