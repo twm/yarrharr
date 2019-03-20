@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2015, 2016, 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2013–2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -481,6 +481,16 @@ def inventory(request):
                             content_type='application/json')
     else:
         return HttpResponseNotAllowed(['GET', 'POST'])
+
+
+def manifest(request):
+    """
+    Generate a Web App Manifest for the application.
+    """
+    # A template is used to generate the JSON manifest so that the template
+    # infrastructure for generating icon URLs can be reused.
+    return render(request, 'manifest.json', {},
+                  content_type='application/manifest+json')
 
 
 def about(request):
