@@ -1,0 +1,17 @@
+{% load static %}
+{% load static_glob %}
+{% autoescape off %}
+{
+    "name": "Yarrharr",
+    "short_name": "Yarrharr",
+    "description": "Feed reader",
+    "display": "browser",
+    "start_url": ".",
+    "background_color": "black",
+    "icons": [
+        {"sizes": "16x16 24x24 32x32 48x48 64x64", "type": "image/x-icon", "src": "{% static 'icon-*.ico'|newest_static %}"},
+        {"sizes": "152x152", "type": "image/png", "src": "{% static 'icon-*.png'|newest_static %}"},
+        {"sizes": "any", "type": "image/svg+xml", "src": "{% static 'icon-*.svg'|newest_static %}"}
+    ]
+}
+{% endautoescape %}

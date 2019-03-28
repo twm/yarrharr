@@ -25,6 +25,8 @@ import { IconSprites } from 'widgets/icons.js';
 import { FocusVisibleObserver } from 'widgets/FocusVisibleObserver.js';
 import { HotWrapper } from 'widgets/HotWrapper.js';
 import './art/icon.svg';
+import './art/logotype.svg';
+import './art/lettertype.svg';
 import reducer from './reducer.js';
 
 

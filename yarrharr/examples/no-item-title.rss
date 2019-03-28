@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+    <channel>
+        <description>=^● ⋏ ● ^=</description>
+        <title>Meow</title>
+        <generator>Examplr (3.0; @example)</generator>
+        <link>http://cats.example.com/</link>
+        <item>
+            <description>...</description>
+            <link>http://cats.example.com/post/1234</link>
+            <guid>http://cats.example.com/post/1234</guid>
+            <pubDate>Sat, 01 Mar 2019 02:03:04 -0500</pubDate>
+        </item>
+    </channel>
+</rss>

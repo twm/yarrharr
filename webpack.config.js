@@ -75,9 +75,9 @@ const config = {
             loaders: ['babel-loader'],
             exclude: /node_modules/,
         }, {
-            // Files which must currently be used as images.
-            // icon.svg — included as a file from non-React pages.
-            test: /assets\/art\/icon\.svg$/,
+            // Files that must currently be used as images because they are
+            // included from non-React pages:
+            test: /assets\/art\/(icon|logotype|lettertype)\.svg$/,
             use: [{
                 loader: 'file-loader',
                 options: {
