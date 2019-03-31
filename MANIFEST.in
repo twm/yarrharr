@@ -3,3 +3,4 @@ include yarrharr/tests/test_config.ini
 recursive-include yarrharr/examples *.rss *.atom
 recursive-include yarrharr/static *
 recursive-include yarrharr/templates *.html
+recursive-include yarrharr/templates *.json
