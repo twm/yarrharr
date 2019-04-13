@@ -230,7 +230,7 @@ class Article(models.Model):
         text = sanitize.html_to_text(content)
         if text.startswith(title):
             text = text[len(title):].lstrip()
-        self.content_snippet = text[:255]
+        self.content_snippet = text[:512]
         self.content_rev = sanitize.REVISION
 
 
