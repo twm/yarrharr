@@ -1,4 +1,9 @@
 dist: xenial
+branches:
+  only:
+    - staging  # bors r+
+    - try      # bors try
+    - master   # PRs
 matrix:
   include:
     - name: "Test: Python 3.5"
