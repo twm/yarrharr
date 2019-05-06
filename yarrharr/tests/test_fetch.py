@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,30 +24,38 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from datetime import datetime, timedelta
 import hashlib
+from datetime import datetime, timedelta
 from unittest import mock
 
 import attr
+import pytz
 from attr.validators import instance_of
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
-from twisted.internet import defer, error, task
-from twisted.trial.unittest import SynchronousTestCase
-from twisted.python.failure import Failure
-from twisted.web import http, server, static
-from twisted.web.client import readBody, ResponseNeverReceived
-from twisted.web.resource import ErrorPage, IResource
-from treq.testing import StubTreq, RequestTraversalAgent
 from pkg_resources import resource_filename, resource_string
-import pytz
+from treq.testing import RequestTraversalAgent, StubTreq
+from twisted.internet import defer, error, task
+from twisted.python.failure import Failure
+from twisted.trial.unittest import SynchronousTestCase
+from twisted.web import http, server, static
+from twisted.web.client import ResponseNeverReceived, readBody
+from twisted.web.resource import ErrorPage, IResource
 from zope.interface import implementer
 
+from ..fetch import (
+    ArticleUpsert,
+    BadStatus,
+    BozoError,
+    EmptyBody,
+    Gone,
+    MaybeUpdated,
+    NetworkError,
+    Unchanged,
+    poll_feed,
+)
 from ..models import Feed
-from ..fetch import poll_feed, ArticleUpsert, BadStatus, Gone, MaybeUpdated
-from ..fetch import Unchanged, NetworkError, BozoError
-
 
 EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
 SOME_HTML = resource_string('yarrharr', 'examples/nofeed.html')
@@ -350,8 +358,7 @@ class FetchTests(SynchronousTestCase):
 
     def test_title_missing_atom(self):
         """
-        An Atom feed which lacks a title produces a BozoError. This verifies an
-        invariant assumed by the MaybeUpdated.persist() method.
+        An Atom feed that lacks a title gets a title based on its URL.
         """
         feed = FetchFeed()
         xml = resource_string('yarrharr', 'examples/no-feed-title.atom')
@@ -359,12 +366,12 @@ class FetchTests(SynchronousTestCase):
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertIsInstance(outcome, BozoError)
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual(feed.url, outcome.feed_title)
 
     def test_title_missing_rss(self):
         """
-        An RSS feed which lacks a title produces a BozoError. This verifies an
-        invariant assumed by the MaybeUpdated.persist() method.
+        An RSS feed that lacks a title gets a title based on its URL.
         """
         feed = FetchFeed()
         xml = resource_string('yarrharr', 'examples/no-feed-title.rss')
@@ -372,7 +379,8 @@ class FetchTests(SynchronousTestCase):
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertIsInstance(outcome, BozoError)
+        self.assertIsInstance(outcome, MaybeUpdated)
+        self.assertEqual(feed.url, outcome.feed_title)
 
     def test_entry_without_title(self):
         """
@@ -576,15 +584,19 @@ class FetchTests(SynchronousTestCase):
 
     def test_bozo_empty(self):
         """
-        A zero-byte response body causes feedparser to set the bozo bit, but
-        not set a bozo exception. We must cope with that.
+        A zero-byte response body causes feedparser to return this nonsense::
+
+             {'bozo': False, 'entries': [], 'feed': {}, 'headers': {}}
+
+        To avoid blanking out the feed title if it temporarily errors out in
+        this way we catch this case earlier, producing an `EmptyBody` result.
         """
         feed = FetchFeed('https://an.example/0byte')
         client = StubTreq(StaticResource(b'', b'text/html'))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertEqual(BozoError(code=200, content_type=u'text/html', error=u'Unknown error'), outcome)
+        self.assertEqual(EmptyBody(code=200, content_type=u'text/html'), outcome)
 
     def test_updated_only(self):
         """
