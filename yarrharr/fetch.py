@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2016, 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,25 +28,23 @@
 Feed fetcher based on Twisted Web
 """
 
-from __future__ import unicode_literals, print_function
-
-from io import BytesIO
-from datetime import datetime
 import hashlib
 import html
+from datetime import datetime
+from io import BytesIO
 
 import attr
-from django.db import transaction, OperationalError
-from django.utils import timezone
 import feedparser
+import pytz
+import treq
+from django.db import OperationalError, transaction
+from django.utils import timezone
 from feedparser.http import ACCEPT_HEADER
+from twisted.internet import defer, error
+from twisted.internet.threads import deferToThread
 from twisted.logger import Logger
 from twisted.python.failure import Failure
-from twisted.internet import error, defer
-from twisted.internet.threads import deferToThread
 from twisted.web import client
-import treq
-import pytz
 
 from . import __version__
 from .models import Feed
@@ -109,6 +107,27 @@ class Gone(object):
         feed.last_checked = timezone.now()
         feed.error = u'Feed is no longer available: automatically deactivated'
         feed.next_check = None
+        feed.save()
+
+
+@attr.s(slots=True, frozen=True)
+class EmptyBody:
+    """
+    The feed content was empty. We didn't pass it to feedparser because
+    feedparser doesn't deal well with an empty feed.
+
+    :ivar int code: HTTP status code
+    :ivar str content_type:
+        Value of the Content-Type HTTP header. This is frequently a useful
+        hint.
+    """
+    code = attr.ib()
+    content_type = attr.ib()
+
+    def persist(self, feed):
+        feed.last_checked = timezone.now()
+        feed.error = 'Feed HTTP response was empty'
+        feed.schedule()
         feed.save()
 
 
@@ -523,6 +542,12 @@ def poll_feed(feed, clock, treq=treq):
     if response.code != 200:
         defer.returnValue(BadStatus(response.code))
 
+    if not raw_bytes:
+        defer.returnValue(EmptyBody(
+            code=response.code,
+            content_type=', '.join(response.headers.getRawHeaders('content-type')),
+        ))
+
     digest = hashlib.sha256(raw_bytes).digest()
     # NOTE: the feed.digest attribute is buffer (on Python 2) which means that
     # it doesn't implement __eq__(), hence the conversion.
@@ -564,7 +589,7 @@ def poll_feed(feed, clock, treq=treq):
     # then the bozo bit is probably set for something the end user doesn't need
     # to know about, like XML served as text/html.
     parsed_feed = parsed.get('feed')
-    if not parsed_feed.get('title') or (parsed['bozo'] and not articles):
+    if not articles and parsed['bozo']:
         defer.returnValue(BozoError(
             code=response.code,
             content_type=u', '.join(response.headers.getRawHeaders(u'content-type')),
@@ -572,7 +597,7 @@ def poll_feed(feed, clock, treq=treq):
         ))
     else:
         defer.returnValue(MaybeUpdated(
-            feed_title=html_to_text(extract_title(parsed_feed['title_detail'])),
+            feed_title=extract_feed_title(parsed_feed, feed.url),
             site_url=parsed_feed.get('link', u''),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
@@ -617,6 +642,18 @@ def as_datetime(t):
         second=t[5],
         tzinfo=pytz.utc,
     )
+
+
+def extract_feed_title(parsed_feed, feed_url):
+    """
+    Extract a title from a parsed feed, falling back to the URL if none is found.
+
+    :param parsed_feed:
+
+    """
+    if not parsed_feed.get('title'):
+        return feed_url
+    return html_to_text(extract_title(parsed_feed['title_detail']))
 
 
 def extract_title(title_detail):
