@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ class Article(models.Model):
     :ivar title: Title of the article as safe plain text.
     :ivar content: The sanitized HTML to present to the user.
     :ivar content_snippet:
-        The first 200 characters of text in *content*. Displayed as a preview
+        The first 500 characters of text in *content*. Displayed as a preview
         of the article in the list view.
     :ivar content_rev:
         Revision number of the sanitizer which generated *content* and
@@ -230,7 +230,7 @@ class Article(models.Model):
         text = sanitize.html_to_text(content)
         if text.startswith(title):
             text = text[len(title):].lstrip()
-        self.content_snippet = text[:255]
+        self.content_snippet = text[:500]
         self.content_rev = sanitize.REVISION
 
 

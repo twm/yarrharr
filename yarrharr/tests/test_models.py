@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -295,7 +295,10 @@ class ArticleSetContentTests(TestCase):
             '<p>' + '1' * 100 + '</p>' +
             '<script>.</script>' +
             '<p>' + '2' * 100 + '</p>' +
-            '<p>' + '3' * 100 + '</p>'
+            '<p>' + '3' * 100 + '</p>' +
+            '<p>' + '4' * 100 + '</p>' +
+            '<p>' + '5' * 100 + '</p>' +
+            '<p>' + '6' * 100 + '</p>'
         ))
 
         self.assertEqual('Title', self.article.title)
@@ -303,12 +306,21 @@ class ArticleSetContentTests(TestCase):
             (
                 '<p>' + '1' * 100 +
                 '<p>' + '2' * 100 +
-                '<p>' + '3' * 100
+                '<p>' + '3' * 100 +
+                '<p>' + '4' * 100 +
+                '<p>' + '5' * 100 +
+                '<p>' + '6' * 100
             ),
             self.article.content,
         )
         self.assertEqual(
-            '1' * 100 + ' ' + '2' * 100 + ' ' + '3' * 53,
+            ' '.join([
+                '1' * 100,
+                '2' * 100,
+                '3' * 100,
+                '4' * 100,
+                '5' * 96,
+            ]),
             self.article.content_snippet,
         )
 
