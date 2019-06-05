@@ -2,7 +2,7 @@
 *.sqlite-wal
 *.sqlite-shm
 *.pyc
-__pycache__
+__pycache__/
 
 /build
 /dist
@@ -11,3 +11,4 @@ __pycache__
 /yarrharr/static
 /static
 /node_modules
+_trial_temp*/
