@@ -30,9 +30,10 @@ matrix:
         - tox -e py37-test
     - name: "Webpack Build"
       language: python
-      python: "3.6"
+      python: "3.7"
+      sudo: true
       install:
-        - "pip install tox"
+        - "sudo pip install tox"
         - "nvm install"
       script:
         - npm install
