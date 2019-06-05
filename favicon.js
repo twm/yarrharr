@@ -25,6 +25,8 @@ const writeFile = promisify(writeFileCallback);
 const { execFile: execFileCallback, spawn } = require('child_process');
 const execFile = promisify(execFileCallback)
 
+const pluginName = 'FaviconPlugin';
+
 function processFavicon(svgSource) {
     const dir = path.join(__dirname, 'build');
     const file = path.join(dir, 'favicon.svg');
@@ -99,9 +101,10 @@ function bufferToAsset(buffer) {
 }
 
 
+
 class FaviconPlugin {
     apply(compiler) {
-        compiler.plugin('emit', (compilation, callback) => {
+        compiler.hooks.emit.tap(pluginName, compilation => {
             const [filename, asset] = function() {
                 for (let filename in compilation.assets) {
                     if (/^icon-[^.]+\.svg$/.test(filename)) {
@@ -110,16 +113,13 @@ class FaviconPlugin {
                 }
             }();
             if (!asset) {
-                console.error("icon asset not found")
-                callback();
-                return
+                return Promise.reject(new Error("icon asset not found"))
             }
-            processFavicon(asset.source()).then(([svgAsset, touchAsset, icoAsset]) => {
+            return processFavicon(asset.source()).then(([svgAsset, touchAsset, icoAsset]) => {
                 compilation.assets[filename] = svgAsset;
                 compilation.assets[filename.slice(0, -3) + 'png'] = touchAsset;
                 compilation.assets[filename.slice(0, -3) + 'ico'] = icoAsset;
-                callback();
-            }).catch(callback);
+            });
         });
     }
 }
