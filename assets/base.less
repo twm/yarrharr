@@ -308,20 +308,15 @@ form.small-form {
 
 .login-page {
     display: flex;
-    flex-flow: row wrap;
-    align-items: center;
+    flex-flow: column nowrap;
+    align-items: stretch;
 
     margin: 0 auto;
-    max-width: 35rem;
-
-    @media screen and (orientation: landscape) {
-        /* 8rem = approx. height of <footer> */
-        min-height: calc(100vh - 8rem);
-    }
+    max-width: 32rem;
 
     h1 {
         margin: 0;
-        padding: 1rem 1rem;
+        padding: 1rem 1rem 0 0;
         flex: 100 1 auto;
 
         text-align: center;
@@ -333,12 +328,19 @@ form.small-form {
     }
 
     form {
-        flex: 1 1 15rem;
+        flex: 1 1 100%;
         min-width: 0;
-        margin: 1rem 0 0 0;
+        margin: 0;
+    }
 
-        @media screen and (orientation: portrait) {
-            flex-basis: 100%;
+    /* Desktop layout */
+    @media screen and (min-width: 32rem) {
+        flex-flow: row nowrap;
+        align-items: center;
+        min-height: 90vh;
+
+        form {
+            flex-basis: 15rem;
         }
     }
 }
