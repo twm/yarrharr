@@ -25,7 +25,8 @@
 # OpenSSL used as well as that of the covered work.
 
 import subprocess
-from pkg_resources import get_distribution, DistributionNotFound
+
+from pkg_resources import DistributionNotFound, get_distribution
 
 __author__ = 'Tom Most <twm@freecog.net>'
 

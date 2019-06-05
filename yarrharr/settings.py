@@ -36,6 +36,5 @@ environment variable, a shell-style glob pattern.
 
 from yarrharr.conf import find_conf_files, read_yarrharr_conf
 
-
 files = find_conf_files()
 conf = read_yarrharr_conf(files, locals())

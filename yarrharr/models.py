@@ -25,9 +25,9 @@
 # OpenSSL used as well as that of the covered work.
 from datetime import timedelta
 
-from django.dispatch import receiver
 from django.db import models
 from django.db.backends.signals import connection_created
+from django.dispatch import receiver
 from django.utils import timezone
 
 from . import sanitize

@@ -31,7 +31,7 @@ from pprint import pprint
 
 import html5lib
 
-from ..sanitize import sanitize_html, html_to_text
+from ..sanitize import html_to_text, sanitize_html
 
 
 class HtmlToTextTests(unittest.TestCase):

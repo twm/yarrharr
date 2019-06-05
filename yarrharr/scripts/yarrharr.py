@@ -26,9 +26,9 @@
 
 from __future__ import absolute_import
 
+import argparse
 import os
 import sys
-import argparse
 
 from pkg_resources import get_distribution
 
