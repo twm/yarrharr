@@ -23,10 +23,10 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-import os
-import sys
 import argparse
+import os
 import pprint
+import sys
 
 from twisted.internet import defer, task
 

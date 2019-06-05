@@ -26,9 +26,9 @@
 
 from __future__ import unicode_literals
 
-from io import StringIO
 import re
 from collections import OrderedDict
+from io import StringIO
 
 import html5lib
 from html5lib.constants import namespaces

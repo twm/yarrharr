@@ -35,7 +35,6 @@ from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 
-
 register = template.Library()
 _static_dir = os.path.join(os.path.dirname(__file__), '../static')
 

@@ -29,7 +29,6 @@ Django signals
 
 from django.dispatch import Signal
 
-
 schedule_changed = Signal()
 """
 The `schedule_changed` signal is sent when feeds have been modified in the

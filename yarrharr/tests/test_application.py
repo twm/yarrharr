@@ -23,27 +23,31 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from io import StringIO
 import json
 import logging
 import unittest
+from io import StringIO
 from unittest import mock
 
 from treq.testing import RequestTraversalAgent, StubTreq
-from twisted.logger import Logger, LogPublisher, FileLogObserver
 from twisted.internet import defer, task
-from twisted.python.log import LogPublisher as LegacyLogPublisher
+from twisted.logger import FileLogObserver, Logger, LogPublisher
 from twisted.python.failure import Failure
 from twisted.python.filepath import FilePath
+from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.threadpool import ThreadPool
 from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.web.http_headers import Headers
 
-from ..application import AdaptiveLoopingCall
-from ..application import CSPReport
-from ..application import Root, Static
-from ..application import TwistedLoggerLogHandler, formatForSystemd
+from ..application import (
+    AdaptiveLoopingCall,
+    CSPReport,
+    Root,
+    Static,
+    TwistedLoggerLogHandler,
+    formatForSystemd,
+)
 
 
 class CSPReportTests(unittest.TestCase):

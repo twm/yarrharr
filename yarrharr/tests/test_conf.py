@@ -24,16 +24,19 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from configparser import NoOptionError
 import re
 import unittest
+from configparser import NoOptionError
 from tempfile import NamedTemporaryFile
-
 from unittest import mock
-import pkg_resources
 
-from yarrharr.conf import (find_conf_files, read_yarrharr_conf,
-                           NoConfError, UnreadableConfError)
+import pkg_resources
+from yarrharr.conf import (
+    NoConfError,
+    UnreadableConfError,
+    find_conf_files,
+    read_yarrharr_conf,
+)
 
 
 class ConfTests(unittest.TestCase):

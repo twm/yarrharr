@@ -3,7 +3,6 @@ import sys
 from django.core.management.base import BaseCommand
 from twisted.internet.task import react
 from twisted.logger import globalLogBeginner, textFileLogObserver
-
 from yarrharr.application import updateFeeds
 
 

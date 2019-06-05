@@ -24,9 +24,9 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+import yarrharr.views
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
-import yarrharr.views
 
 app_name = 'yarrharr'
 urlpatterns = (

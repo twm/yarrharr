@@ -37,23 +37,29 @@ import sys
 import attr
 from django.conf import settings
 from django.dispatch import receiver
-from twisted.logger import globalLogBeginner
-from twisted.logger import FileLogObserver, Logger, LogLevel, globalLogPublisher
 from twisted.internet import defer
-from twisted.logger import formatEvent
-from twisted.logger import FilteringLogObserver, ILogFilterPredicate, PredicateResult
-from twisted.web.wsgi import WSGIResource
+from twisted.internet.endpoints import serverFromString
+from twisted.logger import (
+    FileLogObserver,
+    FilteringLogObserver,
+    ILogFilterPredicate,
+    Logger,
+    LogLevel,
+    PredicateResult,
+    formatEvent,
+    globalLogBeginner,
+    globalLogPublisher,
+)
+from twisted.python.filepath import FilePath
+from twisted.web.resource import ErrorPage, NoResource, Resource
 from twisted.web.server import Site
 from twisted.web.static import File
-from twisted.web.resource import ErrorPage, Resource, NoResource
-from twisted.internet.endpoints import serverFromString
-from twisted.python.filepath import FilePath
+from twisted.web.wsgi import WSGIResource
 from zope.interface import implementer
 
 from . import __version__
 from .signals import schedule_changed
 from .wsgi import application
-
 
 log = Logger()
 
