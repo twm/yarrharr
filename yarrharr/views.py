@@ -24,22 +24,25 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-import simplejson
 import django
 import feedparser
+import simplejson
+import yarrharr
+from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Q, Sum
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseNotAllowed,
+)
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse
 from django.utils import timezone
 from twisted.logger import Logger
 
-import yarrharr
 from .models import Article
 from .signals import schedule_changed
 from .sql import log_on_error
-
 
 log = Logger()
 json_encoder = simplejson.JSONEncoderForHTML()

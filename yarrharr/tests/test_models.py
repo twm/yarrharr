@@ -25,13 +25,13 @@
 # OpenSSL used as well as that of the covered work.
 from datetime import timedelta
 
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
-from django.contrib.auth.models import User
 
-from ..models import Feed, Article
+from ..models import Article, Feed
 
 
 class FeedTests(TestCase):

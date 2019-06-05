@@ -24,13 +24,13 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from contextlib import contextmanager
 import datetime
+from contextlib import contextmanager
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.utils import timezone
-from unittest import mock
 
 from ..models import Feed, Label
 from ..signals import schedule_changed
