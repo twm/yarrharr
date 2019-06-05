@@ -198,45 +198,34 @@ export class LabelListView extends React.PureComponent {
                 </Tabs>
             </GlobalBar>
             <Centered>
+                {this.renderLabelHeader(labelList)}
                 {this.renderLabels(labelList, feedList)}
             </Centered>
         </React.Fragment>;
     }
+    renderLabelHeader(labelList) {
+        return <div className="label-header">
+            <h1>Labels</h1>
+            <p>{labelList.length} labels</p>
+        </div>
+    }
     renderLabels(labelList, feedList) {
         if (!labelList.length) {
-            return <p>No labels.</p>
+            return null;
         }
 
         // TODO sorting
         // TODO filtering
-        return <table className="inventory-table label-table">
-            <thead>
-                <tr>
-                    <th className="col-unread">Unread Articles</th>
-                    <th className="col-label">Label</th>
-                    <th className="col-feeds">Feeds</th>
-                    <th className="col-edit"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {labelList.map(label => <tr key={label.id}>
-                    <td className="col-unread">
-                        <Count value={label.unreadCount} />
-                    </td>
-                    <td className="col-label">
-                        <LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.text}</LabelLink>
-                    </td>
-                    <td className="col-feeds">
-                        {feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length}
-                    </td>
-                    <td className="col-edit">
-                        <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
-                            <EditIcon aria-label="Edit Label" />
-                        </InventoryLabelLink>
-                    </td>
-                </tr>)}
-            </tbody>
-        </table>;
+        return <div className="label-list">
+            {labelList.map(label => <React.Fragment key={label.id}>
+                <span><LabelIcon /> {label.text}</span>
+                <LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount} unread</LabelLink>
+                <span>{feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length} feeds</span>
+                <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
+                    <EditIcon aria-label="Edit Label" />
+                </InventoryLabelLink>
+            </React.Fragment>)}
+        </div>;
     }
 }
 
