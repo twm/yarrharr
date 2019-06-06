@@ -199,33 +199,49 @@ export class LabelListView extends React.PureComponent {
             </GlobalBar>
             <Centered>
                 {this.renderLabelHeader(labelList)}
-                {this.renderLabels(labelList, feedList)}
             </Centered>
+            {this.renderLabels(labelList, feedList)}
         </React.Fragment>;
     }
     renderLabelHeader(labelList) {
         return <div className="label-header">
             <h1>Labels</h1>
-            <p>{labelList.length} labels</p>
+            <p>{labelList.length} {labelList.length === 1 ? "label" : "labels"}</p>
         </div>
     }
     renderLabels(labelList, feedList) {
         if (!labelList.length) {
-            return null;
+            return <p>No labels.</p>;
         }
 
         // TODO sorting
         // TODO filtering
-        return <div className="label-list">
-            {labelList.map(label => <React.Fragment key={label.id}>
-                <span><LabelIcon /> {label.text}</span>
-                <LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount} unread</LabelLink>
-                <span>{feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length} feeds</span>
-                <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
-                    <EditIcon aria-label="Edit Label" />
-                </InventoryLabelLink>
-            </React.Fragment>)}
-        </div>;
+        return <table className="label-list">
+            <thead>
+                <tr className="label-list-item label-list-item-header">
+                    <td></td>
+                    <td></td>
+                    <td>Feeds</td>
+                    <td>Unread</td>
+                    <td>Favorite</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+            {labelList.map(label => <tr className="label-list-item" key={label.id}>
+                <td><LabelIcon /></td>
+                <td>{label.text}</td>
+                <td>{feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length}</td>
+                <td><LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount}</LabelLink></td>
+                <td><LabelLink labelId={label.id} filter={FILTER_FAVE}>{label.faveCount}</LabelLink></td>
+                <td>
+                    <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
+                        <EditIcon aria-label="Edit Label" />
+                    </InventoryLabelLink>
+                </td>
+            </tr>)}
+            </tbody>
+        </table>;
     }
 }
 
