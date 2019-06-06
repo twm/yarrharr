@@ -36,8 +36,130 @@
     grid-template-columns: 2rem 2.5rem 2fr 1fr 1fr 1.5rem;
 }
 
-.label-table tr {
-    grid-template-columns: 2rem 1fr 2rem 1.5rem;
+.label-list {
+    white-space: nowrap;
+
+    thead, tbody, tfoot {
+        display: contents;
+    }
+    td {
+        display: block;
+    }
+
+}
+
+.label-list-item {
+    // & > :nth-child(1) { background: hsla(160, 60%, 50%, 0.5); }
+    // & > :nth-child(2) { background: hsla(120, 60%, 50%, 0.5); }
+    // & > :nth-child(3) { background: hsla(060, 60%, 50%, 0.5); }
+    // & > :nth-child(4) { background: hsla(190, 60%, 50%, 0.5); }
+    // & > :nth-child(5) { background: hsla(000, 60%, 50%, 0.5); }
+    // & > :nth-child(6) { background: hsla(040, 60%, 50%, 0.5); }
+
+    // Icon
+    & > :nth-child(1) {
+        svg {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+    }
+
+    // Label name
+    & > :nth-child(2) {
+    }
+
+    // Feed count
+    & > :nth-child(3) {
+    }
+
+    // Unread count
+    & > :nth-child(4) {
+    }
+
+    // Fave count
+    & > :nth-child(5) {
+    }
+    // Edit button
+    & > :nth-child(6) {
+        svg {
+            width: 2rem;
+            height: 2rem;
+        }
+    }
+}
+
+// On wide displays, show a table with scannable columns.
+@media screen and (min-width: 32rem) {
+    .label-list {
+        display: grid;
+        grid: "icon title feeds unread fave edit" auto /
+            max-content 5fr minmax(max-content, 1fr) minmax(max-content, 1fr) minmax(max-content, 1fr) minmax(max-content, 1fr);
+    }
+
+    .label-list-item {
+        display: contents;
+
+        td {
+            display: flex;
+            align-items: center;
+            justify-content: stretch;
+            padding: 0.75rem 0.5rem;
+        }
+
+        & > td:nth-child(3) { justify-content: end; }
+        & > td:nth-child(4) { justify-content: end; }
+        & > td:nth-child(5) { justify-content: end; }
+        & > td:nth-child(6) { justify-content: end; }
+    }
+
+    .label-list-item-header {
+        text-transform: uppercase;
+        font-size: smaller;
+    }
+
+    // Zebra stripes. Have to handle the header specially.
+    .label-list-item-header > td {
+        background: var(--footer-background-color);
+        border-bottom: 2px solid var(--quiet-text-color);
+    }
+    .label-list-item:nth-child(even) > td {
+        background: var(--footer-background-color);
+    }
+}
+
+// On narrow displays display a fatter row suitable for touchscreens.
+@media screen and (max-width: 32rem) {
+    .label-list {
+        display: grid;
+        grid: auto-flow auto / 1fr;
+    }
+
+    .label-list-item {
+        display: grid;
+        grid:
+            "icon title unread edit" min-content
+            "icon feeds fave   edit" min-content / min-content 1fr min-content min-content;
+
+        & > td:nth-child(1) { grid-area: icon; padding: 0.75rem 0.5rem 0.75rem @text_padding; }
+        & > td:nth-child(2) { grid-area: title; padding: 0.75rem 0 0 0; }
+        & > td:nth-child(3) { grid-area: feeds; padding: 0 0 0.75rem 0; }
+        & > td:nth-child(3)::after { content: " feeds"; }
+        & > td:nth-child(4) { grid-area: unread; padding: 0.5rem 0.5rem 0 0.5rem; text-align: right; }
+        & > td:nth-child(4) a::after { content: " unread"; }
+        & > td:nth-child(5) { grid-area: fave; padding: 0 0.5rem 0.5rem 0.5rem; text-align: right; }
+        & > td:nth-child(5) a::after { content: " favorites"; }
+        & > td:nth-child(6) { grid-area: edit; padding: 0.75rem @text_padding 0.75rem 0.5rem; }
+    }
+
+    // Hide the header, as we have duplicated its function inline.
+    .label-list-item-header {
+        display: none;
+    }
+
+    // Zebra stripes
+    .label-list-item:nth-child(even) > td {
+        background: var(--footer-background-color);
+    }
 }
 
 .inventory-tools {
