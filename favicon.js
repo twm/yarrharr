@@ -104,22 +104,27 @@ function bufferToAsset(buffer) {
 
 class FaviconPlugin {
     apply(compiler) {
-        compiler.hooks.emit.tap(pluginName, compilation => {
-            const [filename, asset] = function() {
-                for (let filename in compilation.assets) {
-                    if (/^icon-[^.]+\.svg$/.test(filename)) {
-                        return [filename, compilation.assets[filename]];
+        compiler.hooks.emit.tapAsync(pluginName, (compilation, callback) => {
+            Promise.resolve()
+            .then(_ => {
+                const [filename, asset] = function() {
+                    for (let filename in compilation.assets) {
+                        if (/^icon-[^.]+\.svg$/.test(filename)) {
+                            return [filename, compilation.assets[filename]];
+                        }
                     }
+                }();
+                if (!asset) {
+                    throw new Error("icon asset not found");
                 }
-            }();
-            if (!asset) {
-                return Promise.reject(new Error("icon asset not found"))
-            }
-            return processFavicon(asset.source()).then(([svgAsset, touchAsset, icoAsset]) => {
-                compilation.assets[filename] = svgAsset;
-                compilation.assets[filename.slice(0, -3) + 'png'] = touchAsset;
-                compilation.assets[filename.slice(0, -3) + 'ico'] = icoAsset;
-            });
+                return processFavicon(asset.source()).then(([svgAsset, touchAsset, icoAsset]) => {
+                    compilation.assets[filename] = svgAsset;
+                    compilation.assets[filename.slice(0, -3) + 'png'] = touchAsset;
+                    compilation.assets[filename.slice(0, -3) + 'ico'] = icoAsset;
+                });
+            })
+            .catch(error => compiler.errors.push(error))
+            .then(() => callback());
         });
     }
 }
