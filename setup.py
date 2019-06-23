@@ -1,5 +1,6 @@
 import sys
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 if sys.version_info.major == 2:
     sys.stderr.write('Yarrharr requires Python 3\n')
@@ -7,7 +8,7 @@ if sys.version_info.major == 2:
 
 setup(
     name='yarrharr',
-    version='0.21.1',
+    version='2019.6.0',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
