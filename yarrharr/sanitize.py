@@ -27,6 +27,7 @@
 from __future__ import unicode_literals
 
 import re
+import warnings
 from collections import OrderedDict
 from io import StringIO
 
@@ -42,9 +43,14 @@ REVISION = 5
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
 # sanitizer in sanitize_html() below.
-html5lib.serializer.voidElements = voidElements | frozenset([
-    (namespaces['html'], 'wbr'),
-])
+if 'wbr' in voidElements:
+    warnings.warn("html5lib now supports <wbr>: remove the monkeypatch")  # noqa
+else:
+    voidElements |= frozenset(['wbr'])
+    import html5lib.treewalkers.base
+    html5lib.constants.voidElements = voidElements
+    html5lib.serializer.voidElements = voidElements
+    html5lib.treewalkers.base.voidElements = voidElements
 
 
 def html_tag(tag):
