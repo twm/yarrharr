@@ -323,6 +323,20 @@ class SanitizeHtmlTests(unittest.TestCase):
             '<img class=wp-smiley alt=;-)>',
         ))
 
+    def test_wbr_allowed(self):
+        """
+        The ``<wbr>`` tag is allowed because it is awesome.
+        """
+        self.assertEqual(sanitize_html('<wbr>'), '<wbr>')
+
+    def test_summary_allowed(self):
+        """
+        The ``<details><summary>...</summary></details>`` construct is
+        permitted.
+        """
+        self.assertEqual(sanitize_html('<details><summary>.</summary>...'),
+                         '<details><summary>.</summary>...</details>')
+
 
 def print_tokens(html):
     tree = html5lib.parseFragment(html)
