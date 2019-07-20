@@ -42,7 +42,7 @@ REVISION = 5
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
 # sanitizer in sanitize_html() below.
-html5lib.serializer.voidElements = voidElements + frozenset([
+html5lib.serializer.voidElements = voidElements | frozenset([
     (namespaces['html'], 'wbr'),
 ])
 
@@ -156,7 +156,7 @@ def sanitize_html(html):
     source = _wp_smileys(source)
     source = sanitizer.Filter(
         source,
-        allowed_elements=sanitizer.allowed_elements + frozenset([
+        allowed_elements=sanitizer.allowed_elements | frozenset([
             (namespaces['html'], 'summary'),  # https://github.com/html5lib/html5lib-python/pull/423
             (namespaces['html'], 'wbr'),  # https://github.com/html5lib/html5lib-python/pull/395
         ]),
