@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,11 +31,20 @@ from collections import OrderedDict
 from io import StringIO
 
 import html5lib
-from html5lib.constants import namespaces
+from html5lib.constants import namespaces, voidElements
+from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import URL
 
-REVISION = 4
+REVISION = 5
+
+
+# Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
+# since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
+# sanitizer in sanitize_html() below.
+html5lib.serializer.voidElements = voidElements + frozenset([
+    (namespaces['html'], 'wbr'),
+])
 
 
 def html_tag(tag):
@@ -134,7 +143,7 @@ def sanitize_html(html):
     Make the given HTML string safe to display in a Yarrharr page.
     """
     tree = html5lib.parseFragment(html)
-    serializer = html5lib.serializer.HTMLSerializer(sanitize=True)
+    serializer = html5lib.serializer.HTMLSerializer()
     source = html5lib.getTreeWalker('etree')(tree)
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
@@ -145,6 +154,13 @@ def sanitize_html(html):
     source = _adjust_links(source)
     source = _video_attrs(source)
     source = _wp_smileys(source)
+    source = sanitizer.Filter(
+        source,
+        allowed_elements=sanitizer.allowed_elements + frozenset([
+            (namespaces['html'], 'summary'),  # https://github.com/html5lib/html5lib-python/pull/423
+            (namespaces['html'], 'wbr'),  # https://github.com/html5lib/html5lib-python/pull/395
+        ]),
+    )
     return serializer.render(source)
 
 
