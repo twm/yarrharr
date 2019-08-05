@@ -519,7 +519,7 @@ def poll_feed(feed, clock, treq=treq):
         # Making the connection timed out (probably something is dropping traffic):
         error.ConnectingCancelledError,
     ) as e:
-        defer.returnValue(NetworkError(str(e)))
+        return NetworkError(str(e))
     except (
         # The response was not fully received. Usually this is the subclass
         # ResponseNeverReceived wrapping a TLS error like:
@@ -531,28 +531,28 @@ def poll_feed(feed, clock, treq=treq):
         client.ResponseFailed,
         client.RequestTransmissionFailed,
     ) as e:
-        defer.returnValue(NetworkError('\n'.join(str(f.value) for f in e.reasons)))
+        return NetworkError('\n'.join(str(f.value) for f in e.reasons))
 
     if response.code == 410:
-        defer.returnValue(Gone())
+        return Gone()
 
     if response.code == 304:
-        defer.returnValue(conditional_get)
+        return conditional_get
 
     if response.code != 200:
-        defer.returnValue(BadStatus(response.code))
+        return BadStatus(response.code)
 
     if not raw_bytes:
-        defer.returnValue(EmptyBody(
+        return EmptyBody(
             code=response.code,
             content_type=', '.join(response.headers.getRawHeaders('content-type')),
-        ))
+        )
 
     digest = hashlib.sha256(raw_bytes).digest()
     # NOTE: the feed.digest attribute is buffer (on Python 2) which means that
     # it doesn't implement __eq__(), hence the conversion.
     if feed.digest is not None and bytes(feed.digest) == digest:
-        defer.returnValue(Unchanged('digest'))
+        return Unchanged('digest')
 
     # Convert headers to the format expected by feedparser.
     h = {'content-location': response.request.absoluteURI.decode('ascii')}
@@ -590,20 +590,20 @@ def poll_feed(feed, clock, treq=treq):
     # to know about, like XML served as text/html.
     parsed_feed = parsed.get('feed')
     if not articles and parsed['bozo']:
-        defer.returnValue(BozoError(
+        return BozoError(
             code=response.code,
             content_type=u', '.join(response.headers.getRawHeaders(u'content-type')),
             error=str(parsed.get('bozo_exception', 'Unknown error')),
-        ))
+        )
     else:
-        defer.returnValue(MaybeUpdated(
+        return MaybeUpdated(
             feed_title=extract_feed_title(parsed_feed, feed.url),
             site_url=parsed_feed.get('link', u''),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
             digest=digest,
             articles=articles,
-        ))
+        )
 
 
 def persist_outcomes(outcomes):
