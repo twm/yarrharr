@@ -659,13 +659,16 @@ class LabelsViewTests(TestCase):
         self.assertEqual(0, label.feeds.count())
         self.assertEqual(0, feed.label_set.count())
 
-    def test_delete(self):
+    def test_remove(self):
         """
-        A DELETE request removes a label from the database.
+        A POST with ``action=remove`` deletes a label from the database.
         """
         label = self.user.label_set.create(text='doomed')
 
-        response = self.client.delete('/api/labels/?label={}'.format(label.id))
+        response = self.client.post('/api/labels/', {
+            'action': 'remove',
+            'label': label.id,
+        })
 
         self.assertEqual(200, response.status_code)
         self.assertEqual({

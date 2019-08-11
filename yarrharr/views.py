@@ -364,39 +364,36 @@ def labels(request):
     not exist, 404 results.
     """
     # FIXME: This should use real forms for validation.
-    if request.method == 'POST':
-        action = request.POST['action']
-        if action == 'create':
-            try:
-                text = request.POST['text']
-                if not text:
-                    raise ValueError(text)
-                request.user.label_set.create(text=text)
-            except (KeyError, ValueError, IntegrityError):
-                return HttpResponseBadRequest()
-        elif action == 'attach':
-            label = request.user.label_set.get(id=request.POST['label'])
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            label.feeds.add(feed)
-            label.save()
-        elif action == 'detach':
-            label = request.user.label_set.get(id=request.POST['label'])
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            label.feeds.remove(feed)
-            label.save()
-        data = labels_for_user(request.user)
-        data.update(feeds_for_user(request.user))
-        return HttpResponse(json_encoder.encode(data),
-                            content_type='application/json')
-    elif request.method == 'DELETE':
-        label = request.user.label_set.get(pk=request.GET['label'])
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    action = request.POST['action']
+    if action == 'create':
+        try:
+            text = request.POST['text']
+            if not text:
+                raise ValueError(text)
+            request.user.label_set.create(text=text)
+        except (KeyError, ValueError, IntegrityError):
+            return HttpResponseBadRequest()
+    elif action == 'attach':
+        label = request.user.label_set.get(id=request.POST['label'])
+        feed = request.user.feed_set.get(id=request.POST['feed'])
+        label.feeds.add(feed)
+        label.save()
+    elif action == 'detach':
+        label = request.user.label_set.get(id=request.POST['label'])
+        feed = request.user.feed_set.get(id=request.POST['feed'])
+        label.feeds.remove(feed)
+        label.save()
+    elif action == 'remove':
+        label = request.user.label_set.get(pk=request.POST['label'])
         label.delete()
-        data = labels_for_user(request.user)
-        data.update(feeds_for_user(request.user))
-        return HttpResponse(json_encoder.encode(data),
-                            content_type='application/json')
-    else:
-        return HttpResponseNotAllowed(['POST', 'DELETE'])
+
+    data = labels_for_user(request.user)
+    data.update(feeds_for_user(request.user))
+    return HttpResponse(json_encoder.encode(data),
+                        content_type='application/json')
 
 
 @login_required
