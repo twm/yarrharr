@@ -36,6 +36,18 @@
     grid-template-columns: 2rem 2.5rem 2fr 1fr 1fr 1.5rem;
 }
 
+.label-header {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: center;
+}
+
+.label-header,
+.label-list {
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
+}
+
 .label-list {
     white-space: nowrap;
 
@@ -58,9 +70,11 @@
 
     // Icon
     & > :nth-child(1) {
+        display: flex;
+        align-items: center;
         svg {
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 2.0rem;
+            height: 2.0rem;
         }
     }
 
@@ -81,9 +95,14 @@
     }
     // Edit button
     & > :nth-child(6) {
+        a {
+            display: block;
+            padding: 0.25rem; // increase clickable area
+        }
         svg {
-            width: 2rem;
-            height: 2rem;
+            display: block;
+            width: 1.5rem;
+            height: 1.5rem;
         }
     }
 }
@@ -106,6 +125,7 @@
             padding: 0.75rem 0.5rem;
         }
 
+        & > td:nth-child(1) { padding-right: 0; }
         & > td:nth-child(3) { justify-content: end; }
         & > td:nth-child(4) { justify-content: end; }
         & > td:nth-child(5) { justify-content: end; }

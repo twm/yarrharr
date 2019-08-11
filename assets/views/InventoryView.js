@@ -218,8 +218,7 @@ export class LabelListView extends React.PureComponent {
         return <div className="label-header">
             <h1>Labels</h1>
             <p>
-                {labelList.length} {labelList.length === 1 ? "label" : "labels"}
-                <button onClick={this.handleAddLabel}>Add Label</button>
+                <button className="text-button text-button-primary" onClick={this.handleAddLabel}>Add Label</button>
             </p>
         </div>
     }
@@ -234,7 +233,7 @@ export class LabelListView extends React.PureComponent {
             <thead>
                 <tr className="label-list-item label-list-item-header">
                     <td></td>
-                    <td></td>
+                    <td>Label</td>
                     <td>Feeds</td>
                     <td>Unread</td>
                     <td>Favorite</td>
@@ -243,13 +242,13 @@ export class LabelListView extends React.PureComponent {
             </thead>
             <tbody>
             {labelList.map(label => <tr className="label-list-item" key={label.id}>
-                <td><LabelIcon /></td>
+                <td><LabelIcon aria-hidden /></td>
                 <td>{label.text}</td>
                 <td>{feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length}</td>
                 <td><LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount}</LabelLink></td>
                 <td><LabelLink labelId={label.id} filter={FILTER_FAVE}>{label.faveCount}</LabelLink></td>
                 <td>
-                    <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
+                    <InventoryLabelLink labelId={label.id} title="Edit Label">
                         <EditIcon aria-label="Edit Label" />
                     </InventoryLabelLink>
                 </td>
