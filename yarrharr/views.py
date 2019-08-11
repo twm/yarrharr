@@ -368,12 +368,13 @@ def labels(request):
         return HttpResponseNotAllowed(['POST'])
 
     action = request.POST['action']
+    data = {}
     if action == 'create':
         try:
             text = request.POST['text']
             if not text:
                 raise ValueError(text)
-            request.user.label_set.create(text=text)
+            data['labelId'] = request.user.label_set.create(text=text).id
         except (KeyError, ValueError, IntegrityError):
             return HttpResponseBadRequest()
     elif action == 'attach':
@@ -390,7 +391,7 @@ def labels(request):
         label = request.user.label_set.get(pk=request.POST['label'])
         label.delete()
 
-    data = labels_for_user(request.user)
+    data.update(labels_for_user(request.user))
     data.update(feeds_for_user(request.user))
     return HttpResponse(json_encoder.encode(data),
                         content_type='application/json')

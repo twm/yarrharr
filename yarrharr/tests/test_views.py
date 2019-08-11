@@ -546,6 +546,7 @@ class LabelsViewTests(TestCase):
         self.assertEqual('foo', label.text)
 
         self.assertEqual({
+            'labelId': label.id,
             'labelsById': {
                 str(label.id): {
                     'id': label.id,

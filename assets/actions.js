@@ -623,8 +623,9 @@ export function addLabel(text) {
         body.append('action', 'create');
         body.append('text', text);
         return post('/api/labels/', body).then(json => {
-            const { labelsById, labelOrder } = json;
+            const { labelId, labelsById, labelOrder } = json;
             dispatch(receiveLabels(labelsById, labelOrder));
+            dispatch(setPath(`/inventory/label/${labelId}/`));
         }).catch(e => {
             console.error(e);
             dispatch(failAddLabel(text));
