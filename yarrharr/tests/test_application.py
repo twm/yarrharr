@@ -31,12 +31,12 @@ from unittest import mock
 
 from treq.testing import RequestTraversalAgent, StubTreq
 from twisted.internet import defer, task
+from twisted.internet.testing import MemoryReactorClock
 from twisted.logger import FileLogObserver, Logger, LogPublisher
 from twisted.python.failure import Failure
 from twisted.python.filepath import FilePath
 from twisted.python.log import LogPublisher as LegacyLogPublisher
 from twisted.python.threadpool import ThreadPool
-from twisted.test.proto_helpers import MemoryReactorClock
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.web.http_headers import Headers
 
