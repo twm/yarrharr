@@ -31,6 +31,7 @@ import yarrharr
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Q, Sum
+from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.utils import timezone
@@ -140,14 +141,17 @@ def labels_for_user(user):
 
 
 def json_for_label(label):
+    counts = label.feeds.all().aggregate(
+        unread=Sum('unread_count'),
+        fave=Sum('fave_count'),
+    )
     return {
         'id': label.id,
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
-        **label.feeds.all().aggregate(
-            unreadCount=Sum('unread_count'),
-            faveCount=Sum('fave_count'),
-        ),
+        # Aggregations return NULL if there are no feeds; translate that into 0.
+        'unreadCount': counts['unread'] or 0,
+        'faveCount': counts['fave'] or 0,
     }
 
 
@@ -359,10 +363,17 @@ def labels(request):
     On DELETE, the :param:`label` holds the ID of the label.  If the label does
     not exist, 404 results.
     """
+    # FIXME: This should use real forms for validation.
     if request.method == 'POST':
         action = request.POST['action']
         if action == 'create':
-            request.user.label_set.create(text=request.POST['text'])
+            try:
+                text = request.POST['text']
+                if not text:
+                    raise ValueError(text)
+                request.user.label_set.create(text=text)
+            except (KeyError, ValueError, IntegrityError):
+                return HttpResponseBadRequest()
         elif action == 'attach':
             label = request.user.label_set.get(id=request.POST['label'])
             feed = request.user.feed_set.get(id=request.POST['feed'])
