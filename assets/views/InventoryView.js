@@ -184,6 +184,10 @@ if (__debug__) {
 export const ConnectedInventoryView = connect(state => state)(InventoryView);
 
 export class LabelListView extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleAddLabel = this.handleAddLabel.bind(this);
+    }
     render() {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
@@ -203,10 +207,19 @@ export class LabelListView extends React.PureComponent {
             {this.renderLabels(labelList, feedList)}
         </React.Fragment>;
     }
+    handleAddLabel(event) {
+        var title = prompt("Label title:");
+        if (title) {
+            // FIXME: Handle failure (e.g. due to duplicate name)
+            this.props.onAddLabel(title);
+        }
+    }
     renderLabelHeader(labelList) {
         return <div className="label-header">
             <h1>Labels</h1>
-            <p>{labelList.length} {labelList.length === 1 ? "label" : "labels"}</p>
+            <p>
+                <button className="text-button text-button-primary" onClick={this.handleAddLabel}>Add Label</button>
+            </p>
         </div>
     }
     renderLabels(labelList, feedList) {
@@ -220,7 +233,7 @@ export class LabelListView extends React.PureComponent {
             <thead>
                 <tr className="label-list-item label-list-item-header">
                     <td></td>
-                    <td></td>
+                    <td>Label</td>
                     <td>Feeds</td>
                     <td>Unread</td>
                     <td>Favorite</td>
@@ -229,13 +242,13 @@ export class LabelListView extends React.PureComponent {
             </thead>
             <tbody>
             {labelList.map(label => <tr className="label-list-item" key={label.id}>
-                <td><LabelIcon /></td>
+                <td><LabelIcon aria-hidden /></td>
                 <td>{label.text}</td>
                 <td>{feedList.filter(feed => feed.labels.indexOf(label.id) !== -1).length}</td>
                 <td><LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount}</LabelLink></td>
                 <td><LabelLink labelId={label.id} filter={FILTER_FAVE}>{label.faveCount}</LabelLink></td>
                 <td>
-                    <InventoryLabelLink className="square" labelId={label.id} title="Edit Label">
+                    <InventoryLabelLink labelId={label.id} title="Edit Label">
                         <EditIcon aria-label="Edit Label" />
                     </InventoryLabelLink>
                 </td>
@@ -249,10 +262,13 @@ if (__debug__) {
     LabelListView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
+        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
-export const ConnectedLabelListView = connect(state => state)(LabelListView);
+export const ConnectedLabelListView = connect(state => state, {
+    onAddLabel: addLabel,
+})(LabelListView);
 
 export class ManageFeedView extends React.PureComponent {
     constructor(props) {
@@ -337,7 +353,7 @@ export class ManageLabelView extends React.Component {
                 </div>
                 <Header>{label.text}</Header>
             </GlobalBar>
-            <Title title={"Edit " + label.text} />
+            <Title title={"Edit Label " + label.text} />
             <Tabs>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
@@ -379,7 +395,6 @@ if (__debug__) {
 }
 
 export const ConnectedManageLabelView = connect(state => state, {
-    onAddLabel: addLabel,
     onUpdateLabel: updateLabel,
     onRemoveLabel: removeLabel,
 })(ManageLabelView);

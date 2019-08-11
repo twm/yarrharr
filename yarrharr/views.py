@@ -31,6 +31,7 @@ import yarrharr
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Q, Sum
+from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.utils import timezone
@@ -140,14 +141,17 @@ def labels_for_user(user):
 
 
 def json_for_label(label):
+    counts = label.feeds.all().aggregate(
+        unread=Sum('unread_count'),
+        fave=Sum('fave_count'),
+    )
     return {
         'id': label.id,
         'text': label.text,
         'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
-        **label.feeds.all().aggregate(
-            unreadCount=Sum('unread_count'),
-            faveCount=Sum('fave_count'),
-        ),
+        # Aggregations return NULL if there are no feeds; translate that into 0.
+        'unreadCount': counts['unread'] or 0,
+        'faveCount': counts['fave'] or 0,
     }
 
 
@@ -359,37 +363,38 @@ def labels(request):
     On DELETE, the :param:`label` holds the ID of the label.  If the label does
     not exist, 404 results.
     """
-    if request.method == 'POST':
-        action = request.POST['action']
-        if action == 'create':
-            label = request.user.label_set.create(text=request.POST['text'])
-            label.save()
-        elif action == 'attach':
-            label = request.user.label_set.get(id=request.POST['label'])
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            label.feeds.add(feed)
-            label.save()
-        elif action == 'detach':
-            label = request.user.label_set.get(id=request.POST['label'])
-            feed = request.user.feed_set.get(id=request.POST['feed'])
-            label.feeds.remove(feed)
-            label.save()
-        data = labels_for_user(request.user)
-        data.update(feeds_for_user(request.user))
-        return HttpResponse(json_encoder.encode(data),
-                            content_type='application/json')
-    elif request.method == 'DELETE':
+    # FIXME: This should use real forms for validation.
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    action = request.POST['action']
+    data = {}
+    if action == 'create':
         try:
-            label_id = request.POST['label']
-        except KeyError:
+            text = request.POST['text']
+            if not text:
+                raise ValueError(text)
+            data['labelId'] = request.user.label_set.create(text=text).id
+        except (KeyError, ValueError, IntegrityError):
             return HttpResponseBadRequest()
-        request.user.label_set.get(id=label_id)
-        data = labels_for_user(request.user)
-        data.update(feeds_for_user(request.user))
-        return HttpResponse(json_encoder.encode(data),
-                            content_type='application/json')
-    else:
-        return HttpResponseNotAllowed(['POST', 'DELETE'])
+    elif action == 'attach':
+        label = request.user.label_set.get(id=request.POST['label'])
+        feed = request.user.feed_set.get(id=request.POST['feed'])
+        label.feeds.add(feed)
+        label.save()
+    elif action == 'detach':
+        label = request.user.label_set.get(id=request.POST['label'])
+        feed = request.user.feed_set.get(id=request.POST['feed'])
+        label.feeds.remove(feed)
+        label.save()
+    elif action == 'remove':
+        label = request.user.label_set.get(pk=request.POST['label'])
+        label.delete()
+
+    data.update(labels_for_user(request.user))
+    data.update(feeds_for_user(request.user))
+    return HttpResponse(json_encoder.encode(data),
+                        content_type='application/json')
 
 
 @login_required
