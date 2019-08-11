@@ -362,8 +362,7 @@ def labels(request):
     if request.method == 'POST':
         action = request.POST['action']
         if action == 'create':
-            label = request.user.label_set.create(text=request.POST['text'])
-            label.save()
+            request.user.label_set.create(text=request.POST['text'])
         elif action == 'attach':
             label = request.user.label_set.get(id=request.POST['label'])
             feed = request.user.feed_set.get(id=request.POST['feed'])
