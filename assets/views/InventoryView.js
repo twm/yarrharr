@@ -354,7 +354,7 @@ export class ManageLabelView extends React.Component {
                 </div>
                 <Header>{label.text}</Header>
             </GlobalBar>
-            <Title title={"Edit " + label.text} />
+            <Title title={"Edit Label " + label.text} />
             <Tabs>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
