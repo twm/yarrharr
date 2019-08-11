@@ -659,6 +659,24 @@ class LabelsViewTests(TestCase):
         self.assertEqual(0, label.feeds.count())
         self.assertEqual(0, feed.label_set.count())
 
+    def test_delete(self):
+        """
+        A DELETE request removes a label from the database.
+        """
+        label = self.user.label_set.create(text='doomed')
+
+        response = self.client.delete('/api/labels/?label={}'.format(label.id))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            'feedsById': {},
+            'feedOrder': [],
+            'labelsById': {},
+            'labelOrder': [],
+        }, response.json())
+
+        self.assertEqual(0, self.user.label_set.count())
+
 
 class ManifestTests(TestCase):
     def test_get(self):

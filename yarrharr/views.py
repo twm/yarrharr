@@ -389,11 +389,8 @@ def labels(request):
         return HttpResponse(json_encoder.encode(data),
                             content_type='application/json')
     elif request.method == 'DELETE':
-        try:
-            label_id = request.POST['label']
-        except KeyError:
-            return HttpResponseBadRequest()
-        request.user.label_set.get(id=label_id)
+        label = request.user.label_set.get(pk=request.GET['label'])
+        label.delete()
         data = labels_for_user(request.user)
         data.update(feeds_for_user(request.user))
         return HttpResponse(json_encoder.encode(data),
