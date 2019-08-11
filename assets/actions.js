@@ -685,7 +685,7 @@ export function removeLabel(labelId) {
         body.append('label', labelId);
         return post('/api/inventory/', body).then(json => {
             const { feedsById, feedOrder, labelsById, labelOrder } = json;
-            setPath('/inventory/labels/');
+            dispatch(setPath('/inventory/labels/'));
             dispatch(receiveFeeds(feedsById, feedOrder));
             dispatch(receiveLabels(labelsById, labelOrder));
         }).catch(e => {
