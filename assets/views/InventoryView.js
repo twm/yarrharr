@@ -184,6 +184,10 @@ if (__debug__) {
 export const ConnectedInventoryView = connect(state => state)(InventoryView);
 
 export class LabelListView extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.handleAddLabel = this.handleAddLabel.bind(this);
+    }
     render() {
         const labelList = labelsByTitle(this.props);
         const feedList = feedsByTitle(this.props);
@@ -203,10 +207,20 @@ export class LabelListView extends React.PureComponent {
             {this.renderLabels(labelList, feedList)}
         </React.Fragment>;
     }
+    handleAddLabel(event) {
+        var title = prompt("Label title:");
+        if (title) {
+            // FIXME: Handle failure (e.g. due to duplicate name)
+            this.props.onAddLabel(title);
+        }
+    }
     renderLabelHeader(labelList) {
         return <div className="label-header">
             <h1>Labels</h1>
-            <p>{labelList.length} {labelList.length === 1 ? "label" : "labels"}</p>
+            <p>
+                {labelList.length} {labelList.length === 1 ? "label" : "labels"}
+                <button onClick={this.handleAddLabel}>Add Label</button>
+            </p>
         </div>
     }
     renderLabels(labelList, feedList) {
@@ -249,10 +263,13 @@ if (__debug__) {
     LabelListView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
+        onAddLabel: PropTypes.func.isRequired,
     };
 }
 
-export const ConnectedLabelListView = connect(state => state)(LabelListView);
+export const ConnectedLabelListView = connect(state => state, {
+    onAddLabel: addLabel,
+})(LabelListView);
 
 export class ManageFeedView extends React.PureComponent {
     constructor(props) {
@@ -379,7 +396,6 @@ if (__debug__) {
 }
 
 export const ConnectedManageLabelView = connect(state => state, {
-    onAddLabel: addLabel,
     onUpdateLabel: updateLabel,
     onRemoveLabel: removeLabel,
 })(ManageLabelView);
