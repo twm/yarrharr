@@ -523,6 +523,143 @@ class InventoryViewTests(TestCase):
         }, response.json())
 
 
+class LabelsViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='bill',
+            email='bill@mail.example',
+            password='hunter2',
+        )
+        self.client.force_login(self.user)
+
+    def test_create(self):
+        """
+        A POST request with ``action=create`` creates a label.
+        """
+        response = self.client.post('/api/labels/', {
+            'action': 'create',
+            'text': 'foo',
+        })
+        self.assertEqual(200, response.status_code)
+
+        [label] = self.user.label_set.all()
+        self.assertEqual('foo', label.text)
+
+        self.assertEqual({
+            'labelsById': {
+                str(label.id): {
+                    'id': label.id,
+                    'text': 'foo',
+                    'feeds': [],
+                    'unreadCount': 0,
+                    'faveCount': 0,
+                },
+            },
+            'labelOrder': [label.id],
+            'feedsById': {},
+            'feedOrder': [],
+        }, response.json())
+
+    def test_create_empty(self):
+        """
+        Creating a label with empty text fails.
+        """
+        response = self.client.post('/api/labels/', {
+            'action': 'create',
+            'text': '',
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_create_duplicate(self):
+        """
+        Creating a label with duplicate text fails.
+        """
+        self.user.label_set.create(text='foo')
+
+        response = self.client.post('/api/labels/', {
+            'action': 'create',
+            'text': 'foo',
+        })
+        self.assertEqual(400, response.status_code)
+
+    def test_attach(self):
+        """
+        A POST request with ``action=attach`` associates a label with a feed.
+        """
+        feed = self.user.feed_set.create(
+            url='http://example/a',
+            feed_title='A',
+            added=timezone.now(),
+        )
+        label = self.user.label_set.create(text='foo')
+
+        response = self.client.post('/api/labels/', {
+            'action': 'attach',
+            'label': label.id,
+            'feed': feed.id,
+        })
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): dictwith({
+                    'id': feed.id,
+                    'labels': [label.id],
+                }),
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {
+                str(label.id): dictwith({
+                    'text': 'foo',
+                    'feeds': [feed.id],
+                }),
+            },
+            'labelOrder': [label.id],
+        }, response.json())
+
+        label.feeds.get(pk=feed.id)
+
+    def test_detach(self):
+        """
+        A POST request with ``action=detach`` breaks the association between
+        a feed and label.
+        """
+        feed = self.user.feed_set.create(
+            url='http://example/a',
+            feed_title='A',
+            added=timezone.now(),
+        )
+        label = self.user.label_set.create(text='foo')
+        feed.label_set.add(label)
+
+        response = self.client.post('/api/labels/', {
+            'action': 'detach',
+            'label': label.id,
+            'feed': feed.id,
+        })
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            'feedsById': {
+                str(feed.id): dictwith({
+                    'id': feed.id,
+                    'labels': [],
+                }),
+            },
+            'feedOrder': [feed.id],
+            'labelsById': {
+                str(label.id): dictwith({
+                    'text': 'foo',
+                    'feeds': [],
+                }),
+            },
+            'labelOrder': [label.id],
+        }, response.json())
+
+        self.assertEqual(0, label.feeds.count())
+        self.assertEqual(0, feed.label_set.count())
+
+
 class ManifestTests(TestCase):
     def test_get(self):
         """
