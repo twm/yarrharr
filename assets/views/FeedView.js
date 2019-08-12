@@ -20,7 +20,7 @@ import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
-import { FeedListLink, InventoryFeedLink, LabelDetailLink } from 'widgets/links.js';
+import { FeedListLink, FeedDetailLink, LabelDetailLink } from 'widgets/links.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
@@ -190,9 +190,9 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
             <FeedLink aria-selected={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
             <FeedLink aria-selected={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
-            <InventoryFeedLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
+            <FeedDetailLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
                 <EditIcon aria-label="Edit Feed" />
-            </InventoryFeedLink>
+            </FeedDetailLink>
         </Tabs>
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),

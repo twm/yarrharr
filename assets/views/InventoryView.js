@@ -9,7 +9,7 @@ import { RelativeTime } from 'widgets/time.jsm';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
-import { AddFeedLink, FeedLink, FeedListLink, InventoryFeedLink, LabelDetailLink, LabelLink, LabelListLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, FeedListLink, FeedDetailLink, LabelDetailLink, LabelLink, LabelListLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
@@ -88,9 +88,9 @@ export class FeedListView extends React.PureComponent {
                         {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}
                     </td>
                     <td className="col-edit">
-                        <InventoryFeedLink feedId={feed.id} title="Edit Feed">
+                        <FeedDetailLink feedId={feed.id} title="Edit Feed">
                             <EditIcon aria-label="Edit Feed" />
-                        </InventoryFeedLink>
+                        </FeedDetailLink>
                     </td>
                 </tr>)}
             </tbody>
@@ -294,9 +294,9 @@ export class ManageFeedView extends React.PureComponent {
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
-                <InventoryFeedLink aria-selected={true} feedId={feedId} title="Edit Feed" className="no-underline">
+                <FeedDetailLink aria-selected={true} feedId={feedId} title="Edit Feed" className="no-underline">
                     <EditIcon aria-label="Edit Feed" />
-                </InventoryFeedLink>
+                </FeedDetailLink>
             </Tabs>
             <Centered>
                 <InventoryItem

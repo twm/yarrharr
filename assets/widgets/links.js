@@ -48,7 +48,7 @@ export const LabelLink = makeLink(({labelId, filter, ...props}) => { return { ..
 export const LabelArticleLink = makeLink(({labelId, filter, articleId, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/${articleId}/` }; });
 export const RootLink = makeLink((props) => { return { ...props, href: "/" }; });
 export const FeedListLink = makeLink((props) => { return { ...props, href: "/inventory/" }; });
-export const InventoryFeedLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
+export const FeedDetailLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
 export const LabelListLink = makeLink((props) => { return { ...props, href: "/inventory/labels/" }; });
 export const LabelDetailLink = makeLink(({labelId, ...props}) => { return { ...props, href: `/inventory/label/${labelId}/` }; });
 export const AddFeedLink = makeLink((props) => { return { ...props, href: "/inventory/add/" }; });
@@ -84,7 +84,7 @@ if (process.env.NODE_ENV !== 'production') {
         filter,
         articleId: PropTypes.number.isRequired,
     };
-    InventoryFeedLink.propTypes = {
+    FeedDetailLink.propTypes = {
         feedId: PropTypes.number.isRequired,
     };
     LabelDetailLink.propTypes = {
