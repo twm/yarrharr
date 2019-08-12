@@ -61,38 +61,36 @@ export class InventoryView extends React.PureComponent {
 
         // TODO sorting
         // TODO filtering
-        return <table className="inventory-table feed-table">
+        return <table className="feed-list">
             <thead>
-                <tr>
-                    <th className="col-error"><span title="Error?">⚠️ </span></th>
-                    <th className="col-unread">Unread</th>
+                <tr className="feed-list-item feed-list-item-header">
                     <th className="col-feed">Feed</th>
+                    <th className="col-unread">Unread</th>
+                    <th className="col-fave">Favorite</th>
                     <th className="col-site-url">Site URL</th>
                     <th className="col-updated">Last Updated</th>
                     <th className="col-edit"></th>
                 </tr>
             </thead>
             <tbody>
-                {feedList.map(feed => <tr key={feed.id}>
-                    <td className="col-error">
-                        {feed.error ? <span title={feed.error}>⚠️ </span> : ""}
-                    </td>
-                    <td className="col-unread">
-                        <Count value={feed.unreadCount} />
-                    </td>
+                {feedList.map(feed => <tr className="feed-list-item" key={feed.id}>
                     <td className="col-feed">
-                        <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>{feed.text || feed.title}
-                            {feed.active ? "" : <i title="This feed is not checked for updates"> (inactive)</i>}
+                        <FeedLink feedId={feed.id} filter={FILTER_UNREAD}>
+                            {feed.text || feed.title}
                         </FeedLink>
+                        {feed.active ? "" : <i title="This feed is not checked for updates">&nbsp;(inactive)</i>}
                     </td>
+                    <td className="col-unread">{feed.unreadCount}</td>
+                    <td className="col-fave">{feed.faveCount}</td>
                     <td className="col-site-url">
                         <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
                     </td>
                     <td className="col-updated">
+                        {feed.error ? <span title={feed.error}>⚠️&nbsp;</span> : ""}
                         {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}
                     </td>
                     <td className="col-edit">
-                        <InventoryFeedLink className="square" feedId={feed.id} title="Edit Feed">
+                        <InventoryFeedLink feedId={feed.id} title="Edit Feed">
                             <EditIcon aria-label="Edit Feed" />
                         </InventoryFeedLink>
                     </td>
@@ -237,12 +235,12 @@ export class LabelListView extends React.PureComponent {
         return <table className="label-list">
             <thead>
                 <tr className="label-list-item label-list-item-header">
-                    <td></td>
-                    <td>Label</td>
-                    <td>Feeds</td>
-                    <td>Unread</td>
-                    <td>Favorite</td>
-                    <td></td>
+                    <th></th>
+                    <th>Label</th>
+                    <th>Feeds</th>
+                    <th>Unread</th>
+                    <th>Favorite</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
