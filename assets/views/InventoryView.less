@@ -7,35 +7,6 @@
     box-sizing: border-box;
 }
 
-.inventory-table {
-    display: block;
-    margin: 0 -0.25rem;
-
-    thead, tbody {
-        display: block;
-    }
-    tr {
-        display: grid;
-    }
-    th, td, td > a {
-        display: block;
-        text-align: left;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .col-feed {
-    }
-    .col-unread {
-    }
-    .col-edit {
-    }
-}
-
-.feed-table tr {
-    grid-template-columns: 2rem 2.5rem 2fr 1fr 1fr 1.5rem;
-}
-
 .label-header {
     display: grid;
     grid-template-columns: 1fr min-content;
@@ -48,6 +19,7 @@
     margin: 0 auto;
 }
 
+.feed-list,
 .label-list {
     white-space: nowrap;
 
@@ -58,6 +30,109 @@
         display: block;
     }
 
+}
+
+.feed-list-item {
+    & > * {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    & > .col-feed {}
+    & > .col-unread {}
+    & > .col-fave {}
+    & > .col-site-url {}
+    & > .col-updated {}
+    & > .col-edit {
+        display: flex;
+        align-content: center;
+        a {
+            display: block;
+            padding: 0.25rem; // increase clickable area
+        }
+        svg {
+            display: block;
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+    }
+}
+
+// On wide displays, show a table with scannable columns.
+@media screen and (min-width: 32rem) {
+    .feed-list {
+        display: grid;
+        grid: auto /
+            5fr max-content max-content 5fr max-content min-content;
+    }
+
+    .feed-list-item {
+        display: contents;
+
+        th, td {
+            display: flex;
+            align-items: center;
+            justify-content: stretch;
+            padding: 0.75rem 0.5rem;
+        }
+
+        & > .col-feed {}
+        & > .col-unread { justify-content: end; }
+        & > .col-fave { justify-content: end; }
+        & > .col-site-url {}
+        & > .col-updated { justify-content: end; }
+        & > .col-edit {}
+    }
+
+    .feed-list-item-header {
+        text-transform: uppercase;
+        font-size: smaller;
+    }
+
+    // Zebra stripes. Have to handle the header specially.
+    .feed-list-item-header > th {
+        font: inherit;
+        background: var(--footer-background-color);
+        border-bottom: 2px solid var(--quiet-text-color);
+    }
+    .feed-list-item:nth-child(even) > td {
+        background: var(--footer-background-color);
+    }
+}
+
+// On narrow displays display a fatter row suitable for touchscreens.
+@media screen and (max-width: 32rem) {
+    .feed-list {
+        display: grid;
+        grid: auto-flow auto / 1fr;
+    }
+
+    .feed-list-item {
+        display: grid;
+        grid:
+            "feed     unread edit" min-content
+            "updated  fave   edit" min-content / 1fr min-content min-content;
+        padding: 0.75rem @text_padding;
+
+        & > .col-feed { grid-area: feed; padding: 0 0.5rem 0 0; }
+        & > .col-unread { grid-area: unread; padding: 0 0.5rem; text-align: right; }
+        & > .col-fave { grid-area: fave; padding: 0 0.5rem; text-align: right; }
+        & > .col-unread::after { content: " unread"; }
+        & > .col-fave::after { content: " favorites"; }
+        & > .col-site-url { display: none; }
+        & > .col-updated { grid-area: updated; }
+        & > .col-updated::before { content: "Updated "; }
+        & > .col-edit { grid-area: edit; padding: 0 0 0 0.5rem; }
+    }
+
+    // Hide the header, as we have duplicated its function inline.
+    .feed-list-item-header {
+        display: none;
+    }
+
+    // Zebra stripes
+    .feed-list-item:nth-child(odd) {
+        background: var(--footer-background-color);
+    }
 }
 
 .label-list-item {
@@ -118,18 +193,18 @@
     .label-list-item {
         display: contents;
 
-        td {
+        th, td {
             display: flex;
             align-items: center;
             justify-content: stretch;
             padding: 0.75rem 0.5rem;
         }
 
-        & > td:nth-child(1) { padding-right: 0; }
-        & > td:nth-child(3) { justify-content: end; }
-        & > td:nth-child(4) { justify-content: end; }
-        & > td:nth-child(5) { justify-content: end; }
-        & > td:nth-child(6) { justify-content: end; }
+        & > :nth-child(1) { padding-right: 0; }
+        & > :nth-child(3) { justify-content: end; }
+        & > :nth-child(4) { justify-content: end; }
+        & > :nth-child(5) { justify-content: end; }
+        & > :nth-child(6) { justify-content: end; }
     }
 
     .label-list-item-header {
@@ -138,7 +213,8 @@
     }
 
     // Zebra stripes. Have to handle the header specially.
-    .label-list-item-header > td {
+    .label-list-item-header > th {
+        font-weight: normal;
         background: var(--footer-background-color);
         border-bottom: 2px solid var(--quiet-text-color);
     }
@@ -159,16 +235,17 @@
         grid:
             "icon title unread edit" min-content
             "icon feeds fave   edit" min-content / min-content 1fr min-content min-content;
+        padding: 0.75rem @text_padding;
 
-        & > td:nth-child(1) { grid-area: icon; padding: 0.75rem 0.5rem 0.75rem @text_padding; }
-        & > td:nth-child(2) { grid-area: title; padding: 0.75rem 0 0 0; }
-        & > td:nth-child(3) { grid-area: feeds; padding: 0 0 0.75rem 0; }
+        & > td:nth-child(1) { grid-area: icon; padding: 0 0.5rem 0 0; }
+        & > td:nth-child(2) { grid-area: title; }
+        & > td:nth-child(3) { grid-area: feeds; }
         & > td:nth-child(3)::after { content: " feeds"; }
-        & > td:nth-child(4) { grid-area: unread; padding: 0.5rem 0.5rem 0 0.5rem; text-align: right; }
+        & > td:nth-child(4) { grid-area: unread; padding: 0 0.5rem; text-align: right; }
         & > td:nth-child(4) a::after { content: " unread"; }
-        & > td:nth-child(5) { grid-area: fave; padding: 0 0.5rem 0.5rem 0.5rem; text-align: right; }
+        & > td:nth-child(5) { grid-area: fave; padding: 0 0.5rem; text-align: right; }
         & > td:nth-child(5) a::after { content: " favorites"; }
-        & > td:nth-child(6) { grid-area: edit; padding: 0.75rem @text_padding 0.75rem 0.5rem; }
+        & > td:nth-child(6) { grid-area: edit; padding: 0 0 0 0.5rem; }
     }
 
     // Hide the header, as we have duplicated its function inline.
@@ -177,7 +254,7 @@
     }
 
     // Zebra stripes
-    .label-list-item:nth-child(odd) > td {
+    .label-list-item:nth-child(odd) {
         background: var(--footer-background-color);
     }
 }
