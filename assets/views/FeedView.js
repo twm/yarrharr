@@ -14,7 +14,7 @@ import { Title } from 'widgets/Title.jsm';
 import { AscDescIcon, PrevIcon, NextIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon, ReturnIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
-import { RootLink } from 'widgets/links.js';
+import { HomeLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';

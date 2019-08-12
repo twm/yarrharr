@@ -46,7 +46,7 @@ export const FeedLink = makeLink(({feedId, filter, ...props}) => { return { ...p
 export const FeedArticleLink = makeLink(({feedId, filter, articleId, ...props}) => { return { ...props, href: `/feed/${feedId}/${filter}/${articleId}/` }; });
 export const LabelLink = makeLink(({labelId, filter, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/` }; });
 export const LabelArticleLink = makeLink(({labelId, filter, articleId, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/${articleId}/` }; });
-export const RootLink = makeLink((props) => { return { ...props, href: "/" }; });
+export const HomeLink = makeLink((props) => { return { ...props, href: "/" }; });
 export const FeedListLink = makeLink((props) => { return { ...props, href: "/inventory/" }; });
 export const FeedDetailLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
 export const LabelListLink = makeLink((props) => { return { ...props, href: "/inventory/labels/" }; });
