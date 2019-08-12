@@ -20,7 +20,7 @@ import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
-import { FeedListLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
+import { FeedListLink, InventoryFeedLink, LabelDetailLink } from 'widgets/links.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
@@ -248,9 +248,9 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
-            <InventoryLabelLink aria-selected={false} labelId={labelId} title="Edit Label" className="no-underline">
+            <LabelDetailLink aria-selected={false} labelId={labelId} title="Edit Label" className="no-underline">
                 <EditIcon aria-label="Edit Label" />
-            </InventoryLabelLink>
+            </LabelDetailLink>
         </Tabs>
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),

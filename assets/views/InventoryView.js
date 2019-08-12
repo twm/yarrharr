@@ -9,7 +9,7 @@ import { RelativeTime } from 'widgets/time.jsm';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
-import { AddFeedLink, FeedLink, FeedListLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, FeedListLink, InventoryFeedLink, LabelDetailLink, LabelLink, LabelListLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
@@ -249,9 +249,9 @@ export class LabelListView extends React.PureComponent {
                 <td><LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount}</LabelLink></td>
                 <td><LabelLink labelId={label.id} filter={FILTER_FAVE}>{label.faveCount}</LabelLink></td>
                 <td>
-                    <InventoryLabelLink labelId={label.id} title="Edit Label">
+                    <LabelDetailLink labelId={label.id} title="Edit Label">
                         <EditIcon aria-label="Edit Label" />
-                    </InventoryLabelLink>
+                    </LabelDetailLink>
                 </td>
             </tr>)}
             </tbody>
@@ -359,9 +359,9 @@ export class ManageLabelView extends React.Component {
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
-                <InventoryLabelLink aria-selected={true} labelId={labelId} title="Edit Label" className="no-underline">
+                <LabelDetailLink aria-selected={true} labelId={labelId} title="Edit Label" className="no-underline">
                     <EditIcon aria-label="Edit Label" />
-                </InventoryLabelLink>
+                </LabelDetailLink>
             </Tabs>
             <Centered>
                 <LabelForm label={label} feedList={feedList}
