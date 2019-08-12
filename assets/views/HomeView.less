@@ -2,17 +2,14 @@
 
 .root {
     margin: 0 auto;
-    max-width: var(--layout-max-width);
 }
 
 .root-list {
-    display: block;
+    display: grid;
     margin: 0;
     padding: 0;
-    column-width: 15rem;
 
     li {
-        display: block;
         list-style: none;
 
         a {
@@ -33,7 +30,13 @@
         }
     }
 
-    li.all-link a {
-        /* TODO special styles as this one lacks an icon. */
+    .home-item {
+        display: grid;
+        grid: auto / 1fr max-content;
+        span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }

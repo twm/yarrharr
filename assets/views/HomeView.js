@@ -16,8 +16,10 @@ import './HomeView.less';
 
 class HomeView extends React.PureComponent {
     render() {
-        const labelList = labelsByTitle(this.props).filter(l => l.unreadCount !== 0);
-        const feedList = feedsByTitle(this.props).filter(f => f.unreadCount !== 0);
+        const allLabels = labelsByTitle(this.props);
+        const allFeeds = feedsByTitle(this.props);
+        const labelList = allLabels.filter(l => l.unreadCount !== 0);
+        const feedList = allFeeds.filter(f => f.unreadCount !== 0);
         return <React.Fragment>
             <GlobalBar>
                 <Tabs>
@@ -28,31 +30,36 @@ class HomeView extends React.PureComponent {
             </GlobalBar>
             <Title title="Home" />
             <div className="root">
+                <h1>Home</h1>
+                <p>{allLabels.length} labels, {allFeeds.length} feeds</p>
+
                 <ul className="root-list">
-                    <li className="all-link">
+                    <li>
                         <AllLink filter={FILTER_UNREAD} className="no-underline">
                             <GlobeIcon aria-hidden={true} />
                             All Feeds
                         </AllLink>
                     </li>
-
                     {labelList.length
                         ? labelList.map((label) =>
-                            <li key={"label-" + label.id}>
+                            <li key={"label-" + label.id} className="home-item">
                                 <LabelLink labelId={label.id} filter={FILTER_UNREAD} className="no-underline">
-                                    <LabelIcon aria-hidden={true} />
-                                    {label.text}
+                                    <span>
+                                        <LabelIcon aria-hidden={true} />
+                                        {label.text}
+                                    </span>
                                     <Count value={label.unreadCount} />
                                 </LabelLink>
                             </li>)
-                        : null}
-
+                        : <li>No labels.  <LabelListLink>Add one?</LabelListLink></li>}
                     {feedList.length
                         ? feedList.map((feed) =>
-                            <li key={"feed-" + feed.id}>
+                            <li key={"feed-" + feed.id} className="home-item">
                                 <FeedLink feedId={feed.id} filter={FILTER_UNREAD} className="no-underline">
-                                    <FeedIcon aria-hidden={true} />
-                                    {feed.text || feed.title}
+                                    <span>
+                                        <FeedIcon aria-hidden={true} />
+                                        {feed.text || feed.title}
+                                    </span>
                                     <Count value={feed.unreadCount} />
                                 </FeedLink>
                             </li>)
