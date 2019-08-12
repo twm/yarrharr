@@ -14,13 +14,13 @@ import { Title } from 'widgets/Title.jsm';
 import { AscDescIcon, PrevIcon, NextIcon, EditIcon, GlobeIcon, FeedIcon, LabelIcon, ReturnIcon } from 'widgets/icons.js';
 import { Article, LoadingArticle } from 'widgets/Article.js';
 import ListArticle from 'widgets/ListArticle.js';
-import { RootLink } from 'widgets/links.js';
+import { HomeLink } from 'widgets/links.js';
 import ScrollSpy from 'widgets/ScrollSpy.js';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
-import { InventoryLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
+import { FeedListLink, FeedDetailLink, LabelDetailLink } from 'widgets/links.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
@@ -134,9 +134,9 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             <AllLink aria-selected={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
             <AllLink aria-selected={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
             <AllLink aria-selected={snapshot.filter === FILTER_ALL} filter={FILTER_ALL} className="no-underline">All</AllLink>
-            <InventoryLink aria-selected={false} title="Manage Feeds" className="no-underline">
+            <FeedListLink aria-selected={false} title="Manage Feeds" className="no-underline">
                 <EditIcon aria-label="Manage Feeds" />
-            </InventoryLink>
+            </FeedListLink>
         </Tabs>
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
@@ -190,9 +190,9 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
             <FeedLink aria-selected={snapshot.filter === FILTER_FAVE} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
             <FeedLink aria-selected={snapshot.filter === FILTER_ALL} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
-            <InventoryFeedLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
+            <FeedDetailLink aria-selected={false} feedId={feedId} title="Edit Feed" className="no-underline">
                 <EditIcon aria-label="Edit Feed" />
-            </InventoryFeedLink>
+            </FeedDetailLink>
         </Tabs>
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
@@ -248,9 +248,9 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_FAVE} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
             <LabelLink aria-selected={snapshot.filter === FILTER_ALL} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
-            <InventoryLabelLink aria-selected={false} labelId={labelId} title="Edit Label" className="no-underline">
+            <LabelDetailLink aria-selected={false} labelId={labelId} title="Edit Label" className="no-underline">
                 <EditIcon aria-label="Edit Label" />
-            </InventoryLabelLink>
+            </LabelDetailLink>
         </Tabs>
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),

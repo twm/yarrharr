@@ -6,7 +6,7 @@ import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { setTheme, THEME_LIGHT, THEME_DARK } from 'actions.js';
 import { ReturnIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
 
-import { RootLink } from 'widgets/links.js';
+import { HomeLink } from 'widgets/links.js';
 
 
 export class LayoutToggleLink extends React.PureComponent {
@@ -145,7 +145,7 @@ export class FullscreenToggle extends React.Component {
 
 
 export function HomeIconLink(props) {
-    return <RootLink aria-label="Home" title="Go home" className="square"><ReturnIcon aria-hidden={true} /></RootLink>;
+    return <HomeLink aria-label="Home" title="Go home" className="square"><ReturnIcon aria-hidden={true} /></HomeLink>;
 }
 
 

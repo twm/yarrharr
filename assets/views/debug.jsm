@@ -8,7 +8,7 @@ import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 
 import { GlobeIcon, LabelIcon, FeedIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon, ReturnIcon, PrevIcon, NextIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
 import { FaveToggle, ReadToggle } from 'widgets/StateToggle.js';
-import { RootLink, InventoryLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
+import { HomeLink, FeedListLink, LabelListLink, AddFeedLink } from 'widgets/links.js';
 import './debug.less';
 
 class DebugView extends React.PureComponent {
@@ -20,8 +20,8 @@ class DebugView extends React.PureComponent {
                 <Header>Debug</Header>
             </GlobalBar>
             <Tabs>
-                <RootLink className="no-underline">Home</RootLink>
-                <InventoryLink className="no-underline">Feeds</InventoryLink>
+                <HomeLink className="no-underline">Home</HomeLink>
+                <FeedListLink className="no-underline">Feeds</FeedListLink>
                 <LabelListLink className="no-underline">Labels</LabelListLink>
                 <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
             </Tabs>

@@ -9,13 +9,13 @@ import { RelativeTime } from 'widgets/time.jsm';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
-import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, FeedListLink, FeedDetailLink, LabelDetailLink, LabelLink, LabelListLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
 import { sortedLabels } from 'views/HomeView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
-import './InventoryView.less';
+import './inventory.less';
 
 
 
@@ -26,10 +26,8 @@ function Centered(props) {
 }
 
 
-export class InventoryView extends React.PureComponent {
+export class FeedListView extends React.PureComponent {
     render() {
-        // XXX This ordering may change when the feed title is overridden,
-        // causing the current object of focus to jump around on the page.
         const feedList = feedsByTitle(this.props);
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
@@ -37,7 +35,7 @@ export class InventoryView extends React.PureComponent {
             <GlobalBar>
                 <HomeIconLink />
                 <Tabs>
-                    <InventoryLink aria-selected={true} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={true} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>
@@ -90,9 +88,9 @@ export class InventoryView extends React.PureComponent {
                         {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}
                     </td>
                     <td className="col-edit">
-                        <InventoryFeedLink feedId={feed.id} title="Edit Feed">
+                        <FeedDetailLink feedId={feed.id} title="Edit Feed">
                             <EditIcon aria-label="Edit Feed" />
-                        </InventoryFeedLink>
+                        </FeedDetailLink>
                     </td>
                 </tr>)}
             </tbody>
@@ -171,7 +169,7 @@ class InventoryItem extends React.PureComponent {
 }
 
 if (__debug__) {
-    InventoryView.propTypes = {
+    FeedListView.propTypes = {
         labelsById: PropTypes.object.isRequired,
         feedsById: PropTypes.object.isRequired,
     };
@@ -186,7 +184,7 @@ if (__debug__) {
     };
 }
 
-export const ConnectedInventoryView = connect(state => state)(InventoryView);
+export const ConnectedFeedListView = connect(state => state)(FeedListView);
 
 export class LabelListView extends React.PureComponent {
     constructor(props) {
@@ -201,7 +199,7 @@ export class LabelListView extends React.PureComponent {
             <GlobalBar>
                 <HomeIconLink />
                 <Tabs>
-                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={true} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>
@@ -251,9 +249,9 @@ export class LabelListView extends React.PureComponent {
                 <td><LabelLink labelId={label.id} filter={FILTER_UNREAD}>{label.unreadCount}</LabelLink></td>
                 <td><LabelLink labelId={label.id} filter={FILTER_FAVE}>{label.faveCount}</LabelLink></td>
                 <td>
-                    <InventoryLabelLink labelId={label.id} title="Edit Label">
+                    <LabelDetailLink labelId={label.id} title="Edit Label">
                         <EditIcon aria-label="Edit Label" />
-                    </InventoryLabelLink>
+                    </LabelDetailLink>
                 </td>
             </tr>)}
             </tbody>
@@ -296,9 +294,9 @@ export class ManageFeedView extends React.PureComponent {
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_ALL} className="no-underline">All</FeedLink>
-                <InventoryFeedLink aria-selected={true} feedId={feedId} title="Edit Feed" className="no-underline">
+                <FeedDetailLink aria-selected={true} feedId={feedId} title="Edit Feed" className="no-underline">
                     <EditIcon aria-label="Edit Feed" />
-                </InventoryFeedLink>
+                </FeedDetailLink>
             </Tabs>
             <Centered>
                 <InventoryItem
@@ -361,9 +359,9 @@ export class ManageLabelView extends React.Component {
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_ALL} className="no-underline">All</LabelLink>
-                <InventoryLabelLink aria-selected={true} labelId={labelId} title="Edit Label" className="no-underline">
+                <LabelDetailLink aria-selected={true} labelId={labelId} title="Edit Label" className="no-underline">
                     <EditIcon aria-label="Edit Label" />
-                </InventoryLabelLink>
+                </LabelDetailLink>
             </Tabs>
             <Centered>
                 <LabelForm label={label} feedList={feedList}
@@ -475,7 +473,7 @@ export class AddFeedView extends React.Component {
             <GlobalBar>
                 <HomeIconLink />
                 <Tabs>
-                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={true} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>

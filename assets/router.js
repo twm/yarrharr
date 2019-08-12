@@ -7,13 +7,13 @@ import { ORIGIN_CLICK, ROUTES } from './actions.js';
 
 import { ConnectedAllView, ConnectedAllArticleView, ConnectedFeedArticleView, ConnectedFeedView, ConnectedLabelView, ConnectedLabelArticleView } from 'views/FeedView.js';
 import ConnectedHomeView from 'views/HomeView.js';
-import { ConnectedAddFeedView, ConnectedInventoryView, ConnectedLabelListView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/InventoryView.js';
+import { ConnectedAddFeedView, ConnectedFeedListView, ConnectedLabelListView, ConnectedManageFeedView, ConnectedManageLabelView } from 'views/inventory.jsm';
 import { ConnectedDebugView } from 'views/debug.jsm';
 
 
 const routeToView = {
     '/': ConnectedHomeView,
-    '/inventory': ConnectedInventoryView,
+    '/inventory': ConnectedFeedListView,
     '/inventory/add': ConnectedAddFeedView,
     '/inventory/labels': ConnectedLabelListView,
     '/inventory/feed/:feedId': ConnectedManageFeedView,

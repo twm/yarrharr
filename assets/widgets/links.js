@@ -46,11 +46,11 @@ export const FeedLink = makeLink(({feedId, filter, ...props}) => { return { ...p
 export const FeedArticleLink = makeLink(({feedId, filter, articleId, ...props}) => { return { ...props, href: `/feed/${feedId}/${filter}/${articleId}/` }; });
 export const LabelLink = makeLink(({labelId, filter, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/` }; });
 export const LabelArticleLink = makeLink(({labelId, filter, articleId, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/${articleId}/` }; });
-export const RootLink = makeLink((props) => { return { ...props, href: "/" }; });
-export const InventoryLink = makeLink((props) => { return { ...props, href: "/inventory/" }; });
-export const InventoryFeedLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
+export const HomeLink = makeLink((props) => { return { ...props, href: "/" }; });
+export const FeedListLink = makeLink((props) => { return { ...props, href: "/inventory/" }; });
+export const FeedDetailLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
 export const LabelListLink = makeLink((props) => { return { ...props, href: "/inventory/labels/" }; });
-export const InventoryLabelLink = makeLink(({labelId, ...props}) => { return { ...props, href: `/inventory/label/${labelId}/` }; });
+export const LabelDetailLink = makeLink(({labelId, ...props}) => { return { ...props, href: `/inventory/label/${labelId}/` }; });
 export const AddFeedLink = makeLink((props) => { return { ...props, href: "/inventory/add/" }; });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -84,10 +84,10 @@ if (process.env.NODE_ENV !== 'production') {
         filter,
         articleId: PropTypes.number.isRequired,
     };
-    InventoryFeedLink.propTypes = {
+    FeedDetailLink.propTypes = {
         feedId: PropTypes.number.isRequired,
     };
-    InventoryLabelLink.propTypes = {
+    LabelDetailLink.propTypes = {
         labelId: PropTypes.number.isRequired,
     };
 }
