@@ -42,10 +42,17 @@ export class InventoryView extends React.PureComponent {
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>
             </GlobalBar>
-            <Centered>
-                {this.renderFeeds(feedList, labelList)}
-            </Centered>
+            {this.renderHeader()}
+            {this.renderFeeds(feedList, labelList)}
         </React.Fragment>;
+    }
+    renderHeader() {
+        return <div className="label-header">
+            <h1>Feeds</h1>
+            <div>
+                <AddFeedLink className="text-button text-button-primary no-underline">Add Feed</AddFeedLink>
+            </div>
+        </div>
     }
     renderFeeds(feedList, labelList) {
         if (!feedList.length) {
@@ -201,9 +208,7 @@ export class LabelListView extends React.PureComponent {
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>
             </GlobalBar>
-            <Centered>
-                {this.renderLabelHeader(labelList)}
-            </Centered>
+            {this.renderLabelHeader()}
             {this.renderLabels(labelList, feedList)}
         </React.Fragment>;
     }
@@ -214,12 +219,12 @@ export class LabelListView extends React.PureComponent {
             this.props.onAddLabel(title);
         }
     }
-    renderLabelHeader(labelList) {
+    renderLabelHeader() {
         return <div className="label-header">
             <h1>Labels</h1>
-            <p>
+            <div>
                 <button className="text-button text-button-primary" onClick={this.handleAddLabel}>Add Label</button>
-            </p>
+            </div>
         </div>
     }
     renderLabels(labelList, feedList) {
