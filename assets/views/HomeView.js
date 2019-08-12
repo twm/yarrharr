@@ -6,7 +6,7 @@ import { Title } from 'widgets/Title.jsm';
 import { GlobeIcon, LabelIcon, FeedIcon } from 'widgets/icons.js';
 import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
-import { AddFeedLink, InventoryLink, LabelListLink, RootLink } from 'widgets/links.js';
+import { AddFeedLink, FeedListLink, LabelListLink, RootLink } from 'widgets/links.js';
 import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, HomeIconLink } from 'widgets/GlobalBar.js';
 import { FILTER_UNREAD, FILTER_FAVE } from 'actions.js';
@@ -21,7 +21,7 @@ class HomeView extends React.PureComponent {
         return <React.Fragment>
             <GlobalBar>
                 <Tabs>
-                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>

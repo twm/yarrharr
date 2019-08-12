@@ -9,7 +9,7 @@ import { RelativeTime } from 'widgets/time.jsm';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 import { Label } from 'widgets/Label.js';
 import { Count } from 'widgets/Count.js';
-import { AddFeedLink, FeedLink, InventoryLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink } from 'widgets/links.js';
+import { AddFeedLink, FeedLink, FeedListLink, InventoryFeedLink, InventoryLabelLink, LabelLink, LabelListLink } from 'widgets/links.js';
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
@@ -35,7 +35,7 @@ export class FeedListView extends React.PureComponent {
             <GlobalBar>
                 <HomeIconLink />
                 <Tabs>
-                    <InventoryLink aria-selected={true} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={true} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>
@@ -199,7 +199,7 @@ export class LabelListView extends React.PureComponent {
             <GlobalBar>
                 <HomeIconLink />
                 <Tabs>
-                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={true} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>
@@ -473,7 +473,7 @@ export class AddFeedView extends React.Component {
             <GlobalBar>
                 <HomeIconLink />
                 <Tabs>
-                    <InventoryLink aria-selected={false} className="no-underline">Feeds</InventoryLink>
+                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
                     <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
                     <AddFeedLink aria-selected={true} className="no-underline">Add Feed</AddFeedLink>
                 </Tabs>

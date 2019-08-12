@@ -20,7 +20,7 @@ import { Count } from 'widgets/Count.js';
 import { AllLink, FeedLink, LabelLink } from 'widgets/links.js';
 import { AllArticleLink, FeedArticleLink, LabelArticleLink } from 'widgets/links.js';
 import { ReadToggleLink, FaveToggleLink } from 'widgets/StateToggle.js';
-import { InventoryLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
+import { FeedListLink, InventoryFeedLink, InventoryLabelLink } from 'widgets/links.js';
 import { labelsByTitle } from 'sorting.js';
 import './FeedView.less';
 
@@ -134,9 +134,9 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             <AllLink aria-selected={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
             <AllLink aria-selected={snapshot.filter === FILTER_FAVE} filter={FILTER_FAVE} className="no-underline">Favorite</AllLink>
             <AllLink aria-selected={snapshot.filter === FILTER_ALL} filter={FILTER_ALL} className="no-underline">All</AllLink>
-            <InventoryLink aria-selected={false} title="Manage Feeds" className="no-underline">
+            <FeedListLink aria-selected={false} title="Manage Feeds" className="no-underline">
                 <EditIcon aria-label="Manage Feeds" />
-            </InventoryLink>
+            </FeedListLink>
         </Tabs>
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
