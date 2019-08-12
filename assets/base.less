@@ -53,37 +53,38 @@ html {
     color: var(--text-color);
     background: var(--background-color);
     touch-action: manipulation;
+}
 
-    a {
-        color: var(--text-color);
-        --underline-color: rgb(28, 140, 199);
-        text-decoration-line: none;
-    }
-    a:not(.no-underline),
-    a .underline {
-        text-decoration-line: underline;
-        text-decoration-color: var(--underline-color);
-    }
-    a[role=button] {
-        text-decoration-line: none;
-    }
-    a:visited {
-        --underline-color: rgb(199, 68, 28); // TODO Make this more vibrant
-    }
-    a:visited:not([role=button]) {
-        color: var(--text-color);
-    }
-    a:active {
-        --underline-color: rgb(185, 28, 199); // TODO Make this more vibrant
-    }
-    a:link[aria-disabled=true],
-    a:visited[aria-disabled=true] {
-        text-decoration-line: none;
-        cursor: default;
-    }
-    a:hover {
-        background: var(--hover-background-color);
-    }
+a {
+    color: var(--text-color);
+    --underline-color: rgb(28, 140, 199);
+    text-decoration-line: none;
+}
+a:not(.no-underline),
+a .underline {
+    text-decoration-line: underline;
+    text-decoration-color: var(--underline-color);
+}
+// FIXME: Remove all [role=button], just use <button>
+a[role=button] {
+    text-decoration-line: none;
+}
+a:visited {
+    --underline-color: rgb(199, 68, 28); // TODO Make this more vibrant
+}
+a:visited {
+    color: var(--text-color);
+}
+a:active {
+    --underline-color: rgb(185, 28, 199); // TODO Make this more vibrant
+}
+a:link[aria-disabled=true],
+a:visited[aria-disabled=true] {
+    text-decoration-line: none;
+    cursor: default;
+}
+a:hover {
+    background: var(--hover-background-color);
 }
 
 main {
