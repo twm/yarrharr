@@ -74,10 +74,6 @@ A regular link like this will display with an underline:
 
     <a href="#">...</a>
 
-If the ``<a>`` tag is serving as a button rather than a link it will not be underlined:
-
-    <a role="button" href="#">...</a>
-
 To disable the underline use the ``no-underline`` class.
 The ``underline`` class can be used to re-add the underline in a specific location:
 
@@ -85,6 +81,10 @@ The ``underline`` class can be used to re-add the underline in a specific locati
         <svg class="icon" width="1em" height="1em" />
         <span class="underline">...</a>
     </a>
+
+A link may be styled as a button using the ``text-button`` class:
+
+    <a class="text-button text-button-primary">...</a>
 
 ## Icons
 
