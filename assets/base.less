@@ -16,7 +16,6 @@
     --border-color: #ddd;
     --icon-color: #666;
     --icon-color-off: var(--border-color);
-    --hover-background-color: #fafafa;
 
     --heart-color: #c92ccc;
     --check-color: #39cc5c;
@@ -34,7 +33,6 @@
     --border-color: #222;
     --icon-color: #eee;
     --icon-color-off: #666;
-    --hover-background-color: #111;
 
     scrollbar-color: var(--quiet-text-color) var(--background-color);
 }
@@ -82,9 +80,6 @@ a:link[aria-disabled=true],
 a:visited[aria-disabled=true] {
     text-decoration-line: none;
     cursor: default;
-}
-a:hover {
-    background: var(--hover-background-color);
 }
 
 main {
@@ -171,6 +166,7 @@ select[multiple] {
     --gradient-end: #323232;
     --gradient-border-color: #151515;
 
+    color: var(--text-color);
     background: linear-gradient(to bottom, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
     border: @button_border_width solid var(--gradient-border-color);
     border-radius: (1.5 * @text_padding);
@@ -186,7 +182,7 @@ select[multiple] {
     }
     body.focus-visible &:focus {
         box-shadow: inset 0 0 0 1.5px currentColor;
-        outline: none;
+        outline: 2px solid transparent;
     }
     body.focus-visible &:active:focus {
         box-shadow: inset 0 0 0 1.5px currentColor,
