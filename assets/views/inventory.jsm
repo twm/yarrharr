@@ -15,7 +15,7 @@ import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
 import { sortedLabels } from 'views/HomeView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
-import './InventoryView.less';
+import './inventory.less';
 
 
 
