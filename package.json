@@ -10,7 +10,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
-    "react-hot-loader": "^4.12.14",
+    "react-hot-loader": "^4.12.15",
     "react-redux": "^7.1.1",
     "redux": "^4.0.4",
     "redux-logger": "~3.0.6",
