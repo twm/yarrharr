@@ -436,7 +436,7 @@ def extract_last_modified(headers):
     return lm
 
 
-@attr.s(cmp=False)
+@attr.s(auto_exc=True)
 class RequestTimeout(defer.CancelledError):
     timeout = attr.ib()
 
@@ -456,7 +456,7 @@ class RequestTimeout(defer.CancelledError):
         return result
 
 
-@attr.s(cmp=False)
+@attr.s(auto_exc=True)
 class ResponseTimeout(defer.CancelledError):
     timeout = attr.ib()
 
