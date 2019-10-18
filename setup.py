@@ -14,7 +14,7 @@ setup(
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
-        'attrs == 19.2.0',
+        'attrs == 19.3.0',
         'Django >=2.1.3,<2.3.0',
         'Twisted[tls,http2] == 19.7.0',
         'treq >= 17.8.0',
