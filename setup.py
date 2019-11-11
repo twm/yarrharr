@@ -17,6 +17,7 @@ setup(
         'attrs == 19.3.0',
         'Django >=2.1.3,<2.3.0',
         'Twisted[tls,http2] == 19.10.0',
+        # When updating treq remove the ignored deprecation warning in tox.ini [pytest].
         'treq >= 17.8.0',
         'pytz',
         # We are (hopefully temporarily) using a fork of feedparser as the
