@@ -11,4 +11,7 @@ __pycache__/
 /yarrharr/static
 /static
 /node_modules
+
+# Trial test droppings.
 _trial_temp*/
+/yarrharr.tests.test_application
