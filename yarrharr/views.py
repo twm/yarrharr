@@ -441,7 +441,6 @@ def inventory(request):
                     added=timezone.now(),
                     next_check=timezone.now(),  # check ASAP
                 )
-                feed.save()
             data['feedId'] = feed.id
             schedule_changed.send(None)
         elif action == 'update-feed':
