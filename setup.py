@@ -8,7 +8,7 @@ if sys.version_info.major == 2:
 
 setup(
     name='yarrharr',
-    version='2019.8.0',
+    version='2019.11.0',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
@@ -16,7 +16,7 @@ setup(
     install_requires=[
         'attrs == 19.3.0',
         'Django >=2.1.3,<2.3.0',
-        'Twisted[tls,http2] == 19.7.0',
+        'Twisted[tls,http2] == 19.10.0',
         'treq >= 17.8.0',
         'pytz',
         # We are (hopefully temporarily) using a fork of feedparser as the
