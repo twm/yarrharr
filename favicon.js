@@ -104,8 +104,7 @@ function bufferToAsset(buffer) {
 
 class FaviconPlugin {
     apply(compiler) {
-        compiler.hooks.emit.tapAsync(pluginName, (compilation, callback) => {
-            Promise.resolve()
+        compiler.hooks.emit.tapPromise(pluginName, compilation => Promise.resolve()
             .then(_ => {
                 const [filename, asset] = function() {
                     for (let filename in compilation.assets) {
@@ -123,9 +122,7 @@ class FaviconPlugin {
                     compilation.assets[filename.slice(0, -3) + 'ico'] = icoAsset;
                 });
             })
-            .catch(error => compiler.errors.push(error))
-            .then(() => callback());
-        });
+        );
     }
 }
 
