@@ -32,7 +32,7 @@ function filterMap(arr, pred, convert) {
 
 
 function Centered(props) {
-    return <div className="inventory">
+    return <div className="inventory-centered">
         {props.children}
     </div>;
 }
@@ -50,7 +50,7 @@ export class FeedListView extends React.PureComponent {
         </React.Fragment>;
     }
     renderHeader() {
-        return <div className="label-header">
+        return <div className="inventory-header">
             <h1>Feeds</h1>
             <div>
                 <AddFeedLink className="text-button text-button-primary no-underline">Add Feed</AddFeedLink>
@@ -214,7 +214,7 @@ export class LabelListView extends React.PureComponent {
         }
     }
     renderLabelHeader() {
-        return <div className="label-header">
+        return <div className="inventory-header">
             <h1>Labels</h1>
             <div>
                 <button className="text-button text-button-primary" onClick={this.handleAddLabel}>Add Label</button>

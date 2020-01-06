@@ -48,18 +48,40 @@ if (__debug__) {
     };
 }
 
+
+/**
+ * ListNav is displayed on list view pages to display tools that apply to the
+ * whole snapshot.
+ *
+ * +---+----+----------------+-------------------+
+ * | / |  - |                |                   |
+ * | \ | -- |                |   mark all read   |
+ * +---+----+----------------+-------------------+
+ */
+class ListNav extends React.PureComponent {
+    render() {
+        const {snapshot, onSetOrder, onMarkArticlesRead, returnLink} = this.props;
+        return <div className="bar list-nav">
+            {returnLink}
+            <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
+            <div className="expand" />
+            {<MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />}
+        </div>;
+    }
+}
+
 /**
  * SnapshotNav is displayed on article view pages to allow navigation to the
  * previous and next articles.
  *
- * +---+---------------+------+------+-----+-----+
- * | / |               | fave | read |  ↓  |  ↑  |
- * | \ |               | fave | read |     |     |
- * +---+---------------+------+------+-----+-----+
+ * +---+----+----------+------+------+-----+-----+
+ * | / |  - |          | fave | read |  ↓  |  ↑  |
+ * | \ | -- |          | fave | read |     |     |
+ * +---+----+----------+------+------+-----+-----+
  */
 class SnapshotNav extends React.PureComponent {
     render() {
-        const { articleId, articleIds, read, fave, onMarkArticlesRead, onMarkArticlesFave, renderLink, returnLink } = this.props;
+        const { articleId, articleIds, read, fave, onMarkArticlesRead, onMarkArticlesFave, renderLink, left } = this.props;
         const index = articleIds.indexOf(articleId);
         const total = articleIds.length;
         const prevId = index !== 0 ? articleIds[index - 1] : null;
@@ -67,7 +89,7 @@ class SnapshotNav extends React.PureComponent {
 
         // TODO: Return button
         return <div className="bar snapshot-nav">
-            {returnLink}
+            {left}
             <div className="expand">
                 {/* This occupies empty space at the left of the bar. */}
             </div>
@@ -117,18 +139,20 @@ function positionText(snapshot, articleId) {
     const {response: {articleIds}} = snapshot;
     const index = articleIds.indexOf(articleId);
     const total = articleIds.length;
-    return <Fragment>{index + 1} of {total} {filterName(snapshot.filter)}</Fragment>;
+    return <div class="position">
+        <span>{index + 1} of {total}</span>
+        <span>{filterName(snapshot.filter)}</span>
+    </div>;
 }
 
 
 export function FeedHeader({icon, title, desc, snapshot, onSetOrder, onMarkArticlesRead}) {
-    return <div>
+    return <div className="feed-header">
         <h1>{icon} {title}</h1>
         {desc ? <p>{desc}</p> : null}
-        {snapshot ? <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} /> : null}
-        {onMarkArticlesRead ? <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} /> : null}
     </div>;
 }
+
 
 
 export function AllView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
@@ -139,9 +163,6 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         <FeedHeader
             icon={<GlobeIcon aria-hidden={true} />}
             title="All Feeds"
-            snapshot={snapshot}
-            onSetOrder={onSetOrder}
-            onMarkArticlesRead={onMarkArticlesRead}
         />
         <Tabs>
             <AllLink aria-selected={snapshot.filter === FILTER_UNREAD} filter={FILTER_UNREAD} className="no-underline">Unread</AllLink>
@@ -154,26 +175,37 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
+        <ListNav
+            snapshot={snapshot}
+            onSetOrder={onSetOrder}
+            onMarkArticlesRead={onMarkArticlesRead}
+            returnLink={<HomeLink aria-label="Home" title="Return home" className="square">
+                    <ReturnIcon aria-hidden={true} />
+            </HomeLink>}
+        />
     </Fragment>;
 }
 
 export function AllArticleView({params, feedsById, layout, snapshot, articlesById, onSetView, onSetLayout, onSetOrder, onMarkArticlesRead, onMarkArticlesFave, onLoadMore}) {
     const { articleId } = params;
     const renderLink = props => <AllArticleLink filter={snapshot.filter} {...props} />;
-    const returnLink = <AllLink filter={snapshot.filter} aria-label="All Feeds" title="Return to article list" className="square">
-        <ReturnIcon aria-hidden={true} />
-    </AllLink>;
+    const left = <>
+        <AllLink filter={snapshot.filter} aria-label="All Feeds" title="Return to article list" className="square">
+            <ReturnIcon aria-hidden={true} />
+        </AllLink>
+        <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
+        {positionText(snapshot, articleId)}
+    </>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
         <GlobalBar />
         <FeedHeader
             icon={<GlobeIcon aria-hidden={true} />}
             title="All Feeds"
-            desc={positionText(snapshot, articleId)}
             snapshot={snapshot}
             onSetOrder={onSetOrder}
         />
-        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, returnLink)}
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, left)}
     </Fragment>;
 }
 
@@ -188,9 +220,6 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
         <FeedHeader
             icon={<FeedIcon aria-hidden={true} />}
             title={feedTitle}
-            snapshot={snapshot}
-            onSetOrder={onSetOrder}
-            onMarkArticlesRead={onMarkArticlesRead}
         />
         <Tabs>
             <FeedLink aria-selected={snapshot.filter === FILTER_UNREAD} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
@@ -203,6 +232,14 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
+        <ListNav
+            snapshot={snapshot}
+            onSetOrder={onSetOrder}
+            onMarkArticlesRead={onMarkArticlesRead}
+            returnLink={<FeedListLink title="Return to feed list" className="square">
+                <ReturnIcon aria-hidden={true} />
+            </FeedListLink>}
+        />
     </Fragment>;
 }
 
@@ -211,20 +248,23 @@ export function FeedArticleView({params, feedsById, labelsById, layout, snapshot
     const feed = feedsById[feedId];
     const feedTitle = feed.text || feed.title;
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
-    const returnLink = <FeedLink feedId={feedId} filter={snapshot.filter} aria-label={feedTitle} title="Return to article list" className="square">
-        <ReturnIcon aria-hidden={true} />
-    </FeedLink>;
+    const left = <>
+        <FeedLink feedId={feedId} filter={snapshot.filter} aria-label={feedTitle} title="Return to article list" className="square">
+            <ReturnIcon aria-hidden={true} />
+        </FeedLink>
+        <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
+        {positionText(snapshot, articleId)}
+    </>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, feedTitle)} />
         <GlobalBar />
         <FeedHeader
             icon={<FeedIcon aria-hidden={true} />}
             title={feedTitle}
-            desc={positionText(snapshot, articleId)}
             snapshot={snapshot}
             onSetOrder={onSetOrder}
         />
-        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, returnLink)}
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, left)}
     </Fragment>;
 }
 
@@ -239,9 +279,6 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         <FeedHeader
             icon={<LabelIcon aria-hidden={true} />}
             title={label.text}
-            snapshot={snapshot}
-            onSetOrder={onSetOrder}
-            onMarkArticlesRead={onMarkArticlesRead}
         />
         <Tabs>
             <LabelLink aria-selected={snapshot.filter === FILTER_UNREAD} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
@@ -254,6 +291,14 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
         {renderSnapshot(snapshot.response,
             () => renderArticleList(snapshot.response.articleIds, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink),
             onLoadMore)}
+        <ListNav
+            snapshot={snapshot}
+            onSetOrder={onSetOrder}
+            onMarkArticlesRead={onMarkArticlesRead}
+            returnLink={<FeedListLink title="Return to feed list" className="square">
+                <ReturnIcon aria-hidden={true} />
+            </FeedListLink>}
+        />
     </Fragment>;
 }
 
@@ -261,20 +306,23 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
     const { labelId, filter, articleId } = params;
     const label = labelsById[labelId];
     const renderLink = props => <LabelArticleLink labelId={labelId} filter={snapshot.filter} {...props} />;
-    const returnLink = <LabelLink labelId={labelId} filter={snapshot.filter} aria-label={label.text} title="Return to article list" className="square">
-        <ReturnIcon aria-hidden={true} />
-    </LabelLink>;
+    const left = <>
+        <LabelLink labelId={labelId} filter={snapshot.filter} aria-label={label.text} title="Return to article list" className="square">
+            <ReturnIcon aria-hidden={true} />
+        </LabelLink>
+        <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
+        {positionText(snapshot, articleId)}
+    </>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, label.text)} />
         <GlobalBar />
         <FeedHeader
             icon={<LabelIcon aria-hidden={true} />}
             title={label.text}
-            desc={positionText(snapshot, articleId)}
             snapshot={snapshot}
             onSetOrder={onSetOrder}
         />
-        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, returnLink, returnLink)}
+        {renderArticle(articleId, snapshot.response, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, left)}
     </Fragment>;
 }
 
@@ -312,7 +360,7 @@ function MarkAllReadLink({snapshot, onMarkArticlesRead}) {
 }
 
 function Status(props) {
-    return <div className="floater">
+    return <div className="floater prop-sticky">
         <p className="floater-content">{props.children}</p>
     </div>;
 }
@@ -344,7 +392,7 @@ function renderSnapshot(snapshotResponse, renderArticleList, onLoadMore) {
  *      List of article IDs in the order to render them. Not all may be present
  *      in the articlesById map, depending on what has loaded.
  */
-function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, returnLink) {
+function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById, onMarkArticlesRead, onMarkArticlesFave, renderLink, left) {
     const index = loaded ? articleIds.indexOf(articleId) : -2;
     console.log(`renderArticle(${articleId}, {${loaded}, ${articleIds}}, ...) -> index ${index}`);
     var articleComponent, snapshotNav = null, article = null;
@@ -383,14 +431,16 @@ function renderArticle(articleId, {loaded, articleIds}, articlesById, feedsById,
                     onMarkArticlesRead={onMarkArticlesRead}
                     onMarkArticlesFave={onMarkArticlesFave}
                     renderLink={renderLink}
-                    returnLink={returnLink}
+                    left={left}
                 />;
             } else {
                 articleComponent = <LoadingArticle />;
             }
     }
     return <div className="article-view">
-        {articleComponent}
+        <div className="prop-sticky">
+            {articleComponent}
+        </div>
         {snapshotNav}
     </div>;
 }

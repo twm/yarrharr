@@ -55,7 +55,7 @@ The wide layout flexes according to the width of the window.
 The narrow layout assigns a max-width to each box, and flexes down when the window is narrower than that.
 
 Each box in the stack has a max-width assigned individually, allowing each box to apply padding as necessary or appropriate.
-The CSS variable `--layout-max-width` indicates the max-width to apply: ``none`` when the layout is wide, otherwise some value.
+The CSS variable `--layout-max-width` indicates the max-width to apply when a non-flexible is appropriate (e.g. forms and such).
 
 For example:
 
