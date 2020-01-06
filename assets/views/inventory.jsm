@@ -18,6 +18,17 @@ import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './inventory.less';
 
 
+function filterMap(arr, pred, convert) {
+    let result = [];
+    for (let i = 0; i < arr.length; i++) {
+        let v = arr[i];
+        if (pred(v)) {
+            result.push(convert(v));
+        }
+    }
+    return result;
+}
+
 
 function Centered(props) {
     return <div className="inventory">
@@ -114,7 +125,7 @@ class InventoryItem extends React.PureComponent {
             this.setState({[event.target.name]: event.target.value});
         };
         this.handleLabelsChange = event => {
-            this.setState({labels: Array.filter(event.target.options, o => o.selected).map(o => Number(o.value))});
+            this.setState({labels: filterMap(event.target.options, o => o.selected, o => Number(o.value))});
         };
         this.handleSubmit = event => {
             event.preventDefault();
@@ -412,7 +423,7 @@ class LabelForm extends React.Component {
             this.setState({[event.target.name]: event.target.value});
         };
         this.handleFeedsChange = event => {
-            this.setState({feeds: Array.filter(event.target.options, o => o.selected).map(o => Number(o.value))});
+            this.setState({feeds: filterMap(event.target.options, o => o.selected, o => Number(o.value))});
         };
         this.handleSubmit = event => {
             event.preventDefault();
