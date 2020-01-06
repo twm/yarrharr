@@ -31,7 +31,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
-from ..models import Article, Feed
+from ..models import Article, Feed, Label
 
 
 class FeedTests(TestCase):
@@ -564,3 +564,34 @@ class FeedCountConstraintTests(TestCase):
 
         with self.assertRaises(IntegrityError):
             a.delete()
+
+
+class LabelTests(TestCase):
+    """
+    Test the Label model.
+
+    :cvar user_a: ID of a user
+    :cvar user_b: ID of a different user
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.user_a = User.objects.create_user(
+            username='user_a',
+            email='user.a@mailhost.example',
+            password='a',
+        ).pk
+        cls.user_b = User.objects.create_user(
+            username='user_b',
+            email='user.b@mailhost.example',
+            password='b',
+        ).pk
+
+    def test_test_user_unique(self):
+        """
+        Label text is unique per-user.
+        """
+        Label.objects.create(text='1', user_id=self.user_a)
+        Label.objects.create(text='1', user_id=self.user_b)
+
+        with self.assertRaises(IntegrityError):
+            Label.objects.create(text='1', user_id=self.user_a)
