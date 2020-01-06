@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2016, 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -143,9 +143,11 @@ class MaybeUpdated(object):
     etag = attr.ib()
     last_modified = attr.ib()
     digest = attr.ib()
+    check_time = attr.ib(default=attr.Factory(timezone.now))
 
     def persist(self, feed):
-        feed.last_checked = timezone.now()
+        feed.last_checked = self.check_time
+        feed.last_changed = self.check_time
         feed.error = u''
         feed.feed_title = self.feed_title
         feed.site_url = self.site_url
@@ -232,7 +234,7 @@ class MaybeUpdated(object):
                 # Sometimes feeds lack dates on entries (e.g.
                 # <http://antirez.com/rss>); in this case default to the
                 # current date so that they get the date the feed was fetched.
-                date=upsert.date or timezone.now(),
+                date=upsert.date or self.check_time,
                 guid=upsert.guid,
             )
             created.set_content(upsert.raw_title, upsert.raw_content)
