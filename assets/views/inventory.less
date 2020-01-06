@@ -41,7 +41,7 @@
     & > .col-unread {}
     & > .col-fave {}
     & > .col-site-url {}
-    & > .col-updated {}
+    & > .col-changed {}
     & > .col-edit {
         display: flex;
         align-content: center;
@@ -79,7 +79,7 @@
         & > .col-unread { justify-content: end; }
         & > .col-fave { justify-content: end; }
         & > .col-site-url {}
-        & > .col-updated { justify-content: end; }
+        & > .col-changed { justify-content: end; }
         & > .col-edit {}
     }
 
@@ -110,7 +110,7 @@
         display: grid;
         grid:
             "feed     unread edit" min-content
-            "updated  fave   edit" min-content / 1fr min-content min-content;
+            "changed  fave   edit" min-content / 1fr min-content min-content;
         padding: 0.75rem @text_padding;
 
         & > .col-feed { grid-area: feed; padding: 0 0.5rem 0 0; }
@@ -119,8 +119,8 @@
         & > .col-unread::after { content: " unread"; }
         & > .col-fave::after { content: " favorites"; }
         & > .col-site-url { display: none; }
-        & > .col-updated { grid-area: updated; }
-        & > .col-updated::before { content: "Updated "; }
+        & > .col-changed { grid-area: changed; }
+        & > .col-changed::before { content: "Updated "; }
         & > .col-edit { grid-area: edit; padding: 0 0 0 0.5rem; }
     }
 

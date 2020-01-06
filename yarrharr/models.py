@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -62,10 +62,11 @@ class Feed(models.Model):
         Next time we should try checking the feed. To stop checking the feed,
         set this to None.
     :ivar last_checked:
-        When did we last try to check the feed? None if never checked.
-    :ivar last_updated:
-        When did a check find an updated feed? None if the feed has never been
-        successfully checked.
+        When did we last try to check the feed? ``None`` if never checked.
+    :ivar last_changed:
+        When did a check find a feed change? The feed is considered changed if
+        its bytes changed.  ``None`` if the feed has never been successfully
+        checked.
     :ivar error: String error message from the last check.
     :ivar etag:
         HTTP ETag from the last check. Empty when the feed does set the header.
@@ -96,7 +97,7 @@ class Feed(models.Model):
 
     next_check = models.DateTimeField(null=True)
     last_checked = models.DateTimeField(null=True, default=None)
-    last_updated = models.DateTimeField(null=True, default=None)
+    last_changed = models.DateTimeField(null=True, default=None)
     error = models.TextField(blank=True, default=u'')
     etag = models.BinaryField(default=b'', max_length=1024)
     last_modified = models.BinaryField(default=b'', max_length=45)
@@ -159,6 +160,16 @@ class Feed(models.Model):
         if delta > max_delta:
             delta = max_delta
         self.next_check = now + delta
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(check=models.Q(all_count__gte=0),
+                                   name='feed_all_count_nonneg'),
+            models.CheckConstraint(check=models.Q(unread_count__gte=0),
+                                   name='feed_unread_count_nonneg'),
+            models.CheckConstraint(check=models.Q(fave_count__gte=0),
+                                   name='feed_fave_count_nonneg'),
+        ]
 
 
 class Article(models.Model):
@@ -243,7 +254,7 @@ class Label(models.Model):
     :ivar text: The text of the label set by the user.
     :ivar feeds: Feeds to which the label has been applied.
     """
-    text = models.CharField(unique=True, max_length=64)
+    text = models.CharField(max_length=64)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     feeds = models.ManyToManyField(Feed)
 

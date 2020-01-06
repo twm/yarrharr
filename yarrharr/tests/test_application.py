@@ -1,4 +1,4 @@
-# Copyright © 2018 Tom Most <twm@freecog.net>
+# Copyright © 2018, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -350,6 +350,19 @@ class RootTests(SynchronousTestCase):
         response = self.successResultOf(treq.get('http://127.0.0.1:8888/favicon.ico'))
 
         self.assertEqual(404, response.code)
+
+    def test_php_nonsense(self):
+        """
+        Requests to ``/index.png`` and ``/wp-login.php`` produce a 404 response
+        without logging an error.
+        """
+        treq = self.mkTreq()
+        for url in (
+            'http://127.0.0.1:8888/index.php',
+            'http://127.0.0.1:8888/wp-login.php',
+        ):
+            response = self.successResultOf(treq.get(url))
+            self.assertEqual(404, response.code)
 
 
 class FormatForSystemdTests(SynchronousTestCase):

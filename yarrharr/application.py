@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -294,9 +294,12 @@ class Root(FallbackResource):
 
         self.putChild(b'csp-report', CSPReportLogger())
         self.putChild(b'static', Static())
-        # Handle requests for /favicon.ico at the Twisted level so that they
-        # don't make it down to Django, which logs 404s as errors:
-        self.putChild(b'favicon.ico', ErrorPage(404, 'Not Found', ''))
+        # Handle requests for /favicon.ico and paths hit by script kiddies at
+        # the Twisted level so that they don't make it down to Django, which
+        # logs 404s as errors:
+        a404 = ErrorPage(404, 'Not Found', '')
+        for path in (b'favicon.ico', b'index.php', b'wp-login.php'):
+            self.putChild(path, a404)
 
     def getChildWithDefault(self, name, request):
         # Disable the Referer header in some browsers. This is complemented by
