@@ -32,14 +32,7 @@ export class FeedListView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
             <Title title="Feeds" />
-            <GlobalBar>
-                <HomeIconLink />
-                <Tabs>
-                    <FeedListLink aria-selected={true} className="no-underline">Feeds</FeedListLink>
-                    <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
-                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-                </Tabs>
-            </GlobalBar>
+            <GlobalBar feedsSelected={true} />
             {this.renderHeader()}
             {this.renderFeeds(feedList, labelList)}
         </React.Fragment>;
@@ -196,14 +189,7 @@ export class LabelListView extends React.PureComponent {
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
             <Title title="Labels" />
-            <GlobalBar>
-                <HomeIconLink />
-                <Tabs>
-                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
-                    <LabelListLink aria-selected={true} className="no-underline">Labels</LabelListLink>
-                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-                </Tabs>
-            </GlobalBar>
+            <GlobalBar labelsSelected={true} />
             {this.renderLabelHeader()}
             {this.renderLabels(labelList, feedList)}
         </React.Fragment>;

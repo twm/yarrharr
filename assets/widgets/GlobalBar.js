@@ -4,9 +4,17 @@ import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { setTheme, THEME_LIGHT, THEME_DARK } from 'actions.js';
-import { ReturnIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
+import { FILTER_UNREAD } from 'actions.js';
+import { GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
+import { Tabs } from 'widgets/Tabs.js';
+import { AllLink, AddFeedLink, FeedListLink, LabelListLink, HomeLink } from 'widgets/links.js';
+import logotypeUrl from 'art/logotype.svg';
+import lettertypeUrl from 'art/lettertype.svg';
 
-import { HomeLink } from 'widgets/links.js';
+export function YIcon(props) {
+    return <img className={"icon"} {...props} />
+}
+
 
 
 export class LayoutToggleLink extends React.PureComponent {
@@ -152,12 +160,27 @@ export function HomeIconLink(props) {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            {this.props.children}
+            <img alt="Yarrharr" src={logotypeUrl} />
+            <Tabs>
+                <AllLink filter={FILTER_UNREAD} aria-selected={!!this.props.allSelected} className="no-underline">All</AllLink>
+                <LabelListLink aria-selected={!!this.props.labelsSelected} className="no-underline">Labels</LabelListLink>
+                <FeedListLink aria-selected={!!this.props.feedsSelected} className="no-underline">Feeds</FeedListLink>
+                <AddFeedLink aria-selected={!!this.props.addFeedSelected} className="no-underline">+</AddFeedLink>
+            </Tabs>
             <ConnectedThemeToggle />
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />
         </div>;
     }
+}
+
+if (__debug__) {
+    GlobalBar.propTypes = {
+        allSelected: PropTypes.bool,
+        feedsSelected: PropTypes.bool,
+        labelsSelected: PropTypes.bool,
+        addFeedSelected: PropTypes.bool,
+    };
 }
 
 

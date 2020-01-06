@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { Title } from 'widgets/Title.jsm';
-import { Tabs } from 'widgets/Tabs.js';
 import { GlobalBar, Header, HomeIconLink } from 'widgets/GlobalBar.js';
 
 import { GlobeIcon, LabelIcon, FeedIcon, FollowIcon, OutboundIcon, EditIcon, GoFullscreenIcon, ExitFullscreenIcon, WideIcon, NarrowIcon, AscDescIcon, ReturnIcon, PrevIcon, NextIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
@@ -15,16 +14,7 @@ class DebugView extends React.PureComponent {
     render() {
         return <React.Fragment>
             <Title title="Debug" />
-            <GlobalBar>
-                <HomeIconLink />
-                <Header>Debug</Header>
-            </GlobalBar>
-            <Tabs>
-                <HomeLink className="no-underline">Home</HomeLink>
-                <FeedListLink className="no-underline">Feeds</FeedListLink>
-                <LabelListLink className="no-underline">Labels</LabelListLink>
-                <AddFeedLink className="no-underline">Add Feed</AddFeedLink>
-            </Tabs>
+            <GlobalBar />
             <div className="debug-icons">
                 <h2>Icons</h2>
                 <p>
