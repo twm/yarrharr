@@ -529,6 +529,7 @@ class FetchTests(SynchronousTestCase):
             last_modified=b'',
             digest=mock.ANY,
             articles=[],
+            check_time=mock.ANY,
         ), result)
 
     def test_last_modified_304(self):
@@ -567,6 +568,7 @@ class FetchTests(SynchronousTestCase):
             last_modified=b'Tue, 7 Feb 2017 10:25:00 GMT',
             digest=mock.ANY,
             articles=[],
+            check_time=mock.ANY,
         ), result)
 
     def test_bozo_html(self):
@@ -658,12 +660,15 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b'Tue, 15 Nov 1994 12:45:26 GMT',
             digest=b'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            check_time=timezone.now(),
         )
 
         mu.persist(self.feed)
 
         self.assertEqual(u'', self.feed.error)
         self.assertEqual(u'After', self.feed.feed_title)
+        self.assertEqual(mu.check_time, self.feed.last_checked)
+        self.assertEqual(mu.check_time, self.feed.last_changed)
         self.assertEqual(u'https://example.com/', self.feed.site_url)
         self.assertEqual(b'"etag"', self.feed.etag)
         self.assertEqual(b'Tue, 15 Nov 1994 12:45:26 GMT', self.feed.last_modified)
@@ -716,7 +721,6 @@ class MaybeUpdatedTests(DjangoTestCase):
         of when the article was actually posted, though it does mean that all
         articles in the feed when it is first added have the same date.
         """
-        lower_bound = timezone.now()
         mu = MaybeUpdated(
             feed_title=u'Example',
             site_url=u'https://example.com/',
@@ -737,9 +741,8 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
-        upper_bound = timezone.now()
         [article] = self.feed.articles.all()
-        self.assertTrue(lower_bound <= article.date <= upper_bound)
+        self.assertEqual(mu.check_time, article.date)
 
     def test_persist_article_guid_match(self):
         """

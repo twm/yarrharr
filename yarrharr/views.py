@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013–2019 Tom Most <twm@freecog.net>
+# Copyright © 2013–2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ def json_for_feed(feed):
         'url': feed.url,
         'siteUrl': feed.site_url,
         'added': ms_timestamp(feed.added),
-        'updated': ms_timestamp(feed.last_updated),
+        'changed': ms_timestamp(feed.last_changed),
         'checked': ms_timestamp(feed.last_checked),
         # 'nextCheck': str(feed.next_check or ''),
         'error': feed.error,

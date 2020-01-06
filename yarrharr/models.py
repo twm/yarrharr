@@ -62,10 +62,11 @@ class Feed(models.Model):
         Next time we should try checking the feed. To stop checking the feed,
         set this to None.
     :ivar last_checked:
-        When did we last try to check the feed? None if never checked.
-    :ivar last_updated:
-        When did a check find an updated feed? None if the feed has never been
-        successfully checked.
+        When did we last try to check the feed? ``None`` if never checked.
+    :ivar last_changed:
+        When did a check find a feed change? The feed is considered changed if
+        its bytes changed.  ``None`` if the feed has never been successfully
+        checked.
     :ivar error: String error message from the last check.
     :ivar etag:
         HTTP ETag from the last check. Empty when the feed does set the header.
@@ -96,7 +97,7 @@ class Feed(models.Model):
 
     next_check = models.DateTimeField(null=True)
     last_checked = models.DateTimeField(null=True, default=None)
-    last_updated = models.DateTimeField(null=True, default=None)
+    last_changed = models.DateTimeField(null=True, default=None)
     error = models.TextField(blank=True, default=u'')
     etag = models.BinaryField(default=b'', max_length=1024)
     last_modified = models.BinaryField(default=b'', max_length=45)

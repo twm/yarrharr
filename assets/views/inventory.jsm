@@ -66,7 +66,7 @@ export class FeedListView extends React.PureComponent {
                     <th className="col-unread">Unread</th>
                     <th className="col-fave">Favorite</th>
                     <th className="col-site-url">Site URL</th>
-                    <th className="col-updated">Last Updated</th>
+                    <th className="col-changed">Last Changed</th>
                     <th className="col-edit"></th>
                 </tr>
             </thead>
@@ -83,9 +83,9 @@ export class FeedListView extends React.PureComponent {
                     <td className="col-site-url">
                         <a target="_blank" rel="noreferrer noopener" href={feed.siteUrl}>{feed.siteUrl}</a>
                     </td>
-                    <td className="col-updated">
+                    <td className="col-changed">
                         {feed.error ? <span title={feed.error}>⚠️&nbsp;</span> : ""}
-                        {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}
+                        {feed.changed ? <RelativeTime then={feed.changed} /> : "never"}
                     </td>
                     <td className="col-edit">
                         <FeedDetailLink feedId={feed.id} title="Edit Feed">
@@ -134,7 +134,7 @@ class InventoryItem extends React.PureComponent {
         return <Fragment>
             <div>Site URL: <a href={feed.siteUrl} target="_blank">{feed.siteUrl}</a></div>
             <div>Last checked {feed.checked ? <RelativeTime then={feed.checked} /> : "never"}</div>
-            <div>Last updated {feed.updated ? <RelativeTime then={feed.updated} /> : "never"}</div>
+            <div>Last changed {feed.changed ? <RelativeTime then={feed.changed} /> : "never"}</div>
             {feed.error ? <div className="feed-error"><strong>Error:</strong> {feed.error}</div> : null}
             <form onSubmit={this.handleSubmit}>
                 <p>
