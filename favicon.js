@@ -13,7 +13,7 @@
  *
  * Temporary files are generated in the build/ directory.
  *
- * @copyright Tom Most <twm@freecog.net> 2018, 2019
+ * @copyright Tom Most <twm@freecog.net> 2018, 2019, 2020
  * @license GPL-3.0-or-later
  */
 const path = require('path');
@@ -117,9 +117,9 @@ class FaviconPlugin {
                     throw new Error("icon asset not found");
                 }
                 return processFavicon(asset.source()).then(([svgAsset, touchAsset, icoAsset]) => {
-                    compilation.assets[filename] = svgAsset;
-                    compilation.assets[filename.slice(0, -3) + 'png'] = touchAsset;
-                    compilation.assets[filename.slice(0, -3) + 'ico'] = icoAsset;
+                    compilation.updateAsset(filename, svgAsset);
+                    compilation.emitAsset(filename.slice(0, -3) + 'png', touchAsset);
+                    compilation.emitAsset(filename.slice(0, -3) + 'ico', icoAsset);
                 });
             })
         );
