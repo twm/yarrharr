@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -243,7 +243,7 @@ class Label(models.Model):
     :ivar text: The text of the label set by the user.
     :ivar feeds: Feeds to which the label has been applied.
     """
-    text = models.CharField(unique=True, max_length=64)
+    text = models.CharField(max_length=64)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     feeds = models.ManyToManyField(Feed)
 
