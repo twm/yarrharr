@@ -121,11 +121,11 @@ function positionText(snapshot, articleId) {
 }
 
 
-function FeedHeader({icon, title, desc, snapshot, onSetOrder, onMarkArticlesRead}) {
+export function FeedHeader({icon, title, desc, snapshot, onSetOrder, onMarkArticlesRead}) {
     return <div>
         <h1>{icon} {title}</h1>
         {desc ? <p>{desc}</p> : null}
-        <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
+        {snapshot ? <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} /> : null}
         {onMarkArticlesRead ? <MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} /> : null}
     </div>;
 }
@@ -184,7 +184,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
     const renderLink = props => <FeedArticleLink feedId={feedId} filter={snapshot.filter} {...props} />;
     return <Fragment>
         <Title title={feedTitle} />
-        <GlobalBar/>
+        <GlobalBar />
         <FeedHeader
             icon={<FeedIcon aria-hidden={true} />}
             title={feedTitle}

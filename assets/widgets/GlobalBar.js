@@ -11,11 +11,6 @@ import { AllLink, AddFeedLink, FeedListLink, LabelListLink, HomeLink } from 'wid
 import logotypeUrl from 'art/logotype.svg';
 import lettertypeUrl from 'art/lettertype.svg';
 
-export function YIcon(props) {
-    return <img className={"icon"} {...props} />
-}
-
-
 
 export class LayoutToggleLink extends React.PureComponent {
     constructor(props) {
