@@ -6,9 +6,11 @@ article {
     word-wrap: break-word; /* Don't let long lines break the layout */
 
     & > * {
-        max-width: var(--layout-max-width);
         padding: 0 0.25rem;
         margin: 0 auto;
+    }
+    .layout-narrow & > * {
+        max-width: var(--layout-max-width);
     }
 
     /* NB: This is written so that it can't affect <h1> tags within .content */
@@ -67,4 +69,3 @@ article {
         }
     }
 }
-
