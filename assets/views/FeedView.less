@@ -1,5 +1,20 @@
 @import "../include.less";
 
+.feed-header {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: center;
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
+    
+    h1 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+
 .list-header-inner {
     margin: 0 auto;
     max-width: var(--layout-max-width);
@@ -25,14 +40,28 @@
     }
 }
 
-.article-view > article {
+.prop-sticky,
+.scroll-spy {
     // FIXME: This hack ensures that SnapshotNav is always stuck to the bottom of the screen so that the next/prev buttons are in consistent — mashable — locations.
     min-height: calc(100vh - @bar_height - @bar_height);
 }
 
+.list-nav,
 .snapshot-nav {
     background: var(--background-color);
     border-top: 1px solid var(--border-color);
     position: sticky;
     bottom: 0;
+}
+
+.position {
+    display: block;
+    flex: 0 1 auto;
+    align-self: center;
+    line-height: 1;
+    font-size: smaller;
+
+    span {
+        white-space: nowrap;
+    }
 }

@@ -64,7 +64,7 @@ class ScrollSpy extends React.PureComponent {
         this.props.onVisibleChange(start, end);
     }
     render() {
-        return <div ref={el => {this.wrapper = el;}}>{this.props.children}</div>;
+        return <div ref={el => {this.wrapper = el;}} className="scroll-spy">{this.props.children}</div>;
     }
 }
 

@@ -5,6 +5,7 @@
 @import "./include.less";
 
 :root {
+    // Column width whenever a narrow layout is desired.
     --layout-max-width: 50rem;
 
     --background-color: white;
@@ -35,10 +36,6 @@
     --icon-color-off: #666;
 
     scrollbar-color: var(--quiet-text-color) var(--background-color);
-}
-
-.layout-wide {
-    --layout-max-width: none;
 }
 
 html {
@@ -95,10 +92,10 @@ h1 {
  * browser support is nearly nonexistent right now and hasn't improved in the
  * last year. */
 body.focus-visible :focus {
-    outline: 1px dotted var(--focus-color);
+    outline: 2px solid var(--focus-color);
 }
 body:not(.focus-visible) :focus {
-    outline: none;
+    outline-color: transparent;
 }
 
 /**

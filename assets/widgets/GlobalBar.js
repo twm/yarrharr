@@ -4,9 +4,12 @@ import { connect } from 'react-redux';
 
 import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { setTheme, THEME_LIGHT, THEME_DARK } from 'actions.js';
-import { ReturnIcon, GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
-
-import { HomeLink } from 'widgets/links.js';
+import { FILTER_UNREAD } from 'actions.js';
+import { GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
+import { AllLink, AddFeedLink, FeedListLink, LabelListLink, HomeLink } from 'widgets/links.js';
+import './GlobalBar.less';
+import logotypeUrl from 'art/logotype.svg';
+import lettertypeUrl from 'art/lettertype.svg';
 
 
 export class LayoutToggleLink extends React.PureComponent {
@@ -152,12 +155,30 @@ export function HomeIconLink(props) {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            {this.props.children}
+            <HomeLink className="yarrharr-masthead">
+                <img alt="Yarrharr" className="logotype" src={logotypeUrl} width="46" height="15"/>
+                <img alt="Yarrharr" className="lettertype" src={lettertypeUrl} width="20" height="20" />
+            </HomeLink>
+            <nav className="global-links">
+                <AllLink filter={FILTER_UNREAD} aria-selected={!!this.props.allSelected} className="global-link no-underline">All</AllLink>
+                <LabelListLink aria-selected={!!this.props.labelsSelected} className="global-link no-underline">Labels</LabelListLink>
+                <FeedListLink aria-selected={!!this.props.feedsSelected} className="global-link no-underline">Feeds</FeedListLink>
+                <AddFeedLink aria-selected={!!this.props.addFeedSelected} className="global-link no-underline">+</AddFeedLink>
+            </nav>
             <ConnectedThemeToggle />
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />
         </div>;
     }
+}
+
+if (__debug__) {
+    GlobalBar.propTypes = {
+        allSelected: PropTypes.bool,
+        feedsSelected: PropTypes.bool,
+        labelsSelected: PropTypes.bool,
+        addFeedSelected: PropTypes.bool,
+    };
 }
 
 

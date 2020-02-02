@@ -1,0 +1,54 @@
+@import "../include.less";
+
+.yarrharr-masthead {
+    display: flex;
+    flex: 0 0 auto;
+
+    img {
+        flex: 1 1 auto;
+        width: auto;
+        height: auto;
+        max-height: 100%;
+    }
+
+    .logotype {
+        display: block;
+        width: 10rem;
+    }
+    .lettertype {
+        display: none;
+        width: 3rem;
+    }
+
+    @media (max-width: 30rem) {
+        .logotype { display: none; }
+        .lettertype { display: block; }
+    }
+}
+
+// Invert the logo image so that it is legible in the dark theme. We don't go
+// 100% because it is pretty bold.
+:root.theme-dark .yarrharr-masthead img {
+    filter: invert(90%);
+}
+
+
+.global-links {
+    flex: 1 1 100%;
+    display: flex;
+}
+.global-link {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .flat-button;
+    &:hover { .flat-button-hover; }
+    body.focus-visible &:focus { .flat-button-focus; }
+
+    padding: 1rem; /* Ensure spacing between */
+}
+.global-link:focus {
+    outline-color: transparent;
+}

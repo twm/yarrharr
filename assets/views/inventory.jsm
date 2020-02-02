@@ -14,6 +14,7 @@ import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
 import { sortedLabels } from 'views/HomeView.js';
+import { FeedHeader } from 'views/FeedView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './inventory.less';
 
@@ -31,7 +32,7 @@ function filterMap(arr, pred, convert) {
 
 
 function Centered(props) {
-    return <div className="inventory">
+    return <div className="inventory-centered">
         {props.children}
     </div>;
 }
@@ -43,20 +44,13 @@ export class FeedListView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
             <Title title="Feeds" />
-            <GlobalBar>
-                <HomeIconLink />
-                <Tabs>
-                    <FeedListLink aria-selected={true} className="no-underline">Feeds</FeedListLink>
-                    <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
-                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-                </Tabs>
-            </GlobalBar>
+            <GlobalBar feedsSelected={true} />
             {this.renderHeader()}
             {this.renderFeeds(feedList, labelList)}
         </React.Fragment>;
     }
     renderHeader() {
-        return <div className="label-header">
+        return <div className="inventory-header">
             <h1>Feeds</h1>
             <div>
                 <AddFeedLink className="text-button text-button-primary no-underline">Add Feed</AddFeedLink>
@@ -207,14 +201,7 @@ export class LabelListView extends React.PureComponent {
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
             <Title title="Labels" />
-            <GlobalBar>
-                <HomeIconLink />
-                <Tabs>
-                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
-                    <LabelListLink aria-selected={true} className="no-underline">Labels</LabelListLink>
-                    <AddFeedLink aria-selected={false} className="no-underline">Add Feed</AddFeedLink>
-                </Tabs>
-            </GlobalBar>
+            <GlobalBar labelsSelected={true} />
             {this.renderLabelHeader()}
             {this.renderLabels(labelList, feedList)}
         </React.Fragment>;
@@ -227,7 +214,7 @@ export class LabelListView extends React.PureComponent {
         }
     }
     renderLabelHeader() {
-        return <div className="label-header">
+        return <div className="inventory-header">
             <h1>Labels</h1>
             <div>
                 <button className="text-button text-button-primary" onClick={this.handleAddLabel}>Add Label</button>
@@ -294,13 +281,11 @@ export class ManageFeedView extends React.PureComponent {
         const labelList = labelsByTitle(this.props);
         return <React.Fragment>
             <Title title={"Edit " + feedTitle} />
-            <GlobalBar>
-                <HomeIconLink />
-                <div className="square">
-                    <FeedIcon aria-hidden={true} />
-                </div>
-                <Header>{feedTitle}</Header>
-            </GlobalBar>
+            <GlobalBar />
+            <FeedHeader
+                icon={<FeedIcon aria-hidden={true} />}
+                title={feedTitle}
+            />
             <Tabs>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={feed.unreadCount} /></FeedLink>
                 <FeedLink aria-selected={false} feedId={feedId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={feed.faveCount} /></FeedLink>
@@ -358,14 +343,12 @@ export class ManageLabelView extends React.Component {
         const label = this.props.labelsById[labelId];
         const feedList = feedsByTitle(this.props);
         return <React.Fragment>
-            <GlobalBar>
-                <HomeIconLink />
-                <div className="square">
-                    <LabelIcon aria-hidden={true} />
-                </div>
-                <Header>{label.text}</Header>
-            </GlobalBar>
             <Title title={"Edit Label " + label.text} />
+            <GlobalBar />
+            <FeedHeader
+                icon={<LabelIcon aria-hidden={true} />}
+                title={label.text}
+            />
             <Tabs>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_UNREAD} className="no-underline">Unread <Count value={label.unreadCount} /></LabelLink>
                 <LabelLink aria-selected={false} labelId={labelId} filter={FILTER_FAVE} className="no-underline">Favorite <Count value={label.faveCount} /></LabelLink>
@@ -481,14 +464,7 @@ export class AddFeedView extends React.Component {
     }
     render() {
         return <Fragment>
-            <GlobalBar>
-                <HomeIconLink />
-                <Tabs>
-                    <FeedListLink aria-selected={false} className="no-underline">Feeds</FeedListLink>
-                    <LabelListLink aria-selected={false} className="no-underline">Labels</LabelListLink>
-                    <AddFeedLink aria-selected={true} className="no-underline">Add Feed</AddFeedLink>
-                </Tabs>
-            </GlobalBar>
+            <GlobalBar addFeedSelected={true} />
             <Title title="Add Feed" />
             <Centered>
                 <h1>Add Feed</h1>

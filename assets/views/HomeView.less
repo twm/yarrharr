@@ -1,39 +1,6 @@
 @import "../include.less";
 
-.root {
+.home-view {
     margin: 0 auto;
     max-width: var(--layout-max-width);
-}
-
-.root-list {
-    display: block;
-    margin: 0;
-    padding: 0;
-    column-width: 15rem;
-
-    li {
-        display: block;
-        list-style: none;
-
-        a {
-            .flat-button;
-            &:hover { .flat-button-hover; }
-            body.focus-visible &:focus { .flat-button-focus; }
-
-            display: flex;
-            align-items: center;
-            justify-content: left;
-            height: @bar_height;
-            padding: 0 @text_padding;
-        }
-
-        .icon {
-            flex: 0 0 auto;
-            margin: 0 .25rem 0 0;
-        }
-    }
-
-    li.all-link a {
-        /* TODO special styles as this one lacks an icon. */
-    }
 }
