@@ -159,12 +159,12 @@ export class GlobalBar extends React.PureComponent {
                 <img alt="Yarrharr" className="logotype" src={logotypeUrl} width="46" height="15"/>
                 <img alt="Yarrharr" className="lettertype" src={lettertypeUrl} width="20" height="20" />
             </HomeLink>
-            <div className="global-links">
+            <nav className="global-links">
                 <AllLink filter={FILTER_UNREAD} aria-selected={!!this.props.allSelected} className="global-link no-underline">All</AllLink>
                 <LabelListLink aria-selected={!!this.props.labelsSelected} className="global-link no-underline">Labels</LabelListLink>
                 <FeedListLink aria-selected={!!this.props.feedsSelected} className="global-link no-underline">Feeds</FeedListLink>
                 <AddFeedLink aria-selected={!!this.props.addFeedSelected} className="global-link no-underline">+</AddFeedLink>
-            </div>
+            </nav>
             <ConnectedThemeToggle />
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />
