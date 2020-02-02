@@ -5,14 +5,24 @@
     flex: 0 0 auto;
 
     img {
+        flex: 1 1 auto;
         width: auto;
-        height: 100%;
+        height: auto;
+        max-height: 100%;
     }
 
     .logotype {
+        display: block;
+        width: 10rem;
     }
     .lettertype {
         display: none;
+        width: 3rem;
+    }
+
+    @media (max-width: 30rem) {
+        .logotype { display: none; }
+        .lettertype { display: block; }
     }
 }
 .global-links {
