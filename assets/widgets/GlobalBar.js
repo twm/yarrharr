@@ -156,8 +156,8 @@ export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
             <HomeLink className="yarrharr-masthead">
-                <img alt="Yarrharr" className="logotype" src={logotypeUrl} />
-                <img alt="Yarrharr" className="lettertype" src={lettertypeUrl} />
+                <img alt="Yarrharr" className="logotype" src={logotypeUrl} width="46" height="15"/>
+                <img alt="Yarrharr" className="lettertype" src={lettertypeUrl} width="20" height="20" />
             </HomeLink>
             <div className="global-links">
                 <AllLink filter={FILTER_UNREAD} aria-selected={!!this.props.allSelected} className="global-link no-underline">All</AllLink>
