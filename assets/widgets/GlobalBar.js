@@ -6,8 +6,8 @@ import { setLayout, LAYOUT_NARROW, LAYOUT_WIDE } from 'actions.js';
 import { setTheme, THEME_LIGHT, THEME_DARK } from 'actions.js';
 import { FILTER_UNREAD } from 'actions.js';
 import { GoFullscreenIcon, ExitFullscreenIcon, NarrowIcon, WideIcon, SunIcon, MoonIcon } from 'widgets/icons.js';
-import { Tabs } from 'widgets/Tabs.js';
 import { AllLink, AddFeedLink, FeedListLink, LabelListLink, HomeLink } from 'widgets/links.js';
+import './GlobalBar.less';
 import logotypeUrl from 'art/logotype.svg';
 import lettertypeUrl from 'art/lettertype.svg';
 
@@ -155,13 +155,16 @@ export function HomeIconLink(props) {
 export class GlobalBar extends React.PureComponent {
     render() {
         return <div className="bar">
-            <img alt="Yarrharr" src={logotypeUrl} />
-            <Tabs>
-                <AllLink filter={FILTER_UNREAD} aria-selected={!!this.props.allSelected} className="no-underline">All</AllLink>
-                <LabelListLink aria-selected={!!this.props.labelsSelected} className="no-underline">Labels</LabelListLink>
-                <FeedListLink aria-selected={!!this.props.feedsSelected} className="no-underline">Feeds</FeedListLink>
-                <AddFeedLink aria-selected={!!this.props.addFeedSelected} className="no-underline">+</AddFeedLink>
-            </Tabs>
+            <HomeLink className="yarrharr-masthead">
+                <img alt="Yarrharr" className="logotype" src={logotypeUrl} />
+                <img alt="Yarrharr" className="lettertype" src={lettertypeUrl} />
+            </HomeLink>
+            <div className="global-links">
+                <AllLink filter={FILTER_UNREAD} aria-selected={!!this.props.allSelected} className="global-link no-underline">All</AllLink>
+                <LabelListLink aria-selected={!!this.props.labelsSelected} className="global-link no-underline">Labels</LabelListLink>
+                <FeedListLink aria-selected={!!this.props.feedsSelected} className="global-link no-underline">Feeds</FeedListLink>
+                <AddFeedLink aria-selected={!!this.props.addFeedSelected} className="global-link no-underline">+</AddFeedLink>
+            </div>
             <ConnectedThemeToggle />
             <ConnectedLayoutToggleLink />
             <FullscreenToggle />

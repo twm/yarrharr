@@ -353,6 +353,7 @@ function MarkAllReadLink({snapshot, onMarkArticlesRead}) {
     )
 
     // TODO maybe add a checkbox icon here?
+    // FIXME Should be <button>
     return <a href="#" onClick={e => {
         e.preventDefault();
         if (disabled) {
