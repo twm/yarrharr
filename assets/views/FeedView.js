@@ -53,17 +53,18 @@ if (__debug__) {
  * ListNav is displayed on list view pages to display tools that apply to the
  * whole snapshot.
  *
- * +---+----+----------------+-------------------+
- * | / |  - |                |                   |
- * | \ | -- |                |   mark all read   |
- * +---+----+----------------+-------------------+
+ * +---+----+-----------+------------------+-------------------+
+ * | / |  - |           |                  |                   |
+ * | \ | -- | 10 unread |                  |   mark all read   |
+ * +---+----+-----------+------------------+-------------------+
  */
 class ListNav extends React.PureComponent {
     render() {
-        const {snapshot, onSetOrder, onMarkArticlesRead, returnLink} = this.props;
+        const {snapshot, onSetOrder, onMarkArticlesRead, returnLink, summary} = this.props;
         return <div className="bar list-nav">
             {returnLink}
             <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
+            {summary}
             <div className="expand" />
             {<MarkAllReadLink snapshot={snapshot} onMarkArticlesRead={onMarkArticlesRead} />}
         </div>;
@@ -74,10 +75,10 @@ class ListNav extends React.PureComponent {
  * SnapshotNav is displayed on article view pages to allow navigation to the
  * previous and next articles.
  *
- * +---+----+----------+------+------+-----+-----+
- * | / |  - |          | fave | read |  ↓  |  ↑  |
- * | \ | -- |          | fave | read |     |     |
- * +---+----+----------+------+------+-----+-----+
+ * +---+----+-----------------+------+------+------+-----+-----+
+ * | / |  - |                 |      | fave | read |  ↓  |  ↑  |
+ * | \ | -- | 1 of 10 unread  |      | fave | read |     |     |
+ * +---+----+-----------------+------+------+------+-----+-----+
  */
 class SnapshotNav extends React.PureComponent {
     render() {
@@ -87,7 +88,6 @@ class SnapshotNav extends React.PureComponent {
         const prevId = index !== 0 ? articleIds[index - 1] : null;
         const nextId = index < articleIds.length - 1 ? articleIds[index + 1] : null;
 
-        // TODO: Return button
         return <div className="bar snapshot-nav">
             {left}
             <div className="expand">
@@ -126,7 +126,7 @@ if (__debug__) {
     };
 }
 
-function filterName(filter) {
+function filterName(filter, total) {
     switch (filter) {
         case FILTER_UNREAD: return "unread";
         case FILTER_FAVE: return "favorite";
@@ -135,14 +135,16 @@ function filterName(filter) {
     return "";
 }
 
-function positionText(snapshot, articleId) {
+function snapshotSummary(snapshot) {
+    const total = snapshot.response.articleIds.length;
+    return <div className="position">{total} {filterName(snapshot.filter) || (total === 1 ? "article" : "articles")}</div>;
+}
+
+function snapshotPosition(snapshot, articleId) {
     const {response: {articleIds}} = snapshot;
     const index = articleIds.indexOf(articleId);
     const total = articleIds.length;
-    return <div class="position">
-        <span>{index + 1} of {total}</span>
-        <span>{filterName(snapshot.filter)}</span>
-    </div>;
+    return <div className="position"><span>{index + 1} of {total}</span> {filterName(snapshot.filter)}</div>;
 }
 
 
@@ -182,6 +184,7 @@ export function AllView({params, feedsById, layout, snapshot, articlesById, onSe
             returnLink={<HomeLink aria-label="Home" title="Return home" className="square">
                     <ReturnIcon aria-hidden={true} />
             </HomeLink>}
+            summary={snapshotSummary(snapshot)}
         />
     </Fragment>;
 }
@@ -194,7 +197,7 @@ export function AllArticleView({params, feedsById, layout, snapshot, articlesByI
             <ReturnIcon aria-hidden={true} />
         </AllLink>
         <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
-        {positionText(snapshot, articleId)}
+        {snapshotPosition(snapshot, articleId)}
     </>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, "All Feeds")} />
@@ -239,6 +242,7 @@ export function FeedView({params, feedsById, labelsById, layout, snapshot, artic
             returnLink={<FeedListLink title="Return to feed list" className="square">
                 <ReturnIcon aria-hidden={true} />
             </FeedListLink>}
+            summary={snapshotSummary(snapshot)}
         />
     </Fragment>;
 }
@@ -253,7 +257,7 @@ export function FeedArticleView({params, feedsById, labelsById, layout, snapshot
             <ReturnIcon aria-hidden={true} />
         </FeedLink>
         <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
-        {positionText(snapshot, articleId)}
+        {snapshotPosition(snapshot, articleId)}
     </>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, feedTitle)} />
@@ -298,6 +302,7 @@ export function LabelView({params, labelsById, feedsById, layout, snapshot, arti
             returnLink={<FeedListLink title="Return to feed list" className="square">
                 <ReturnIcon aria-hidden={true} />
             </FeedListLink>}
+            summary={snapshotSummary(snapshot)}
         />
     </Fragment>;
 }
@@ -311,7 +316,7 @@ export function LabelArticleView({params, labelsById, feedsById, layout, snapsho
             <ReturnIcon aria-hidden={true} />
         </LabelLink>
         <OrderToggle order={snapshot.order} onSetOrder={onSetOrder} />
-        {positionText(snapshot, articleId)}
+        {snapshotPosition(snapshot, articleId)}
     </>;
     return <Fragment>
         <Title title={articleTitle(articlesById, articleId, label.text)} />
@@ -356,7 +361,7 @@ function MarkAllReadLink({snapshot, onMarkArticlesRead}) {
         if (confirm("Mark " + articleIds.length + " articles read?")) {
             onMarkArticlesRead(articleIds, true);
         }
-    }}>Mark all {articleIds.length} articles read</a>;
+    }}>Mark all read</a>;
 }
 
 function Status(props) {

@@ -55,7 +55,13 @@
 }
 
 .position {
-    display: grid;
-    align-items: center;
+    display: block;
+    flex: 0 1 auto;
+    align-self: center;
+    line-height: 1;
     font-size: smaller;
+
+    span {
+        white-space: nowrap;
+    }
 }
