@@ -14,7 +14,7 @@ function HomeView({feedCount, labelCount}) {
     return <React.Fragment>
         <GlobalBar />
         <Title title="Home" />
-        <div className="root">
+        <div className="home-view">
             <h1>Home</h1>
             <p>{labelCount} labels</p>
             <p>{feedCount} feeds</p>

@@ -1,42 +1,6 @@
 @import "../include.less";
 
-.root {
+.home-view {
     margin: 0 auto;
-}
-
-.root-list {
-    display: grid;
-    margin: 0;
-    padding: 0;
-
-    li {
-        list-style: none;
-
-        a {
-            .flat-button;
-            &:hover { .flat-button-hover; }
-            body.focus-visible &:focus { .flat-button-focus; }
-
-            display: flex;
-            align-items: center;
-            justify-content: left;
-            height: @bar_height;
-            padding: 0 @text_padding;
-        }
-
-        .icon {
-            flex: 0 0 auto;
-            margin: 0 .25rem 0 0;
-        }
-    }
-
-    .home-item {
-        display: grid;
-        grid: auto / 1fr max-content;
-        span {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    }
+    max-width: var(--layout-max-width);
 }
