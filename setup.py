@@ -8,7 +8,7 @@ if sys.version_info.major == 2:
 
 setup(
     name='yarrharr',
-    version='2020.2.0',
+    version='2020.2.1',
     url='https://github.com/twm/yarrharr',
     author='Tom Most',
     author_email='yarrharr@freecog.net',
