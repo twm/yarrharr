@@ -88,6 +88,7 @@ const config = {
     },
     output: {
         path: path.resolve(__dirname, 'yarrharr/static'),
+        publicPath: '/static/',
         filename: hotify('[name]-[contenthash].js'),
     },
     plugins: [
