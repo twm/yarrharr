@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ import html5lib
 from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
-from hyperlink import URL
+from hyperlink import URL, DecodedURL
 
 REVISION = 5
 
@@ -269,18 +269,15 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
     """
     _embed_url_pattern = re.compile(r'https?://(www\.)?youtube(?:-nocookie)?\.com/embed/(?P<video_id>[^/?#]+)', re.I)
 
-    def _watch_url(self, embed_url):
+    def _watch_url(self, embed_url) -> DecodedURL:
         """
         Generate the URL of the YouTube page at which the embedded video can be
         viewed.
         """
         video_id = embed_url.path[1]
-        watch_url = URL(
-            scheme='https',
-            host='www.youtube.com',
-            path=('watch',),
-            query=(('v', video_id),),
-        )
+        watch_url = DecodedURL(
+            URL(scheme='https', host='www.youtube.com', path=('watch',)),
+        ).add('v', video_id)
         try:
             [start] = embed_url.get('start')
         except (KeyError, ValueError):
@@ -289,7 +286,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
             return watch_url  # Ignore an invalid second offset.
         return watch_url.replace(fragment='t={}s'.format(start))
 
-    def _thumbnail_url(self, embed_url):
+    def _thumbnail_url(self, embed_url) -> DecodedURL:
         """
         Generate the URL of the thumbnail for a YouTube video embed.
 
@@ -313,10 +310,12 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         See also https://boingboing.net/features/getthumbs.html
         """
         video_id = embed_url.path[1]
-        return URL(
-            scheme='https',
-            host='i.ytimg.com',
-            path=('vi', video_id, 'mqdefault.jpg'),
+        return DecodedURL(
+            URL(
+                scheme='https',
+                host='i.ytimg.com',
+                path=('vi', video_id, 'mqdefault.jpg'),
+            ),
         )
 
     def __iter__(self, _SRC_ATTR=(None, 'src'), _youtube_hosts=('youtube.com',
@@ -342,7 +341,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                     'data' in token and
                     _SRC_ATTR in token['data']
                 ):
-                    url = URL.from_text(token['data'][_SRC_ATTR])
+                    url = DecodedURL.from_text(token['data'][_SRC_ATTR])
                     if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == 'embed':
                         yield {
                             'type': 'StartTag',

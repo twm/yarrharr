@@ -285,9 +285,9 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' width="560"></iframe></p>'
         )
         self.assertEqual((
-            u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o&amp;amp"'
+            u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o%26amp"'
             u' rel="noopener noreferrer" target=_blank>'
-            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
+            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o&amp;amp/mqdefault.jpg"'
             u' width=320 height=180></a>'
         ), sanitize_html(html))
 
