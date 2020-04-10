@@ -267,8 +267,6 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
     """
     YouTube embeds are replaced with a thumbnail which links to the original video.
     """
-    _embed_url_pattern = re.compile(r'https?://(www\.)?youtube(?:-nocookie)?\.com/embed/(?P<video_id>[^/?#]+)', re.I)
-
     def _watch_url(self, embed_url) -> DecodedURL:
         """
         Generate the URL of the YouTube page at which the embedded video can be
