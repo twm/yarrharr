@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -270,6 +270,25 @@ class SanitizeHtmlTests(unittest.TestCase):
             u' rel="noopener noreferrer" target=_blank>'
             u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
             u' width=320 height=180></a>after'
+        ), sanitize_html(html))
+
+    def test_youtube_embed_malencoded_param(self):
+        """
+        A mis-encoded ``src`` doesn't raise an exception.
+
+        This reproduces https://github.com/twm/yarrharr/issues/619.
+        """
+        html = (
+            u'<p>'
+            u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
+            u' height="315" src="https://www.youtube.com/embed/XsyogXtyU9o&amp;amp"'
+            u' width="560"></iframe></p>'
+        )
+        self.assertEqual((
+            u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o&amp;amp"'
+            u' rel="noopener noreferrer" target=_blank>'
+            u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
+            u' width=320 height=180></a>'
         ), sanitize_html(html))
 
     def test_img_title_to_aside(self):
