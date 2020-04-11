@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -91,19 +91,22 @@ def examples():
 
 @implementer(IResource)
 @attr.s
-class StaticResource(object):
+class StaticResource:
     """
     `StaticResource` implements :class:`~twisted.web.resource.IResource`.
     It produces a static response for all requests.
     """
-    # FIXME: Can't this be replaced with static.Data?
     content = attr.ib()
     content_type = attr.ib(default=b'application/xml')
 
     isLeaf = True
 
     def render(self, request):
-        request.responseHeaders.setRawHeaders(b'Content-Type', [self.content_type])
+        if self.content_type is None:
+            ct = []
+        else:
+            ct = [self.content_type]
+        request.responseHeaders.setRawHeaders(b'Content-Type', ct)
         return self.content
 
 
@@ -123,6 +126,15 @@ class StaticResourceTests(SynchronousTestCase):
         self.assertEqual([b'text/plain'], response.headers.getRawHeaders(b'Content-Type'))
         body = self.successResultOf(response.content())
         self.assertEqual(b'hello', body)
+
+    def test_no_content_type(self):
+        """
+        Unlike `twisted.web.static.Data`, `StaticResource` can generate
+        a request with no ``Content-Type`` header.
+        """
+        client = StubTreq(StaticResource(content=b'hello', content_type=None))
+        response = self.successResultOf(client.get('http://an.example/'))
+        self.assertEqual(None, response.headers.getRawHeaders(b'Content-Type'))
 
 
 @implementer(IResource)
@@ -396,6 +408,17 @@ class FetchTests(SynchronousTestCase):
         self.assertIsInstance(outcome, MaybeUpdated)
         self.assertEqual('', outcome.articles[0].raw_title)
 
+    def test_no_content_type(self):
+        """
+        We can cope with an RSS feed lacking a ``Content-Type`` header without
+        raising an exception.
+        """
+        feed = FetchFeed()
+        xml = resource_string("yarrharr", "examples/empty.rss")
+        client = StubTreq(StaticResource(xml, content_type=None))
+
+        self.successResultOf(poll_feed(feed, self.clock, client))
+
     def test_connection_refused(self):
         """
         An expected error type when connecting produces a NetworkError.
@@ -594,11 +617,11 @@ class FetchTests(SynchronousTestCase):
         this way we catch this case earlier, producing an `EmptyBody` result.
         """
         feed = FetchFeed('https://an.example/0byte')
-        client = StubTreq(StaticResource(b'', b'text/html'))
+        client = StubTreq(StaticResource(b"", content_type=None))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertEqual(EmptyBody(code=200, content_type=u'text/html'), outcome)
+        self.assertEqual(EmptyBody(code=200, content_type=""), outcome)
 
     def test_updated_only(self):
         """

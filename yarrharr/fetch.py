@@ -547,7 +547,7 @@ def poll_feed(feed, clock, treq=treq):
     if not raw_bytes:
         return EmptyBody(
             code=response.code,
-            content_type=', '.join(response.headers.getRawHeaders('content-type')),
+            content_type=", ".join(response.headers.getRawHeaders("content-type", [])),
         )
 
     digest = hashlib.sha256(raw_bytes).digest()
@@ -594,7 +594,7 @@ def poll_feed(feed, clock, treq=treq):
     if not articles and parsed['bozo']:
         return BozoError(
             code=response.code,
-            content_type=u', '.join(response.headers.getRawHeaders(u'content-type')),
+            content_type=", ".join(response.headers.getRawHeaders("content-type", [])),
             error=str(parsed.get('bozo_exception', 'Unknown error')),
         )
     else:
