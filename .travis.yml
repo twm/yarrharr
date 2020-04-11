@@ -1,37 +1,31 @@
+os: linux
 dist: xenial
+language: python
 branches:
   only:
-    - staging  # bors r+
-    - try      # bors try
     - master   # PRs
-matrix:
+jobs:
   include:
     - name: "Test: Python 3.5"
-      language: python
       python: "3.5"
       install: "pip install tox"
       script:
         - tox -e py35-lint
         - tox -e py35-test
     - name: "Test: Python 3.6"
-      language: python
       python: "3.6"
       install: "pip install tox"
       script:
         - tox -e py36-lint
         - tox -e py36-test
     - name: "Test: Python 3.7"
-      language: python
       python: "3.7"
-      sudo: true
       install: "sudo pip install tox"
       script:
         - tox -e py37-lint
         - tox -e py37-test
     - name: "Webpack Build"
-      language: python
       python: "3.7"
-      sudo: true
       install:
         - "sudo pip install tox"
         - "nvm install"
