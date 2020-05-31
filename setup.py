@@ -14,7 +14,7 @@ setup(
     author_email='yarrharr@freecog.net',
     license='GPLv3+',
     install_requires=[
-        'attrs == 19.3.0',
+        'attrs >= 19.3.0',
         'Django >=2.2,<2.3.0',
         'Twisted[tls,http2] >= 20.3.0',
         'treq >= 20.3.0',
@@ -26,10 +26,7 @@ setup(
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
         'html5lib == 1.1',
     ],
-    extras_require={
-        'dev': [
-        ],
-    },
+    python_requires='>=3.5',
     entry_points={
         'console_scripts': [
             'yarrharr=yarrharr.scripts.yarrharr:main',
