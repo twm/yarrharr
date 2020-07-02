@@ -68,7 +68,13 @@ const config = {
                 options: {sourceMap: true}
             }, {
                 loader: 'less-loader',
-                options: {strictMath: true, noIeCompat: true, sourceMap: true},
+                options: {
+                    sourceMap: true,
+                    lessOptions: {
+                        strictMath: true,
+                        noIeCompat: true,
+                    },
+                },
             }],
         }, {
             test: /\.jsm?$/,
