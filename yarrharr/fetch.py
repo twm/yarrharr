@@ -147,7 +147,6 @@ class MaybeUpdated(object):
 
     def persist(self, feed):
         feed.last_checked = self.check_time
-        feed.last_changed = self.check_time
         feed.error = u''
         feed.feed_title = self.feed_title
         feed.site_url = self.site_url
@@ -157,16 +156,24 @@ class MaybeUpdated(object):
         log.debug("Upserting {upsert_count} articles to {feed}",
                   upsert_count=len(self.articles), feed=feed)
 
+        changed = False
         for upsert in self.articles:
-            self._upsert_article(feed, upsert)
+            if self._upsert_article(feed, upsert):
+                changed = True
+
+        if changed or feed.last_changed is None:
+            feed.last_changed = self.check_time
 
         feed.schedule()
         # As a workaround for #323, only save the fields which have been
         # touched. We *must not* save the all_count or unread_count fields lest
         # we clobber the values set by the triggers.
-        feed.save(update_fields=['last_checked', 'error', 'feed_title',
-                                 'site_url', 'etag', 'last_modified', 'digest',
-                                 'next_check'])
+        feed.save(
+            update_fields=[
+                'last_changed', 'last_checked', 'error', 'feed_title',
+                'site_url', 'etag', 'last_modified', 'digest', 'next_check',
+            ],
+        )
 
     def _match_article(self, feed, upsert):
         """
@@ -222,7 +229,7 @@ class MaybeUpdated(object):
 
         return None, None
 
-    def _upsert_article(self, feed, upsert):
+    def _upsert_article(self, feed, upsert) -> bool:
         match, match_type = self._match_article(feed, upsert)
 
         if not match:
@@ -241,7 +248,7 @@ class MaybeUpdated(object):
             created.save()
             log.debug("  created {created!a} (No match for GUID {guid!r} or URL {url!r})",
                       created=created, guid=upsert.guid, url=upsert.url)
-            return
+            return True
 
         # Check if we need to update.
         if (match.author != upsert.author or
@@ -261,6 +268,8 @@ class MaybeUpdated(object):
             match.save()
             log.debug("  updated {updated!a} based on {match_type}",
                       updated=match, match_type=match_type)
+            return True
+        return False
 
 
 @attr.s(slots=True, frozen=True)

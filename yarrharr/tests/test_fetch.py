@@ -703,7 +703,8 @@ class MaybeUpdatedTests(DjangoTestCase):
 
     def test_persist_new_article(self):
         """
-        An article which does not match any in the database is inserted.
+        An article which does not match any in the database is inserted. This
+        marks the feed as changed.
         """
         mu = MaybeUpdated(
             feed_title=u'Example',
@@ -725,6 +726,7 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
+        self.assertEqual(mu.check_time, self.feed.last_changed)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
@@ -769,7 +771,8 @@ class MaybeUpdatedTests(DjangoTestCase):
 
     def test_persist_article_guid_match(self):
         """
-        An article which matches by GUID is updated in place.
+        An article which matches by GUID is updated in place. This counts as
+        a feed update.
         """
         self.feed.articles.create(
             read=True,
@@ -802,6 +805,7 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
+        self.assertEqual(mu.check_time, self.feed.last_changed)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
