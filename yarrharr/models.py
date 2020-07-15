@@ -68,12 +68,12 @@ class Feed(models.Model):
         its bytes changed.  ``None`` if the feed has never been successfully
         checked.
     :ivar error: String error message from the last check.
-    :ivar etag:
+    :ivar bytes etag:
         HTTP ETag from the last check. Empty when the feed does set the header.
 
         This is the exact bytes sent by the server, though values larger than
         a kibibyte are disallowed.
-    :ivar last_modified:
+    :ivar bytes last_modified:
         HTTP Last-Modified header from the last check. Empty when the feed does
         not set the header.
 
