@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2014, 2017 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2014, 2017, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,13 +30,12 @@ import argparse
 import os
 import sys
 
-from pkg_resources import get_distribution
+import yarrharr
 
 
 def main(argv=sys.argv[1:]):
-    dist = get_distribution('Yarrharr')
     parser = argparse.ArgumentParser(description='Yarrharr feed reader')
-    parser.add_argument('--version', action='version', version=dist.version)
+    parser.add_argument('--version', action='version', version=yarrharr.__version__)
     parser.parse_args(argv)
 
     os.environ['DJANGO_SETTINGS_MODULE'] = 'yarrharr.settings'
