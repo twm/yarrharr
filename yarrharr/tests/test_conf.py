@@ -27,10 +27,10 @@
 import re
 import unittest
 from configparser import NoOptionError
+from importlib import resources
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
-import pkg_resources
 from yarrharr.conf import (
     NoConfError,
     UnreadableConfError,
@@ -158,12 +158,9 @@ class ConfTests(unittest.TestCase):
         """
         The development config decodes as expected.
         """
-        f = pkg_resources.resource_stream('yarrharr.tests', 'dev.ini')
         settings = {}
-        try:
-            read_yarrharr_conf([f.name], settings)
-        finally:
-            f.close()
+        with resources.path('yarrharr.tests', 'dev.ini') as path:
+            read_yarrharr_conf([str(path)], settings)
 
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,

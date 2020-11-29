@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,19 +24,6 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-import subprocess
-
-from pkg_resources import DistributionNotFound, get_distribution
-
-__author__ = 'Tom Most <twm@freecog.net>'
-
-try:
-    __version__ = get_distribution('yarrharr').version
-except DistributionNotFound:
-    # Not installed, so this is a development git checkout.  Let's have
-    # some fun with git!
-    last_tag = subprocess.check_output([
-        'git', 'describe', '--match=v*'])[1:]
-    this_commit = subprocess.check_output([
-        'git', 'log', '-1', '--pretty=format:%h'])
-    __version__ = '{}+dev.{}'.format(last_tag, this_commit)
+__author__ = 'Tom Most'
+__author_email__ = 'twm@freecog.net'
+__version__ = '2020.11.0'

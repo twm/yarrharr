@@ -26,6 +26,7 @@
 
 import hashlib
 from datetime import datetime, timedelta
+from importlib import resources
 from unittest import mock
 
 import attr
@@ -34,12 +35,11 @@ from attr.validators import instance_of
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
-from pkg_resources import resource_filename, resource_string
 from treq.testing import RequestTraversalAgent, StubTreq
 from twisted.internet import defer, error, task
 from twisted.python.failure import Failure
 from twisted.trial.unittest import SynchronousTestCase
-from twisted.web import http, server, static
+from twisted.web import http, server
 from twisted.web.client import ResponseNeverReceived, readBody
 from twisted.web.resource import ErrorPage, IResource
 from zope.interface import implementer
@@ -57,8 +57,8 @@ from ..fetch import (
 )
 from ..models import Feed
 
-EMPTY_RSS = resource_string('yarrharr', 'examples/empty.rss')
-SOME_HTML = resource_string('yarrharr', 'examples/nofeed.html')
+EMPTY_RSS = resources.read_binary("yarrharr.examples", "empty.rss")
+SOME_HTML = resources.read_binary("yarrharr.examples", "nofeed.html")
 
 
 @attr.s
@@ -71,22 +71,6 @@ class FetchFeed(object):
     last_modified = attr.ib(default=b'', validator=instance_of(bytes))
     etag = attr.ib(default=b'', validator=instance_of(bytes))
     digest = attr.ib(default=b'', validator=instance_of(bytes))
-
-
-def examples():
-    """
-    Produce a resource which serves the files in the `yarrharr/examples`
-    directory.
-
-    :returns: :class:`~twisted.web.resource.IResource` provider
-    """
-    examples = static.File(resource_filename('yarrharr', 'examples'))
-    examples.contentTypes = {
-        '.html': 'text/html',
-        '.rss': 'application/rss+xml',
-        '.atom': 'application/atom+xml',
-    }
-    return examples
 
 
 @implementer(IResource)
@@ -314,7 +298,7 @@ class FetchTests(SynchronousTestCase):
         custom sanitization.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/html-script.rss')
+        xml = resources.read_binary("yarrharr.examples", "html-script.rss")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -326,7 +310,7 @@ class FetchTests(SynchronousTestCase):
         HTML in the feed title is sanitized.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/html-title.atom')
+        xml = resources.read_binary("yarrharr.examples", "html-title.atom")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -340,7 +324,7 @@ class FetchTests(SynchronousTestCase):
         field.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/html-title.atom')
+        xml = resources.read_binary("yarrharr.examples", "html-title.atom")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -359,7 +343,7 @@ class FetchTests(SynchronousTestCase):
         escape the text so that it is valid HTML in the `raw_title` field.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/htmlish-title.rss')
+        xml = resources.read_binary("yarrharr.examples", "htmlish-title.rss")
         client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -373,7 +357,7 @@ class FetchTests(SynchronousTestCase):
         An Atom feed that lacks a title gets a title based on its URL.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/no-feed-title.atom')
+        xml = resources.read_binary("yarrharr.examples", "no-feed-title.atom")
         client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -386,7 +370,7 @@ class FetchTests(SynchronousTestCase):
         An RSS feed that lacks a title gets a title based on its URL.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/no-feed-title.rss')
+        xml = resources.read_binary("yarrharr.examples", "no-feed-title.rss")
         client = StubTreq(StaticResource(xml, b'text/xml;charset=utf-8'))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -400,7 +384,7 @@ class FetchTests(SynchronousTestCase):
         string for the raw_title.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/no-item-title.rss')
+        xml = resources.read_binary("yarrharr.examples", "no-item-title.rss")
         client = StubTreq(StaticResource(xml, b'text/xml; charset=utf-8'))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -414,7 +398,7 @@ class FetchTests(SynchronousTestCase):
         raising an exception.
         """
         feed = FetchFeed()
-        xml = resource_string("yarrharr", "examples/empty.rss")
+        xml = resources.read_binary("yarrharr.examples", "empty.rss")
         client = StubTreq(StaticResource(xml, content_type=None))
 
         self.successResultOf(poll_feed(feed, self.clock, client))
@@ -630,7 +614,7 @@ class FetchTests(SynchronousTestCase):
         ``<updated>`` tags.
         """
         feed = FetchFeed()
-        xml = resource_string('yarrharr', 'examples/updated-only.atom')
+        xml = resources.read_binary("yarrharr.examples", "updated-only.atom")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
