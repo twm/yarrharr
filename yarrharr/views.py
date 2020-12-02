@@ -23,10 +23,10 @@
 # the resulting work.  Corresponding Source for a non-source form of
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
+import json
 
 import django
 import feedparser
-import simplejson
 import yarrharr
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
@@ -42,7 +42,6 @@ from .signals import schedule_changed
 from .sql import log_on_error
 
 log = Logger()
-json_encoder = simplejson.JSONEncoderForHTML()
 
 
 def human_sort_key(s):
@@ -254,7 +253,8 @@ def index(request):
     }
 
     return render(request, 'index.html', {
-        'props': json_encoder.encode(data),
+        # This is inserted into the document as a <script> tag, so encode HTML-unsafe elements.
+        'props': json.dumps(data).replace("&", r"\u0026").replace("<", r"\u003c").replace(">", r"\u003e"),
     })
 
 
@@ -279,7 +279,7 @@ def snapshots(request):
         # articles.
         'articlesById': {article.id: json_for_article(article) for article in articles[:10]},
     }
-    return HttpResponse(json_encoder.encode(data),
+    return HttpResponse(json.dumps(data),
                         content_type='application/json')
 
 
@@ -306,7 +306,7 @@ def articles(request):
         return HttpResponseNotAllowed(['POST'])
     qs = articles_for_request(request)
     data = {article.id: json_for_article(article) for article in qs}
-    return HttpResponse(json_encoder.encode(data),
+    return HttpResponse(json.dumps(data),
                         content_type='application/json')
 
 
@@ -339,7 +339,7 @@ def flags(request):
     data = {
         'articlesById': {article.id: json_for_article(article) for article in qs.all()},
     }
-    return HttpResponse(json_encoder.encode(data),
+    return HttpResponse(json.dumps(data),
                         content_type='application/json')
 
 
@@ -393,7 +393,7 @@ def labels(request):
 
     data.update(labels_for_user(request.user))
     data.update(feeds_for_user(request.user))
-    return HttpResponse(json_encoder.encode(data),
+    return HttpResponse(json.dumps(data),
                         content_type='application/json')
 
 
@@ -475,12 +475,12 @@ def inventory(request):
 
         data.update(labels_for_user(request.user))
         data.update(feeds_for_user(request.user))
-        return HttpResponse(json_encoder.encode(data),
+        return HttpResponse(json.dumps(data),
                             content_type='application/json')
     elif request.method == 'GET':
         data = labels_for_user(request.user)
         data.update(feeds_for_user(request.user))
-        return HttpResponse(json_encoder.encode(data),
+        return HttpResponse(json.dumps(data),
                             content_type='application/json')
     else:
         return HttpResponseNotAllowed(['GET', 'POST'])
