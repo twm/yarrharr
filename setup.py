@@ -20,10 +20,9 @@ setup(
         # maintainer is MIA.
         # 'feedparser > 5.2.1',
         'forkparser ~= 6.1.0',
-        'simplejson >= 2.1.0',  # for JSONEncoderForHTML
         'html5lib == 1.1',
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.8',
     entry_points={
         'console_scripts': [
             'yarrharr=yarrharr.scripts.yarrharr:main',
