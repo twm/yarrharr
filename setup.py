@@ -23,7 +23,7 @@ setup(
         'simplejson >= 2.1.0',  # for JSONEncoderForHTML
         'html5lib == 1.1',
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.8',
     entry_points={
         'console_scripts': [
             'yarrharr=yarrharr.scripts.yarrharr:main',
