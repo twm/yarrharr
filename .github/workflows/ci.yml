@@ -28,3 +28,23 @@ jobs:
     - run: "python -m pip install tox"
 
     - run: "python -m tox"
+
+  webpack:
+    name: "make webpack-release"
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - run: "sudo apt-get install inkscape icoutils python-scour optipng"
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+
+    - run: "python -m pip install tox"
+
+    - run: "nvm install"
+
+    - run: "npm install"
+
+    - run: "make webpack-release"
