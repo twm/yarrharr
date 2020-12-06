@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - run: "sudo apt-get install inkscape icoutils python-scour optipng"
+    - run: "sudo apt-get install inkscape icoutils scour optipng"
 
     - uses: actions/setup-python@v2
       with:
