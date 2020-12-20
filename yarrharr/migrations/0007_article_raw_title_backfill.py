@@ -47,5 +47,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(backfill_article_raw_title),
+        migrations.RunPython(backfill_article_raw_title, elidable=True),
     ]
