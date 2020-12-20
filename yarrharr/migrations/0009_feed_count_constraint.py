@@ -57,5 +57,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(CREATE_TRIGGERS, DROP_TRIGGERS),
+        migrations.RunSQL(CREATE_TRIGGERS, DROP_TRIGGERS, elidable=True),
     ]
