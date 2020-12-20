@@ -26,7 +26,17 @@
 
 from django.db import migrations
 
-from ._0008_triggers import CREATE_TRIGGERS, DROP_TRIGGERS
+from ._0008_triggers import CREATE_TRIGGERS
+
+# These statements include "IF EXISTS" because these triggers _don't_ exist in
+# test when running tests, since tests use the
+# 0001_squashed_0012_feed_count_constraint migration where they are elided.
+DROP_TRIGGERS = [
+    """DROP TRIGGER IF EXISTS feed_all_count_insert""",
+    """DROP TRIGGER IF EXISTS feed_all_count_delete""",
+    """DROP TRIGGER IF EXISTS feed_update_unread_count""",
+    """DROP TRIGGER IF EXISTS feed_update_fave_count""",
+]
 
 
 class Migration(migrations.Migration):
@@ -42,5 +52,8 @@ class Migration(migrations.Migration):
         # NOTE: 0009_feed_count_constraint isn't present here because it was
         # silently dropped as a side effect of 0012_feed_count_constraint (see
         # yarrharr#736).
-        migrations.RunSQL(DROP_TRIGGERS, CREATE_TRIGGERS),
+        #
+        # This is elidable because these triggers are never created when
+        # 0001_squashed_0012_feed_count_constraint is used.
+        migrations.RunSQL(DROP_TRIGGERS, CREATE_TRIGGERS, elidable=True),
     ]
