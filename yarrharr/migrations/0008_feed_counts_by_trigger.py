@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2018 Tom Most <twm@freecog.net>
+# Copyright © 2018, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +24,7 @@
 # OpenSSL used as well as that of the covered work.
 
 from django.db import migrations, models
+from ._0008_triggers import CREATE_TRIGGERS, DROP_TRIGGERS
 
 
 def init_feed_counts(apps, schema_editor):
@@ -39,55 +39,6 @@ def init_feed_counts(apps, schema_editor):
         feed.unread_count = feed.articles.filter(read=False).count()
         feed.fave_count = feed.articles.filter(fave=True).count()
         feed.save()
-
-
-CREATE_TRIGGERS = [
-    """
-    CREATE TRIGGER feed_all_count_insert
-    AFTER INSERT ON yarrharr_article FOR EACH ROW
-    BEGIN
-        UPDATE yarrharr_feed SET
-            all_count = all_count + 1,
-            unread_count = unread_count + (NOT NEW.read),
-            fave_count = fave_count + NEW.fave
-        WHERE yarrharr_feed.id = NEW.feed_id;
-    END
-    """,
-    """
-    CREATE TRIGGER feed_all_count_delete
-    AFTER DELETE ON yarrharr_article FOR EACH ROW
-    BEGIN
-        UPDATE yarrharr_feed SET
-            all_count = all_count - 1,
-            unread_count = unread_count - (NOT OLD.read),
-            fave_count = fave_count - OLD.fave
-        WHERE yarrharr_feed.id = OLD.feed_id;
-    END
-    """,
-    """
-    CREATE TRIGGER feed_update_unread_count
-    AFTER UPDATE OF read ON yarrharr_article FOR EACH ROW
-    BEGIN
-        UPDATE yarrharr_feed SET unread_count = unread_count - (NEW.read - OLD.read)
-        WHERE yarrharr_feed.id = OLD.feed_id;
-    END
-    """,
-    """
-    CREATE TRIGGER feed_update_fave_count
-    AFTER UPDATE OF fave ON yarrharr_article FOR EACH ROW
-    BEGIN
-        UPDATE yarrharr_feed SET fave_count = fave_count + (NEW.fave - OLD.fave)
-        WHERE yarrharr_feed.id = OLD.feed_id;
-    END
-    """,
-]
-
-DROP_TRIGGERS = [
-    """DROP TRIGGER feed_all_count_insert""",
-    """DROP TRIGGER feed_all_count_delete""",
-    """DROP TRIGGER feed_update_unread_count""",
-    """DROP TRIGGER feed_update_fave_count""",
-]
 
 
 class Migration(migrations.Migration):
