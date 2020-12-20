@@ -63,6 +63,6 @@ class Migration(migrations.Migration):
             name='unread_count',
             field=models.IntegerField(default=0),
         ),
-        migrations.RunPython(init_feed_counts, migrations.RunPython.noop),
-        migrations.RunSQL(CREATE_TRIGGERS, DROP_TRIGGERS),
+        migrations.RunPython(init_feed_counts, migrations.RunPython.noop, elidable=True),
+        migrations.RunSQL(CREATE_TRIGGERS, DROP_TRIGGERS, elidable=True),
     ]
