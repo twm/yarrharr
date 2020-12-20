@@ -35,9 +35,12 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ('yarrharr', '0008_feed_counts_by_trigger'),
+        ('yarrharr', '0012_feed_count_constraint'),
     ]
 
     operations = [
+        # NOTE: 0009_feed_count_constraint isn't present here because it was
+        # silently dropped as a side effect of 0012_feed_count_constraint (see
+        # yarrharr#736).
         migrations.RunSQL(DROP_TRIGGERS, CREATE_TRIGGERS),
     ]
