@@ -33,7 +33,7 @@ from twisted.internet import defer, task
 
 @defer.inlineCallbacks
 def _txmain(reactor, url):
-    from yarrharr.fetch import poll_feed, MaybeUpdated
+    from yarrharr.fetch import MaybeUpdated, poll_feed
     from yarrharr.tests.test_fetch import FetchFeed
 
     f = FetchFeed(url=url)
