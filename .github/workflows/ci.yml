@@ -51,5 +51,5 @@ jobs:
         nvm install
         npm install
         make webpack-release
-      # An interactive shell (-i) is required to use nvm.
-      shell: "bash -i -e -o pipefail {0}"
+      # A login shell (-l) is required so that nvm.sh get sourced as part of shell startup.
+      shell: "bash -l -e -o pipefail {0}"
