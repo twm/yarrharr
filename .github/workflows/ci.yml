@@ -46,8 +46,10 @@ jobs:
 
     - run: "python -m pip install tox"
 
-    - run: "nvm install"
-
-    - run: "npm install"
-
-    - run: "make webpack-release"
+    - name: "make webpack-release"
+      run: |
+        nvm install
+        npm install
+        make webpack-release
+      # An interactive shell (-i) is required to use nvm.
+      shell: "bash -i -e -o pipefail {0}"
