@@ -25,6 +25,15 @@ jobs:
       with:
         python-version: "3.8"
 
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: "${{ runner.os }}-pip-${{ matrix.tox-env }}-${{ hashFiles('tox.ini') }}"
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.tox-env }}-
+          ${{ runner.os }}-pip-
+
     - run: "python -m pip install tox"
 
     - run: "python -m tox"
@@ -35,22 +44,31 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - run: |
-        set -exu
+    - uses: actions/checkout@v2
+
+    - name: apt install
+      run: |
         sudo apt-get update
         sudo apt-get install inkscape icoutils scour optipng
-
-    - uses: actions/checkout@v2
 
     - uses: actions/setup-python@v2
       with:
         python-version: "3.8"
 
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: "${{ runner.os }}-pip-tox-${{ hashFiles('tox.ini') }}"
+        restore-keys: |
+          ${{ runner.os }}-pip-tox-
+          ${{ runner.os }}-pip-
+
     - run: "python -m pip install tox"
 
     - name: "make webpack-release"
       run: |
-        nvm install
+        nvm install --no-progress
         npm install
         make webpack-release
       # A login shell (-l) is required so that nvm.sh get sourced as part of shell startup.
