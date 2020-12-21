@@ -27,7 +27,6 @@ import json
 
 import django
 import feedparser
-import yarrharr
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Q, Sum
@@ -36,6 +35,8 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAll
 from django.shortcuts import render
 from django.utils import timezone
 from twisted.logger import Logger
+
+import yarrharr
 
 from .models import Article
 from .signals import schedule_changed
