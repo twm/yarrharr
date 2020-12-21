@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013–2019 Tom Most <twm@freecog.net>
+# Copyright © 2013–2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,38 +24,39 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-import yarrharr.views
-from django.conf.urls import url
 from django.contrib.auth import views as auth_views
+from django.urls import re_path
+
+import yarrharr.views
 
 app_name = 'yarrharr'
 urlpatterns = (
     # Client-side GUI
-    url(r'^$', yarrharr.views.index, name='home'),
-    url(r'^inventory/$', yarrharr.views.index),
-    url(r'^inventory/add/$', yarrharr.views.index),
-    url(r'^inventory/feed/\d+/$', yarrharr.views.index),
-    url(r'^inventory/labels/$', yarrharr.views.index),
-    url(r'^inventory/label/\d+/$', yarrharr.views.index),
-    url(r'^article/\d+/$', yarrharr.views.index),
-    url(r'^all/[^/]+/$', yarrharr.views.index),
-    url(r'^all/[^/]+/\d+/$', yarrharr.views.index),
-    url(r'^label/\d+/[^/]+/$', yarrharr.views.index),
-    url(r'^label/\d+/[^/]+/\d+/$', yarrharr.views.index),
-    url(r'^feed/\d+/[^/]+/$', yarrharr.views.index),
-    url(r'^feed/\d+/[^/]+/\d+/$', yarrharr.views.index),
-    url(r'^debug/$', yarrharr.views.index),
+    re_path(r'^$', yarrharr.views.index, name='home'),
+    re_path(r'^inventory/$', yarrharr.views.index),
+    re_path(r'^inventory/add/$', yarrharr.views.index),
+    re_path(r'^inventory/feed/\d+/$', yarrharr.views.index),
+    re_path(r'^inventory/labels/$', yarrharr.views.index),
+    re_path(r'^inventory/label/\d+/$', yarrharr.views.index),
+    re_path(r'^article/\d+/$', yarrharr.views.index),
+    re_path(r'^all/[^/]+/$', yarrharr.views.index),
+    re_path(r'^all/[^/]+/\d+/$', yarrharr.views.index),
+    re_path(r'^label/\d+/[^/]+/$', yarrharr.views.index),
+    re_path(r'^label/\d+/[^/]+/\d+/$', yarrharr.views.index),
+    re_path(r'^feed/\d+/[^/]+/$', yarrharr.views.index),
+    re_path(r'^feed/\d+/[^/]+/\d+/$', yarrharr.views.index),
+    re_path(r'^debug/$', yarrharr.views.index),
 
     # API
-    url(r'^api/snapshots/$', yarrharr.views.snapshots),
-    url(r'^api/articles/$', yarrharr.views.articles),
-    url(r'^api/flags/$', yarrharr.views.flags),
-    url(r'^api/labels/$', yarrharr.views.labels),
-    url(r'^api/inventory/$', yarrharr.views.inventory),
+    re_path(r'^api/snapshots/$', yarrharr.views.snapshots),
+    re_path(r'^api/articles/$', yarrharr.views.articles),
+    re_path(r'^api/flags/$', yarrharr.views.flags),
+    re_path(r'^api/labels/$', yarrharr.views.labels),
+    re_path(r'^api/inventory/$', yarrharr.views.inventory),
 
-    url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    url(r'^logout/$', auth_views.logout_then_login, name='logout'),
-    url(r'^about/$', yarrharr.views.about, name='about'),
-    url(r'^manifest\.webmanifest$', yarrharr.views.manifest, name='manifest'),
-    url(r'^robots\.txt$', yarrharr.views.robots_txt, name='robots'),
+    re_path(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    re_path(r'^logout/$', auth_views.logout_then_login, name='logout'),
+    re_path(r'^about/$', yarrharr.views.about, name='about'),
+    re_path(r'^manifest\.webmanifest$', yarrharr.views.manifest, name='manifest'),
+    re_path(r'^robots\.txt$', yarrharr.views.robots_txt, name='robots'),
 )
