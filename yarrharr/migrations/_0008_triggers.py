@@ -1,4 +1,4 @@
-# Copyright © 2018 Tom Most <twm@freecog.net>
+# Copyright © 2018, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 CREATE_TRIGGERS = [
     """
-    CREATE TRIGGER feed_all_count_insert
+    CREATE TRIGGER IF NOT EXISTS feed_all_count_insert
     AFTER INSERT ON yarrharr_article FOR EACH ROW
     BEGIN
         UPDATE yarrharr_feed SET
@@ -36,7 +36,7 @@ CREATE_TRIGGERS = [
     END
     """,
     """
-    CREATE TRIGGER feed_all_count_delete
+    CREATE TRIGGER IF NOT EXISTS feed_all_count_delete
     AFTER DELETE ON yarrharr_article FOR EACH ROW
     BEGIN
         UPDATE yarrharr_feed SET
@@ -47,7 +47,7 @@ CREATE_TRIGGERS = [
     END
     """,
     """
-    CREATE TRIGGER feed_update_unread_count
+    CREATE TRIGGER IF NOT EXISTS feed_update_unread_count
     AFTER UPDATE OF read ON yarrharr_article FOR EACH ROW
     BEGIN
         UPDATE yarrharr_feed SET unread_count = unread_count - (NEW.read - OLD.read)
@@ -55,7 +55,7 @@ CREATE_TRIGGERS = [
     END
     """,
     """
-    CREATE TRIGGER feed_update_fave_count
+    CREATE TRIGGER IF NOT EXISTS feed_update_fave_count
     AFTER UPDATE OF fave ON yarrharr_article FOR EACH ROW
     BEGIN
         UPDATE yarrharr_feed SET fave_count = fave_count + (NEW.fave - OLD.fave)
@@ -64,9 +64,13 @@ CREATE_TRIGGERS = [
     """,
 ]
 
+
+# These statements include "IF EXISTS" because these triggers _don't_ exist in
+# test when running tests, since tests use the
+# 0001_squashed_0012_feed_count_constraint migration where they are elided.
 DROP_TRIGGERS = [
-    """DROP TRIGGER feed_all_count_insert""",
-    """DROP TRIGGER feed_all_count_delete""",
-    """DROP TRIGGER feed_update_unread_count""",
-    """DROP TRIGGER feed_update_fave_count""",
+    """DROP TRIGGER IF EXISTS feed_all_count_insert""",
+    """DROP TRIGGER IF EXISTS feed_all_count_delete""",
+    """DROP TRIGGER IF EXISTS feed_update_unread_count""",
+    """DROP TRIGGER IF EXISTS feed_update_fave_count""",
 ]
