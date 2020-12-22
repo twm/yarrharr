@@ -25,7 +25,7 @@ jobs:
       with:
         python-version: "3.8"
 
-    - name: Restore pip cache
+    - name: pip cache
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
@@ -55,7 +55,7 @@ jobs:
       with:
         python-version: "3.8"
 
-    - name: Restore pip cache
+    - name: pip cache
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
@@ -71,7 +71,7 @@ jobs:
       run: echo ::set-output name=cache-dir::$(nvm cache dir)
       shell: "bash -l {0}"
 
-    - name: Restore nvm cache
+    - name: nvm cache
       uses: actions/cache@v2
       with:
         path: "${{ steps.nvm_info.outputs.cache-dir }}"
@@ -79,9 +79,25 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nvm-
 
+    - run: nvm install
+      shell: "bash -l {0}"
+
+    - name: npm cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: "${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}"
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
+    - name: npm install
+      run: |
+        nvm use
+        npm install
+      shell: "bash -l {0}"
+
     - name: "make webpack-release"
       run: |
-        nvm install
-        npm install
+        nvm use
         make webpack-release
       shell: "bash -l {0}"
