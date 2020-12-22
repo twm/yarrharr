@@ -46,7 +46,6 @@ function processFavicon(svgSource) {
 function scourFavicon(file) {
     const outfile = `${file}.scour.svg`;
     const args = [
-        '/usr/bin/scour',
         '-i', file,
         '-o', outfile,
         '--indent=none',
@@ -54,11 +53,7 @@ function scourFavicon(file) {
         '--enable-id-stripping',
         '--shorten-ids',
     ];
-    // Travis seems to rewire /usr/bin/python to whatever version of Python is
-    // specified in the job, so it is Python 3 there. However, the scour
-    // executable installed by apt is Python 2.7 only, so we must explicitly
-    // run python2.7.
-    return execFile('python2.7', args).then(_ => readFile(outfile)).then(bufferToAsset);
+    return execFile('/usr/bin/scour', args).then(_ => readFile(outfile)).then(bufferToAsset);
 }
 
 function rasterizeFavicon(file) {

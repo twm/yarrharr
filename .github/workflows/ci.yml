@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  tox:
+    name: "tox -e ${{ matrix.tox-env }}"
+
+    strategy: 
+      matrix:
+        tox-env: ["test", "lint"]
+
+    runs-on: ubuntu-20.04
+    env:
+      TOXENV: "${{ matrix.tox-env }}"
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: "${{ runner.os }}-pip-${{ matrix.tox-env }}-${{ hashFiles('tox.ini') }}"
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.tox-env }}-
+          ${{ runner.os }}-pip-
+
+    - run: "python -m pip install tox"
+
+    - run: "python -m tox"
+
+  webpack:
+    name: "make webpack-release"
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: apt install
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-suggests --no-install-recommends inkscape icoutils scour optipng
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: "${{ runner.os }}-pip-compress-${{ hashFiles('tox.ini') }}"
+        restore-keys: |
+          ${{ runner.os }}-pip-compress-
+          ${{ runner.os }}-pip-
+
+    - run: "python -m pip install tox"
+
+    - run: "python -m tox -e compress --notest"
+
+    - name: Introspect nvm
+      id: nvm_info
+      run: echo ::set-output name=cache-dir::$(nvm cache dir)
+      shell: "bash -l {0}"
+
+    - name: nvm cache
+      uses: actions/cache@v2
+      with:
+        path: "${{ steps.nvm_info.outputs.cache-dir }}"
+        key: "${{ runner.os }}-nvm-${{ hashFiles('.nvmrc') }}"
+        restore-keys: |
+          ${{ runner.os }}-nvm-
+
+    - run: nvm install
+      shell: "bash -l {0}"
+
+    - name: npm cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: "${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}"
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
+    - name: npm install
+      run: |
+        nvm use
+        npm install
+      shell: "bash -l {0}"
+
+    - name: "make webpack-release"
+      run: |
+        nvm use
+        make webpack-release
+      shell: "bash -l {0}"
