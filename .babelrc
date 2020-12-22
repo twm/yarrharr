@@ -6,11 +6,12 @@
         "browsers": [
           "Firefox >= 54",
           "Chrome >= 60",
-          "Edge >= 15"
         ]
       }
     }],
-    "@babel/preset-react"
+    ["@babel/preset-react", {
+      "runtime": "automatic"
+    }]
   ],
   "plugins": ["react-hot-loader/babel"]
 }
