@@ -59,12 +59,14 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: "${{ runner.os }}-pip-tox-${{ hashFiles('tox.ini') }}"
+        key: "${{ runner.os }}-pip-compress-${{ hashFiles('tox.ini') }}"
         restore-keys: |
-          ${{ runner.os }}-pip-tox-
+          ${{ runner.os }}-pip-compress-
           ${{ runner.os }}-pip-
 
     - run: "python -m pip install tox"
+
+    - run: "python -m tox -e compress --notest"
 
     - name: Introspect nvm
       id: nvm_info
