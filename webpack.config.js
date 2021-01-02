@@ -55,11 +55,11 @@ const config = {
         // FIXME WP4: Restore eslint
             // test: /\.jsm?$/,
             // enforce: 'pre',
-            // loaders: ['eslint-loader'],
+            // rules: [{loader: 'eslint-loader'}],
             // exclude: /node_modules/,
         // }, {
             test: /\.less$/,
-            use: [{
+            rules: [{
                 // Use style-loader for hot module reloading. Otherwise extract
                 // CSS to files.
                 loader: runmode === DEV_HOT ? 'style-loader' : MiniCssExtractPlugin.loader,
@@ -78,13 +78,15 @@ const config = {
             }],
         }, {
             test: /\.jsm?$/,
-            loaders: ['babel-loader'],
+            rules: [{
+                loader: 'babel-loader',
+            }],
             exclude: /node_modules/,
         }, {
             // Files that must currently be used as images because they are
             // included from non-React pages:
             test: /assets\/art\/(icon|logotype|lettertype)\.svg$/,
-            use: [{
+            rules: [{
                 loader: 'file-loader',
                 options: {
                     name: hotify('[name]-[hash].[ext]'),
