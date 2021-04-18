@@ -1,0 +1,5 @@
+-c requirements.txt
+pytest==4.6.2
+pytest-twisted==1.10
+pytest-django==3.5.0
+
