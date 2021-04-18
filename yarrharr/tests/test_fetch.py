@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2017–2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -87,6 +86,7 @@ class StaticResource:
 
     def render(self, request):
         if self.content_type is None:
+            request.defaultContentType = None
             ct = []
         else:
             ct = [self.content_type]
@@ -114,7 +114,7 @@ class StaticResourceTests(SynchronousTestCase):
     def test_no_content_type(self):
         """
         Unlike `twisted.web.static.Data`, `StaticResource` can generate
-        a request with no ``Content-Type`` header.
+        a response with no ``Content-Type`` header.
         """
         client = StubTreq(StaticResource(content=b'hello', content_type=None))
         response = self.successResultOf(client.get('http://an.example/'))

@@ -452,7 +452,7 @@ class FormatForSystemdTests(SynchronousTestCase):
             log.exception("...")
 
         output = fout.getvalue()
-        self.assertTrue(all(l.startswith(('<3>[', '<3>  ')) for l in output.splitlines()))
+        self.assertTrue(all(ln.startswith(('<3>[', '<3>  ')) for ln in output.splitlines()))
         self.assertIn('Traceback (most recent call last):\n', output)
 
 
