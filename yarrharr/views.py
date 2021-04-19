@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2013–2020 Tom Most <twm@freecog.net>
+# Copyright © 2013–2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -226,9 +225,9 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
 
 @login_required
-def index(request):
+def react(request):
     """
-    The user interface.  For the moment this is pre-loaded with basic
+    The React user interface.  For the moment this is pre-loaded with basic
     information about all the feeds and articles.
     """
     data = feeds_for_user(request.user)

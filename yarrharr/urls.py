@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2013–2020 Tom Most <twm@freecog.net>
+# Copyright © 2013–2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,20 +31,20 @@ import yarrharr.views
 app_name = 'yarrharr'
 urlpatterns = (
     # Client-side GUI
-    re_path(r'^$', yarrharr.views.index, name='home'),
-    re_path(r'^inventory/$', yarrharr.views.index),
-    re_path(r'^inventory/add/$', yarrharr.views.index),
-    re_path(r'^inventory/feed/\d+/$', yarrharr.views.index),
-    re_path(r'^inventory/labels/$', yarrharr.views.index),
-    re_path(r'^inventory/label/\d+/$', yarrharr.views.index),
-    re_path(r'^article/\d+/$', yarrharr.views.index),
-    re_path(r'^all/[^/]+/$', yarrharr.views.index),
-    re_path(r'^all/[^/]+/\d+/$', yarrharr.views.index),
-    re_path(r'^label/\d+/[^/]+/$', yarrharr.views.index),
-    re_path(r'^label/\d+/[^/]+/\d+/$', yarrharr.views.index),
-    re_path(r'^feed/\d+/[^/]+/$', yarrharr.views.index),
-    re_path(r'^feed/\d+/[^/]+/\d+/$', yarrharr.views.index),
-    re_path(r'^debug/$', yarrharr.views.index),
+    re_path(r'^$', yarrharr.views.react, name='home'),
+    re_path(r'^inventory/$', yarrharr.views.react),
+    re_path(r'^inventory/add/$', yarrharr.views.react),
+    re_path(r'^inventory/feed/\d+/$', yarrharr.views.react),
+    re_path(r'^inventory/labels/$', yarrharr.views.react),
+    re_path(r'^inventory/label/\d+/$', yarrharr.views.react),
+    re_path(r'^article/\d+/$', yarrharr.views.react),
+    re_path(r'^all/[^/]+/$', yarrharr.views.react),
+    re_path(r'^all/[^/]+/\d+/$', yarrharr.views.react),
+    re_path(r'^label/\d+/[^/]+/$', yarrharr.views.react),
+    re_path(r'^label/\d+/[^/]+/\d+/$', yarrharr.views.react),
+    re_path(r'^feed/\d+/[^/]+/$', yarrharr.views.react),
+    re_path(r'^feed/\d+/[^/]+/\d+/$', yarrharr.views.react),
+    re_path(r'^debug/$', yarrharr.views.react),
 
     # API
     re_path(r'^api/snapshots/$', yarrharr.views.snapshots),
