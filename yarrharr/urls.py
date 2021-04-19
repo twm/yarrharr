@@ -31,7 +31,7 @@ import yarrharr.views
 app_name = 'yarrharr'
 urlpatterns = (
     # Client-side GUI
-    re_path(r'^$', yarrharr.views.react, name='home'),
+    re_path(r'^$', yarrharr.views.home, name='home'),
     re_path(r'^inventory/$', yarrharr.views.react),
     re_path(r'^inventory/add/$', yarrharr.views.react),
     re_path(r'^inventory/feed/\d+/$', yarrharr.views.react),

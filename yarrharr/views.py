@@ -259,6 +259,17 @@ def react(request):
 
 
 @login_required
+def home(request):
+    """
+    Display the homepage
+    """
+    return render(request, 'home.html', {
+        'feeds': request.user.feed_set.all(),
+        'labels': request.user.label_set.all(),
+    })
+
+
+@login_required
 def snapshots(request):
     """
     Get a list of article IDs matching the snapshot parameters.
