@@ -739,7 +739,6 @@ const ROUTE_LOADERS = {
 };
 
 export const ROUTES = [
-    '/',
     '/inventory',
     '/inventory/add',
     '/inventory/labels',

@@ -13,7 +13,6 @@ import { AddFeedLink, FeedLink, FeedListLink, FeedDetailLink, LabelDetailLink, L
 import { FILTER_UNREAD, FILTER_FAVE, FILTER_ALL } from 'actions.js';
 import { addFeed, updateFeed, removeFeed } from 'actions.js';
 import { addLabel, updateLabel, removeLabel } from 'actions.js';
-import { sortedLabels } from 'views/HomeView.js';
 import { FeedHeader } from 'views/FeedView.js';
 import { feedsByTitle, labelsByTitle } from 'sorting.js';
 import './inventory.less';
