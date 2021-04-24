@@ -31,7 +31,7 @@ from django.db import connection, transaction
 from django.db.models import Q, Sum
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from twisted.logger import Logger
 
@@ -266,6 +266,39 @@ def home(request):
     return render(request, 'home.html', {
         'feeds': request.user.feed_set.all(),
         'labels': request.user.label_set.all(),
+    })
+
+
+@login_required
+def feed_list(request):
+    """
+    Display a list of known feeds
+    """
+    return render(request, "feed_list.html", {
+        "feeds": request.user.feed_set.all(),  # FIXME: Sort alphabetically
+    })
+
+
+@login_required
+def feed_show(request, feed_id: int, filter: str):
+    """
+    List the articles in a feed
+    """
+    feed = get_object_or_404(request.user.feed_set, pk=feed_id)
+    return render(request, 'feed_show.html', {
+        'feed': feed,
+    })
+
+
+@login_required
+def feed_edit(request, feed_id: int):
+    """
+    Edit a feed
+    """
+    # TODO: Display a form, handle POST. Generic view?
+    feed = get_object_or_404(request.user.feed_set, pk=feed_id)
+    return render(request, "feed_edit.html", {
+        "feed": feed,
     })
 
 

@@ -2,16 +2,16 @@
 {% load static_glob %}
 
 <div class="bar">
-  <a class="yarrharr-masthead" href="/">
+  <a class="yarrharr-masthead" href="{% url 'home' %}">
     <img class="logotype" width="46" height="15" src="{% static 'logotype-*.svg'|newest_static %}" alt="Yarrharr">
     <img class="lettertype" width="20" height="20" src="{% static 'lettertype-*.svg'|newest_static %}" alt="Yarrharr">
   </a>
 
   <nav class="global-links">
-    <a aria-selected="false" class="global-link no-underline" href="/all/unread/">All</a>
-    <a aria-selected="false" class="global-link no-underline" href="/inventory/labels/">Labels</a>
-    <a aria-selected="false" class="global-link no-underline" href="/inventory/">Feeds</a>
-    <a aria-selected="false" class="global-link no-underline" href="/inventory/add/">+</a>
+    <a aria-selected="false" class="global-link no-underline" href="{% url 'all-show' 'unread' %}">All</a>
+    <a aria-selected="false" class="global-link no-underline" href="{% url 'label-list' %}">Labels</a>
+    <a aria-selected="false" class="global-link no-underline" href="{% url 'feed-list' %}">Feeds</a>
+    <a aria-selected="false" class="global-link no-underline" href="{% url 'feed-add' %}">+</a>
   </nav>
 
   {# TODO replace button with media query #}

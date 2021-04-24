@@ -24,7 +24,7 @@
 # OpenSSL used as well as that of the covered work.
 
 from django.contrib.auth import views as auth_views
-from django.urls import re_path
+from django.urls import path, re_path
 
 import yarrharr.views
 
@@ -32,18 +32,18 @@ app_name = 'yarrharr'
 urlpatterns = (
     # Client-side GUI
     re_path(r'^$', yarrharr.views.home, name='home'),
-    re_path(r'^inventory/$', yarrharr.views.react),
-    re_path(r'^inventory/add/$', yarrharr.views.react),
-    re_path(r'^inventory/feed/\d+/$', yarrharr.views.react),
+    path("inventory/", yarrharr.views.feed_list, name="feed-list"),
+    path("inventory/add/", yarrharr.views.react, name="feed-add"),
+    path("inventory/feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
     re_path(r'^inventory/labels/$', yarrharr.views.react),
     re_path(r'^inventory/label/\d+/$', yarrharr.views.react),
-    re_path(r'^article/\d+/$', yarrharr.views.react),
-    re_path(r'^all/[^/]+/$', yarrharr.views.react),
-    re_path(r'^all/[^/]+/\d+/$', yarrharr.views.react),
-    re_path(r'^label/\d+/[^/]+/$', yarrharr.views.react),
-    re_path(r'^label/\d+/[^/]+/\d+/$', yarrharr.views.react),
-    re_path(r'^feed/\d+/[^/]+/$', yarrharr.views.react),
-    re_path(r'^feed/\d+/[^/]+/\d+/$', yarrharr.views.react),
+    path("all/<slug:filter>/", yarrharr.views.react, name="all-show"),
+    path("all/<slug:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-all"),
+    path("inventory/labels/", yarrharr.views.react, name="label-list"),
+    path("label/<int:label_id>/<slug:filter>/", yarrharr.views.react, name="label-show"),
+    path("label/<int:label_id>/<slug:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-label"),
+    path("feed/<int:feed_id>/<slug:filter>/", yarrharr.views.feed_show, name="feed-show"),
+    path("feed/<int:feed_id>/<slug:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-feed"),
     re_path(r'^debug/$', yarrharr.views.react),
 
     # API

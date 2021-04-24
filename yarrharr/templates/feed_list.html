@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<style>
+/* TODO */
+</style>
+
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+
+  <div class="inventory-header">
+    <h1>Feeds</h1>
+    <div>
+      <a class="text-button text-button-primary no-underline" href="{% url 'feed-add' %}">Add Feed</a>
+    </div>
+  </div>
+
+  <table class="feed-list">
+    <thead><tr class="feed-list-item feed-list-item-header"><th class="col-feed">Feed</th><th class="col-unread">Unread</th><th class="col-fave">Favorite</th><th class="col-site-url">Site URL</th><th class="col-changed">Last Changed</th><th class="col-edit"></th></tr></thead>
+    <tbody>
+      {% for feed in feeds %}
+        <tr class="feed-list-item">
+          <td class="col-feed"><a href="{% url "feed-show" feed.id "unread" %}">{{ feed.title }}</a></td>
+          <td class="col-unread">{{ feed.unread_count }}</td>
+          <td class="col-fave">{{ feed.fave_count }}</td>
+          <td class="col-site-url"><a target="_blank" rel="noreferrer noopener" href="{{ feed.site_url }}">{{ feed.site_url }}</a></td>
+          <td class="col-changed">{{ feed.last_changed }}</td>
+          <td class="col-edit"><a title="Edit Feed" href="{% url "feed-edit" feed.id %}"><svg width="1em" height="1em" aria-label="Edit Feed" class="icon" aria-hidden="false"><use xlink:href="#icon-edit"></use></svg></a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+</div>
+{% endblock %}
