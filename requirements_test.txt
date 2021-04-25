@@ -4,8 +4,6 @@
 #
 #    pip-compile --output-file=requirements_test.txt requirements_test.in
 #
-atomicwrites==1.4.0
-    # via pytest
 attrs==20.3.0
     # via
     #   -c requirements.txt
@@ -14,9 +12,7 @@ decorator==5.0.7
     # via pytest-twisted
 greenlet==1.0.0
     # via pytest-twisted
-importlib-metadata==3.10.1
-    # via pytest
-more-itertools==8.7.0
+iniconfig==1.1.1
     # via pytest
 packaging==20.9
     # via pytest
@@ -26,20 +22,14 @@ py==1.10.0
     # via pytest
 pyparsing==2.4.7
     # via packaging
-pytest-django==3.5.0
+pytest-django==4.2.0
     # via -r requirements_test.in
 pytest-twisted==1.13.2
     # via -r requirements_test.in
-pytest==4.6.2
+pytest==6.2.3
     # via
     #   -r requirements_test.in
     #   pytest-django
     #   pytest-twisted
-six==1.15.0
-    # via
-    #   -c requirements.txt
-    #   pytest
-wcwidth==0.2.5
+toml==0.10.2
     # via pytest
-zipp==3.4.1
-    # via importlib-metadata
