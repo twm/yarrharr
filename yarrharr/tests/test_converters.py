@@ -25,32 +25,33 @@
 
 from django.utils.safestring import SafeString
 
-from ..converters import Filter, FilterConverter
+from ..converters import ArticleFilterConverter
+from ..enums import ArticleFilter
 
 
-class FilterConverterTests:
+class ArticleFilterConverterTests:
     """
-    Test `yarrharr.converters.FilterConverter`
+    Test `yarrharr.converters.ArticleFilterConverter`
     """
 
     def test_to_python(self):
-        c = FilterConverter()
-        self.assertIs(Filter.unread, c.to_python("unread"))
-        self.assertIs(Filter.fave, c.to_python("fave"))
-        self.assertIs(Filter.all, c.to_python("all"))
+        c = ArticleFilterConverter()
+        self.assertIs(ArticleFilter.unread, c.to_python("unread"))
+        self.assertIs(ArticleFilter.fave, c.to_python("fave"))
+        self.assertIs(ArticleFilter.all, c.to_python("all"))
         self.assertRaises(ValueError, c.to_python, "")
         self.assertRaises(ValueError, c.to_python, "nope")
 
     def test_to_url(self):
-        c = FilterConverter()
-        self.assertEqual("unread", c.to_url(Filter.unread))
+        c = ArticleFilterConverter()
+        self.assertEqual("unread", c.to_url(ArticleFilter.unread))
         self.assertRaises(ValueError, c.to_url, "nope")
         self.assertRaises(ValueError, c.to_url, 1)
         self.assertRaises(ValueError, c.to_url, None)
 
     def test_roundtrip(self):
-        c = FilterConverter()
-        self.assertIs(Filter.all, c.to_python(c.to_url(Filter.all)))
+        c = ArticleFilterConverter()
+        self.assertIs(ArticleFilter.all, c.to_python(c.to_url(ArticleFilter.all)))
         self.assertEqual("unread", c.to_url(c.to_python("unread")))
 
     def test_to_url_safe_string(self):
@@ -58,5 +59,5 @@ class FilterConverterTests:
         `to_url()` works with `SafeString` instances so it can be called
         within templates.
         """
-        c = FilterConverter()
+        c = ArticleFilterConverter()
         self.assertEqual("unread", c.to_url(SafeString("unread")))

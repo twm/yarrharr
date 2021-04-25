@@ -37,7 +37,7 @@ from twisted.logger import Logger
 
 import yarrharr
 
-from .converters import Filter
+from .enums import ArticleFilter
 from .models import Article
 from .signals import schedule_changed
 from .sql import log_on_error
@@ -289,16 +289,16 @@ def feed_list(request):
 
 
 @login_required
-def feed_show(request, feed_id: int, filter: Filter):
+def feed_show(request, feed_id: int, filter: ArticleFilter):
     """
     List the articles in a feed
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
 
     articles = feed.articles.all()
-    if filter is Filter.unread:
+    if filter is ArticleFilter.unread:
         articles = articles.filter(read=False)
-    elif filter is Filter.fave:
+    elif filter is ArticleFilter.fave:
         articles = articles.filter(fave=True)
 
     # TODO: Ordering

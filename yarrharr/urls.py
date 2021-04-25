@@ -28,9 +28,9 @@ from django.urls import path, re_path, register_converter
 
 import yarrharr.views
 
-from .converters import FilterConverter
+from .converters import ArticleFilterConverter
 
-register_converter(FilterConverter, 'filter')
+register_converter(ArticleFilterConverter, 'filter')
 
 app_name = 'yarrharr'
 urlpatterns = (

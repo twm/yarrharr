@@ -22,40 +22,20 @@
 # the resulting work.  Corresponding Source for a non-source form of
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
-
-from typing import Union
-
-from .enums import ArticleFilter
+from enum import Enum, auto
 
 
-class ArticleFilterConverter:
+class ArticleFilter(Enum):
     """
-    Django `URL path converter`_ that allows a URL segment that matches
-    a `Filter` enum member
+    Possible filters applicable to an article list
 
-    .. _url path converter: https://docs.djangoproject.com/en/3.2/topics/http/urls/#registering-custom-path-converters
+    :ivar unread: Artciles lacking the *read* flag
+
+    :ivar fave: Articles with the *fave* flag
+
+    :ivar all: No filter
     """
-    regex = f"({'|'.join(f for f in ArticleFilter.__members__)})"
 
-    def to_python(self, value: str) -> ArticleFilter:
-        try:
-            return ArticleFilter[value]
-        except KeyError:
-            raise ValueError(value)
-
-    def to_url(self, value: Union[ArticleFilter, str]) -> str:
-        """
-        Convert a filter to a URL.
-
-        :param filter:
-            Either a value of the `Filter` enum or a string naming one.
-
-        :returns: URL path segment
-        """
-        if isinstance(value, str):
-            if value in ArticleFilter.__members__:
-                return value
-            return ArticleFilter[value].name
-        if isinstance(value, ArticleFilter):
-            return value.name
-        raise ValueError(value)
+    unread = auto()
+    fave = auto()
+    all = auto()
