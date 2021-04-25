@@ -24,9 +24,13 @@
 # OpenSSL used as well as that of the covered work.
 
 from django.contrib.auth import views as auth_views
-from django.urls import path, re_path
+from django.urls import path, re_path, register_converter
 
 import yarrharr.views
+
+from .converters import FilterConverter
+
+register_converter(FilterConverter, 'filter')
 
 app_name = 'yarrharr'
 urlpatterns = (
@@ -37,13 +41,13 @@ urlpatterns = (
     path("inventory/feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
     re_path(r'^inventory/labels/$', yarrharr.views.react),
     re_path(r'^inventory/label/\d+/$', yarrharr.views.react),
-    path("all/<slug:filter>/", yarrharr.views.react, name="all-show"),
-    path("all/<slug:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-all"),
+    path("all/<filter:filter>/", yarrharr.views.react, name="all-show"),
+    path("all/<filter:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-all"),
     path("inventory/labels/", yarrharr.views.react, name="label-list"),
-    path("label/<int:label_id>/<slug:filter>/", yarrharr.views.react, name="label-show"),
-    path("label/<int:label_id>/<slug:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-label"),
-    path("feed/<int:feed_id>/<slug:filter>/", yarrharr.views.feed_show, name="feed-show"),
-    path("feed/<int:feed_id>/<slug:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-feed"),
+    path("label/<int:label_id>/<filter:filter>/", yarrharr.views.react, name="label-show"),
+    path("label/<int:label_id>/<filter:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-label"),
+    path("feed/<int:feed_id>/<filter:filter>/", yarrharr.views.feed_show, name="feed-show"),
+    path("feed/<int:feed_id>/<filter:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-feed"),
     re_path(r'^debug/$', yarrharr.views.react),
 
     # API

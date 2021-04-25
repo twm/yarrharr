@@ -37,6 +37,7 @@ from twisted.logger import Logger
 
 import yarrharr
 
+from .converters import Filter
 from .models import Article
 from .signals import schedule_changed
 from .sql import log_on_error
@@ -280,7 +281,7 @@ def feed_list(request):
 
 
 @login_required
-def feed_show(request, feed_id: int, filter: str):
+def feed_show(request, feed_id: int, filter: Filter):
     """
     List the articles in a feed
     """
