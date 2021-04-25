@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{{ feed.title }}{% endblock %}
 
 {% block content %}
 <style>
@@ -12,7 +12,26 @@
   {% include "header.html" %}
   {% include "feed_header.html" %}
 
-  TODO
+  {% for article in articles %}
+  <div class="list-article">
+    <div class="list-article-inner">
+      <div class="list-article-slider">
+        <a class="outbound" href="{{ article.url }}" target="_blank" title="View on source site">
+          {# TODO: relative time #}
+          <span class="meta1">{{ article.feed.title }} — {{ article.date }} — {{ article.author }}</span>
+          <span class="meta2">
+            <span class="title">{{ article.title }}</span>
+            <span class="snippet">{{ article.content_snippet }}</span>
+          </span>
+        </a>
+        <button class="read-toggle square" aria-pressed="false" aria-label="Read" title="Mark read"><svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden="true" class="icon"><defs><mask id="check-mask"><use xlink:href="#icon-check" color="white"></use></mask></defs><g mask="url(#check-mask)"><rect class="inactive" width="1" height="1"></rect><rect class="active" width="1" height="1"></rect></g></svg></button>
+        <a class="square view-link" href="{% url 'article-in-feed' feed.id 'unread' article.id %}">
+          <svg width="1em" height="1em" title="View article" class="icon" aria-hidden="false"><use xlink:href="#icon-follow"></use></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 
 </div>
 {% endblock %}

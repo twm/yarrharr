@@ -226,7 +226,7 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
 
 @login_required
-def react(request):
+def react(request, **kw):
     """
     The React user interface.  For the moment this is pre-loaded with basic
     information about all the feeds and articles.
@@ -294,9 +294,18 @@ def feed_show(request, feed_id: int, filter: Filter):
     List the articles in a feed
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
+
+    articles = feed.articles.all()
+    if filter is Filter.unread:
+        articles = articles.filter(read=False)
+    elif filter is Filter.fave:
+        articles = articles.filter(fave=True)
+
+    # TODO: Ordering
+    # TODO: Paginate articles
     return render(request, 'feed_show.html', {
-        # TODO: Paginate articles
         "feed": feed,
+        "articles": articles,
         "tabs_selected": {f"feed-{filter.name}"},
     })
 
