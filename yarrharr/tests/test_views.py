@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -688,11 +688,7 @@ class ManifestTests(TestCase):
         The manifest is valid JSON served with the application/manifest+json
         content type.
         """
-        # Setting HOT to True prevents the latest_static template tag from
-        # listing files in the static directory which doesn't necessarily exist
-        # (particularly on CI).
-        with self.settings(HOT=True):
-            response = Client().get('/manifest.webmanifest')
+        response = Client().get('/manifest.webmanifest')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual('application/manifest+json', response['Content-Type'])

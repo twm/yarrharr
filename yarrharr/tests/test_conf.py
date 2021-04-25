@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2014–2019 Tom Most <twm@freecog.net>
+# Copyright © 2014–2019, 2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -92,7 +92,6 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,
             'DEBUG': False,
-            'HOT': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -126,7 +125,6 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
-                        'yarrharr.context_processors.hot',
                     ],
                 },
             }],
@@ -165,7 +163,6 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,
             'DEBUG': True,
-            'HOT': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -200,7 +197,6 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
-                        'yarrharr.context_processors.hot',
                         'django.template.context_processors.debug',
                     ],
                 },
