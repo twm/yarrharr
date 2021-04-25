@@ -276,7 +276,15 @@ def feed_list(request):
     Display a list of known feeds
     """
     return render(request, "feed_list.html", {
-        "feeds": request.user.feed_set.all(),  # FIXME: Sort alphabetically
+        "feeds": sorted(
+            request.user.feed_set.all(),
+            # XXX It would be nice to do this sorting in the database, but sqlite3 does
+            # not ship with appropriate collations. Custom collations can be installed,
+            # but there isn't much advantage to doing so right now given we always
+            # query all feeds anyway.
+            key=lambda feed: human_sort_key(feed.title),
+        ),
+        "tabs_selected": {"global-feed-list"},
     })
 
 
@@ -287,7 +295,9 @@ def feed_show(request, feed_id: int, filter: Filter):
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
     return render(request, 'feed_show.html', {
-        'feed': feed,
+        # TODO: Paginate articles
+        "feed": feed,
+        "tabs_selected": {f"feed-{filter.name}"},
     })
 
 
@@ -300,6 +310,7 @@ def feed_edit(request, feed_id: int):
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
     return render(request, "feed_edit.html", {
         "feed": feed,
+        "tabs_selected": {"feed-edit"},
     })
 
 

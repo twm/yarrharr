@@ -1,5 +1,6 @@
 {% load static %}
 {% load static_glob %}
+{% load ytabs %}
 
 <div class="bar">
   <a class="yarrharr-masthead" href="{% url 'home' %}">
@@ -8,10 +9,10 @@
   </a>
 
   <nav class="global-links">
-    <a aria-selected="false" class="global-link no-underline" href="{% url 'all-show' 'unread' %}">All</a>
-    <a aria-selected="false" class="global-link no-underline" href="{% url 'label-list' %}">Labels</a>
-    <a aria-selected="false" class="global-link no-underline" href="{% url 'feed-list' %}">Feeds</a>
-    <a aria-selected="false" class="global-link no-underline" href="{% url 'feed-add' %}">+</a>
+    <a {% tabattrs "global-all-show" %} class="global-link no-underline" href="{% url 'all-show' 'unread' %}">All</a>
+    <a {% tabattrs "global-label-list" %} class="global-link no-underline" href="{% url 'label-list' %}">Labels</a>
+    <a {% tabattrs "global-feed-list" %} class="global-link no-underline" href="{% url 'feed-list' %}">Feeds</a>
+    <a {% tabattrs "global-feed-add" %} class="global-link no-underline" href="{% url 'feed-add' %}">+</a>
   </nav>
 
   {# TODO replace button with media query #}

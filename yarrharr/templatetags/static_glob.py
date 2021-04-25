@@ -38,7 +38,7 @@ register = template.Library()
 _static_dir = os.path.join(os.path.dirname(__file__), '../static')
 
 
-@attr.s(eq=False)
+@attr.s(auto_exc=True)
 class NoStaticMatch(Exception):
     pattern = attr.ib()
 
