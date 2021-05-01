@@ -31,6 +31,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from . import sanitize
+from .enums import ArticleFilter
 
 
 # Enable sqlite WAL mode so that readers don't block writers. See:
@@ -243,6 +244,15 @@ class Article(models.Model):
             text = text[len(title):].lstrip()
         self.content_snippet = text[:500]
         self.content_rev = sanitize.REVISION
+
+
+def filter_articles(qs, filt: ArticleFilter):
+    if filt is ArticleFilter.unread:
+        return qs.filter(read=False)
+    elif filt is ArticleFilter.fave:
+        return qs.filter(fave=True)
+    assert filt is ArticleFilter.all
+    return qs
 
 
 class Label(models.Model):

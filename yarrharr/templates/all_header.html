@@ -1,0 +1,19 @@
+{% load ytabs %}
+
+<div class="feed-header">
+  <h1><svg width="1em" height="1em" aria-hidden="true" class="icon"><use xlink:href="#icon-all"></use></svg> All</h1>
+</div>
+
+<div class="tabs">
+  <div class="tabs-tabs">
+    <a {% tabattrs "all-unread" %} class="no-underline" href="{% url 'all-show' 'unread' %}">
+      Unread{% if all_unread_count %} <span class="count">{{ all_unread_count }}</span>{% endif %}
+    </a>
+    <a {% tabattrs "all-fave" %} class="no-underline" href="{% url 'all-show' 'fave' %}">
+      Favorite{% if all_fave_count %} <span class="count">{{ all_fave_count }}</span>{% endif %}
+    </a>
+    <a {% tabattrs "all-all" %} class="no-underline" href="{% url 'all-show' 'all' %}">
+      All
+    </a>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+{% load ytabs %}
+
+<div class="feed-header">
+  <h1><svg width="1em" height="1em" aria-hidden="true" class="icon"><use xlink:href="#icon-label"></use></svg> {{ label.text }}</h1>
+</div>
+
+<div class="tabs">
+  <div class="tabs-tabs">
+    <a {% tabattrs "label-unread" %} class="no-underline" href="{% url 'label-show' label.id 'unread' %}">
+      Unread{% if label.unread_count %} <span class="count">{{ label.unread_count }}</span>{% endif %}
+    </a>
+    <a {% tabattrs "label-fave" %} class="no-underline" href="{% url 'label-show' label.id 'fave' %}">
+      Favorite{% if label.fave_count %} <span class="count">{{ label.fave_count }}</span>{% endif %}
+    </a>
+    <a {% tabattrs "label-all" %} class="no-underline" href="{% url 'label-show' label.id 'all' %}">
+      All
+    </a>
+    <a {% tabattrs "label-edit" %} class="no-underline" href="{% url 'label-edit' label.id %}" title="Edit Label">
+      <svg width="1em" height="1em" aria-label="Edit Label" class="icon" aria-hidden="false"><use xlink:href="#icon-edit"></use></svg>
+    </a>
+  </div>
+</div>
+

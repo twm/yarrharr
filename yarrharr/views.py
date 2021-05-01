@@ -38,7 +38,7 @@ from twisted.logger import Logger
 import yarrharr
 
 from .enums import ArticleFilter
-from .models import Article
+from .models import Article, filter_articles
 from .signals import schedule_changed
 from .sql import log_on_error
 
@@ -271,6 +271,27 @@ def home(request):
 
 
 @login_required
+def all_show(request, filter: ArticleFilter):
+    """
+    List the all articles
+    """
+    articles = filter_articles(
+        Article.objects.filter(feed__id__in=request.user.feed_set.all()),
+        filter,
+    )
+
+    # TODO: Ordering
+    # TODO: Paginate articles
+    return render(request, "all_show.html", {
+        "articles": articles[:10000],
+        "filter": filter,
+        "all_fave_count": 0,  # TODO
+        "all_unread_count": 0,  # TODO
+        "tabs_selected": {f"all-{filter.name}"},
+    })
+
+
+@login_required
 def feed_list(request):
     """
     Display a list of known feeds
@@ -294,18 +315,14 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
     List the articles in a feed
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
-
-    articles = feed.articles.all()
-    if filter is ArticleFilter.unread:
-        articles = articles.filter(read=False)
-    elif filter is ArticleFilter.fave:
-        articles = articles.filter(fave=True)
+    articles = filter_articles(feed.articles.all(), filter)
 
     # TODO: Ordering
     # TODO: Paginate articles
     return render(request, 'feed_show.html', {
         "feed": feed,
         "articles": articles,
+        "filter": filter,
         "tabs_selected": {f"feed-{filter.name}"},
     })
 
@@ -320,6 +337,38 @@ def feed_edit(request, feed_id: int):
     return render(request, "feed_edit.html", {
         "feed": feed,
         "tabs_selected": {"feed-edit"},
+    })
+
+
+@login_required
+def label_show(request, label_id: int, filter: ArticleFilter):
+    """
+    List the articles in a feed.
+    """
+    label = get_object_or_404(request.user.label_set, pk=label_id)
+    articles = filter_articles(
+        Article.objects.filter(feed__id__in=label.feeds.all()),
+        filter,
+    )
+
+    return render(request, 'label_show.html', {
+        "label": label,
+        "articles": articles,
+        "filter": filter,
+        "tabs_selected": {f"label-{filter.name}"},
+    })
+
+
+@login_required
+def label_edit(request, label_id: int):
+    """
+    Edit a label.
+    """
+    # TODO: Display a form, handle POST. Generic view?
+    label = get_object_or_404(request.user.label_set, pk=label_id)
+    return render(request, "feed_edit.html", {
+        "label": label,
+        "tabs_selected": {"label-edit"},
     })
 
 
