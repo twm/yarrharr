@@ -39,7 +39,7 @@ urlpatterns = (
     path("inventory/", yarrharr.views.feed_list, name="feed-list"),
     path("inventory/add/", yarrharr.views.react, name="feed-add"),
     path("inventory/feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
-    re_path(r'^inventory/labels/$', yarrharr.views.react),
+    path('inventory/labels/', yarrharr.views.label_list, name="label-list"),
     path("inventory/label/<int:label_id>/", yarrharr.views.label_edit, name="label-edit"),
     path("all/<filter:filter>/", yarrharr.views.all_show, name="all-show"),
     path("all/<filter:filter>/<int:article_id>/", yarrharr.views.react, name="article-in-all"),

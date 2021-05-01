@@ -28,7 +28,7 @@ import django
 import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
-from django.db.models import Q, Sum
+from django.db.models import Count, Q, Sum
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, render
@@ -323,7 +323,7 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
         "feed": feed,
         "articles": articles,
         "filter": filter,
-        "tabs_selected": {f"feed-{filter.name}"},
+        "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
     })
 
 
@@ -336,8 +336,36 @@ def feed_edit(request, feed_id: int):
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
     return render(request, "feed_edit.html", {
         "feed": feed,
-        "tabs_selected": {"feed-edit"},
+        "tabs_selected": {"global-feed-list", "feed-edit"},
     })
+
+
+@login_required
+def label_list(request):
+    """
+    Display a list of labels
+    """
+    labels = (
+        request.user.label_set.all()
+        .annotate(
+            feed_count=Count("feeds"),
+            # TODO: Verify these give the correct results.
+            unread_count=Sum("feeds__unread_count"),
+            fave_count=Sum("feeds__fave_count"),
+        )
+    )
+    return render(request, "label_list.html", {
+        "labels": sorted(
+            labels,
+            # XXX It would be nice to do this sorting in the database, but sqlite3 does
+            # not ship with appropriate collations. Custom collations can be installed,
+            # but there isn't much advantage to doing so right now given we always
+            # query all feeds anyway.
+            key=lambda label: human_sort_key(label.text),
+        ),
+        "tabs_selected": {"global-label-list"},
+    })
+
 
 
 @login_required
@@ -355,7 +383,7 @@ def label_show(request, label_id: int, filter: ArticleFilter):
         "label": label,
         "articles": articles,
         "filter": filter,
-        "tabs_selected": {f"label-{filter.name}"},
+        "tabs_selected": {"global-label-list", f"label-{filter.name}"},
     })
 
 
@@ -368,7 +396,7 @@ def label_edit(request, label_id: int):
     label = get_object_or_404(request.user.label_set, pk=label_id)
     return render(request, "feed_edit.html", {
         "label": label,
-        "tabs_selected": {"label-edit"},
+        "tabs_selected": {"global-label-list", "label-edit"},
     })
 
 
