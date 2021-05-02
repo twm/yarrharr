@@ -410,6 +410,21 @@ def label_edit(request, label_id: int):
 
 
 @login_required
+def article_in_all(request, filter: ArticleFilter, article_id: int) -> HttpResponse:
+    pass
+
+
+@login_required
+def article_in_feed(request, feed_id: int, filter: ArticleFilter, article_id: int) -> HttpResponse:
+    pass
+
+
+@login_required
+def article_in_label(request, label_id: int, filter: ArticleFilter, article_id: int) -> HttpResponse:
+    pass
+
+
+@login_required
 def snapshots(request):
     """
     Get a list of article IDs matching the snapshot parameters.
