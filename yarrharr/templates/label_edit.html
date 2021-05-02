@@ -1,6 +1,7 @@
+
 {% extends "base.html" %}
 
-{% block title %}{{ feed.title }} - Edit{% endblock %}
+{% block title %}{{ label.text }} - Edit{% endblock %}
 
 {% block content %}
 <style>
@@ -10,7 +11,7 @@
 <div id="yarrharr" class="layout-narrow">
 
   {% include "header.html" %}
-  {% include "feed_header.html" %}
+  {% include "label_header.html" %}
 
   {# TODO #}
 
