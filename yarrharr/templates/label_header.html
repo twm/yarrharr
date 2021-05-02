@@ -7,10 +7,10 @@
 <div class="tabs">
   <div class="tabs-tabs">
     <a {% tabattrs "label-unread" %} class="no-underline" href="{% url 'label-show' label.id 'unread' %}">
-      Unread{% if label.unread_count %} <span class="count">{{ label.unread_count }}</span>{% endif %}
+      Unread{% if label_unread_count %} <span class="count">{{ label_unread_count }}</span>{% endif %}
     </a>
     <a {% tabattrs "label-fave" %} class="no-underline" href="{% url 'label-show' label.id 'fave' %}">
-      Favorite{% if label.fave_count %} <span class="count">{{ label.fave_count }}</span>{% endif %}
+      Favorite{% if label_fave_count %} <span class="count">{{ label_fave_count }}</span>{% endif %}
     </a>
     <a {% tabattrs "label-all" %} class="no-underline" href="{% url 'label-show' label.id 'all' %}">
       All

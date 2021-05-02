@@ -367,13 +367,16 @@ def label_list(request):
     })
 
 
-
 @login_required
 def label_show(request, label_id: int, filter: ArticleFilter):
     """
     List the articles in a feed.
     """
     label = get_object_or_404(request.user.label_set, pk=label_id)
+    counts = label.feeds.aggregate(
+        label_unread_count=Sum("unread_count"),
+        label_fave_count=Sum("fave_count"),
+    )
     articles = filter_articles(
         Article.objects.filter(feed__id__in=label.feeds.all()),
         filter,
@@ -381,6 +384,7 @@ def label_show(request, label_id: int, filter: ArticleFilter):
 
     return render(request, 'label_show.html', {
         "label": label,
+        **counts,
         "articles": articles,
         "filter": filter,
         "tabs_selected": {"global-label-list", f"label-{filter.name}"},
@@ -394,8 +398,13 @@ def label_edit(request, label_id: int):
     """
     # TODO: Display a form, handle POST. Generic view?
     label = get_object_or_404(request.user.label_set, pk=label_id)
-    return render(request, "feed_edit.html", {
+    counts = label.feeds.aggregate(
+        label_unread_count=Sum("unread_count"),
+        label_fave_count=Sum("fave_count"),
+    )
+    return render(request, "label_edit.html", {
         "label": label,
+        **counts,
         "tabs_selected": {"global-label-list", "label-edit"},
     })
 
