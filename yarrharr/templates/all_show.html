@@ -25,7 +25,7 @@
           </span>
         </a>
         <button class="read-toggle square" aria-pressed="false" aria-label="Read" title="Mark read"><svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden="true" class="icon"><defs><mask id="check-mask"><use xlink:href="#icon-check" color="white"></use></mask></defs><g mask="url(#check-mask)"><rect class="inactive" width="1" height="1"></rect><rect class="active" width="1" height="1"></rect></g></svg></button>
-        <a class="square view-link" href="{% url 'article-in-all' filter article.id %}">
+        <a class="square view-link" href="{% url 'article-show' article.id %}">
           <svg width="1em" height="1em" title="View article" class="icon" aria-hidden="false"><use xlink:href="#icon-follow"></use></svg>
         </a>
       </div>

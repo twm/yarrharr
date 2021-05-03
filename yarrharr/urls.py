@@ -42,11 +42,9 @@ urlpatterns = (
     path('inventory/labels/', yarrharr.views.label_list, name="label-list"),
     path("inventory/label/<int:label_id>/", yarrharr.views.label_edit, name="label-edit"),
     path("all/<filter:filter>/", yarrharr.views.all_show, name="all-show"),
-    path("all/<filter:filter>/<int:article_id>/", yarrharr.views.article_in_all, name="article-in-all"),
     path("label/<int:label_id>/<filter:filter>/", yarrharr.views.label_show, name="label-show"),
-    path("label/<int:label_id>/<filter:filter>/<int:article_id>/", yarrharr.views.article_in_label, name="article-in-label"),
     path("feed/<int:feed_id>/<filter:filter>/", yarrharr.views.feed_show, name="feed-show"),
-    path("feed/<int:feed_id>/<filter:filter>/<int:article_id>/", yarrharr.views.article_in_feed, name="article-in-feed"),
+    path("article/<int:article_id>/", yarrharr.views.article_show, name="article-show"),
     re_path(r'^debug/$', yarrharr.views.react),  # TODO
 
     # API

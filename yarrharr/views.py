@@ -410,18 +410,21 @@ def label_edit(request, label_id: int):
 
 
 @login_required
-def article_in_all(request, filter: ArticleFilter, article_id: int) -> HttpResponse:
-    pass
+def article_show(request, article_id: int):
+    """
+    Display an article.
+    """
+    article = get_object_or_404(
+        Article.objects.filter(feed__in=request.user.feed_set.all()),
+        pk=article_id,
+    )
 
-
-@login_required
-def article_in_feed(request, feed_id: int, filter: ArticleFilter, article_id: int) -> HttpResponse:
-    pass
-
-
-@login_required
-def article_in_label(request, label_id: int, filter: ArticleFilter, article_id: int) -> HttpResponse:
-    pass
+    return render(request, "article_show.html", {
+        "filter": filter,
+        "article": article,
+        "article_labels": article.feed.label_set.all(),  # TODO: sort
+        "tabs_selected": set(),
+    })
 
 
 @login_required
