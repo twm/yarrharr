@@ -47,6 +47,11 @@ urlpatterns = (
     path("article/<int:article_id>/", yarrharr.views.article_show, name="article-show"),
     re_path(r'^debug/$', yarrharr.views.react),  # TODO
 
+    # Old URLs
+    re_path(R"^all/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
+    re_path(R"^label/(?:\d+)/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
+    re_path(R"^feed/(?:\d+)/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
+
     # API
     re_path(r'^api/snapshots/$', yarrharr.views.snapshots),
     re_path(r'^api/articles/$', yarrharr.views.articles),

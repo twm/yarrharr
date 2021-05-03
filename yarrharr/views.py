@@ -31,7 +31,7 @@ from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from twisted.logger import Logger
 
@@ -462,6 +462,24 @@ def articles_for_request(request):
     article_ids = map(int, request.POST.getlist('article'))
     qs = Article.objects.filter(feed__in=request.user.feed_set.all())
     return qs.filter(id__in=article_ids)
+
+
+@login_required
+def redirect_to_article(request, article_id: str):
+    """
+    Redirect a legacy article URL
+
+    This is used to redirect article URLs from the old React UI to the new
+    location, like::
+
+        /all/unread/1234/  →   /article/1234/
+        /feed/1/fave/234/  →   /article/234/
+        /label/12/all/34/  →   /article/34/
+
+    The article ID isn't validated as the redirect target will do that, but the
+    URL patterns require it be an integer.
+    """
+    return redirect("article-show", article_id=int(article_id), permanent=True)
 
 
 @login_required

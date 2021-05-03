@@ -719,3 +719,29 @@ class RobotsTxtTests(TestCase):
         """
         response = Client().post('/robots.txt', {})
         self.assertEqual(405, response.status_code)
+
+
+class LegacyRedirectTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='james',
+            email='james@mail.example',
+            password='hunter2',
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def test_article_url_redirects(self):
+        """
+        Old article URLs (used by the React SPA) are redirected to the new
+        location.
+        """
+        table = [
+            ("/all/unread/1234/", "/article/1234/"),
+            ("/feed/1/fave/234/", "/article/234/"),
+            ("/label/12/all/34/", "/article/34/"),
+        ]
+
+        for from_, to in table:
+            response = self.client.get(from_)
+            self.assertEqual(to, response['Location'])
