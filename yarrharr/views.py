@@ -30,15 +30,22 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
 from django.db.utils import IntegrityError
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
+from django.forms import ModelForm
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseNotAllowed,
+    HttpResponseRedirect,
+)
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from twisted.logger import Logger
 
 import yarrharr
 
 from .enums import ArticleFilter
-from .models import Article, filter_articles
+from .models import Article, Label, filter_articles
 from .signals import schedule_changed
 from .sql import log_on_error
 
@@ -391,6 +398,12 @@ def label_show(request, label_id: int, filter: ArticleFilter):
     })
 
 
+class LabelEditForm(ModelForm):
+    class Meta:
+        model = Label
+        fields = ["text", "feeds"]
+
+
 @login_required
 def label_edit(request, label_id: int):
     """
@@ -402,10 +415,54 @@ def label_edit(request, label_id: int):
         label_unread_count=Sum("unread_count"),
         label_fave_count=Sum("fave_count"),
     )
+    if request.method == "POST":
+        form = LabelEditForm(request.POST, instance=label)
+        if form.is_valid():
+            label = Label.objects.create(
+                user=request.user,
+                text=form.cleaned_data["text"],
+            )
+            return HttpResponseRedirect(
+                reverse("label-edit", kwargs={"label_id": label.pk}),
+            )
+    elif request.method == "GET":
+        form = LabelEditForm(instance=label)
     return render(request, "label_edit.html", {
         "label": label,
+        "form": form,
         **counts,
         "tabs_selected": {"global-label-list", "label-edit"},
+    })
+
+
+class LabelCreateForm(ModelForm):
+    class Meta:
+        model = Label
+        fields = ["text"]
+
+
+@login_required
+def label_add(request):
+    """
+    Add a new label.
+    """
+    if request.method == "POST":
+        form = LabelCreateForm(request.POST)
+        if form.is_valid():
+            label = Label.objects.create(
+                user=request.user,
+                text=form.cleaned_data["text"],
+            )
+            return HttpResponseRedirect(
+                reverse("label-edit", kwargs={"label_id": label.pk}),
+            )
+    elif request.method == "GET":
+        form = LabelCreateForm()
+    else:
+        return HttpResponseNotAllowed(["GET", "POST"])
+    return render(request, "label_add.html", {
+        "form": form,
+        "tabs_selected": {"global-label-list"},
     })
 
 

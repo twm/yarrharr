@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Add Label{% endblock %}
+
+{% block content %}
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+
+  <div class="feed-header">
+    <h1>Add Label</h1>
+  </div>
+
+
+  <form action="{% url 'label-add' %}" method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Add Label">
+  </form>
+
+
+</div>
+{% endblock %}
