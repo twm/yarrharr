@@ -22,7 +22,7 @@ py==1.10.0
     # via pytest
 pyparsing==2.4.7
     # via packaging
-pytest-django==4.2.0
+pytest-django==4.3.0
     # via -r requirements_test.in
 pytest-twisted==1.13.2
     # via -r requirements_test.in
