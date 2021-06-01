@@ -448,7 +448,10 @@ def label_add(request):
                 request.user.feed_set.filter(id__in=form.cleaned_data["feeds"]),
             )
             return HttpResponseRedirect(
-                reverse("label-edit", kwargs={"label_id": label.pk}),
+                reverse(
+                    "label-show",
+                    kwargs={"label_id": label.pk, "filter": ArticleFilter.unread},
+                ),
             )
     elif request.method == "GET":
         form = LabelForm()

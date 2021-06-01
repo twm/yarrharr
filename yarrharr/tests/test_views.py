@@ -30,8 +30,10 @@ from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
+from ..enums import ArticleFilter
 from ..models import Feed, Label
 from ..signals import schedule_changed
 
@@ -534,37 +536,50 @@ class LabelsViewTests(TestCase):
 
     def test_create(self):
         """
-        A POST request with ``action=create`` creates a label.
+        The label-add view displays a form that creates a label when submitted
+        and redirects to display the articles in the label.
         """
-        response = self.client.post('/api/labels/', {
-            'action': 'create',
-            'text': 'foo',
+        feed_a = self.user.feed_set.create(
+            url="http://example/a",
+            feed_title="A Feed",
+            added=timezone.now(),
+        )
+        feed_b = self.user.feed_set.create(
+            url="https://example/b",
+            feed_title="B Feed",
+            added=timezone.now(),
+        )
+        feed_c = self.user.feed_set.create(
+            url="https://example/c",
+            feed_title="C Feed",
+            added=timezone.now(),
+        )
+
+        add_url = reverse("label-add")
+        response = self.client.post(add_url, {
+            "text": "foo",
+            "feeds": [str(feed_a.id), str(feed_b.id)],
         })
-        self.assertEqual(200, response.status_code)
 
         [label] = self.user.label_set.all()
-        self.assertEqual('foo', label.text)
-
-        self.assertEqual({
-            'labelId': label.id,
-            'labelsById': {
-                str(label.id): {
-                    'id': label.id,
-                    'text': 'foo',
-                    'feeds': [],
-                    'unreadCount': 0,
-                    'faveCount': 0,
-                },
-            },
-            'labelOrder': [label.id],
-            'feedsById': {},
-            'feedOrder': [],
-        }, response.json())
+        self.assertEqual("foo", label.text)
+        label_feeds = label.feeds.all()
+        self.assertIn(feed_a, label_feeds)
+        self.assertIn(feed_b, label_feeds)
+        self.assertNotIn(feed_c, label_feeds)
+        self.assertRedirects(
+            response,
+            reverse(
+                "label-show",
+                kwargs={"label_id": label.id, "filter": ArticleFilter.unread},
+            ),
+        )
 
     def test_create_empty(self):
         """
         Creating a label with empty text fails.
         """
+        # TODO Migrate
         response = self.client.post('/api/labels/', {
             'action': 'create',
             'text': '',
@@ -575,6 +590,7 @@ class LabelsViewTests(TestCase):
         """
         Creating a label with duplicate text fails.
         """
+        # TODO Migrate
         self.user.label_set.create(text='foo')
 
         response = self.client.post('/api/labels/', {
@@ -587,6 +603,7 @@ class LabelsViewTests(TestCase):
         """
         A POST request with ``action=attach`` associates a label with a feed.
         """
+        # TODO Migrate
         feed = self.user.feed_set.create(
             url='http://example/a',
             feed_title='A',
@@ -625,6 +642,7 @@ class LabelsViewTests(TestCase):
         A POST request with ``action=detach`` breaks the association between
         a feed and label.
         """
+        # TODO Migrate
         feed = self.user.feed_set.create(
             url='http://example/a',
             feed_title='A',
@@ -664,6 +682,7 @@ class LabelsViewTests(TestCase):
         """
         A POST with ``action=remove`` deletes a label from the database.
         """
+        # TODO Migrate
         label = self.user.label_set.create(text='doomed')
 
         response = self.client.post('/api/labels/', {
