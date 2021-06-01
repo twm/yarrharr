@@ -29,7 +29,7 @@ class ArticleFilter(Enum):
     """
     Possible filters applicable to an article list
 
-    :ivar unread: Artciles lacking the *read* flag
+    :ivar unread: Articles lacking the *read* flag
 
     :ivar fave: Articles with the *fave* flag
 
