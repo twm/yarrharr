@@ -398,7 +398,7 @@ def label_show(request, label_id: int, filter: ArticleFilter):
     })
 
 
-class LabelEditForm(ModelForm):
+class LabelForm(ModelForm):
     class Meta:
         model = Label
         fields = ["text", "feeds"]
@@ -416,17 +416,14 @@ def label_edit(request, label_id: int):
         label_fave_count=Sum("fave_count"),
     )
     if request.method == "POST":
-        form = LabelEditForm(request.POST, instance=label)
+        form = LabelForm(request.POST, instance=label)
         if form.is_valid():
-            label = Label.objects.create(
-                user=request.user,
-                text=form.cleaned_data["text"],
-            )
+            form.save()
             return HttpResponseRedirect(
                 reverse("label-edit", kwargs={"label_id": label.pk}),
             )
     elif request.method == "GET":
-        form = LabelEditForm(instance=label)
+        form = LabelForm(instance=label)
     return render(request, "label_edit.html", {
         "label": label,
         "form": form,
@@ -435,29 +432,26 @@ def label_edit(request, label_id: int):
     })
 
 
-class LabelCreateForm(ModelForm):
-    class Meta:
-        model = Label
-        fields = ["text"]
-
-
 @login_required
 def label_add(request):
     """
     Add a new label.
     """
     if request.method == "POST":
-        form = LabelCreateForm(request.POST)
+        form = LabelForm(request.POST)
         if form.is_valid():
             label = Label.objects.create(
                 user=request.user,
                 text=form.cleaned_data["text"],
             )
+            label.feeds.set(
+                request.user.feed_set.filter(id__in=form.cleaned_data["feeds"]),
+            )
             return HttpResponseRedirect(
                 reverse("label-edit", kwargs={"label_id": label.pk}),
             )
     elif request.method == "GET":
-        form = LabelCreateForm()
+        form = LabelForm()
     else:
         return HttpResponseNotAllowed(["GET", "POST"])
     return render(request, "label_add.html", {
