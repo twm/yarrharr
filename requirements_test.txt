@@ -22,14 +22,14 @@ py==1.10.0
     # via pytest
 pyparsing==2.4.7
     # via packaging
-pytest-django==4.3.0
-    # via -r requirements_test.in
-pytest-twisted==1.13.2
-    # via -r requirements_test.in
 pytest==6.2.4
     # via
     #   -r requirements_test.in
     #   pytest-django
     #   pytest-twisted
+pytest-django==4.4.0
+    # via -r requirements_test.in
+pytest-twisted==1.13.2
+    # via -r requirements_test.in
 toml==0.10.2
     # via pytest
