@@ -80,7 +80,7 @@ six==1.15.0
     #   html5lib
     #   pyopenssl
     #   treq
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 treq==21.1.0
     # via yarrharr (setup.py)
