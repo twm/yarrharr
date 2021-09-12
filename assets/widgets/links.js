@@ -40,17 +40,17 @@ const ConnectedA = connect(null, null)(A);
 
 const makeLink = transformProps => props => <ConnectedA {...transformProps(props)} />;
 
-export const AllLink = makeLink(({filter, ...props}) => { return { ...props, href: `/all/${filter}/` }; });
-export const AllArticleLink = makeLink(({filter, articleId, ...props}) => { return { ...props, href: `/all/${filter}/${articleId}/` }; });
-export const FeedLink = makeLink(({feedId, filter, ...props}) => { return { ...props, href: `/feed/${feedId}/${filter}/` }; });
-export const FeedArticleLink = makeLink(({feedId, filter, articleId, ...props}) => { return { ...props, href: `/feed/${feedId}/${filter}/${articleId}/` }; });
-export const LabelLink = makeLink(({labelId, filter, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/` }; });
-export const LabelArticleLink = makeLink(({labelId, filter, articleId, ...props}) => { return { ...props, href: `/label/${labelId}/${filter}/${articleId}/` }; });
+export const AllLink = ({filter, ...props}) => <a {...props} href={`/all/${filter}/`} />;
+export const AllArticleLink = ({filter, articleId, ...props}) => <a {...props} href={`/article/${articleId}/`} />;
+export const FeedLink = ({feedId, filter, ...props}) => <a {...props} href={`/feed/${feedId}/${filter}/`} />;
+export const FeedArticleLink = ({feedId, filter, articleId, ...props}) => <a {...props} href={`/feed/${feedId}/${filter}/${articleId}/`} />;
+export const LabelLink = ({labelId, filter, ...props}) => <a {...props} href={`/label/${labelId}/${filter}/`} />;
+export const LabelArticleLink = ({articleId, ...props}) => <a {...props} href={`/article/${articleId}/`} />;
 export const HomeLink = (props) => <a {...props} href="/" />;
-export const FeedListLink = makeLink((props) => { return { ...props, href: "/inventory/" }; });
-export const FeedDetailLink = makeLink(({feedId, ...props}) => { return { ...props, href: `/inventory/feed/${feedId}/` }; });
-export const LabelListLink = makeLink((props) => { return { ...props, href: "/inventory/labels/" }; });
-export const LabelDetailLink = makeLink(({labelId, ...props}) => { return { ...props, href: `/inventory/label/${labelId}/` }; });
+export const FeedListLink = (props) => <a { ...props} href="/inventory/" />;
+export const FeedDetailLink = ({feedId, ...props}) => <a {...props} href={`/inventory/feed/${feedId}/`} />;
+export const LabelListLink = (props) => <a {...props} href="/inventory/labels/" />;
+export const LabelDetailLink = ({labelId, ...props}) => <a {...props} href={`/inventory/label/${labelId}/`} />;
 export const AddFeedLink = makeLink((props) => { return { ...props, href: "/inventory/add/" }; });
 
 if (process.env.NODE_ENV !== 'production') {

@@ -11,17 +11,7 @@ import { ConnectedDebugView } from 'views/debug.jsm';
 
 
 const routeToView = {
-    '/inventory': ConnectedFeedListView,
     '/inventory/add': ConnectedAddFeedView,
-    '/inventory/labels': ConnectedLabelListView,
-    '/inventory/feed/:feedId': ConnectedManageFeedView,
-    '/inventory/label/:labelId': ConnectedManageLabelView,
-    '/all/:filter': ConnectedAllView,
-    '/all/:filter/:articleId': ConnectedAllArticleView,
-    '/label/:labelId/:filter': ConnectedLabelView,
-    '/label/:labelId/:filter/:articleId': ConnectedLabelArticleView,
-    '/feed/:feedId/:filter': ConnectedFeedView,
-    '/feed/:feedId/:filter/:articleId': ConnectedFeedArticleView,
     '/debug': ConnectedDebugView,
 };
 
