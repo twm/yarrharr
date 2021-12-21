@@ -579,25 +579,35 @@ class LabelsViewTests(TestCase):
         """
         Creating a label with empty text fails.
         """
-        # TODO Migrate
-        response = self.client.post('/api/labels/', {
-            'action': 'create',
+        feed_a = self.user.feed_set.create(
+            url="http://example/a",
+            feed_title="A Feed",
+            added=timezone.now(),
+        )
+
+        add_url = reverse("label-add")
+        response = self.client.post(add_url, {
             'text': '',
+            'feeds': [str(feed_a.id)],
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(200, response.status_code)
 
     def test_create_duplicate(self):
         """
         Creating a label with duplicate text fails.
         """
-        # TODO Migrate
+        feed_a = self.user.feed_set.create(
+            url="http://example/a",
+            feed_title="A Feed",
+            added=timezone.now(),
+        )
         self.user.label_set.create(text='foo')
 
-        response = self.client.post('/api/labels/', {
-            'action': 'create',
+        response = self.client.post(reverse("label-add"), {
             'text': 'foo',
+            'feeds': [str(feed_a.id)],
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(200, response.status_code)
 
     def test_attach(self):
         """

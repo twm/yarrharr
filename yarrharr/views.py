@@ -440,10 +440,9 @@ def label_add(request):
     if request.method == "POST":
         form = LabelForm(request.POST)
         if form.is_valid():
-            label = Label.objects.create(
-                user=request.user,
-                text=form.cleaned_data["text"],
-            )
+            label = form.save(commit=False)
+            label.user = request.user
+            label.save()
             label.feeds.set(
                 request.user.feed_set.filter(id__in=form.cleaned_data["feeds"]),
             )

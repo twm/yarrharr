@@ -8,16 +8,18 @@
   {% include "header.html" %}
 
   <div class="feed-header">
-    <h1>New Label</h1>
+    <h1>Add Label</h1>
   </div>
 
-
-  <form action="{% url 'label-add' %}" method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Add Label">
-  </form>
-
+  <div class="inventory-centered">
+    <form action="{% url 'label-add' %}" method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="inventory-tools">
+        <input class="text-button text-button-primary" type="submit" value="Add">
+      </div>
+    </form>
+  </div>
 
 </div>
 {% endblock %}
