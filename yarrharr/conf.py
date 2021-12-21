@@ -160,7 +160,6 @@ def read_yarrharr_conf(files, namespace):
 
     namespace['LANGUAGE_CODE'] = 'en-us'
     namespace['USE_I18N'] = True
-    namespace['USE_L10N'] = True
     namespace['USE_TZ'] = True
     namespace['TIME_ZONE'] = 'UTC'
 
