@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements_lint.txt requirements_lint.in
 #
-flake8==3.9.1
+flake8==4.0.1
     # via
     #   -r requirements_lint.in
     #   flake8-isort
@@ -16,9 +16,9 @@ isort==5.10.1
     #   flake8-isort
 mccabe==0.6.1
     # via flake8
-pycodestyle==2.7.0
+pycodestyle==2.8.0
     # via flake8
-pyflakes==2.3.1
+pyflakes==2.4.0
     # via flake8
 testfixtures==6.17.1
     # via flake8-isort
