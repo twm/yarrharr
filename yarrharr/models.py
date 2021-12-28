@@ -92,7 +92,7 @@ class Feed(models.Model):
     These two are combined in the `title` property.
     """
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    url = models.URLField()
+    url = models.URLField(verbose_name="Feed URL")
     added = models.DateTimeField()
     deleted = models.DateTimeField(null=True, default=None)
 
@@ -106,7 +106,7 @@ class Feed(models.Model):
 
     feed_title = models.TextField()
     user_title = models.TextField(default='', blank=True)
-    site_url = models.URLField(default='', blank=True)
+    site_url = models.URLField(default='', blank=True, verbose_name="Site URL")
 
     title = property(lambda self: self.user_title or self.feed_title or self.url)
 

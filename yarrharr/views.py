@@ -29,14 +29,8 @@ import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
-from django.db.utils import IntegrityError
-from django.forms import ModelForm, ValidationError
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseNotAllowed,
-    HttpResponseRedirect,
-)
+from django.forms import CharField, ModelForm, ModelMultipleChoiceField, ValidationError
+from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -45,7 +39,7 @@ from twisted.logger import Logger
 import yarrharr
 
 from .enums import ArticleFilter
-from .models import Article, Label, filter_articles
+from .models import Article, Feed, Label, filter_articles
 from .signals import schedule_changed
 from .sql import log_on_error
 
@@ -334,16 +328,91 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
     })
 
 
+class FeedForm(ModelForm):
+    """
+    Edit a user's feed.
+
+    The *instance* argument must always be given a `Form` instance,
+    which must have an assigned user.
+    """
+
+    class Meta:
+        model = Feed
+        fields = ["user_title", "url", "label_set"]
+
+    user_title = CharField(required=False, max_length=200, label="Title override")
+    label_set = ModelMultipleChoiceField(queryset=None, required=False, label="Labels")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.instance.pk, 'instance argument must be a saved Feed instance'
+        assert self.instance.user, 'instance argument must be a Feed instance with a user'
+        self.fields["label_set"].queryset = self.instance.user.label_set.all()
+        self.initial["label_set"] = self.instance.label_set.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self.instance.label_set.set(cleaned_data["label_set"])
+        return cleaned_data
+
+
 @login_required
 def feed_edit(request, feed_id: int):
     """
-    Edit a feed
+    Edit a feed.
     """
-    # TODO: Display a form, handle POST. Generic view?
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
+    if request.method == "POST":
+        form = FeedForm(request.POST, instance=feed)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(
+                reverse("feed-edit", kwargs={"feed_id": feed.pk}),
+            )
+    elif request.method == "GET":
+        form = FeedForm(instance=feed)
     return render(request, "feed_edit.html", {
         "feed": feed,
+        "form": form,
         "tabs_selected": {"global-feed-list", "feed-edit"},
+    })
+
+
+class FeedAddForm(ModelForm):
+    """
+    Create a feed
+    """
+
+    class Meta:
+        model = Feed
+        fields = ["url"]
+
+
+@login_required
+def feed_add(request):
+    """
+    Add a new feed.
+    """
+    feed = Feed(user=request.user)
+    if request.method == "POST":
+        form = FeedAddForm(request.POST, instance=feed)
+        if form.is_valid():
+            feed = form.save(commit=False)
+            feed.added = timezone.now()
+            feed.save()
+            return HttpResponseRedirect(
+                reverse(
+                    "feed-edit",
+                    kwargs={"feed_id": feed.pk},
+                ),
+            )
+    elif request.method != "GET":
+        return HttpResponseNotAllowed(["GET", "POST"])
+    else:
+        form = FeedAddForm(instance=feed)
+    return render(request, "feed_add.html", {
+        "form": form,
+        "tabs_selected": {"global-feed-list"},
     })
 
 
@@ -400,12 +469,16 @@ def label_show(request, label_id: int, filter: ArticleFilter):
 
 class LabelForm(ModelForm):
     """
-    Always instantiate with an instance.
+    Create a label for a user.
     """
 
     class Meta:
         model = Label
         fields = ["text", "feeds"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.instance.user, 'instance argument must be a Label instance with a user'
 
     def clean_text(self):
         """
@@ -428,6 +501,8 @@ class LabelForm(ModelForm):
         Ensure that only the user's own feeds are selectable. Other PKs are
         ignored.
         """
+        # FIXME: Use limit_choices_to instead
+        # https://docs.djangoproject.com/en/4.0/ref/models/fields/#django.db.models.ForeignKey.limit_choices_to
         data = self.cleaned_data["feeds"]
         return self.instance.user.feed_set.intersection(data)
 

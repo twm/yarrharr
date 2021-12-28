@@ -36,14 +36,14 @@ app_name = 'yarrharr'
 urlpatterns = (
     # GUI
     re_path(r'^$', yarrharr.views.home, name='home'),
-    path("inventory/", yarrharr.views.feed_list, name="feed-list"),
-    path("inventory/add/", yarrharr.views.react, name="feed-add"),  # TODO
-    path("inventory/feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
-    path('inventory/labels/', yarrharr.views.label_list, name="label-list"),
-    path('add-label/', yarrharr.views.label_add, name="label-add"),
-    path("inventory/label/<int:label_id>/", yarrharr.views.label_edit, name="label-edit"),
     path("all/<filter:filter>/", yarrharr.views.all_show, name="all-show"),
+    path("labels/", yarrharr.views.label_list, name="label-list"),
+    path("labels/add/", yarrharr.views.label_add, name="label-add"),
+    path("label/<int:label_id>/", yarrharr.views.label_edit, name="label-edit"),
     path("label/<int:label_id>/<filter:filter>/", yarrharr.views.label_show, name="label-show"),
+    path("feeds/", yarrharr.views.feed_list, name="feed-list"),
+    path("feeds/add/", yarrharr.views.feed_add, name="feed-add"),
+    path("feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
     path("feed/<int:feed_id>/<filter:filter>/", yarrharr.views.feed_show, name="feed-show"),
     path("article/<int:article_id>/", yarrharr.views.article_show, name="article-show"),
     re_path(r'^debug/$', yarrharr.views.react),  # TODO
