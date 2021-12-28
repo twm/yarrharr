@@ -609,60 +609,6 @@ def flags(request):
 
 
 @login_required
-def labels(request):
-    """
-    Create and remove labels.
-
-    On POST, the :param:`action` parameter determines what is done:
-
-    ``"create"`` creates a new label :param:`text` parameter contains the text
-    of the label to create.  If the text is already in use, 409 Conflict
-    results.
-
-    ``"attach"`` associates a label specified by :param:`label` from a feed
-    :param:`feed`
-
-    ``"detach"`` disassociates a label specified by :param:`label` from a feed
-    :param:`feed`
-
-    On DELETE, the :param:`label` holds the ID of the label.  If the label does
-    not exist, 404 results.
-    """
-    # FIXME: This should use real forms for validation.
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'])
-
-    action = request.POST['action']
-    data = {}
-    if action == 'create':
-        try:
-            text = request.POST['text']
-            if not text:
-                raise ValueError(text)
-            data['labelId'] = request.user.label_set.create(text=text).id
-        except (KeyError, ValueError, IntegrityError):
-            return HttpResponseBadRequest()
-    elif action == 'attach':
-        label = request.user.label_set.get(id=request.POST['label'])
-        feed = request.user.feed_set.get(id=request.POST['feed'])
-        label.feeds.add(feed)
-        label.save()
-    elif action == 'detach':
-        label = request.user.label_set.get(id=request.POST['label'])
-        feed = request.user.feed_set.get(id=request.POST['feed'])
-        label.feeds.remove(feed)
-        label.save()
-    elif action == 'remove':
-        label = request.user.label_set.get(pk=request.POST['label'])
-        label.delete()
-
-    data.update(labels_for_user(request.user))
-    data.update(feeds_for_user(request.user))
-    return HttpResponse(json.dumps(data),
-                        content_type='application/json')
-
-
-@login_required
 def inventory(request):
     """
     Manipulate feeds and labels.

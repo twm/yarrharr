@@ -57,7 +57,6 @@ urlpatterns = (
     re_path(r'^api/snapshots/$', yarrharr.views.snapshots),
     re_path(r'^api/articles/$', yarrharr.views.articles),
     re_path(r'^api/flags/$', yarrharr.views.flags),
-    re_path(r'^api/labels/$', yarrharr.views.labels),
     re_path(r'^api/inventory/$', yarrharr.views.inventory),
 
     re_path(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
