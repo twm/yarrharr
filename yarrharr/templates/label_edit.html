@@ -13,11 +13,15 @@
   {% include "header.html" %}
   {% include "label_header.html" %}
 
-  <form action="{% url 'label-edit' label.id %}" method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Save Label">
-  </form>
+  <div class="inventory-centered">
+    <form action="{% url 'label-edit' label.id %}" method="POST" name="label-edit">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="inventory-tools">
+        <input class="text-button text-button-primary" type="submit" value="Save">
+      </div>
+    </form>
+  </div>
 
 </div>
 {% endblock %}

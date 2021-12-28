@@ -28,7 +28,7 @@ import datetime
 from contextlib import contextmanager
 from unittest import mock
 
-import pytest
+import lxml.html
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -593,7 +593,6 @@ class LabelsViewTests(TestCase):
         })
         self.assertEqual(200, response.status_code)
 
-    @pytest.mark.xfail
     def test_create_duplicate(self):
         """
         Creating a label with duplicate text fails.
@@ -605,11 +604,18 @@ class LabelsViewTests(TestCase):
         )
         self.user.label_set.create(text='foo')
 
-        response = self.client.post(reverse("label-add"), {
-            'text': 'foo',
-            'feeds': [str(feed_a.id)],
-        })
-        self.assertEqual(200, response.status_code)
+        get_response = self.client.get(reverse("label-add"))
+        form_page = lxml.html.document_fromstring(get_response.content)
+        [form] = form_page.forms
+        form.fields["text"] = "foo"
+        form.fields["feeds"] = [str(feed_a.id)]
+
+        post_response = self.client.post(form.action, dict(form.form_values()))
+        self.assertEqual(200, post_response.status_code)
+        error_page = lxml.html.document_fromstring(post_response.content)
+        [form] = error_page.forms
+        errors = [el.text_content() for el in form.cssselect(".errorlist li")]
+        self.assertEqual(["Label text must be unique"], errors)
 
     def test_attach(self):
         """
