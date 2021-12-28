@@ -12,7 +12,7 @@
   </div>
 
   <div class="inventory-centered">
-    <form action="{% url 'label-add' %}" method="POST">
+    <form action="{% url 'label-add' %}" method="POST" name="label-add">
       {% csrf_token %}
       {{ form.as_p }}
       <div class="inventory-tools">

@@ -30,7 +30,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
 from django.db.utils import IntegrityError
-from django.forms import ModelForm
+from django.forms import ModelForm, ValidationError
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
@@ -399,9 +399,37 @@ def label_show(request, label_id: int, filter: ArticleFilter):
 
 
 class LabelForm(ModelForm):
+    """
+    Always instantiate with an instance.
+    """
+
     class Meta:
         model = Label
         fields = ["text", "feeds"]
+
+    def clean_text(self):
+        """
+        Validate that the label text is unique
+        """
+        data = self.cleaned_data["text"]
+        if data == self.instance.text:  # No change
+            return data
+
+        if self.instance.user.label_set.filter(text=data).count() > 0:
+            raise ValidationError(
+                "Label text must be unique",
+                code="duplicate"
+            )
+
+        return data
+
+    def clean_feeds(self):
+        """
+        Ensure that only the user's own feeds are selectable. Other PKs are
+        ignored.
+        """
+        data = self.cleaned_data["feeds"]
+        return self.instance.user.feed_set.intersection(data)
 
 
 @login_required
@@ -437,25 +465,22 @@ def label_add(request):
     """
     Add a new label.
     """
+    label = Label(user=request.user)
     if request.method == "POST":
-        form = LabelForm(request.POST)
+        form = LabelForm(request.POST, instance=label)
         if form.is_valid():
-            label = form.save(commit=False)
-            label.user = request.user
+            label = form.save(commit=True)
             label.save()
-            label.feeds.set(
-                request.user.feed_set.filter(id__in=form.cleaned_data["feeds"]),
-            )
             return HttpResponseRedirect(
                 reverse(
                     "label-show",
                     kwargs={"label_id": label.pk, "filter": ArticleFilter.unread},
                 ),
             )
-    elif request.method == "GET":
-        form = LabelForm()
-    else:
+    elif request.method != "GET":
         return HttpResponseNotAllowed(["GET", "POST"])
+    else:
+        form = LabelForm(instance=label)
     return render(request, "label_add.html", {
         "form": form,
         "tabs_selected": {"global-label-list"},
