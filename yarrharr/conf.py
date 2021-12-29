@@ -130,6 +130,7 @@ def read_yarrharr_conf(files, namespace):
         },
     }
     namespace['ATOMIC_REQUESTS'] = True
+    namespace['DEFAULT_AUTO_FIELD'] = 'django.db.models.AutoField'
 
     external_url = urlparse(conf.get('yarrharr', 'external_url'))
     if external_url.path != '':
