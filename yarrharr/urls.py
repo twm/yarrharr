@@ -41,6 +41,7 @@ urlpatterns = (
     path("labels/add/", yarrharr.views.label_add, name="label-add"),
     path("label/<int:label_id>/", yarrharr.views.label_edit, name="label-edit"),
     path("label/<int:label_id>/<filter:filter>/", yarrharr.views.label_show, name="label-show"),
+    path("label/<int:label_id>/delete/", yarrharr.views.label_delete, name="label-delete"),
     path("feeds/", yarrharr.views.feed_list, name="feed-list"),
     path("feeds/add/", yarrharr.views.feed_add, name="feed-add"),
     path("feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),

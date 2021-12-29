@@ -536,6 +536,21 @@ def label_edit(request, label_id: int):
 
 
 @login_required
+def label_delete(request, label_id: int):
+    """
+    Delete a label.
+    """
+    label = get_object_or_404(request.user.label_set, pk=label_id)
+
+    if request.method == "POST":
+        label.delete()
+    else:
+        return HttpResponseNotAllowed(["POST"])
+
+    return HttpResponseRedirect(reverse("label-list"))
+
+
+@login_required
 def label_add(request):
     """
     Add a new label.
