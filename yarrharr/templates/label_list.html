@@ -14,7 +14,7 @@
   <div class="inventory-header">
     <h1>Labels</h1>
     <div>
-      <a class="text-button text-button-primary no-underline" href="{% url 'label-add' %}">New Label</a>
+      <a class="text-button text-button-primary no-underline" href="{% url 'label-add' %}">Add Label</a>
     </div>
   </div>
 
@@ -37,9 +37,9 @@
           <use xlink:href="#icon-label"></use>
         </svg>
       </td>
-      <td>{{ label.text }}</td>
+      <td><a href="{% url 'label-show' label.id 'unread' %}">{{ label.text }}</a></td>
       <td>{{ label.feeds.count }}</td>
-      <td><a href="{% url 'label-show' label.id 'unread' %}">{{ label.unread_count }}</a></td>
+      <td>{{ label.unread_count }}</a></td>
       <td><a href="{% url 'label-show' label.id 'fave' %}">{{ label.fave_count }}</a></td>
       <td>
         <a title="Edit Label" href="{% url 'label-edit' label.id %}"
