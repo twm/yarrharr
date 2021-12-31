@@ -15,8 +15,11 @@
     <a {% tabattrs "global-feed-add" %} class="global-link no-underline" href="{% url 'feed-add' %}">+</a>
   </nav>
 
-  {# TODO replace button with media query #}
-  <button class="square" aria-label="Wide" title="Switch to wide layout"><svg width="1em" height="1em" viewBox="0 0 20 20" class="icon" aria-hidden="true"><path d="M 7 5 L 2 10 L 7 15M 2 10 L 18 10M 13 5 L 18 10 L 13 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path></svg></button>
+  <button id="layout-button" class="square" aria-label="Wide" title="Switch to wide layout">
+    <svg width="1em" height="1em" class="icon" aria-hidden="true">
+     <use xlink:href="#icon-wide" />
+    </svg>
+  </button>
 
   <button id="fullscreen-button" class="square" title="Fullscreen" aria-pressed="false">
     <svg width="1em" height="1em" class="icon" aria-hidden="true">
@@ -25,6 +28,37 @@
   </button>
 
 </div>
+
+<script type="module">
+  const b = document.getElementById("layout-button");
+  const y = document.getElementById("yarrharr");
+
+  function readFromStorage() {
+    const wide = window.localStorage.getItem("layout") == "wide";
+    updateDOM(wide);
+  }
+
+  function updateDOM(wide) {
+    b.querySelector("use").setAttribute("xlink:href", wide ? "#icon-narrow" : "#icon-wide");
+    b.setAttribute("title", wide ? "Switch to narrow layout" : "Switch to wide layout");
+    y.classList.toggle("layout-narrow", !wide);
+    y.classList.toggle("layout-wide", wide);
+  };
+
+  function writeToStorage(wide) {
+    window.localStorage.setItem("layout", wide ? "wide" : "narrow");
+  }
+
+  window.onstorage = readFromStorage;
+
+  b.onclick = e =>  {
+    const wide = !y.classList.contains("layout-wide");
+    updateDOM(wide);
+    writeToStorage(wide);
+  };
+
+  readFromStorage();
+</script>
 
 <script type="module">
   const b = document.getElementById("fullscreen-button");
