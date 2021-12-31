@@ -2,7 +2,8 @@
   "name": "yarrharr",
   "private": true,
   "scripts": {
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "webpack-dev": "webpack -w"
   },
   "dependencies": {
     "normalize.css": "^8.0.1"
