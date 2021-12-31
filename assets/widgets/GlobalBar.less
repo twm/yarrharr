@@ -26,10 +26,8 @@
     }
 }
 
-// Invert the logo image so that it is legible in the dark theme. We don't go
-// 100% because it is pretty bold.
-:root.theme-dark .yarrharr-masthead img {
-    filter: invert(90%);
+.yarrharr-masthead img {
+    filter: var(--logo-filter);
 }
 
 
