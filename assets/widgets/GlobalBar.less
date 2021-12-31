@@ -9,6 +9,7 @@
         width: auto;
         height: auto;
         max-height: 100%;
+        filter: var(--logo-filter);
     }
 
     .logotype {
@@ -26,11 +27,6 @@
     }
 }
 
-.yarrharr-masthead img {
-    filter: var(--logo-filter);
-}
-
-
 .global-links {
     flex: 1 1 100%;
     display: flex;
@@ -43,10 +39,7 @@
 
     .flat-button;
     &:hover { .flat-button-hover; }
-    body.focus-visible &:focus { .flat-button-focus; }
+    &:focus-visible { .flat-button-focus; }
 
     padding: 1rem; /* Ensure spacing between */
-}
-.global-link:focus {
-    outline-color: transparent;
 }
