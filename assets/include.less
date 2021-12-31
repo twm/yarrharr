@@ -22,12 +22,9 @@
 
     background: transparent;
     box-shadow: inset 0 0 0 0 transparent;
-}
 
-.flat-button-hover() {
-}
-
-.flat-button-focus() {
-    outline: none;
-    box-shadow: inset 0 0 0 @button_border_width var(--focus-color);
+    &:focus-visible {
+        outline: transparent;
+        box-shadow: inset 0 0 0 @button_border_width var(--focus-color);
+    }
 }
