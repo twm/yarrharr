@@ -18,11 +18,27 @@
   {# TODO replace button with media query #}
   <button class="square" aria-label="Wide" title="Switch to wide layout"><svg width="1em" height="1em" viewBox="0 0 20 20" class="icon" aria-hidden="true"><path d="M 7 5 L 2 10 L 7 15M 2 10 L 18 10M 13 5 L 18 10 L 13 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path></svg></button>
 
-  {# TODO implement fullscreen button #}
-  <button class="square" title="Fullscreen" aria-pressed="false">
+  <button id="fullscreen-button" class="square" title="Fullscreen" aria-pressed="false">
     <svg width="1em" height="1em" class="icon" aria-hidden="true">
      <use xlink:href="#icon-fullscreen" />
     </svg>
   </button>
 
 </div>
+
+<script type="module">
+  const b = document.getElementById("fullscreen-button");
+  b.onclick = e =>  {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen();
+    }
+  };
+  {# NB: Navigation always cancels fullscreen mode, so there's no need to sync this on page load #}
+  document.documentElement.onfullscreenchange = e => {
+    const fs = !!document.fullscreenElement;
+    b.querySelector("use").setAttribute("xlink:href", fs ? "#icon-unfullscreen" : "#icon-fullscreen");
+    b.setAttribute("aria-pressed", fs ? "true" : "false");
+  };
+</script>
