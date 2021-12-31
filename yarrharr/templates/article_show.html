@@ -42,51 +42,13 @@
 
       <div class="bar snapshot-nav">
         <div class="expand"></div>
-
-        {# TODO: Working fave toggle #}
-        <button
-          class="fave-toggle square"
-          tabindex="0"
-          aria-pressed="true"
-          aria-label="Favorite"
-          title="Mark article as not favorite"
-        >
-          <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden="true" class="icon">
-            <defs>
-              <mask id="heart-mask">
-                <use xlink:href="#icon-heart" color="white"></use>
-              </mask>
-            </defs>
-            <g mask="url(#heart-mask)">
-              <rect class="inactive" width="1" height="1"></rect>
-              <rect class="active" width="1" height="1"></rect>
-            </g>
-          </svg>
-        </button>
-
-        {# TODO: Working read toggle #}
-        <button class="read-toggle square"
-          aria-pressed="true"
-          aria-label="Read"
-          title="Mark unread"
-        >
-          <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden="true" class="icon">
-            <defs>
-              <mask id="check-mask">
-                <use xlink:href="#icon-check" color="white"></use>
-              </mask>
-            </defs>
-            <g mask="url(#check-mask)">
-              <rect class="inactive" width="1" height="1"></rect>
-              <rect class="active" width="1" height="1"></rect>
-            </g>
-          </svg>
-        </button>
-
+        <fave-toggle article-id="{{ article.id }}" {{ article.fave|yesno:"checked," }}></fave-toggle>
+        <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
       </div>
 
     </div>
   </div>
 
 </div>
+
 {% endblock %}

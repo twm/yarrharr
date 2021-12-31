@@ -1,0 +1,102 @@
+{# <read-toggle article-id=1234 checked> #}
+
+<template id="read-toggle-template">
+  <button class="read-toggle square">
+    <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden="true" class="icon">
+      <defs>
+        <mask id="check-mask">
+          <use xlink:href="#icon-check" color="white"></use>
+        </mask>
+      </defs>
+      <g mask="url(#check-mask)">
+        <rect class="inactive" width="1" height="1"></rect>
+        <rect class="active" width="1" height="1"></rect>
+      </g>
+    </svg>
+  </button>
+</template>
+
+<script type="module">
+
+const buttonTemplate = document.getElementById("read-toggle-template").content.querySelector("button");
+
+window.customElements.define("read-toggle", class extends HTMLElement {
+  connectedCallback() {
+    this._button = buttonTemplate.cloneNode(true);
+    this._updateDOM();
+    this._button.onclick = (e) => {
+      if (this.hasAttribute("checked")) {
+        this.removeAttribute("checked")
+      } else {
+        this.setAttribute("checked", "");
+      }
+      this._updateDOM();
+
+      const articleId = this.getAttribute("article-id")
+      // TODO: fetch() to change article status
+    }
+    this.appendChild(this._button);
+  }
+
+  _updateDOM() {
+    const read = this.hasAttribute("checked");
+    this._button.setAttribute("aria-pressed", read ? "true" : "false");
+    this._button.setAttribute("aria-label", read ? "Read" : "Unread");
+    this._button.setAttribute("title", read ? "Mark unread" : "Mark read");
+  }
+});
+
+</script>
+
+
+{# <fave-toggle article-id=1234 checked> #}
+
+<template id="fave-toggle-template">
+  <button
+    class="fave-toggle square"
+  >
+    <svg width="1em" height="1em" viewBox="0 0 1 1" aria-hidden="true" class="icon">
+      <defs>
+        <mask id="heart-mask">
+          <use xlink:href="#icon-heart" color="white"></use>
+        </mask>
+      </defs>
+      <g mask="url(#heart-mask)">
+        <rect class="inactive" width="1" height="1"></rect>
+        <rect class="active" width="1" height="1"></rect>
+      </g>
+    </svg>
+  </button>
+</template>
+
+<script type="module">
+
+const buttonTemplate = document.getElementById("fave-toggle-template").content.querySelector("button");
+
+window.customElements.define("fave-toggle", class extends HTMLElement {
+  connectedCallback() {
+    this._button = buttonTemplate.cloneNode(true);
+    this._updateDOM();
+    this._button.onclick = (e) => {
+      if (this.hasAttribute("checked")) {
+        this.removeAttribute("checked")
+      } else {
+        this.setAttribute("checked", "");
+      }
+      this._updateDOM();
+
+      const articleId = this.getAttribute("article-id")
+      // TODO: fetch() to change article status
+    }
+    this.appendChild(this._button);
+  }
+
+  _updateDOM() {
+    const fave = this.hasAttribute("checked");
+    this._button.setAttribute("aria-pressed", fave ? "true" : "false");
+    this._button.setAttribute("aria-label", fave ? "Favorite" : "Not favorite");
+    this._button.setAttribute("title", fave ? "Mark as a favorite" : "Mark as not favorite");
+  }
+});
+
+</script>
