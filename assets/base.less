@@ -223,23 +223,6 @@ select[multiple] {
     }
 }
 
-/* A "floater" is centered and is horizontally centered.  Mainly used for
- * mastheads and error messages.
- *
- * DEPRECATED
- */
-.floater-wrap {
-    display: flex; /* XXX Why is this display: flex? */
-    margin: 1rem .25rem;
-}
-.floater {
-    text-align: center;
-    margin: 0 auto;
-    box-sizing: border-box; /* Fix #94 */
-    padding: .5rem 1rem;
-    max-width: --layout-max-width;
-}
-
 .bar {
     display: flex;
     justify-content: space-between;
