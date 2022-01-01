@@ -1,0 +1,28 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ label.text }} - Edit{% endblock %}
+
+{% block content %}
+<style>
+/* TODO */
+</style>
+
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+  {% include "label_header.html" %}
+
+  <div class="inventory-centered">
+    <form action="{% url 'label-edit' label.id %}" method="POST" name="label-edit">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="inventory-tools">
+        <input class="text-button text-button-primary" type="submit" value="Save">
+        <input class="text-button text-button-danger" type="submit" formaction="{% url 'label-delete' label.id %}" value="Delete">
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

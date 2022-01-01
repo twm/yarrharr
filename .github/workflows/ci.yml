@@ -36,10 +36,18 @@ jobs:
 
     - run: "python -m pip install tox"
 
+      # Temporary hack: create files normally created by Webpack that are
+      # expected to exist by the manifest.json view test.
+    - run: |
+        mkdir yarrharr/static
+        touch yarrharr/static/{icon,logotype,lettertype}-xyz.{ico,png,svg}
+        touch yarrharr/static/{vendor,main}-xyz.css
+        touch yarrharr/static/{runtime,vendor,main}-xyz.js
+
     - run: "python -m tox"
 
   webpack:
-    name: "make webpack-release"
+    name: "make webpack"
 
     runs-on: ubuntu-20.04
 
@@ -98,8 +106,8 @@ jobs:
         npm install
       shell: "bash -l {0}"
 
-    - name: "make webpack-release"
+    - name: "make webpack"
       run: |
         nvm use
-        make webpack-release
+        make webpack
       shell: "bash -l {0}"

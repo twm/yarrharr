@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,14 +32,13 @@ import os
 
 import attr
 from django import template
-from django.conf import settings
 from django.template.defaultfilters import stringfilter
 
 register = template.Library()
 _static_dir = os.path.join(os.path.dirname(__file__), '../static')
 
 
-@attr.s(eq=False)
+@attr.s(auto_exc=True)
 class NoStaticMatch(Exception):
     pattern = attr.ib()
 
@@ -72,11 +71,6 @@ def newest_static(pattern):
     """
     # TODO The result of this should be cached when not in DEBUG mode.
     assert '/' not in pattern  # don't support subdirectories
-
-    # When using Webpack's dev server to do hot module reloading the files are
-    # served from memory with static names.
-    if settings.HOT:
-        return pattern.replace('*', 'hot')
 
     name, mtime = None, None
     for entry in os.scandir(_static_dir):

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load static_glob %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<style>
+.home-view {
+    margin: 0 auto;
+    max-width: var(--layout-max-width);
+}
+</style>
+
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+
+  <div class="home-view">
+    <h1>Home</h1>
+    <p>{{ labels|length }} labels</p>
+    <p>{{ feeds|length }} feeds</p>
+  </div>
+
+</div>
+{% endblock %}

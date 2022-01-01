@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,12 +25,17 @@
 
 import datetime
 from contextlib import contextmanager
+from datetime import timedelta
 from unittest import mock
+from unittest.mock import patch
 
+import lxml.html
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
+from ..enums import ArticleFilter
 from ..models import Feed, Label
 from ..signals import schedule_changed
 
@@ -82,6 +86,17 @@ def signal_inbox(signal):
         signal.disconnect(receive)
 
 
+def expect_html(response, status_code=200):
+    """
+    Assert that a Django test client response is HTML
+
+    :returns: `lxml.html` document
+    """
+    assert response.status_code == 200
+    assert response['Content-Type'] == 'text/html; charset=utf-8'
+    return lxml.html.document_fromstring(response.content)
+
+
 class LoginRedirectTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -108,10 +123,11 @@ class LoginRedirectTests(TestCase):
             '/feed/2/fave/',
             '/feed/3/all/4'
             '/feed/5/all/678/'
-            '/inventory',
-            '/inventory/',
-            '/inventory/add',
-            '/inventory/add/',
+            '/labels/',
+            '/labels/add',
+            '/feeds/',
+            '/feeds/add/',
+            '/article/1234/',
         ]
 
         redirects = []
@@ -126,7 +142,10 @@ class LoginRedirectTests(TestCase):
         self.assertEqual(nexts, redirects)
 
 
-class InventoryViewTests(TestCase):
+class LabelListTests(TestCase):
+    """
+    Test the ``label-list`` view
+    """
     def setUp(self):
         self.user = User.objects.create_user(
             username='john',
@@ -139,44 +158,65 @@ class InventoryViewTests(TestCase):
     maxDiff = None
 
     def test_get_sort(self):
-        feed_c = self.user.feed_set.create(
+        """
+        Feeds are listed in order of name, case-insensitively
+        """
+        self.user.label_set.create(text='a', user=self.user)
+        self.user.label_set.create(text='.C', user=self.user)
+        self.user.label_set.create(text='B', user=self.user)
+
+        page = expect_html(self.client.get(reverse("label-list")))
+        [table] = page.cssselect('.label-list')
+        self.assertEqual(
+            ['a', 'B', '.C'],
+            [td.text_content() for td in table.cssselect('tbody > tr > td:nth-of-type(2)')],
+        )
+
+
+class FeedListTests(TestCase):
+    """
+    Test the ``feed-list`` view.
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='john',
+            email='john@mail.example',
+            password='sesame',
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    maxDiff = None
+
+    def test_get_sort(self):
+        """
+        Feeds are listed in order of name, case-insensitively
+        """
+        self.user.feed_set.create(
             url='http://example.com/feedC.xml',
             feed_title='Feed C',
             site_url='http://example.com/',
             added=timezone.now(),
         )
-        feed_b = self.user.feed_set.create(
+        self.user.feed_set.create(
             url='http://example.com/feedB.xml',
             feed_title='feed b',  # Case is ignored.
             site_url='http://example.com/',
             added=timezone.now(),
         )
-        feed_a = self.user.feed_set.create(
+        self.user.feed_set.create(
             url='http://example.com/feedA.xml',
             feed_title='<-Feed a',  # Non-alphanumeric characters are disregarded.
             site_url='http://example.com/',
             added=timezone.now(),
         )
-        label_a = feed_a.label_set.create(text='A', user=self.user)
-        label_c = feed_b.label_set.create(text='C', user=self.user)
-        label_b = feed_c.label_set.create(text='B', user=self.user)
 
-        response = self.client.get('/api/inventory/')
-
-        self.assertEqual({
-            'feedsById': mock.ANY,
-            'feedOrder': [
-                feed_a.id,
-                feed_b.id,
-                feed_c.id,
-            ],
-            'labelsById': mock.ANY,
-            'labelOrder': [
-                label_a.id,
-                label_b.id,
-                label_c.id,
-            ],
-        }, response.json())
+        page = expect_html(self.client.get(reverse("feed-list")))
+        [table] = page.cssselect('.feed-list')
+        self.assertEqual(
+            ['<-Feed a', 'feed b', 'Feed C'],
+            [td.text_content() for td in table.cssselect('tbody > tr > td:nth-of-type(1)')],
+        )
 
     def test_create(self):
         url = u'http://example.com/feed.xml'
@@ -268,56 +308,6 @@ class InventoryViewTests(TestCase):
             'labelOrder': [],
         }, response.json())
         self.assertEqual(1, len(schedule_changed_signals))
-
-    def test_update_labels(self):
-        """
-        A feed's label associations may be changed by the update action.
-        """
-        added = timezone.now() - datetime.timedelta(days=1)
-        label_c = self.user.label_set.create(text='C')
-        feed = self.user.feed_set.create(
-            url='http://example.com/feedX.xml',
-            feed_title='Feed X',
-            site_url='http://example.com/',
-            added=added,
-        )
-        label_b = feed.label_set.create(text='B', user=self.user)
-        label_a = self.user.label_set.create(text='A')
-
-        response = self.client.post('/api/inventory/', {
-            'action': 'update-feed',
-            'feed': feed.id,
-            'url': feed.url,
-            'active': 'on',
-            'title': '',
-            'label': [str(label_a.id), str(label_c.id)],
-        })
-
-        self.assertEqual(200, response.status_code)
-        [feed] = self.user.feed_set.all()
-        self.assertEqual({
-            'feedsById': {
-                str(feed.id): dictwith({
-                    'labels': [1, 3],
-                }),
-            },
-            'feedOrder': [feed.id],
-            'labelsById': {
-                str(label_a.id): dictwith({
-                    'text': 'A',
-                    'feeds': [feed.id],
-                }),
-                str(label_b.id): dictwith({
-                    'text': 'B',
-                    'feeds': [],
-                }),
-                str(label_c.id): dictwith({
-                    'text': 'C',
-                    'feeds': [feed.id],
-                }),
-            },
-            'labelOrder': [label_a.id, label_b.id, label_c.id],
-        }, response.json())
 
     def test_remove_feed(self):
         """
@@ -534,152 +524,149 @@ class LabelsViewTests(TestCase):
 
     def test_create(self):
         """
-        A POST request with ``action=create`` creates a label.
+        The label-add view displays a form that creates a label when submitted
+        and redirects to display the articles in the label.
         """
-        response = self.client.post('/api/labels/', {
-            'action': 'create',
-            'text': 'foo',
+        feed_a = self.user.feed_set.create(
+            url="http://example/a",
+            feed_title="A Feed",
+            added=timezone.now(),
+        )
+        feed_b = self.user.feed_set.create(
+            url="https://example/b",
+            feed_title="B Feed",
+            added=timezone.now(),
+        )
+        feed_c = self.user.feed_set.create(
+            url="https://example/c",
+            feed_title="C Feed",
+            added=timezone.now(),
+        )
+
+        add_url = reverse("label-add")
+        response = self.client.post(add_url, {
+            "text": "foo",
+            "feeds": [str(feed_a.id), str(feed_b.id)],
         })
-        self.assertEqual(200, response.status_code)
 
         [label] = self.user.label_set.all()
-        self.assertEqual('foo', label.text)
-
-        self.assertEqual({
-            'labelId': label.id,
-            'labelsById': {
-                str(label.id): {
-                    'id': label.id,
-                    'text': 'foo',
-                    'feeds': [],
-                    'unreadCount': 0,
-                    'faveCount': 0,
-                },
-            },
-            'labelOrder': [label.id],
-            'feedsById': {},
-            'feedOrder': [],
-        }, response.json())
+        self.assertEqual("foo", label.text)
+        label_feeds = label.feeds.all()
+        self.assertIn(feed_a, label_feeds)
+        self.assertIn(feed_b, label_feeds)
+        self.assertNotIn(feed_c, label_feeds)
+        self.assertRedirects(
+            response,
+            reverse(
+                "label-show",
+                kwargs={"label_id": label.id, "filter": ArticleFilter.unread},
+            ),
+        )
 
     def test_create_empty(self):
         """
         Creating a label with empty text fails.
         """
-        response = self.client.post('/api/labels/', {
-            'action': 'create',
+        feed_a = self.user.feed_set.create(
+            url="http://example/a",
+            feed_title="A Feed",
+            added=timezone.now(),
+        )
+
+        add_url = reverse("label-add")
+        response = self.client.post(add_url, {
             'text': '',
+            'feeds': [str(feed_a.id)],
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(200, response.status_code)
 
     def test_create_duplicate(self):
         """
         Creating a label with duplicate text fails.
         """
+        feed_a = self.user.feed_set.create(
+            url="http://example/a",
+            feed_title="A Feed",
+            added=timezone.now(),
+        )
         self.user.label_set.create(text='foo')
 
-        response = self.client.post('/api/labels/', {
-            'action': 'create',
-            'text': 'foo',
-        })
-        self.assertEqual(400, response.status_code)
+        form_page = expect_html(self.client.get(reverse("label-add")))
+        [form] = form_page.forms
+        form.fields["text"] = "foo"
+        form.fields["feeds"] = [str(feed_a.id)]
+        error_page = expect_html(self.client.post(form.action, dict(form.form_values())))
+        [form] = error_page.forms
+        errors = [el.text_content() for el in form.cssselect(".errorlist li")]
+        self.assertEqual(["Label text must be unique"], errors)
 
-    def test_attach(self):
-        """
-        A POST request with ``action=attach`` associates a label with a feed.
-        """
-        feed = self.user.feed_set.create(
-            url='http://example/a',
-            feed_title='A',
+
+class FeedShowTests(TestCase):
+    """
+    Test the ``feed-show`` view, which displays a list of articles.
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='john',
+            email='john@mail.example',
+            password='sesame',
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+        self.feed = self.user.feed_set.create(
+            url='http://example.com/feed.xml',
+            feed_title='Feed A',
+            site_url='http://example.com/',
             added=timezone.now(),
         )
-        label = self.user.label_set.create(text='foo')
 
-        response = self.client.post('/api/labels/', {
-            'action': 'attach',
-            'label': label.id,
-            'feed': feed.id,
-        })
+    maxDiff = None
 
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            'feedsById': {
-                str(feed.id): dictwith({
-                    'id': feed.id,
-                    'labels': [label.id],
-                }),
-            },
-            'feedOrder': [feed.id],
-            'labelsById': {
-                str(label.id): dictwith({
-                    'text': 'foo',
-                    'feeds': [feed.id],
-                }),
-            },
-            'labelOrder': [label.id],
-        }, response.json())
-
-        label.feeds.get(pk=feed.id)
-
-    def test_detach(self):
+    def test_empty(self):
         """
-        A POST request with ``action=detach`` breaks the association between
-        a feed and label.
+        The renders even if there aren't any articles.
         """
-        feed = self.user.feed_set.create(
-            url='http://example/a',
-            feed_title='A',
-            added=timezone.now(),
+        for filt in ArticleFilter.__members__.values():
+            with self.subTest(filt=filt):
+                url = reverse("feed-show", kwargs={"feed_id": self.feed.pk, "filter": filt})
+                expect_html(self.client.get(url))
+
+    @patch('yarrharr.views.PAGE_SIZE', new=5)
+    def test_paginate(self):
+        for i in range(10):
+            self.feed.articles.create(
+                read=False,
+                fave=i & 1,
+                author=f"Author {i}",
+                title=f"Article {i}",
+                url=f"http://example.com/{i}",
+                date=timezone.now() - timedelta(hours=i),
+                guid=str(i),
+                raw_content='...',
+                content='...',
+                content_snippet=f'{i} ' * i,
+            )
+
+        url = reverse("feed-show", kwargs={"feed_id": self.feed.pk, "filter": ArticleFilter.unread})
+
+        page1 = expect_html(self.client.get(url))
+        page1.make_links_absolute(url)
+
+        self.assertEqual(
+            ["Article 0", "Article 1", "Article 2", "Article 3", "Article 4"],
+            [el.text_content() for el in page1.cssselect(".list-article .title")],
         )
-        label = self.user.label_set.create(text='foo')
-        feed.label_set.add(label)
 
-        response = self.client.post('/api/labels/', {
-            'action': 'detach',
-            'label': label.id,
-            'feed': feed.id,
-        })
+        [next_link] = page1.cssselect(".pagination a")
+        page2 = expect_html(self.client.get(next_link.attrib["href"]))
 
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            'feedsById': {
-                str(feed.id): dictwith({
-                    'id': feed.id,
-                    'labels': [],
-                }),
-            },
-            'feedOrder': [feed.id],
-            'labelsById': {
-                str(label.id): dictwith({
-                    'text': 'foo',
-                    'feeds': [],
-                }),
-            },
-            'labelOrder': [label.id],
-        }, response.json())
+        self.assertEqual(
+            ["Article 5", "Article 6", "Article 7", "Article 8", "Article 9"],
+            [el.text_content() for el in page2.cssselect(".list-article .title")],
+        )
 
-        self.assertEqual(0, label.feeds.count())
-        self.assertEqual(0, feed.label_set.count())
-
-    def test_remove(self):
-        """
-        A POST with ``action=remove`` deletes a label from the database.
-        """
-        label = self.user.label_set.create(text='doomed')
-
-        response = self.client.post('/api/labels/', {
-            'action': 'remove',
-            'label': label.id,
-        })
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            'feedsById': {},
-            'feedOrder': [],
-            'labelsById': {},
-            'labelOrder': [],
-        }, response.json())
-
-        self.assertEqual(0, self.user.label_set.count())
+        # No more pages
+        self.assertEqual([], page2.cssselect(".pagination a"))
 
 
 class ManifestTests(TestCase):
@@ -688,11 +675,7 @@ class ManifestTests(TestCase):
         The manifest is valid JSON served with the application/manifest+json
         content type.
         """
-        # Setting HOT to True prevents the latest_static template tag from
-        # listing files in the static directory which doesn't necessarily exist
-        # (particularly on CI).
-        with self.settings(HOT=True):
-            response = Client().get('/manifest.webmanifest')
+        response = Client().get('/manifest.webmanifest')
 
         self.assertEqual(200, response.status_code)
         self.assertEqual('application/manifest+json', response['Content-Type'])
@@ -723,3 +706,29 @@ class RobotsTxtTests(TestCase):
         """
         response = Client().post('/robots.txt', {})
         self.assertEqual(405, response.status_code)
+
+
+class LegacyRedirectTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='james',
+            email='james@mail.example',
+            password='hunter2',
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def test_article_url_redirects(self):
+        """
+        Old article URLs (used by the React SPA) are redirected to the new
+        location.
+        """
+        table = [
+            ("/all/unread/1234/", "/article/1234/"),
+            ("/feed/1/fave/234/", "/article/234/"),
+            ("/label/12/all/34/", "/article/34/"),
+        ]
+
+        for from_, to in table:
+            response = self.client.get(from_)
+            self.assertEqual(to, response['Location'])

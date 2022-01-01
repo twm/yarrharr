@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Labels{% endblock %}
+
+{% block content %}
+<style>
+/* TODO */
+</style>
+
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+
+  <div class="inventory-header">
+    <h1>Labels</h1>
+    <div>
+      <a class="text-button text-button-primary no-underline" href="{% url 'label-add' %}">Add Label</a>
+    </div>
+  </div>
+
+<table class="label-list">
+  <thead>
+    <tr class="label-list-item label-list-item-header">
+      <th></th>
+      <th>Label</th>
+      <th>Feeds</th>
+      <th>Unread</th>
+      <th>Favorite</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for label in labels %}
+    <tr class="label-list-item">
+      <td>
+        <svg width="1em" height="1em" aria-hidden="true" class="icon">
+          <use xlink:href="#icon-label"></use>
+        </svg>
+      </td>
+      <td><a href="{% url 'label-show' label.id 'unread' %}">{{ label.text }}</a></td>
+      <td>{{ label.feeds.count }}</td>
+      <td>{{ label.unread_count }}</a></td>
+      <td><a href="{% url 'label-show' label.id 'fave' %}">{{ label.fave_count }}</a></td>
+      <td>
+        <a title="Edit Label" href="{% url 'label-edit' label.id %}"
+          ><svg
+            width="1em"
+            height="1em"
+            aria-label="Edit Label"
+            class="icon"
+            aria-hidden="false"
+          >
+            <use xlink:href="#icon-edit"></use></svg
+        ></a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+
+</div>
+{% endblock %}

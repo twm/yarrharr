@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,7 +44,30 @@ def _set_sqlite_wal_mode(sender, connection, **kwargs):
     cursor.close()
 
 
-class Feed(models.Model):
+class Sort(models.TextChoices):
+    ASC = "asc", "Ascending"
+    DESC = "desc", "Descending"
+
+
+class _ViewOptions(models.Model):
+    """
+    View options common to the view of all feeds, labels and individual feeds.
+    """
+
+    sort = models.CharField(max_length=4, choices=Sort.choices, default=Sort.DESC)
+
+    class Meta:
+        abstract = True
+
+
+class AllViewOptions(_ViewOptions):
+    """
+    View options for the view of all the user's feeds.
+    """
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+
+class Feed(_ViewOptions):
     """
     An Atom or RSS feed to check for new articles periodically.
 
@@ -88,10 +111,11 @@ class Feed(models.Model):
     :ivar feed_title: The title as specified in the feed itself.
     :ivar user_title: An optional user override of the feed title.
 
-    These two are combined in the `title` property.
+    These two are combined in the `title` property, falling back to the URL if
+    necessary.
     """
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    url = models.URLField()
+    url = models.URLField(verbose_name="Feed URL")
     added = models.DateTimeField()
     deleted = models.DateTimeField(null=True, default=None)
 
@@ -105,7 +129,7 @@ class Feed(models.Model):
 
     feed_title = models.TextField()
     user_title = models.TextField(default='', blank=True)
-    site_url = models.URLField(default='', blank=True)
+    site_url = models.URLField(default='', blank=True, verbose_name="Site URL")
 
     title = property(lambda self: self.user_title or self.feed_title or self.url)
 
@@ -245,7 +269,7 @@ class Article(models.Model):
         self.content_rev = sanitize.REVISION
 
 
-class Label(models.Model):
+class Label(_ViewOptions):
     """
     Labels may be applied to feeds to group them logically.  Each has a unique
     name.

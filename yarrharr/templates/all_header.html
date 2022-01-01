@@ -1,0 +1,22 @@
+{% load ytabs %}
+
+<div class="feed-header">
+  <h1>
+    <svg width="1em" height="1em" viewBox="-10 -10 20 20" class="icon" aria-hidden="true"><g transform="rotate(30)"><ellipse cx="0" cy="0" rx="7" ry="7" fill="none" stroke="currentColor" stroke-width="2"></ellipse><path d="M0,-6.5 A1,2 0 0 0 0,6.5 A1,2 0 0 0 0,-6.5 L0,6.5" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path><path d="M-6.5,0 A2,1 0 0 0 6.5,0" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path><path d="M-6.0,-2 A3,1 0 0 0 6.0,-2" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path><path d="M-5.0,-4.5 A4,1 0 0 0 5.0,-4.5" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path></g></svg>
+    All Feeds
+  </h1>
+</div>
+
+<div class="tabs">
+  <div class="tabs-tabs">
+    <a {% tabattrs "all-unread" %} class="no-underline" href="{% url 'all-show' 'unread' %}">
+      Unread{% if all_unread_count %} <span class="count">{{ all_unread_count }}</span>{% endif %}
+    </a>
+    <a {% tabattrs "all-fave" %} class="no-underline" href="{% url 'all-show' 'fave' %}">
+      Favorite{% if all_fave_count %} <span class="count">{{ all_fave_count }}</span>{% endif %}
+    </a>
+    <a {% tabattrs "all-all" %} class="no-underline" href="{% url 'all-show' 'all' %}">
+      All
+    </a>
+  </div>
+</div>

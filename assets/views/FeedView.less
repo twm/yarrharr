@@ -3,65 +3,60 @@
 .feed-header {
     display: grid;
     grid-template-columns: 1fr min-content;
-    align-items: center;
+    grid-template-rows: 1fr;
+
     max-width: var(--layout-max-width);
     margin: 0 auto;
-    
+
     h1 {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        hyphens: auto;
+        font-size: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .header-tools {
+        margin: 1rem 0;
+
+        display: flex;
+        align-items: flex-start;
+
+        button {
+            background: transparent;
+            border: none;
+        }
+        .icon {
+            width: 2em;
+            height: 2em;
+        }
     }
 }
 
-
-.list-header-inner {
-    margin: 0 auto;
+.pagination {
     max-width: var(--layout-max-width);
-    box-sizing: border-box;
+    margin: 0 auto;
 
-    & > .expand {
-        justify-content: flex-start;
+    display: flex;
+    justify-content: space-around;
+
+    a {
+        display: block;
+        padding: 1em 3em; /* Big click area */
     }
-    h1 {
-        min-width: 0;
-        width: 100%;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font: inherit;
-        font-size: 1.5rem;
-        line-height: 2; /* Otherwise descenders get cropped by overflow: hidden */
+}
+
+.footer-tools {
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: center;
+
+    button {
+        background: transparent;
+        border: none;
     }
     .icon {
-        color: #666;
-        font-size: 1.5rem;
-    }
-}
-
-.prop-sticky,
-.scroll-spy {
-    // FIXME: This hack ensures that SnapshotNav is always stuck to the bottom of the screen so that the next/prev buttons are in consistent — mashable — locations.
-    min-height: calc(100vh - @bar_height - @bar_height);
-}
-
-.list-nav,
-.snapshot-nav {
-    background: var(--background-color);
-    border-top: 1px solid var(--border-color);
-    position: sticky;
-    bottom: 0;
-}
-
-.position {
-    display: block;
-    flex: 0 1 auto;
-    align-self: center;
-    line-height: 1;
-    font-size: smaller;
-
-    span {
-        white-space: nowrap;
+        width: 2em;
+        height: 2em;
     }
 }

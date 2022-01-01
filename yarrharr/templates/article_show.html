@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title|default:"Untitled" }}{% endblock %}
+
+{% block content %}
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+
+  <div class="feed-header">
+    <h1>{{ article.title|default:"Untitled" }}</h1>
+    <div class=header-tools>
+      <fave-toggle article-id="{{ article.id }}" {{ article.fave|yesno:"checked," }}></fave-toggle>
+      <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
+    </div>
+  </div>
+
+  <div class=article-view>
+    <div class=prop-sticky>
+
+      <article>
+        <div class="meta">
+          {# TODO: Link back should include this article ID #}
+          From <a href="{% url 'feed-show' article.feed.id 'unread' %}">{{ article.feed.title }}</a>
+          {% if article.author %}
+          — {{ article.author }}
+          {% endif %}
+          {% if article_labels %}
+          — in
+          {% for label in article_labels %}
+          {# TODO: Link back should include this article ID #}
+          <a href="{% url 'label-show' label.id 'unread' %}">{{ label.text }}</a>{% if not forloop.last %},{% endif %}
+          {% endfor %}
+          {% endif %}
+        </div>
+        <div class="meta">
+          {{ article.date }}
+          — <a href="{{ article.url }}" target="_blank">
+            Original site
+            <svg width="1em" height="1em" aria-hidden="true" class="icon">
+              <use xlink:href="#icon-outbound"></use></svg>
+          </a>
+        </div>
+        <div class="content">{{ article.content|safe }}</div>
+      </article>
+
+      <div class="footer-tools">
+        <fave-toggle article-id="{{ article.id }}" {{ article.fave|yesno:"checked," }}></fave-toggle>
+        <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

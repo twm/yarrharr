@@ -8,12 +8,16 @@ attrs==21.2.0
     # via
     #   -c requirements.txt
     #   pytest
+cssselect==1.1.0
+    # via -r requirements_test.in
 decorator==5.0.7
     # via pytest-twisted
 greenlet==1.0.0
     # via pytest-twisted
 iniconfig==1.1.1
     # via pytest
+lxml==4.7.1
+    # via -r requirements_test.in
 packaging==20.9
     # via pytest
 pluggy==0.13.1

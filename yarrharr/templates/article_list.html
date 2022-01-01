@@ -1,0 +1,24 @@
+{% for article in articles %}
+<div class="list-article">
+  <div class="list-article-inner">
+    <div class="list-article-slider">
+      <a class="outbound" href="{{ article.url }}" target="_blank" title="View on source site">
+        {# TODO: relative time #}
+        <span class="meta1">{{ article.feed.title }} — {{ article.date }} — {{ article.author }}</span>
+        <span class="meta2">
+          <span class="title">{{ article.title }}</span>
+          <span class="snippet">{{ article.content_snippet }}</span>
+        </span>
+      </a>
+      <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
+      <a class="square view-link" href="{% url 'article-show' article.id %}">
+        <svg width="1em" height="1em" title="View article" class="icon" aria-hidden="false"><use xlink:href="#icon-follow"></use></svg>
+      </a>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% if next_page_after %}
+<div class="pagination"><a class="no-underline" href="?after={{ next_page_after }}">More →</a></div>
+{% endif %}

@@ -1,4 +1,4 @@
-# Copyright © 2019 Tom Most <twm@freecog.net>
+# Copyright © 2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,12 +23,39 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from django.conf import settings
+from typing import Union
+
+from .enums import ArticleFilter
 
 
-def hot(request):
+class ArticleFilterConverter:
     """
-    A context processor that adds a variable ``HOT`` indicating the value
-    (`True` or `False`) of the ``HOT`` setting.
+    Django `URL path converter`_ that allows a URL segment that matches
+    a `Filter` enum member
+
+    .. _url path converter: https://docs.djangoproject.com/en/3.2/topics/http/urls/#registering-custom-path-converters
     """
-    return {'HOT': settings.HOT}
+    regex = f"({'|'.join(f for f in ArticleFilter.__members__)})"
+
+    def to_python(self, value: str) -> ArticleFilter:
+        try:
+            return ArticleFilter[value]
+        except KeyError:
+            raise ValueError(value)
+
+    def to_url(self, value: Union[ArticleFilter, str]) -> str:
+        """
+        Convert a filter to a URL.
+
+        :param filter:
+            Either a value of the `Filter` enum or a string naming one.
+
+        :returns: URL path segment
+        """
+        if isinstance(value, str):
+            if value in ArticleFilter.__members__:
+                return value
+            return ArticleFilter[value].name
+        if isinstance(value, ArticleFilter):
+            return value.name
+        raise ValueError(value)

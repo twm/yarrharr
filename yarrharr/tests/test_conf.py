@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright © 2014–2019 Tom Most <twm@freecog.net>
+# Copyright © 2014–2019, 2021 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -92,7 +92,6 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,
             'DEBUG': False,
-            'HOT': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -103,6 +102,7 @@ class ConfTests(unittest.TestCase):
                     'PORT': '',
                 },
             },
+            'DEFAULT_AUTO_FIELD': 'django.db.models.AutoField',
             'ALLOWED_HOSTS': ['127.0.0.1'],
             'SERVER_ENDPOINT': 'tcp:8888:interface=127.0.0.1',
             'ROOT_URLCONF': 'yarrharr.urls',
@@ -111,7 +111,6 @@ class ConfTests(unittest.TestCase):
             'LOGOUT_URL': 'logout',
             'LANGUAGE_CODE': 'en-us',
             'USE_I18N': True,
-            'USE_L10N': True,
             'USE_TZ': True,
             'USE_X_FORWARDED_HOST': False,
             'TIME_ZONE': 'UTC',
@@ -126,7 +125,6 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
-                        'yarrharr.context_processors.hot',
                     ],
                 },
             }],
@@ -165,7 +163,6 @@ class ConfTests(unittest.TestCase):
         self.assertEqual(settings, {
             'ATOMIC_REQUESTS': True,
             'DEBUG': True,
-            'HOT': False,
             'DATABASES': {
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
@@ -176,6 +173,7 @@ class ConfTests(unittest.TestCase):
                     'PORT': '',
                 },
             },
+            'DEFAULT_AUTO_FIELD': 'django.db.models.AutoField',
             'ALLOWED_HOSTS': ['127.0.0.1'],
             'INTERNAL_IPS': ['127.0.0.1'],
             'SERVER_ENDPOINT': 'tcp:8888:interface=127.0.0.1',
@@ -185,7 +183,6 @@ class ConfTests(unittest.TestCase):
             'LOGOUT_URL': 'logout',
             'LANGUAGE_CODE': 'en-us',
             'USE_I18N': True,
-            'USE_L10N': True,
             'USE_TZ': True,
             'USE_X_FORWARDED_HOST': False,
             'TIME_ZONE': 'UTC',
@@ -200,7 +197,6 @@ class ConfTests(unittest.TestCase):
                 'OPTIONS': {
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
-                        'yarrharr.context_processors.hot',
                         'django.template.context_processors.debug',
                     ],
                 },

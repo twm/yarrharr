@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2013–2020 Tom Most <twm@freecog.net>
+# Copyright © 2013–2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,20 +28,25 @@ import django
 import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
-from django.db.models import Q, Sum
-from django.db.utils import IntegrityError
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
-from django.shortcuts import render
+from django.db.models import Count, Q, Sum
+from django.forms import CharField, ModelForm, ModelMultipleChoiceField, ValidationError
+from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from twisted.logger import Logger
 
 import yarrharr
 
-from .models import Article
+from .enums import ArticleFilter
+from .models import AllViewOptions, Article, Feed, Label, Sort
 from .signals import schedule_changed
 from .sql import log_on_error
 
 log = Logger()
+
+
+PAGE_SIZE = 500
 
 
 def human_sort_key(s):
@@ -225,37 +229,393 @@ def snapshot_params_from_query(query_dict, user_feeds):
     }
 
 
-@login_required
-def index(request):
-    """
-    The user interface.  For the moment this is pre-loaded with basic
-    information about all the feeds and articles.
-    """
-    data = feeds_for_user(request.user)
-    data.update(labels_for_user(request.user))
-    snapshot_params = snapshot_params_from_query(request.GET, list(data['feedOrder']))
-    articles = entries_for_snapshot(request.user, snapshot_params)
-    data['snapshot'] = {
-        'order': snapshot_params['order'],
-        'filter': snapshot_params['filter'],
-        'feedIds': snapshot_params['feeds'],
-        'include': snapshot_params['include'],
-        'response': {
-            'params': {
-                'order': snapshot_params['order'],
-                'filter': snapshot_params['filter'],
-                'feedIds': snapshot_params['feeds'],
-                'include': snapshot_params['include'],
-            },
-            'loaded': True,
-            'error': False,
-            'articleIds': [article.id for article in articles],
-        },
-    }
+def sort_and_filter_articles(qs, viewoptions, filt: ArticleFilter, after=None):
+    if after is not None:
+        # FIXME: What we really want is to filter on (date, id) >=
+        # (after_article.date, after_article.id), but I haven't figured out how
+        # to express that in the Django ORM. Filtering only by date will work
+        # well enough in the usual case that articles don't have duplicate
+        # dates, but if a series of articles with identical dates fall at the
+        # page boundry it can skip past some.
+        after_date = qs.get(pk=after).date
+    else:
+        after_date = None
 
-    return render(request, 'index.html', {
-        # This is inserted into the document as a <script> tag, so encode HTML-unsafe elements.
-        'props': json.dumps(data).replace("&", r"\u0026").replace("<", r"\u003c").replace(">", r"\u003e"),
+    if viewoptions.sort == Sort.ASC:
+        qs = qs.order_by('date', 'id')
+        if after_date is not None:
+            qs = qs.filter(date__gt=after_date)
+    elif viewoptions.sort == Sort.DESC:
+        qs = qs.order_by('-date', '-id')
+        if after_date is not None:
+            qs = qs.filter(date__lt=after_date)
+    else:
+        assert 0
+
+    if filt is ArticleFilter.unread:
+        qs = qs.filter(read=False)
+    elif filt is ArticleFilter.fave:
+        qs = qs.filter(fave=True)
+    else:
+        assert filt is ArticleFilter.all
+
+    articles = list(qs.prefetch_related("feed")[:PAGE_SIZE + 1])
+    if len(articles) > PAGE_SIZE:
+        articles.pop()
+        after = articles[-1].pk
+    else:
+        after = None
+    return articles, after
+
+
+@login_required
+def home(request):
+    """
+    Display the homepage
+    """
+    return render(request, 'home.html', {
+        'feeds': request.user.feed_set.all(),
+        'labels': request.user.label_set.all(),
+    })
+
+
+@login_required
+def all_show(request, filter: ArticleFilter):
+    """
+    List the all articles
+    """
+    viewoptions, _ = AllViewOptions.objects.get_or_create(user=request.user)
+    articles, next_page_after = sort_and_filter_articles(
+        Article.objects.filter(feed__id__in=request.user.feed_set.all()),
+        viewoptions,
+        filter,
+        after=request.GET.get("after"),
+    )
+    counts = request.user.feed_set.aggregate(
+        all_unread_count=Sum("unread_count"),
+        all_fave_count=Sum("fave_count"),
+    )
+
+    return render(request, "all_show.html", {
+        "articles": articles,
+        "next_page_after": next_page_after,
+        "filter": filter,
+        **counts,
+        "tabs_selected": {f"all-{filter.name}"},
+    })
+
+
+@login_required
+def feed_list(request):
+    """
+    Display a list of known feeds
+    """
+    return render(request, "feed_list.html", {
+        "feeds": sorted(
+            request.user.feed_set.all(),
+            # XXX It would be nice to do this sorting in the database, but sqlite3 does
+            # not ship with appropriate collations. Custom collations can be installed,
+            # but there isn't much advantage to doing so right now given we always
+            # query all feeds anyway.
+            key=lambda feed: (human_sort_key(feed.title), feed.pk),
+        ),
+        "tabs_selected": {"global-feed-list"},
+    })
+
+
+@login_required
+def feed_show(request, feed_id: int, filter: ArticleFilter):
+    """
+    List the articles in a feed
+    """
+    feed = get_object_or_404(request.user.feed_set, pk=feed_id)
+    articles, next_page_after = sort_and_filter_articles(
+        feed.articles.all(),
+        feed,
+        filter,
+        after=request.GET.get("after"),
+    )
+
+    return render(request, 'feed_show.html', {
+        "feed": feed,
+        "articles": articles,
+        "next_page_after": next_page_after,
+        "filter": filter,
+        "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
+    })
+
+
+class FeedForm(ModelForm):
+    """
+    Edit a user's feed.
+
+    The *instance* argument must always be given a `Form` instance,
+    which must have an assigned user.
+    """
+    # TODO: Support toggling feed.active
+
+    class Meta:
+        model = Feed
+        fields = ["user_title", "url", "label_set"]
+
+    user_title = CharField(required=False, max_length=200, label="Title override")
+    label_set = ModelMultipleChoiceField(queryset=None, required=False, label="Labels")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.instance.pk, 'instance argument must be a saved Feed instance'
+        assert self.instance.user, 'instance argument must be a Feed instance with a user'
+        self.fields["label_set"].queryset = self.instance.user.label_set.all()
+        self.initial["label_set"] = self.instance.label_set.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self.instance.label_set.set(cleaned_data["label_set"])
+        return cleaned_data
+
+
+@login_required
+def feed_edit(request, feed_id: int):
+    """
+    Edit a feed.
+    """
+    feed = get_object_or_404(request.user.feed_set, pk=feed_id)
+    if request.method == "POST":
+        form = FeedForm(request.POST, instance=feed)
+        if form.is_valid():
+            form.save()
+            schedule_changed.send(None)
+            return HttpResponseRedirect(
+                reverse("feed-edit", kwargs={"feed_id": feed.pk}),
+            )
+    elif request.method == "GET":
+        form = FeedForm(instance=feed)
+    return render(request, "feed_edit.html", {
+        "feed": feed,
+        "form": form,
+        "tabs_selected": {"global-feed-list", "feed-edit"},
+    })
+
+
+class FeedAddForm(ModelForm):
+    """
+    Create a feed
+    """
+
+    class Meta:
+        model = Feed
+        fields = ["url"]
+
+
+@login_required
+def feed_add(request):
+    """
+    Add a new feed.
+    """
+    feed = Feed(user=request.user)
+    if request.method == "POST":
+        form = FeedAddForm(request.POST, instance=feed)
+        if form.is_valid():
+            feed = form.save(commit=False)
+            feed.added = timezone.now()
+            feed.next_check = timezone.now()
+            feed.save()
+            schedule_changed.send(None)
+            return HttpResponseRedirect(
+                reverse(
+                    "feed-edit",
+                    kwargs={"feed_id": feed.pk},
+                ),
+            )
+    elif request.method != "GET":
+        return HttpResponseNotAllowed(["GET", "POST"])
+    else:
+        form = FeedAddForm(instance=feed)
+    return render(request, "feed_add.html", {
+        "form": form,
+        "tabs_selected": {"global-feed-list"},
+    })
+
+
+@login_required
+def label_list(request):
+    """
+    Display a list of labels
+    """
+    labels = (
+        request.user.label_set.all()
+        .annotate(
+            feed_count=Count("feeds"),
+            # TODO: Verify these give the correct results.
+            unread_count=Sum("feeds__unread_count"),
+            fave_count=Sum("feeds__fave_count"),
+        )
+    )
+    return render(request, "label_list.html", {
+        "labels": sorted(
+            labels,
+            # XXX It would be nice to do this sorting in the database, but sqlite3 does
+            # not ship with appropriate collations. Custom collations can be installed,
+            # but there isn't much advantage to doing so right now given we always
+            # query all feeds anyway.
+            key=lambda label: (human_sort_key(label.text), label.pk),
+        ),
+        "tabs_selected": {"global-label-list"},
+    })
+
+
+@login_required
+def label_show(request, label_id: int, filter: ArticleFilter):
+    """
+    List the articles in a feed.
+    """
+    label = get_object_or_404(request.user.label_set, pk=label_id)
+    counts = label.feeds.aggregate(
+        label_unread_count=Sum("unread_count"),
+        label_fave_count=Sum("fave_count"),
+    )
+    articles, next_page_after = sort_and_filter_articles(
+        Article.objects.filter(feed__id__in=label.feeds.all()),
+        label,
+        filter,
+        after=request.GET.get("after"),
+    )
+
+    return render(request, 'label_show.html', {
+        "label": label,
+        **counts,
+        "articles": articles,
+        "next_page_after": next_page_after,
+        "filter": filter,
+        "tabs_selected": {"global-label-list", f"label-{filter.name}"},
+    })
+
+
+class LabelForm(ModelForm):
+    """
+    Create a label for a user.
+    """
+
+    class Meta:
+        model = Label
+        fields = ["text", "feeds"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.instance.user, 'instance argument must be a Label instance with a user'
+
+    def clean_text(self):
+        """
+        Validate that the label text is unique
+        """
+        data = self.cleaned_data["text"]
+        if data == self.instance.text:  # No change
+            return data
+
+        if self.instance.user.label_set.filter(text=data).count() > 0:
+            raise ValidationError(
+                "Label text must be unique",
+                code="duplicate"
+            )
+
+        return data
+
+    def clean_feeds(self):
+        """
+        Ensure that only the user's own feeds are selectable. Other PKs are
+        ignored.
+        """
+        # FIXME: Use limit_choices_to instead
+        # https://docs.djangoproject.com/en/4.0/ref/models/fields/#django.db.models.ForeignKey.limit_choices_to
+        data = self.cleaned_data["feeds"]
+        return self.instance.user.feed_set.intersection(data)
+
+
+@login_required
+def label_edit(request, label_id: int):
+    """
+    Edit a label.
+    """
+    # TODO: Display a form, handle POST. Generic view?
+    label = get_object_or_404(request.user.label_set, pk=label_id)
+    counts = label.feeds.aggregate(
+        label_unread_count=Sum("unread_count"),
+        label_fave_count=Sum("fave_count"),
+    )
+    if request.method == "POST":
+        form = LabelForm(request.POST, instance=label)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(
+                reverse("label-edit", kwargs={"label_id": label.pk}),
+            )
+    elif request.method == "GET":
+        form = LabelForm(instance=label)
+    return render(request, "label_edit.html", {
+        "label": label,
+        "form": form,
+        **counts,
+        "tabs_selected": {"global-label-list", "label-edit"},
+    })
+
+
+@login_required
+def label_delete(request, label_id: int):
+    """
+    Delete a label.
+    """
+    label = get_object_or_404(request.user.label_set, pk=label_id)
+
+    if request.method == "POST":
+        label.delete()
+    else:
+        return HttpResponseNotAllowed(["POST"])
+
+    return HttpResponseRedirect(reverse("label-list"))
+
+
+@login_required
+def label_add(request):
+    """
+    Add a new label.
+    """
+    label = Label(user=request.user)
+    if request.method == "POST":
+        form = LabelForm(request.POST, instance=label)
+        if form.is_valid():
+            label = form.save(commit=True)
+            label.save()
+            return HttpResponseRedirect(
+                reverse(
+                    "label-show",
+                    kwargs={"label_id": label.pk, "filter": ArticleFilter.unread},
+                ),
+            )
+    elif request.method != "GET":
+        return HttpResponseNotAllowed(["GET", "POST"])
+    else:
+        form = LabelForm(instance=label)
+    return render(request, "label_add.html", {
+        "form": form,
+        "tabs_selected": {"global-label-list"},
+    })
+
+
+@login_required
+def article_show(request, article_id: int):
+    """
+    Display an article.
+    """
+    article = get_object_or_404(
+        Article.objects.filter(feed__in=request.user.feed_set.all()),
+        pk=article_id,
+    )
+
+    return render(request, "article_show.html", {
+        "filter": filter,
+        "article": article,
+        "article_labels": article.feed.label_set.all(),  # TODO: sort
+        "tabs_selected": set(),
     })
 
 
@@ -294,6 +654,24 @@ def articles_for_request(request):
     article_ids = map(int, request.POST.getlist('article'))
     qs = Article.objects.filter(feed__in=request.user.feed_set.all())
     return qs.filter(id__in=article_ids)
+
+
+@login_required
+def redirect_to_article(request, article_id: str):
+    """
+    Redirect a legacy article URL
+
+    This is used to redirect article URLs from the old React UI to the new
+    location, like::
+
+        /all/unread/1234/  →   /article/1234/
+        /feed/1/fave/234/  →   /article/234/
+        /label/12/all/34/  →   /article/34/
+
+    The article ID isn't validated as the redirect target will do that, but the
+    URL patterns require it be an integer.
+    """
+    return redirect("article-show", article_id=int(article_id), permanent=True)
 
 
 @login_required
@@ -340,60 +718,6 @@ def flags(request):
     data = {
         'articlesById': {article.id: json_for_article(article) for article in qs.all()},
     }
-    return HttpResponse(json.dumps(data),
-                        content_type='application/json')
-
-
-@login_required
-def labels(request):
-    """
-    Create and remove labels.
-
-    On POST, the :param:`action` parameter determines what is done:
-
-    ``"create"`` creates a new label :param:`text` parameter contains the text
-    of the label to create.  If the text is already in use, 409 Conflict
-    results.
-
-    ``"attach"`` associates a label specified by :param:`label` from a feed
-    :param:`feed`
-
-    ``"detach"`` disassociates a label specified by :param:`label` from a feed
-    :param:`feed`
-
-    On DELETE, the :param:`label` holds the ID of the label.  If the label does
-    not exist, 404 results.
-    """
-    # FIXME: This should use real forms for validation.
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'])
-
-    action = request.POST['action']
-    data = {}
-    if action == 'create':
-        try:
-            text = request.POST['text']
-            if not text:
-                raise ValueError(text)
-            data['labelId'] = request.user.label_set.create(text=text).id
-        except (KeyError, ValueError, IntegrityError):
-            return HttpResponseBadRequest()
-    elif action == 'attach':
-        label = request.user.label_set.get(id=request.POST['label'])
-        feed = request.user.feed_set.get(id=request.POST['feed'])
-        label.feeds.add(feed)
-        label.save()
-    elif action == 'detach':
-        label = request.user.label_set.get(id=request.POST['label'])
-        feed = request.user.feed_set.get(id=request.POST['feed'])
-        label.feeds.remove(feed)
-        label.save()
-    elif action == 'remove':
-        label = request.user.label_set.get(pk=request.POST['label'])
-        label.delete()
-
-    data.update(labels_for_user(request.user))
-    data.update(feeds_for_user(request.user))
     return HttpResponse(json.dumps(data),
                         content_type='application/json')
 

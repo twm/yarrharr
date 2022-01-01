@@ -2,4 +2,5 @@
 pytest
 pytest-twisted
 pytest-django
-
+lxml
+cssselect

@@ -1,0 +1,78 @@
+{% load static %}
+{% load static_glob %}
+{% load ytabs %}
+
+<div class="bar">
+  <a class="yarrharr-masthead" href="{% url 'home' %}">
+    <img class="logotype" width="46" height="15" src="{% static 'logotype-*.svg'|newest_static %}" alt="Yarrharr">
+    <img class="lettertype" width="20" height="20" src="{% static 'lettertype-*.svg'|newest_static %}" alt="Yarrharr">
+  </a>
+
+  <nav class="global-links">
+    <a {% tabattrs "global-all-show" %} class="global-link no-underline" href="{% url 'all-show' 'unread' %}">All</a>
+    <a {% tabattrs "global-label-list" %} class="global-link no-underline" href="{% url 'label-list' %}">Labels</a>
+    <a {% tabattrs "global-feed-list" %} class="global-link no-underline" href="{% url 'feed-list' %}">Feeds</a>
+    <a {% tabattrs "global-feed-add" %} class="global-link no-underline" href="{% url 'feed-add' %}">+</a>
+  </nav>
+
+  <button id="layout-button" class="square" aria-label="Wide" title="Switch to wide layout">
+    <svg width="1em" height="1em" class="icon" aria-hidden="true">
+     <use xlink:href="#icon-wide" />
+    </svg>
+  </button>
+
+  <button id="fullscreen-button" class="square" title="Fullscreen" aria-pressed="false">
+    <svg width="1em" height="1em" class="icon" aria-hidden="true">
+     <use xlink:href="#icon-fullscreen" />
+    </svg>
+  </button>
+
+</div>
+
+<script type="module">
+  const b = document.getElementById("layout-button");
+  const y = document.getElementById("yarrharr");
+
+  function readFromStorage() {
+    const wide = window.localStorage.getItem("layout") == "wide";
+    updateDOM(wide);
+  }
+
+  function updateDOM(wide) {
+    b.querySelector("use").setAttribute("xlink:href", wide ? "#icon-narrow" : "#icon-wide");
+    b.setAttribute("title", wide ? "Switch to narrow layout" : "Switch to wide layout");
+    y.classList.toggle("layout-narrow", !wide);
+    y.classList.toggle("layout-wide", wide);
+  };
+
+  function writeToStorage(wide) {
+    window.localStorage.setItem("layout", wide ? "wide" : "narrow");
+  }
+
+  window.onstorage = readFromStorage;
+
+  b.onclick = e =>  {
+    const wide = !y.classList.contains("layout-wide");
+    updateDOM(wide);
+    writeToStorage(wide);
+  };
+
+  readFromStorage();
+</script>
+
+<script type="module">
+  const b = document.getElementById("fullscreen-button");
+  b.onclick = e =>  {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen();
+    }
+  };
+  {# NB: Navigation always cancels fullscreen mode, so there's no need to sync this on page load #}
+  document.documentElement.onfullscreenchange = e => {
+    const fs = !!document.fullscreenElement;
+    b.querySelector("use").setAttribute("xlink:href", fs ? "#icon-unfullscreen" : "#icon-fullscreen");
+    b.setAttribute("aria-pressed", fs ? "true" : "false");
+  };
+</script>

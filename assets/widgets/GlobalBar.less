@@ -9,6 +9,7 @@
         width: auto;
         height: auto;
         max-height: 100%;
+        filter: var(--logo-filter);
     }
 
     .logotype {
@@ -26,13 +27,6 @@
     }
 }
 
-// Invert the logo image so that it is legible in the dark theme. We don't go
-// 100% because it is pretty bold.
-:root.theme-dark .yarrharr-masthead img {
-    filter: invert(90%);
-}
-
-
 .global-links {
     flex: 1 1 100%;
     display: flex;
@@ -44,11 +38,6 @@
     justify-content: center;
 
     .flat-button;
-    &:hover { .flat-button-hover; }
-    body.focus-visible &:focus { .flat-button-focus; }
 
     padding: 1rem; /* Ensure spacing between */
-}
-.global-link:focus {
-    outline-color: transparent;
 }

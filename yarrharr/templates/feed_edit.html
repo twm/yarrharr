@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ feed.title }} - Edit{% endblock %}
+
+{% block content %}
+<style>
+/* TODO */
+</style>
+
+<div id="yarrharr" class="layout-narrow">
+
+  {% include "header.html" %}
+  {% include "feed_header.html" %}
+
+  <div class="inventory-centered">
+    <form action="{% url 'feed-edit' feed.id %}" method="POST" name="feed-edit">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="inventory-tools">
+        <input class="text-button text-button-primary" type="submit" value="Save">
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

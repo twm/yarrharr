@@ -8,8 +8,8 @@
 # Clear default rules.
 .SUFFIXES:
 
-.PHONY: webpack-release
-webpack-release:
+.PHONY: webpack
+webpack:
 	rm -rf yarrharr/static
 	NODE_ENV=production RUNMODE=release npm run webpack
 	@if grep -q __debug__ yarrharr/static/main-*.js; then echo "ERROR: __debug__ found in bundle. Is minification working?"; exit 1; fi
@@ -17,15 +17,15 @@ webpack-release:
 	tox -e compress
 
 .PHONY: release
-release: webpack-release
+release: webpack
 	rm -rf build/lib build/bdist.*  # Work around https://github.com/pypa/wheel/issues/147
 	python3 setup.py sdist bdist_wheel
 
 .PHONY: devserver
-devserver:
+devserver: webpack
 	tox -e run -- django-admin migrate
 	tox -e run -- django-admin updatehtml
-	YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8887
+	YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8888
 
 .PHONY: realserver
 realserver:
@@ -41,13 +41,6 @@ poll-feeds:
 .PHONY: force-poll
 force-poll:
 	tox -e run -- django-admin forcepoll
-
-.PHONY: webpack
-webpack:
-	# Remove the static directory so that the latest_static templatetag knows
-	# we are in HMR mode:
-	rm -rf yarrharr/static
-	NODE_ENV=development RUNMODE=dev-hot npm run webpack-dev-server
 
 .PHONY: clean
 clean:
