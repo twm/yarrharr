@@ -85,6 +85,17 @@ def signal_inbox(signal):
         signal.disconnect(receive)
 
 
+def expect_html(response, status_code=200):
+    """
+    Assert that a Django test client response is HTML
+
+    :returns: `lxml.html` document
+    """
+    assert response.status_code == 200
+    assert response['Content-Type'] == 'text/html; charset=utf-8'
+    return lxml.html.document_fromstring(response.content)
+
+
 class LoginRedirectTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -129,7 +140,10 @@ class LoginRedirectTests(TestCase):
         self.assertEqual(nexts, redirects)
 
 
-class InventoryViewTests(TestCase):
+class LabelListTests(TestCase):
+    """
+    Test the ``label-list`` view
+    """
     def setUp(self):
         self.user = User.objects.create_user(
             username='john',
@@ -142,44 +156,65 @@ class InventoryViewTests(TestCase):
     maxDiff = None
 
     def test_get_sort(self):
-        feed_c = self.user.feed_set.create(
+        """
+        Feeds are listed in order of name, case-insensitively
+        """
+        self.user.label_set.create(text='a', user=self.user)
+        self.user.label_set.create(text='.C', user=self.user)
+        self.user.label_set.create(text='B', user=self.user)
+
+        page = expect_html(self.client.get(reverse("label-list")))
+        [table] = page.cssselect('.label-list')
+        self.assertEqual(
+            ['a', 'B', '.C'],
+            [td.text_content() for td in table.cssselect('tbody > tr > td:nth-of-type(2)')],
+        )
+
+
+class FeedListTests(TestCase):
+    """
+    Test the ``feed-list`` view.
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='john',
+            email='john@mail.example',
+            password='sesame',
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    maxDiff = None
+
+    def test_get_sort(self):
+        """
+        Feeds are listed in order of name, case-insensitively
+        """
+        self.user.feed_set.create(
             url='http://example.com/feedC.xml',
             feed_title='Feed C',
             site_url='http://example.com/',
             added=timezone.now(),
         )
-        feed_b = self.user.feed_set.create(
+        self.user.feed_set.create(
             url='http://example.com/feedB.xml',
             feed_title='feed b',  # Case is ignored.
             site_url='http://example.com/',
             added=timezone.now(),
         )
-        feed_a = self.user.feed_set.create(
+        self.user.feed_set.create(
             url='http://example.com/feedA.xml',
             feed_title='<-Feed a',  # Non-alphanumeric characters are disregarded.
             site_url='http://example.com/',
             added=timezone.now(),
         )
-        label_a = feed_a.label_set.create(text='A', user=self.user)
-        label_c = feed_b.label_set.create(text='C', user=self.user)
-        label_b = feed_c.label_set.create(text='B', user=self.user)
 
-        response = self.client.get('/api/inventory/')
-
-        self.assertEqual({
-            'feedsById': mock.ANY,
-            'feedOrder': [
-                feed_a.id,
-                feed_b.id,
-                feed_c.id,
-            ],
-            'labelsById': mock.ANY,
-            'labelOrder': [
-                label_a.id,
-                label_b.id,
-                label_c.id,
-            ],
-        }, response.json())
+        page = expect_html(self.client.get(reverse("feed-list")))
+        [table] = page.cssselect('.feed-list')
+        self.assertEqual(
+            ['<-Feed a', 'feed b', 'Feed C'],
+            [td.text_content() for td in table.cssselect('tbody > tr > td:nth-of-type(1)')],
+        )
 
     def test_create(self):
         url = u'http://example.com/feed.xml'
@@ -271,56 +306,6 @@ class InventoryViewTests(TestCase):
             'labelOrder': [],
         }, response.json())
         self.assertEqual(1, len(schedule_changed_signals))
-
-    def test_update_labels(self):
-        """
-        A feed's label associations may be changed by the update action.
-        """
-        added = timezone.now() - datetime.timedelta(days=1)
-        label_c = self.user.label_set.create(text='C')
-        feed = self.user.feed_set.create(
-            url='http://example.com/feedX.xml',
-            feed_title='Feed X',
-            site_url='http://example.com/',
-            added=added,
-        )
-        label_b = feed.label_set.create(text='B', user=self.user)
-        label_a = self.user.label_set.create(text='A')
-
-        response = self.client.post('/api/inventory/', {
-            'action': 'update-feed',
-            'feed': feed.id,
-            'url': feed.url,
-            'active': 'on',
-            'title': '',
-            'label': [str(label_a.id), str(label_c.id)],
-        })
-
-        self.assertEqual(200, response.status_code)
-        [feed] = self.user.feed_set.all()
-        self.assertEqual({
-            'feedsById': {
-                str(feed.id): dictwith({
-                    'labels': [1, 3],
-                }),
-            },
-            'feedOrder': [feed.id],
-            'labelsById': {
-                str(label_a.id): dictwith({
-                    'text': 'A',
-                    'feeds': [feed.id],
-                }),
-                str(label_b.id): dictwith({
-                    'text': 'B',
-                    'feeds': [],
-                }),
-                str(label_c.id): dictwith({
-                    'text': 'C',
-                    'feeds': [feed.id],
-                }),
-            },
-            'labelOrder': [label_a.id, label_b.id, label_c.id],
-        }, response.json())
 
     def test_remove_feed(self):
         """
@@ -604,15 +589,11 @@ class LabelsViewTests(TestCase):
         )
         self.user.label_set.create(text='foo')
 
-        get_response = self.client.get(reverse("label-add"))
-        form_page = lxml.html.document_fromstring(get_response.content)
+        form_page = expect_html(self.client.get(reverse("label-add")))
         [form] = form_page.forms
         form.fields["text"] = "foo"
         form.fields["feeds"] = [str(feed_a.id)]
-
-        post_response = self.client.post(form.action, dict(form.form_values()))
-        self.assertEqual(200, post_response.status_code)
-        error_page = lxml.html.document_fromstring(post_response.content)
+        error_page = expect_html(self.client.post(form.action, dict(form.form_values())))
         [form] = error_page.forms
         errors = [el.text_content() for el in form.cssselect(".errorlist li")]
         self.assertEqual(["Label text must be unique"], errors)
