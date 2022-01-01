@@ -227,40 +227,6 @@ def snapshot_params_from_query(query_dict, user_feeds):
 
 
 @login_required
-def react(request, **kw):
-    """
-    The React user interface.  For the moment this is pre-loaded with basic
-    information about all the feeds and articles.
-    """
-    data = feeds_for_user(request.user)
-    data.update(labels_for_user(request.user))
-    snapshot_params = snapshot_params_from_query(request.GET, list(data['feedOrder']))
-    articles = entries_for_snapshot(request.user, snapshot_params)
-    data['snapshot'] = {
-        'order': snapshot_params['order'],
-        'filter': snapshot_params['filter'],
-        'feedIds': snapshot_params['feeds'],
-        'include': snapshot_params['include'],
-        'response': {
-            'params': {
-                'order': snapshot_params['order'],
-                'filter': snapshot_params['filter'],
-                'feedIds': snapshot_params['feeds'],
-                'include': snapshot_params['include'],
-            },
-            'loaded': True,
-            'error': False,
-            'articleIds': [article.id for article in articles],
-        },
-    }
-
-    return render(request, 'index.html', {
-        # This is inserted into the document as a <script> tag, so encode HTML-unsafe elements.
-        'props': json.dumps(data).replace("&", r"\u0026").replace("<", r"\u003c").replace(">", r"\u003e"),
-    })
-
-
-@login_required
 def home(request):
     """
     Display the homepage

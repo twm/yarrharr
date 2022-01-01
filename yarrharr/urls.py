@@ -47,7 +47,6 @@ urlpatterns = (
     path("feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
     path("feed/<int:feed_id>/<filter:filter>/", yarrharr.views.feed_show, name="feed-show"),
     path("article/<int:article_id>/", yarrharr.views.article_show, name="article-show"),
-    re_path(r'^debug/$', yarrharr.views.react),  # TODO
 
     # Old URLs
     re_path(R"^all/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
