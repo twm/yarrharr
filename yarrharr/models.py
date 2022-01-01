@@ -45,7 +45,30 @@ def _set_sqlite_wal_mode(sender, connection, **kwargs):
     cursor.close()
 
 
-class Feed(models.Model):
+class Sort(models.TextChoices):
+    ASC = "asc", "Ascending"
+    DESC = "desc", "Descending"
+
+
+class _ViewOptions(models.Model):
+    """
+    View options common to the view of all feeds, labels and individual feeds.
+    """
+
+    sort = models.CharField(max_length=4, choices=Sort.choices, default=Sort.DESC)
+
+    class Meta:
+        abstract = True
+
+
+class AllViewOptions(_ViewOptions):
+    """
+    View options for the view of all the user's feeds.
+    """
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+
+class Feed(_ViewOptions):
     """
     An Atom or RSS feed to check for new articles periodically.
 
@@ -89,7 +112,8 @@ class Feed(models.Model):
     :ivar feed_title: The title as specified in the feed itself.
     :ivar user_title: An optional user override of the feed title.
 
-    These two are combined in the `title` property.
+    These two are combined in the `title` property, falling back to the URL if
+    necessary.
     """
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     url = models.URLField(verbose_name="Feed URL")
@@ -255,7 +279,7 @@ def filter_articles(qs, filt: ArticleFilter):
     return qs
 
 
-class Label(models.Model):
+class Label(_ViewOptions):
     """
     Labels may be applied to feeds to group them logically.  Each has a unique
     name.
