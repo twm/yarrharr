@@ -600,6 +600,37 @@ class LabelsViewTests(TestCase):
         self.assertEqual(["Label text must be unique"], errors)
 
 
+class FeedShowTests(TestCase):
+    """
+    Test the ``feed-show`` view, which displays a list of articles.
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='john',
+            email='john@mail.example',
+            password='sesame',
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+        self.feed = self.user.feed_set.create(
+            url='http://example.com/feed.xml',
+            feed_title='Feed A',
+            site_url='http://example.com/',
+            added=timezone.now(),
+        )
+
+    maxDiff = None
+
+    def test_empty(self):
+        """
+        The renders even if there aren't any articles.
+        """
+        for filt in ArticleFilter.__members__.values():
+            with self.subTest(filt=filt):
+                url = reverse("feed-show", kwargs={"feed_id": self.feed.pk, "filter": filt})
+                expect_html(self.client.get(url))
+
+
 class ManifestTests(TestCase):
     def test_get(self):
         """
