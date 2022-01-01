@@ -335,6 +335,7 @@ class FeedForm(ModelForm):
     The *instance* argument must always be given a `Form` instance,
     which must have an assigned user.
     """
+    # TODO: Support toggling feed.active
 
     class Meta:
         model = Feed
@@ -366,6 +367,7 @@ def feed_edit(request, feed_id: int):
         form = FeedForm(request.POST, instance=feed)
         if form.is_valid():
             form.save()
+            schedule_changed.send(None)
             return HttpResponseRedirect(
                 reverse("feed-edit", kwargs={"feed_id": feed.pk}),
             )
@@ -399,7 +401,9 @@ def feed_add(request):
         if form.is_valid():
             feed = form.save(commit=False)
             feed.added = timezone.now()
+            feed.next_check = timezone.now()
             feed.save()
+            schedule_changed.send(None)
             return HttpResponseRedirect(
                 reverse(
                     "feed-edit",
