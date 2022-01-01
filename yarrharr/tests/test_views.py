@@ -122,10 +122,11 @@ class LoginRedirectTests(TestCase):
             '/feed/2/fave/',
             '/feed/3/all/4'
             '/feed/5/all/678/'
-            '/inventory',
-            '/inventory/',
-            '/inventory/add',
-            '/inventory/add/',
+            '/labels/',
+            '/labels/add',
+            '/feeds/',
+            '/feeds/add/',
+            '/article/1234/',
         ]
 
         redirects = []
