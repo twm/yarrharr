@@ -9,6 +9,10 @@
 
   <div class="feed-header">
     <h1>{{ article.title|default:"Untitled" }}</h1>
+    <div class=header-tools>
+      <fave-toggle article-id="{{ article.id }}" {{ article.fave|yesno:"checked," }}></fave-toggle>
+      <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
+    </div>
   </div>
 
   <div class=article-view>
@@ -40,8 +44,7 @@
         <div class="content">{{ article.content|safe }}</div>
       </article>
 
-      <div class="bar snapshot-nav">
-        <div class="expand"></div>
+      <div class="footer-tools">
         <fave-toggle article-id="{{ article.id }}" {{ article.fave|yesno:"checked," }}></fave-toggle>
         <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
       </div>
