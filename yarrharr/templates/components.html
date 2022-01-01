@@ -16,38 +16,6 @@
   </button>
 </template>
 
-<script type="module">
-
-const buttonTemplate = document.getElementById("read-toggle-template").content.querySelector("button");
-
-window.customElements.define("read-toggle", class extends HTMLElement {
-  connectedCallback() {
-    this._button = buttonTemplate.cloneNode(true);
-    this._updateDOM();
-    this._button.onclick = (e) => {
-      if (this.hasAttribute("checked")) {
-        this.removeAttribute("checked")
-      } else {
-        this.setAttribute("checked", "");
-      }
-      this._updateDOM();
-
-      const articleId = this.getAttribute("article-id")
-      // TODO: fetch() to change article status
-    }
-    this.appendChild(this._button);
-  }
-
-  _updateDOM() {
-    const read = this.hasAttribute("checked");
-    this._button.setAttribute("aria-pressed", read ? "true" : "false");
-    this._button.setAttribute("aria-label", read ? "Read" : "Unread");
-    this._button.setAttribute("title", read ? "Mark unread" : "Mark read");
-  }
-});
-
-</script>
-
 
 {# <fave-toggle article-id=1234 checked> #}
 
@@ -69,33 +37,101 @@ window.customElements.define("read-toggle", class extends HTMLElement {
   </button>
 </template>
 
+
 <script type="module">
+{% url 'api-flags' as flag_api_url %}
+const flagsApi = "{{ flag_api_url|escapejs }}";
 
-const buttonTemplate = document.getElementById("fave-toggle-template").content.querySelector("button");
+function post(path, body) {
+  return fetch(path, {
+    method: 'POST', // a.k.a. "RPC"
+    body: body,
+    headers: {
+      {# Pass the Django CSRF token (or the request will be rejected). #}
+      'X-CSRFToken': document.cookie.match(/(?:^|\s)csrftoken=([^\s;]+)/)[1],
+    },
+    {# Pass cookies (or the request will be rejected). #}
+    mode: 'same-origin',
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(response);
+    }
+    return response.json();
+  });
+}
 
-window.customElements.define("fave-toggle", class extends HTMLElement {
+function setFlag(articleId, flagName, flagValue) {
+  const body = new FormData();
+  body.append('article', articleId);
+  body.append(flagName, flagValue ? 'true' : 'false');
+
+  return post(flagsApi, body).catch(e => {
+    console.error(`Flag request articleId=${articleId}, ${flagName}=${flagValue} failed`, e);
+    throw e;
+  })
+}
+
+
+const readButtonTemplate = document.getElementById("read-toggle-template").content.querySelector("button");
+
+window.customElements.define("read-toggle", class extends HTMLElement {
   connectedCallback() {
-    this._button = buttonTemplate.cloneNode(true);
-    this._updateDOM();
+    this._button = readButtonTemplate.cloneNode(true);
+    this.checked = !!this.checked;
     this._button.onclick = (e) => {
-      if (this.hasAttribute("checked")) {
-        this.removeAttribute("checked")
-      } else {
-        this.setAttribute("checked", "");
-      }
-      this._updateDOM();
-
-      const articleId = this.getAttribute("article-id")
-      // TODO: fetch() to change article status
+      this.checked = !this.checked;
+      setFlag(this.getAttribute("article-id"), 'read', this.checked).catch(() => {
+        this.checked = !this.checked;
+      })
     }
     this.appendChild(this._button);
   }
 
-  _updateDOM() {
-    const fave = this.hasAttribute("checked");
-    this._button.setAttribute("aria-pressed", fave ? "true" : "false");
-    this._button.setAttribute("aria-label", fave ? "Favorite" : "Not favorite");
-    this._button.setAttribute("title", fave ? "Mark as a favorite" : "Mark as not favorite");
+  get checked() {
+      return this.hasAttribute("checked");
+  }
+
+  set checked(value) {
+    if (value) {
+      this.setAttribute("checked", "");
+    } else {
+      this.removeAttribute("checked")
+    }
+    this._button.setAttribute("aria-pressed", value ? "true" : "false");
+    this._button.setAttribute("aria-label", value ? "Read" : "Unread");
+    this._button.setAttribute("title", value ? "Mark unread" : "Mark read");
+  }
+});
+
+
+const faveButtonTemplate = document.getElementById("fave-toggle-template").content.querySelector("button");
+
+window.customElements.define("fave-toggle", class extends HTMLElement {
+  connectedCallback() {
+    this._button = faveButtonTemplate.cloneNode(true);
+    this.checked = !!this.checked;
+    this._button.onclick = (e) => {
+      this.checked = !this.checked;
+      setFlag(this.getAttribute("article-id"), 'read', this.checked).catch(() => {
+        this.checked = !this.checked;
+      })
+    }
+    this.appendChild(this._button);
+  }
+
+  get checked() {
+      return this.hasAttribute("checked");
+  }
+
+  set checked(value) {
+    if (value) {
+      this.setAttribute("checked", "");
+    } else {
+      this.removeAttribute("checked")
+    }
+    this._button.setAttribute("aria-pressed", value ? "true" : "false");
+    this._button.setAttribute("aria-label", value ? "Favorite" : "Not favorite");
+    this._button.setAttribute("title", value ? "Mark as a favorite" : "Mark as not favorite");
   }
 });
 
