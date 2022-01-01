@@ -18,3 +18,7 @@
   </div>
 </div>
 {% endfor %}
+
+{% if next_page_after %}
+<div class="pagination"><a class="no-underline" href="?after={{ next_page_after }}">More →</a></div>
+{% endif %}

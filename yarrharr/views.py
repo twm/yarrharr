@@ -1,4 +1,4 @@
-# Copyright © 2013–2021 Tom Most <twm@freecog.net>
+# Copyright © 2013–2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,11 +39,14 @@ from twisted.logger import Logger
 import yarrharr
 
 from .enums import ArticleFilter
-from .models import Article, Feed, Label, filter_articles
+from .models import AllViewOptions, Article, Feed, Label, Sort
 from .signals import schedule_changed
 from .sql import log_on_error
 
 log = Logger()
+
+
+PAGE_SIZE = 500
 
 
 def human_sort_key(s):
@@ -226,6 +229,45 @@ def snapshot_params_from_query(query_dict, user_feeds):
     }
 
 
+def sort_and_filter_articles(qs, viewoptions, filt: ArticleFilter, after=None):
+    if after is not None:
+        # FIXME: What we really want is to filter on (date, id) >=
+        # (after_article.date, after_article.id), but I haven't figured out how
+        # to express that in the Django ORM. Filtering only by date will work
+        # well enough in the usual case that articles don't have duplicate
+        # dates, but if a series of articles with identical dates fall at the
+        # page boundry it can skip past some.
+        after_date = qs.get(pk=after).date
+    else:
+        after_date = None
+
+    if viewoptions.sort == Sort.ASC:
+        qs = qs.order_by('date', 'id')
+        if after_date is not None:
+            qs = qs.filter(date__gt=after_date)
+    elif viewoptions.sort == Sort.DESC:
+        qs = qs.order_by('-date', '-id')
+        if after_date is not None:
+            qs = qs.filter(date__lt=after_date)
+    else:
+        assert 0
+
+    if filt is ArticleFilter.unread:
+        qs = qs.filter(read=False)
+    elif filt is ArticleFilter.fave:
+        qs = qs.filter(fave=True)
+    else:
+        assert filt is ArticleFilter.all
+
+    articles = list(qs.prefetch_related("feed")[:PAGE_SIZE + 1])
+    if len(articles) > PAGE_SIZE:
+        articles.pop()
+        after = articles[-1].pk
+    else:
+        after = None
+    return articles, after
+
+
 @login_required
 def home(request):
     """
@@ -242,15 +284,17 @@ def all_show(request, filter: ArticleFilter):
     """
     List the all articles
     """
-    articles = filter_articles(
+    viewoptions, _ = AllViewOptions.objects.get_or_create(user=request.user)
+    articles, next_page_after = sort_and_filter_articles(
         Article.objects.filter(feed__id__in=request.user.feed_set.all()),
+        viewoptions,
         filter,
+        after=request.GET.get("after"),
     )
 
-    # TODO: Ordering
-    # TODO: Paginate articles
     return render(request, "all_show.html", {
-        "articles": articles[:10000],
+        "articles": articles,
+        "next_page_after": next_page_after,
         "filter": filter,
         "all_fave_count": 0,  # TODO
         "all_unread_count": 0,  # TODO
@@ -270,7 +314,7 @@ def feed_list(request):
             # not ship with appropriate collations. Custom collations can be installed,
             # but there isn't much advantage to doing so right now given we always
             # query all feeds anyway.
-            key=lambda feed: human_sort_key(feed.title),
+            key=lambda feed: (human_sort_key(feed.title), feed.pk),
         ),
         "tabs_selected": {"global-feed-list"},
     })
@@ -282,13 +326,17 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
     List the articles in a feed
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
-    articles = filter_articles(feed.articles.all(), filter)
+    articles, next_page_after = sort_and_filter_articles(
+        feed.articles.all(),
+        feed,
+        filter,
+        after=request.GET.get("after"),
+    )
 
-    # TODO: Ordering
-    # TODO: Paginate articles
     return render(request, 'feed_show.html', {
         "feed": feed,
         "articles": articles,
+        "next_page_after": next_page_after,
         "filter": filter,
         "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
     })
@@ -407,7 +455,7 @@ def label_list(request):
             # not ship with appropriate collations. Custom collations can be installed,
             # but there isn't much advantage to doing so right now given we always
             # query all feeds anyway.
-            key=lambda label: human_sort_key(label.text),
+            key=lambda label: (human_sort_key(label.text), label.pk),
         ),
         "tabs_selected": {"global-label-list"},
     })
@@ -423,15 +471,18 @@ def label_show(request, label_id: int, filter: ArticleFilter):
         label_unread_count=Sum("unread_count"),
         label_fave_count=Sum("fave_count"),
     )
-    articles = filter_articles(
+    articles, next_page_after = sort_and_filter_articles(
         Article.objects.filter(feed__id__in=label.feeds.all()),
+        label,
         filter,
+        after=request.GET.get("after"),
     )
 
     return render(request, 'label_show.html', {
         "label": label,
         **counts,
         "articles": articles,
+        "next_page_after": next_page_after,
         "filter": filter,
         "tabs_selected": {"global-label-list", f"label-{filter.name}"},
     })

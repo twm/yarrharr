@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019, 2021 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +25,9 @@
 
 import datetime
 from contextlib import contextmanager
+from datetime import timedelta
 from unittest import mock
+from unittest.mock import patch
 
 import lxml.html
 from django.contrib.auth.models import User
@@ -629,6 +630,43 @@ class FeedShowTests(TestCase):
             with self.subTest(filt=filt):
                 url = reverse("feed-show", kwargs={"feed_id": self.feed.pk, "filter": filt})
                 expect_html(self.client.get(url))
+
+    @patch('yarrharr.views.PAGE_SIZE', new=5)
+    def test_paginate(self):
+        for i in range(10):
+            self.feed.articles.create(
+                read=False,
+                fave=i & 1,
+                author=f"Author {i}",
+                title=f"Article {i}",
+                url=f"http://example.com/{i}",
+                date=timezone.now() - timedelta(hours=i),
+                guid=str(i),
+                raw_content='...',
+                content='...',
+                content_snippet=f'{i} ' * i,
+            )
+
+        url = reverse("feed-show", kwargs={"feed_id": self.feed.pk, "filter": ArticleFilter.unread})
+
+        page1 = expect_html(self.client.get(url))
+        page1.make_links_absolute(url)
+
+        self.assertEqual(
+            ["Article 0", "Article 1", "Article 2", "Article 3", "Article 4"],
+            [el.text_content() for el in page1.cssselect(".list-article .title")],
+        )
+
+        [next_link] = page1.cssselect(".pagination a")
+        page2 = expect_html(self.client.get(next_link.attrib["href"]))
+
+        self.assertEqual(
+            ["Article 5", "Article 6", "Article 7", "Article 8", "Article 9"],
+            [el.text_content() for el in page2.cssselect(".list-article .title")],
+        )
+
+        # No more pages
+        self.assertEqual([], page2.cssselect(".pagination a"))
 
 
 class ManifestTests(TestCase):
