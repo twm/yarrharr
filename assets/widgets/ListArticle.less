@@ -1,8 +1,6 @@
 @import "../include.less";
 
 .list-article {
-    contain: strict;
-
     height: @bar_height;
 
     /* The line height relates to the above height calculation, which allows
@@ -68,20 +66,25 @@
         }
     }
 
-    .read-toggle,
+    read-toggle,
     .view-link {
         flex: 0 0 @bar_height;
-        .flat-button;
     }
-    .read-toggle {
+    read-toggle {
+        button {
+            .flat-button;
+            width: 100%;
+            height: 100%;
+        }
         // background: purple;
     }
     .view-link {
         // background: magenta;
+        .flat-button;
     }
 
     .outbound-icon,
-    .read-toggle,
+    read-toggle button,
     .view-link {
         font-size: @icon_size;
         display: flex;
