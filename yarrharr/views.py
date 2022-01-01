@@ -291,13 +291,16 @@ def all_show(request, filter: ArticleFilter):
         filter,
         after=request.GET.get("after"),
     )
+    counts = request.user.feed_set.aggregate(
+        all_unread_count=Sum("unread_count"),
+        all_fave_count=Sum("fave_count"),
+    )
 
     return render(request, "all_show.html", {
         "articles": articles,
         "next_page_after": next_page_after,
         "filter": filter,
-        "all_fave_count": 0,  # TODO
-        "all_unread_count": 0,  # TODO
+        **counts,
         "tabs_selected": {f"all-{filter.name}"},
     })
 
