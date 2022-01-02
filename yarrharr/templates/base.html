@@ -16,8 +16,7 @@
         <script src="{% static 'main-*.js'|newest_static %}" defer></script>
     </head>
     <body>
-        {% include "icons.svg" %}
-        {% include "components.html" %}
+        {% include "icons.html" %}
 
         <main role=main>
             {% block content %}{% endblock %}
@@ -28,6 +27,8 @@
             {% endif %}
             <p>Yarrharr Feed Reader ∙ © 2013–2022 Tom Most ∙ GPLv3+ ∙ <a href="{% url 'about' %}">About</a> ∙ <a rel="noreferrer noopener" href="https://github.com/twm/yarrharr/issues/new">Report Issue</a>
         </footer>
+
+        {% include "components.html" %}
 
         {% if debug %}
             <details>
