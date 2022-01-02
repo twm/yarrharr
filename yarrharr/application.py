@@ -311,7 +311,7 @@ class Root(FallbackResource):
         request.setHeader(b'Content-Security-Policy',
                           # b"default-src 'none'; "
                           b"img-src *; "
-                          b"script-src 'self'; "
+                          b"script-src 'self' 'unsafe-inline'; "
                           b"style-src 'self'; "
                           b"frame-ancestors 'none'; "
                           b"form-action 'self'; "
