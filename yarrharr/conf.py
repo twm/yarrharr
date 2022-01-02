@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2013–2019, 2021 Tom Most <twm@freecog.net>
+# Copyright © 2013–2019, 2021, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -201,7 +200,7 @@ def read_yarrharr_conf(files, namespace):
     namespace['SESSION_ENGINE'] = 'django.contrib.sessions.backends.signed_cookies'
     namespace['SESSION_COOKIE_HTTPONLY'] = True
     namespace['SESSION_COOKIE_SECURE'] = external_url.scheme == 'https'
-    namespace['CSRF_TOKEN_SECURE'] = external_url.scheme == 'https'
+    namespace["CSRF_COOKIE_SECURE"] = external_url.scheme == "https"
 
     namespace['WSGI_APPLICATION'] = 'yarrharr.wsgi.application'
 

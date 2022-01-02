@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2014–2019, 2021 Tom Most <twm@freecog.net>
+# Copyright © 2014–2019, 2021, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -140,7 +139,7 @@ class ConfTests(unittest.TestCase):
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
             'SESSION_COOKIE_SECURE': False,
-            'CSRF_TOKEN_SECURE': False,
+            "CSRF_COOKIE_SECURE": False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -213,7 +212,7 @@ class ConfTests(unittest.TestCase):
             'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
             'SESSION_COOKIE_HTTPONLY': True,
             'SESSION_COOKIE_SECURE': False,
-            'CSRF_TOKEN_SECURE': False,
+            "CSRF_COOKIE_SECURE": False,
             'WSGI_APPLICATION': 'yarrharr.wsgi.application',
             'INSTALLED_APPS': (
                 'django.contrib.auth',
@@ -251,4 +250,4 @@ class ConfTests(unittest.TestCase):
         self.assertEqual('tcp:8182:interface=127.0.0.1', settings['SERVER_ENDPOINT'])
         self.assertTrue(settings['USE_X_FORWARDED_HOST'])
         self.assertTrue(settings['SESSION_COOKIE_SECURE'])
-        self.assertTrue(settings['CSRF_TOKEN_SECURE'])
+        self.assertTrue(settings["CSRF_COOKIE_SECURE"])
