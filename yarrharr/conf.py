@@ -32,7 +32,7 @@ import os
 import sys
 from configparser import RawConfigParser
 from io import StringIO
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 USER_CONF_GLOB = '/etc/yarrharr/*.ini'
 
@@ -201,6 +201,7 @@ def read_yarrharr_conf(files, namespace):
     namespace['SESSION_COOKIE_HTTPONLY'] = True
     namespace['SESSION_COOKIE_SECURE'] = external_url.scheme == 'https'
     namespace["CSRF_COOKIE_SECURE"] = external_url.scheme == "https"
+    namespace["CSRF_TRUSTED_ORIGINS"] = [urlunparse(external_url[0:2] + ("", "", "", ""))]
 
     namespace['WSGI_APPLICATION'] = 'yarrharr.wsgi.application'
 
