@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright © 2013, 2020 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,4 +25,4 @@
 
 __author__ = 'Tom Most'
 __author_email__ = 'twm@freecog.net'
-__version__ = '2021.12.0'
+__version__ = '2022.1.0'
