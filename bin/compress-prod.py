@@ -28,8 +28,8 @@ Generate .gz and .br versions of the files in yarrharr/static
 """
 from pathlib import Path
 
-import zopfli.gzip
 import brotli
+import zopfli.gzip
 
 static_dir = Path('yarrharr/static')
 src_files = []
