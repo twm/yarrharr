@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0001_initial'),
+        ("yarrharr", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='feed',
-            name='digest',
+            model_name="feed",
+            name="digest",
             field=models.BinaryField(default=None, max_length=32, null=True),
         ),
     ]

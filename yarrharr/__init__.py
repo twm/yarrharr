@@ -23,6 +23,6 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-__author__ = 'Tom Most'
-__author_email__ = 'twm@freecog.net'
-__version__ = '2022.1.3'
+__author__ = "Tom Most"
+__author_email__ = "twm@freecog.net"
+__version__ = "2022.1.3"

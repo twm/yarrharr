@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0002_feed_digest'),
+        ("yarrharr", "0002_feed_digest"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='feed',
-            name='digest',
-            field=models.BinaryField(default=b'', max_length=32),
+            model_name="feed",
+            name="digest",
+            field=models.BinaryField(default=b"", max_length=32),
         ),
         migrations.AlterField(
-            model_name='feed',
-            name='etag',
-            field=models.BinaryField(default=b'', max_length=1024),
+            model_name="feed",
+            name="etag",
+            field=models.BinaryField(default=b"", max_length=1024),
         ),
         migrations.AlterField(
-            model_name='feed',
-            name='last_modified',
-            field=models.BinaryField(default=b'', max_length=45),
+            model_name="feed",
+            name="last_modified",
+            field=models.BinaryField(default=b"", max_length=45),
         ),
     ]

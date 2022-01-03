@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0005_article_content_rev'),
+        ("yarrharr", "0005_article_content_rev"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='content_snippet',
-            field=models.TextField(blank=True, default=''),
+            model_name="article",
+            name="content_snippet",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='article',
-            name='raw_title',
-            field=models.TextField(blank=True, default=''),
+            model_name="article",
+            name="raw_title",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

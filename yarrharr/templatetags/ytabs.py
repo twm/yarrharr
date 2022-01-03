@@ -67,10 +67,7 @@ class _TabAttrNode(Node):
 
     def render(self, context):
         selected = self.tab_id in context.get("tabs_selected", ())
-        return (
-            f'id="{html.escape(self.tab_id)}"'
-            f' aria-selected={"true" if selected else "false"}'
-        )
+        return f'id="{html.escape(self.tab_id)}"' f' aria-selected={"true" if selected else "false"}'
 
 
 register.tag("tabattrs", tabattrs)

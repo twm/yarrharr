@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0004_non_null_guid'),
+        ("yarrharr", "0004_non_null_guid"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='content_rev',
+            model_name="article",
+            name="content_rev",
             field=models.IntegerField(default=0),
         ),
     ]

@@ -35,6 +35,7 @@ class ArticleFilterConverter:
 
     .. _url path converter: https://docs.djangoproject.com/en/3.2/topics/http/urls/#registering-custom-path-converters
     """
+
     regex = f"({'|'.join(f for f in ArticleFilter.__members__)})"
 
     def to_python(self, value: str) -> ArticleFilter:

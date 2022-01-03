@@ -26,7 +26,7 @@
 
 from django.db import migrations, models
 
-COUNT_COLUMNS = ['all_count', 'unread_count', 'fave_count']
+COUNT_COLUMNS = ["all_count", "unread_count", "fave_count"]
 
 CREATE_TRIGGERS = [
     """
@@ -36,13 +36,13 @@ CREATE_TRIGGERS = [
         SELECT RAISE(ABORT, 'negative {column}')
         WHERE NEW.{column} < 0;
     END
-    """.format(column=c) for c in COUNT_COLUMNS
+    """.format(
+        column=c
+    )
+    for c in COUNT_COLUMNS
 ]
 
-DROP_TRIGGERS = [
-    "DROP TRIGGER feed_check_nonnegative_{}".format(column)
-    for column in COUNT_COLUMNS
-]
+DROP_TRIGGERS = ["DROP TRIGGER feed_check_nonnegative_{}".format(column) for column in COUNT_COLUMNS]
 
 
 class Migration(migrations.Migration):
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ('yarrharr', '0008_feed_counts_by_trigger'),
+        ("yarrharr", "0008_feed_counts_by_trigger"),
     ]
 
     operations = [

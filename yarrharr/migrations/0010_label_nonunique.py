@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0009_feed_count_constraint'),
+        ("yarrharr", "0009_feed_count_constraint"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='label',
-            name='text',
+            model_name="label",
+            name="text",
             field=models.CharField(max_length=64),
         ),
     ]

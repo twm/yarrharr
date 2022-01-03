@@ -28,7 +28,7 @@ from ._0008_triggers import CREATE_TRIGGERS, DROP_TRIGGERS
 
 
 def init_feed_counts(apps, schema_editor):
-    Feed = apps.get_model('yarrharr', 'Feed')
+    Feed = apps.get_model("yarrharr", "Feed")
     db_alias = schema_editor.connection.alias
 
     # This could be done more efficiently with aggregations, but given the
@@ -44,23 +44,23 @@ def init_feed_counts(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0007_article_raw_title_backfill'),
+        ("yarrharr", "0007_article_raw_title_backfill"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='feed',
-            name='all_count',
+            model_name="feed",
+            name="all_count",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='feed',
-            name='fave_count',
+            model_name="feed",
+            name="fave_count",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='feed',
-            name='unread_count',
+            model_name="feed",
+            name="unread_count",
             field=models.IntegerField(default=0),
         ),
         migrations.RunPython(init_feed_counts, migrations.RunPython.noop, elidable=True),

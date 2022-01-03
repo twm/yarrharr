@@ -34,10 +34,11 @@ import yarrharr
 
 
 def main(argv=sys.argv[1:]):
-    parser = argparse.ArgumentParser(description='Yarrharr feed reader')
-    parser.add_argument('--version', action='version', version=yarrharr.__version__)
+    parser = argparse.ArgumentParser(description="Yarrharr feed reader")
+    parser.add_argument("--version", action="version", version=yarrharr.__version__)
     parser.parse_args(argv)
 
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'yarrharr.settings'
+    os.environ["DJANGO_SETTINGS_MODULE"] = "yarrharr.settings"
     from yarrharr.application import run
+
     run()

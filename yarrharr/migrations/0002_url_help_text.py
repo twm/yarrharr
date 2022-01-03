@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0001_squashed_0012_feed_count_constraint'),
+        ("yarrharr", "0001_squashed_0012_feed_count_constraint"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='feed',
-            name='site_url',
-            field=models.URLField(blank=True, default='', verbose_name='Site URL'),
+            model_name="feed",
+            name="site_url",
+            field=models.URLField(blank=True, default="", verbose_name="Site URL"),
         ),
         migrations.AlterField(
-            model_name='feed',
-            name='url',
-            field=models.URLField(verbose_name='Feed URL'),
+            model_name="feed",
+            name="url",
+            field=models.URLField(verbose_name="Feed URL"),
         ),
     ]

@@ -43,65 +43,73 @@ REVISION = 5
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
 # sanitizer in sanitize_html() below.
-if 'wbr' in voidElements:
+if "wbr" in voidElements:
     warnings.warn("html5lib now supports <wbr>: remove the monkeypatch")  # noqa
 else:
-    voidElements |= frozenset(['wbr'])
+    voidElements |= frozenset(["wbr"])
     import html5lib.treewalkers.base
+
     html5lib.constants.voidElements = voidElements
     html5lib.serializer.voidElements = voidElements
     html5lib.treewalkers.base.voidElements = voidElements
 
 
 def html_tag(tag):
-    return '{http://www.w3.org/1999/xhtml}' + tag
+    return "{http://www.w3.org/1999/xhtml}" + tag
 
 
-_IMG_TAG = html_tag('img')
+_IMG_TAG = html_tag("img")
 
-_DROP_TAGS = frozenset([
-    html_tag('datalist'),
-    html_tag('object'),
-    html_tag('script'),
-    html_tag('style'),
-    html_tag('template'),
-])
+_DROP_TAGS = frozenset(
+    [
+        html_tag("datalist"),
+        html_tag("object"),
+        html_tag("script"),
+        html_tag("style"),
+        html_tag("template"),
+    ]
+)
 
-_NO_WHITESPACE_TAGS = frozenset([
-    html_tag('a'),
-    html_tag('abbr'),
-    html_tag('b'),
-    html_tag('bdo'),
-    html_tag('cite'),
-    html_tag('code'),
-    html_tag('datalist'),
-    html_tag('del'),
-    html_tag('em'),
-    html_tag('i'),
-    html_tag('img'),
-    html_tag('ins'),
-    html_tag('kbd'),
-    html_tag('label'),
-    html_tag('link'),
-    html_tag('mark'),
-    html_tag('math'),
-    html_tag('meta'),
-    html_tag('meter'),
-    html_tag('noscript'),
-    html_tag('q'),
-    html_tag('ruby'),
-    html_tag('samp'),
-    html_tag('small'),
-    html_tag('span'),
-    html_tag('strong'),
-    html_tag('sub'),
-    html_tag('sup'),
-    html_tag('time'),
-    html_tag('var'),
-    html_tag('wbr'),
-]) | _DROP_TAGS
+_NO_WHITESPACE_TAGS = (
+    frozenset(
+        [
+            html_tag("a"),
+            html_tag("abbr"),
+            html_tag("b"),
+            html_tag("bdo"),
+            html_tag("cite"),
+            html_tag("code"),
+            html_tag("datalist"),
+            html_tag("del"),
+            html_tag("em"),
+            html_tag("i"),
+            html_tag("img"),
+            html_tag("ins"),
+            html_tag("kbd"),
+            html_tag("label"),
+            html_tag("link"),
+            html_tag("mark"),
+            html_tag("math"),
+            html_tag("meta"),
+            html_tag("meter"),
+            html_tag("noscript"),
+            html_tag("q"),
+            html_tag("ruby"),
+            html_tag("samp"),
+            html_tag("small"),
+            html_tag("span"),
+            html_tag("strong"),
+            html_tag("sub"),
+            html_tag("sup"),
+            html_tag("time"),
+            html_tag("var"),
+            html_tag("wbr"),
+        ]
+    )
+    | _DROP_TAGS
+)
 
-_WHITESPACE_RE = re.compile(r'[ \t\r\n]{2,}', re.U)
+_WHITESPACE_RE = re.compile(r"[ \t\r\n]{2,}", re.U)
 
 
 def html_to_text(html):
@@ -127,21 +135,21 @@ def html_to_text(html):
     def visit(el):
         needs_ws = el.tag not in _NO_WHITESPACE_TAGS
         if el.tag == _IMG_TAG:
-            buf.write(el.get('alt', '🖼️'))
+            buf.write(el.get("alt", "🖼️"))
         elif el.tag not in _DROP_TAGS:
             if el.text is not None:
                 if needs_ws:
-                    buf.write(' ')
+                    buf.write(" ")
                 buf.write(el.text)
             for child in el:
                 visit(child)
         if el.tail is not None:
             if needs_ws:
-                buf.write(' ')
+                buf.write(" ")
             buf.write(el.tail)
 
     visit(tree)
-    return _WHITESPACE_RE.sub(' ', buf.getvalue()).strip()
+    return _WHITESPACE_RE.sub(" ", buf.getvalue()).strip()
 
 
 def sanitize_html(html):
@@ -150,7 +158,7 @@ def sanitize_html(html):
     """
     tree = html5lib.parseFragment(html)
     serializer = html5lib.serializer.HTMLSerializer()
-    source = html5lib.getTreeWalker('etree')(tree)
+    source = html5lib.getTreeWalker("etree")(tree)
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
     source = _ReplaceObjectFilter(source)
@@ -162,10 +170,19 @@ def sanitize_html(html):
     source = _wp_smileys(source)
     source = sanitizer.Filter(
         source,
-        allowed_elements=sanitizer.allowed_elements | frozenset([
-            (namespaces['html'], 'summary'),  # https://github.com/html5lib/html5lib-python/pull/423
-            (namespaces['html'], 'wbr'),  # https://github.com/html5lib/html5lib-python/pull/395
-        ]),
+        allowed_elements=sanitizer.allowed_elements
+        | frozenset(
+            [
+                (
+                    namespaces["html"],
+                    "summary",
+                ),  # https://github.com/html5lib/html5lib-python/pull/423
+                (
+                    namespaces["html"],
+                    "wbr",
+                ),  # https://github.com/html5lib/html5lib-python/pull/395
+            ]
+        ),
     )
     return serializer.render(source)
 
@@ -175,11 +192,11 @@ def _strip_attrs(source):
     Strip id, style, and class attributes as they may break the layout.
     """
     for token in source:
-        if token['type'] == 'StartTag':
-            attrs = token['data']
-            attrs.pop((None, 'id'), None)
-            attrs.pop((None, 'class'), None)
-            attrs.pop((None, 'style'), None)
+        if token["type"] == "StartTag":
+            attrs = token["data"]
+            attrs.pop((None, "id"), None)
+            attrs.pop((None, "class"), None)
+            attrs.pop((None, "style"), None)
         yield token
 
 
@@ -190,13 +207,15 @@ def _drop_empty_tags(source):
       * ``<meta>``
       * ``<link>``
     """
-    tags = frozenset((
-        (namespaces['html'], 'meta'),
-        (namespaces['html'], 'link'),
-    ))
+    tags = frozenset(
+        (
+            (namespaces["html"], "meta"),
+            (namespaces["html"], "link"),
+        )
+    )
 
     for token in source:
-        if token['type'] == 'EmptyTag' and (token['namespace'], token['name']) in tags:
+        if token["type"] == "EmptyTag" and (token["namespace"], token["name"]) in tags:
             continue
         yield token
 
@@ -209,30 +228,33 @@ class _ElideFilter(BaseFilter):
       * ``<style>``
       * ``<template>``
     """
-    _elide_tags = frozenset((
-        (namespaces['html'], 'script'),
-        (namespaces['html'], 'style'),
-        (namespaces['html'], 'template'),
-    ))
+
+    _elide_tags = frozenset(
+        (
+            (namespaces["html"], "script"),
+            (namespaces["html"], "style"),
+            (namespaces["html"], "template"),
+        )
+    )
 
     def __iter__(self):
         elide = 0
         elide_ns = None
         elide_name = None
         for token in BaseFilter.__iter__(self):
-            token_type = token['type']
+            token_type = token["type"]
             if elide:
-                if token_type == 'EndTag' and token['name'] == elide_name and token['namespace'] == elide_ns:
+                if token_type == "EndTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
                     elide -= 1
-                if token_type == 'StartTag' and token['name'] == elide_name and token['namespace'] == elide_ns:
+                if token_type == "StartTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
                     elide += 1
                 continue  # Drop the token
             else:
-                if token_type == 'StartTag':
-                    if (token['namespace'], token['name']) in self._elide_tags:
+                if token_type == "StartTag":
+                    if (token["namespace"], token["name"]) in self._elide_tags:
                         elide += 1
-                        elide_name = token['name']
-                        elide_ns = token['namespace']
+                        elide_name = token["name"]
+                        elide_ns = token["namespace"]
                         continue  # Drop this token.
                 yield token
 
@@ -241,22 +263,23 @@ class _ReplaceObjectFilter(BaseFilter):
     """
     ``<object>`` tags are replaced with their content.
     """
+
     def __iter__(self):
-        html_ns = namespaces['html']
+        html_ns = namespaces["html"]
         nest = 0
         for token in BaseFilter.__iter__(self):
-            token_type = token['type']
+            token_type = token["type"]
             # Drop <param> when inside <object>. We don't handle nesting
             # properly, but they're not valid anywhere else so that's not
             # a problem.
-            if nest >= 1 and token_type == 'EmptyTag' and token['name'] == 'param' and token['namespace'] == html_ns:
+            if nest >= 1 and token_type == "EmptyTag" and token["name"] == "param" and token["namespace"] == html_ns:
                 continue
 
-            if token_type == 'EndTag' and token['name'] == 'object' and token['namespace'] == html_ns:
+            if token_type == "EndTag" and token["name"] == "object" and token["namespace"] == html_ns:
                 nest -= 1
                 continue
 
-            if token_type == 'StartTag' and token['name'] == 'object' and token['namespace'] == html_ns:
+            if token_type == "StartTag" and token["name"] == "object" and token["namespace"] == html_ns:
                 nest += 1
                 continue
 
@@ -267,6 +290,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
     """
     YouTube embeds are replaced with a thumbnail which links to the original video.
     """
+
     def _watch_url(self, embed_url) -> DecodedURL:
         """
         Generate the URL of the YouTube page at which the embedded video can be
@@ -274,15 +298,15 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         """
         video_id = embed_url.path[1]
         watch_url = DecodedURL(
-            URL(scheme='https', host='www.youtube.com', path=('watch',)),
-        ).add('v', video_id)
+            URL(scheme="https", host="www.youtube.com", path=("watch",)),
+        ).add("v", video_id)
         try:
-            [start] = embed_url.get('start')
+            [start] = embed_url.get("start")
         except (KeyError, ValueError):
             return watch_url
         if not start.isdigit():
             return watch_url  # Ignore an invalid second offset.
-        return watch_url.replace(fragment='t={}s'.format(start))
+        return watch_url.replace(fragment="t={}s".format(start))
 
     def _thumbnail_url(self, embed_url) -> DecodedURL:
         """
@@ -310,60 +334,70 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         video_id = embed_url.path[1]
         return DecodedURL(
             URL(
-                scheme='https',
-                host='i.ytimg.com',
-                path=('vi', video_id, 'mqdefault.jpg'),
+                scheme="https",
+                host="i.ytimg.com",
+                path=("vi", video_id, "mqdefault.jpg"),
             ),
         )
 
-    def __iter__(self, _SRC_ATTR=(None, 'src'), _youtube_hosts=('youtube.com',
-                                                                'www.youtube.com',
-                                                                'youtube-nocookie.com',
-                                                                'www.youtube-nocookie.com')):
-        html_ns = namespaces['html']
+    def __iter__(
+        self,
+        _SRC_ATTR=(None, "src"),
+        _youtube_hosts=(
+            "youtube.com",
+            "www.youtube.com",
+            "youtube-nocookie.com",
+            "www.youtube-nocookie.com",
+        ),
+    ):
+        html_ns = namespaces["html"]
         elide = False
         for token in BaseFilter.__iter__(self):
-            token_type = token['type']
+            token_type = token["type"]
             if elide:
                 # NOTE html5lib doesn't permit nesting <iframe> tags,
                 # (presumably because HTML5 doesn't permit it). Therefore we
                 # don't need to deal with that case here, just wait for the
                 # first end tag.
-                if token_type == 'EndTag' and token['name'] == 'iframe':
+                if token_type == "EndTag" and token["name"] == "iframe":
                     elide = False
             else:
                 if (
-                    token_type == 'StartTag' and
-                    token['name'] == 'iframe' and
-                    token['namespace'] == html_ns and
-                    'data' in token and
-                    _SRC_ATTR in token['data']
+                    token_type == "StartTag"
+                    and token["name"] == "iframe"
+                    and token["namespace"] == html_ns
+                    and "data" in token
+                    and _SRC_ATTR in token["data"]
                 ):
-                    url = DecodedURL.from_text(token['data'][_SRC_ATTR])
-                    if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == 'embed':
+                    url = DecodedURL.from_text(token["data"][_SRC_ATTR])
+                    if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == "embed":
                         yield {
-                            'type': 'StartTag',
-                            'namespace': html_ns,
-                            'name': 'a',
-                            'data': OrderedDict([
-                                ((None, 'href'), self._watch_url(url).to_text()),
-                            ]),
+                            "type": "StartTag",
+                            "namespace": html_ns,
+                            "name": "a",
+                            "data": OrderedDict(
+                                [
+                                    ((None, "href"), self._watch_url(url).to_text()),
+                                ]
+                            ),
                         }
                         yield {
-                            'type': 'EmptyTag',
-                            'namespace': html_ns,
-                            'name': u'img',
-                            'data': OrderedDict([
-                                ((None, 'alt'), 'YouTube video'),
-                                (_SRC_ATTR, self._thumbnail_url(url).to_text()),
-                                ((None, 'width'), '320'),
-                                ((None, 'height'), '180'),
-                            ]),
+                            "type": "EmptyTag",
+                            "namespace": html_ns,
+                            "name": "img",
+                            "data": OrderedDict(
+                                [
+                                    ((None, "alt"), "YouTube video"),
+                                    (_SRC_ATTR, self._thumbnail_url(url).to_text()),
+                                    ((None, "width"), "320"),
+                                    ((None, "height"), "180"),
+                                ]
+                            ),
                         }
                         yield {
-                            'type': 'EndTag',
-                            'namespace': html_ns,
-                            'name': 'a',
+                            "type": "EndTag",
+                            "namespace": html_ns,
+                            "name": "a",
                         }
                         elide = True
                     else:
@@ -376,67 +410,53 @@ class _ExtractTitleTextFilter(BaseFilter):
     """
     ``<img title="...">`` becomes ``<img><aside>...</aside>``
     """
-    def __iter__(self, _title_attr=(None, 'title')):
-        html_ns = namespaces['html']
+
+    def __iter__(self, _title_attr=(None, "title")):
+        html_ns = namespaces["html"]
         for token in BaseFilter.__iter__(self):
             yield token
-            if (
-                token['type'] == 'EmptyTag' and
-                token['name'] == 'img' and
-                token['namespace'] == html_ns and
-                'data' in token
-            ):
-                attrs = token['data']
+            if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and "data" in token:
+                attrs = token["data"]
                 if _title_attr in attrs:
                     yield {
-                        'type': 'StartTag',
-                        'namespace': html_ns,
-                        'name': 'aside',
-                        'data': OrderedDict(),  # TODO Some way to pass through special styling.
+                        "type": "StartTag",
+                        "namespace": html_ns,
+                        "name": "aside",
+                        "data": OrderedDict(),  # TODO Some way to pass through special styling.
                     }
                     yield {
-                        'type': 'Characters',
-                        'data': attrs[_title_attr],
+                        "type": "Characters",
+                        "data": attrs[_title_attr],
                     }
                     yield {
-                        'type': 'EndTag',
-                        'namespace': html_ns,
-                        'name': 'aside',
+                        "type": "EndTag",
+                        "namespace": html_ns,
+                        "name": "aside",
                     }
 
 
 def _adjust_links(source):
-    html_ns = namespaces['html']
-    href_attr = (None, 'href')
-    rel_attr = (None, 'rel')
-    target_attr = (None, 'target')
+    html_ns = namespaces["html"]
+    href_attr = (None, "href")
+    rel_attr = (None, "rel")
+    target_attr = (None, "target")
     for token in source:
-        if (
-            token['type'] == 'StartTag' and
-            token['name'] == 'a' and
-            token['namespace'] == html_ns and
-            'data' in token and
-            href_attr in token['data']
-        ):
-            token['data'][rel_attr] = 'noopener noreferrer'
-            token['data'][target_attr] = '_blank'
+        if token["type"] == "StartTag" and token["name"] == "a" and token["namespace"] == html_ns and "data" in token and href_attr in token["data"]:
+            token["data"][rel_attr] = "noopener noreferrer"
+            token["data"][target_attr] = "_blank"
         yield token
 
 
 def _video_attrs(source):
-    html_ns = namespaces['html']
-    controls_attr = (None, 'controls')
-    autoplay_attr = (None, 'autoplay')
-    preload_attr = (None, 'preload')
+    html_ns = namespaces["html"]
+    controls_attr = (None, "controls")
+    autoplay_attr = (None, "autoplay")
+    preload_attr = (None, "preload")
     for token in source:
-        if (
-            token['type'] == 'StartTag' and
-            token['name'] == 'video' and
-            token['namespace'] == html_ns
-        ):
-            token['data'][controls_attr] = 'controls'
-            token['data'][preload_attr] = 'metadata'
-            token['data'].pop(autoplay_attr, None)
+        if token["type"] == "StartTag" and token["name"] == "video" and token["namespace"] == html_ns:
+            token["data"][controls_attr] = "controls"
+            token["data"][preload_attr] = "metadata"
+            token["data"].pop(autoplay_attr, None)
         yield token
 
 
@@ -447,23 +467,23 @@ def _wp_smileys(source):
 
     See <https://codex.wordpress.org/Using_Smilies> for more on WordPress smilies.
     """
-    html_ns = namespaces['html']
-    class_attr = (None, 'class')
-    alt_attr = (None, 'alt')
+    html_ns = namespaces["html"]
+    class_attr = (None, "class")
+    alt_attr = (None, "alt")
     for token in source:
         if (
-            token['type'] == 'EmptyTag' and
-            token['name'] == 'img' and
-            token['namespace'] == html_ns and
-            token['data'].get(class_attr) == 'wp-smiley' and
-            alt_attr in token['data']
+            token["type"] == "EmptyTag"
+            and token["name"] == "img"
+            and token["namespace"] == html_ns
+            and token["data"].get(class_attr) == "wp-smiley"
+            and alt_attr in token["data"]
         ):
-            alt = token['data'][alt_attr]
+            alt = token["data"][alt_attr]
             try:
-                alt.encode('ascii')
+                alt.encode("ascii")
             except UnicodeEncodeError:
                 # Smells like Emoji.
-                yield {'type': 'Characters', 'data': alt}
+                yield {"type": "Characters", "data": alt}
             else:
                 # Emoticon
                 yield token

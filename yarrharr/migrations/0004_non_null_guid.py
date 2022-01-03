@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0003_non_null'),
+        ("yarrharr", "0003_non_null"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='guid',
-            field=models.TextField(blank=True, default=''),
+            model_name="article",
+            name="guid",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

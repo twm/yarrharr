@@ -36,6 +36,7 @@ class PoisonReactor(object):
     exists only to be importable as ``from twisted.internet import reactor`` to
     make it easier to find code which uses the global reactor.
     """
+
     # We must define callLater because the bound method is plucked off by
     # twisted.web.http.HTTPFActory.buildProtocol().
     def callLater(self, delay, callable, *args, **kw):
@@ -48,6 +49,7 @@ class PoisonReactor(object):
         raise NotImplementedError
 
 
-if os.environ.get('POISON_REACTOR'):
+if os.environ.get("POISON_REACTOR"):
     from twisted.internet.main import installReactor
+
     installReactor(PoisonReactor())
