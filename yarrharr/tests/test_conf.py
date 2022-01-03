@@ -254,3 +254,24 @@ class ConfTests(unittest.TestCase):
         self.assertTrue(settings['SESSION_COOKIE_SECURE'])
         self.assertTrue(settings["CSRF_COOKIE_SECURE"])
         self.assertEqual(["https://f.q.d.n"], settings["CSRF_TRUSTED_ORIGINS"])
+
+    def test_read_external_path(self):
+        """
+        A configuration with a non-root path is rejected as unsupported.
+        """
+        with NamedTemporaryFile() as f:
+            f.write(
+                b'[yarrharr]\n'
+                b'external_url = https://f.q.d.n/foo/bar\n'
+                b'server_endpoint = tcp:8182:interface=127.0.0.1\n'
+                b'[secrets]\n'
+                b'secret_key = sarlona\n',
+            )
+            f.flush()
+
+            settings = {}
+
+            with self.assertRaises(ValueError) as c:
+                read_yarrharr_conf([f.name], settings)
+
+        self.assertEqual(str(c.exception), 'external_url must not include path: remove \'/foo/bar\'')
