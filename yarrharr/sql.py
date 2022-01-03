@@ -47,8 +47,13 @@ def log_mutations(execute, sql, params, many, context):
     """
     Log every non-SELECT query executed.
     """
-    if not sql.startswith('SELECT '):
-        log.debug('Query {sql} params={params} many={many!r}', sql=sql, params=reprlib.repr(params), many=many)
+    if not sql.startswith("SELECT "):
+        log.debug(
+            "Query {sql} params={params} many={many!r}",
+            sql=sql,
+            params=reprlib.repr(params),
+            many=many,
+        )
     return execute(sql, params, many, context)
 
 
@@ -59,5 +64,10 @@ def log_on_error(execute, sql, params, many, context):
     try:
         return execute(sql, params, many, context)
     except Exception:
-        log.debug('Query {sql} params={params} many={many!r}', sql=sql, params=reprlib.repr(params), many=many)
+        log.debug(
+            "Query {sql} params={params} many={many!r}",
+            sql=sql,
+            params=reprlib.repr(params),
+            many=many,
+        )
         raise

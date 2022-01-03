@@ -36,7 +36,7 @@ def need_update():
 
 
 class Command(BaseCommand):
-    help = 'Update article HTML for sanitizer changes'
+    help = "Update article HTML for sanitizer changes"
 
     def handle(self, *args, **options):
         count = 0

@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0011_feed_last_changed'),
+        ("yarrharr", "0011_feed_last_changed"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='feed',
-            constraint=models.CheckConstraint(check=models.Q(all_count__gte=0), name='feed_all_count_nonneg'),
+            model_name="feed",
+            constraint=models.CheckConstraint(check=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
         ),
         migrations.AddConstraint(
-            model_name='feed',
-            constraint=models.CheckConstraint(check=models.Q(unread_count__gte=0), name='feed_unread_count_nonneg'),
+            model_name="feed",
+            constraint=models.CheckConstraint(check=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
         ),
         migrations.AddConstraint(
-            model_name='feed',
-            constraint=models.CheckConstraint(check=models.Q(fave_count__gte=0), name='feed_fave_count_nonneg'),
+            model_name="feed",
+            constraint=models.CheckConstraint(check=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
         ),
     ]

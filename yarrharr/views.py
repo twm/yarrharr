@@ -61,7 +61,7 @@ def human_sort_key(s):
     :returns:
         A case-normalized version of `s` less non-alphanumeric characters.
     """
-    return ''.join(c for c in s.casefold() if c.isalnum() or c.isspace())
+    return "".join(c for c in s.casefold() if c.isalnum() or c.isspace())
 
 
 def ms_timestamp(dt):
@@ -83,35 +83,35 @@ def json_for_article(article):
     Translate a `yarrharr.Article` into the JSON data for an article.
     """
     return {
-        'feedId': article.feed.id,
-        'id': article.id,
-        'read': article.read,
-        'fave': article.fave,
-        'title': article.title,
-        'snippet': article.content_snippet,
-        'content': article.content,
-        'author': article.author,
-        'date': ms_timestamp(article.date),
-        'url': article.url,
+        "feedId": article.feed.id,
+        "id": article.id,
+        "read": article.read,
+        "fave": article.fave,
+        "title": article.title,
+        "snippet": article.content_snippet,
+        "content": article.content,
+        "author": article.author,
+        "date": ms_timestamp(article.date),
+        "url": article.url,
     }
 
 
 def json_for_feed(feed):
     return {
-        'id': feed.id,
-        'title': feed.feed_title,
-        'text': feed.user_title,
-        'active': feed.next_check is not None,
-        'unreadCount': feed.unread_count,
-        'faveCount': feed.fave_count,
-        'labels': sorted(feed.label_set.all().values_list('id', flat=True)),
-        'url': feed.url,
-        'siteUrl': feed.site_url,
-        'added': ms_timestamp(feed.added),
-        'changed': ms_timestamp(feed.last_changed),
-        'checked': ms_timestamp(feed.last_checked),
+        "id": feed.id,
+        "title": feed.feed_title,
+        "text": feed.user_title,
+        "active": feed.next_check is not None,
+        "unreadCount": feed.unread_count,
+        "faveCount": feed.fave_count,
+        "labels": sorted(feed.label_set.all().values_list("id", flat=True)),
+        "url": feed.url,
+        "siteUrl": feed.site_url,
+        "added": ms_timestamp(feed.added),
+        "changed": ms_timestamp(feed.last_changed),
+        "checked": ms_timestamp(feed.last_checked),
         # 'nextCheck': str(feed.next_check or ''),
-        'error': feed.error,
+        "error": feed.error,
     }
 
 
@@ -127,8 +127,8 @@ def feeds_for_user(user):
     # query all feeds anyway.
     feed_order_decorated.sort()
     return {
-        'feedsById': feeds_by_id,
-        'feedOrder': list(pk for _, pk in feed_order_decorated),
+        "feedsById": feeds_by_id,
+        "feedOrder": list(pk for _, pk in feed_order_decorated),
     }
 
 
@@ -139,23 +139,23 @@ def labels_for_user(user):
         labels_by_id[label.id] = json_for_label(label)
         label_order_decorated.append((human_sort_key(label.text), label.id))
     return {
-        'labelsById': labels_by_id,
-        'labelOrder': list(pk for _, pk in label_order_decorated),
+        "labelsById": labels_by_id,
+        "labelOrder": list(pk for _, pk in label_order_decorated),
     }
 
 
 def json_for_label(label):
     counts = label.feeds.all().aggregate(
-        unread=Sum('unread_count'),
-        fave=Sum('fave_count'),
+        unread=Sum("unread_count"),
+        fave=Sum("fave_count"),
     )
     return {
-        'id': label.id,
-        'text': label.text,
-        'feeds': list(label.feeds.all().order_by('id').values_list('id', flat=True)),
+        "id": label.id,
+        "text": label.text,
+        "feeds": list(label.feeds.all().order_by("id").values_list("id", flat=True)),
         # Aggregations return NULL if there are no feeds; translate that into 0.
-        'unreadCount': counts['unread'] or 0,
-        'faveCount': counts['fave'] or 0,
+        "unreadCount": counts["unread"] or 0,
+        "faveCount": counts["fave"] or 0,
     }
 
 
@@ -163,11 +163,11 @@ def entries_for_snapshot(user, params):
     """
     Return a queryset containing entries which match the given params.
     """
-    qs = Article.objects.filter(feed__id__in=params['feeds']).filter(feed__in=user.feed_set.all())
+    qs = Article.objects.filter(feed__id__in=params["feeds"]).filter(feed__in=user.feed_set.all())
 
-    if params['filter'] == 'unread':
+    if params["filter"] == "unread":
         filt = Q(read=False)
-    elif params['filter'] == 'fave':
+    elif params["filter"] == "fave":
         filt = Q(fave=True)
     else:
         filt = None
@@ -175,16 +175,16 @@ def entries_for_snapshot(user, params):
     # The include param allows inclusion of a single article which would
     # otherwise be filtered out.  This is so that the page can be reloaded
     # after the state is changed without getting a 404.
-    if filt is not None and params['include'] is not None:
-        filt |= Q(id=params['include'])
+    if filt is not None and params["include"] is not None:
+        filt |= Q(id=params["include"])
 
     if filt is not None:
         qs = qs.filter(filt)
 
-    if params['order'] == 'date':
-        qs = qs.order_by('date')
+    if params["order"] == "date":
+        qs = qs.order_by("date")
     else:
-        qs = qs.order_by('-date')
+        qs = qs.order_by("-date")
 
     return qs
 
@@ -199,8 +199,8 @@ def snapshot_params_from_query(query_dict, user_feeds):
     """
     try:
         feeds = set()
-        for value in query_dict.getlist('feeds'):
-            if value == 'all':
+        for value in query_dict.getlist("feeds"):
+            if value == "all":
                 feeds.update(user_feeds)
             else:
                 id = int(value)
@@ -216,16 +216,16 @@ def snapshot_params_from_query(query_dict, user_feeds):
         return values[0]
 
     try:
-        include = int(query_dict['include'])
+        include = int(query_dict["include"])
     except (KeyError, ValueError):
         include = None
 
     return {
-        'feeds': sorted(feeds),
-        'filter': oneof('filter', ['unread', 'fave', 'all']),
-        'order': oneof('order', ['date', 'tail']),
-        'view': oneof('view', ['text', 'list']),
-        'include': include,
+        "feeds": sorted(feeds),
+        "filter": oneof("filter", ["unread", "fave", "all"]),
+        "order": oneof("order", ["date", "tail"]),
+        "view": oneof("view", ["text", "list"]),
+        "include": include,
     }
 
 
@@ -242,11 +242,11 @@ def sort_and_filter_articles(qs, viewoptions, filt: ArticleFilter, after=None):
         after_date = None
 
     if viewoptions.sort == Sort.ASC:
-        qs = qs.order_by('date', 'id')
+        qs = qs.order_by("date", "id")
         if after_date is not None:
             qs = qs.filter(date__gt=after_date)
     elif viewoptions.sort == Sort.DESC:
-        qs = qs.order_by('-date', '-id')
+        qs = qs.order_by("-date", "-id")
         if after_date is not None:
             qs = qs.filter(date__lt=after_date)
     else:
@@ -259,7 +259,7 @@ def sort_and_filter_articles(qs, viewoptions, filt: ArticleFilter, after=None):
     else:
         assert filt is ArticleFilter.all
 
-    articles = list(qs.prefetch_related("feed")[:PAGE_SIZE + 1])
+    articles = list(qs.prefetch_related("feed")[: PAGE_SIZE + 1])
     if len(articles) > PAGE_SIZE:
         articles.pop()
         after = articles[-1].pk
@@ -273,10 +273,14 @@ def home(request):
     """
     Display the homepage
     """
-    return render(request, 'home.html', {
-        'feeds': request.user.feed_set.all(),
-        'labels': request.user.label_set.all(),
-    })
+    return render(
+        request,
+        "home.html",
+        {
+            "feeds": request.user.feed_set.all(),
+            "labels": request.user.label_set.all(),
+        },
+    )
 
 
 @login_required
@@ -296,13 +300,17 @@ def all_show(request, filter: ArticleFilter):
         all_fave_count=Sum("fave_count"),
     )
 
-    return render(request, "all_show.html", {
-        "articles": articles,
-        "next_page_after": next_page_after,
-        "filter": filter,
-        **counts,
-        "tabs_selected": {f"all-{filter.name}"},
-    })
+    return render(
+        request,
+        "all_show.html",
+        {
+            "articles": articles,
+            "next_page_after": next_page_after,
+            "filter": filter,
+            **counts,
+            "tabs_selected": {f"all-{filter.name}"},
+        },
+    )
 
 
 @login_required
@@ -310,17 +318,21 @@ def feed_list(request):
     """
     Display a list of known feeds
     """
-    return render(request, "feed_list.html", {
-        "feeds": sorted(
-            request.user.feed_set.all(),
-            # XXX It would be nice to do this sorting in the database, but sqlite3 does
-            # not ship with appropriate collations. Custom collations can be installed,
-            # but there isn't much advantage to doing so right now given we always
-            # query all feeds anyway.
-            key=lambda feed: (human_sort_key(feed.title), feed.pk),
-        ),
-        "tabs_selected": {"global-feed-list"},
-    })
+    return render(
+        request,
+        "feed_list.html",
+        {
+            "feeds": sorted(
+                request.user.feed_set.all(),
+                # XXX It would be nice to do this sorting in the database, but sqlite3 does
+                # not ship with appropriate collations. Custom collations can be installed,
+                # but there isn't much advantage to doing so right now given we always
+                # query all feeds anyway.
+                key=lambda feed: (human_sort_key(feed.title), feed.pk),
+            ),
+            "tabs_selected": {"global-feed-list"},
+        },
+    )
 
 
 @login_required
@@ -336,13 +348,17 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
         after=request.GET.get("after"),
     )
 
-    return render(request, 'feed_show.html', {
-        "feed": feed,
-        "articles": articles,
-        "next_page_after": next_page_after,
-        "filter": filter,
-        "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
-    })
+    return render(
+        request,
+        "feed_show.html",
+        {
+            "feed": feed,
+            "articles": articles,
+            "next_page_after": next_page_after,
+            "filter": filter,
+            "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
+        },
+    )
 
 
 class FeedForm(ModelForm):
@@ -352,6 +368,7 @@ class FeedForm(ModelForm):
     The *instance* argument must always be given a `Form` instance,
     which must have an assigned user.
     """
+
     # TODO: Support toggling feed.active
 
     class Meta:
@@ -363,8 +380,8 @@ class FeedForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        assert self.instance.pk, 'instance argument must be a saved Feed instance'
-        assert self.instance.user, 'instance argument must be a Feed instance with a user'
+        assert self.instance.pk, "instance argument must be a saved Feed instance"
+        assert self.instance.user, "instance argument must be a Feed instance with a user"
         self.fields["label_set"].queryset = self.instance.user.label_set.all()
         self.initial["label_set"] = self.instance.label_set.all()
 
@@ -390,11 +407,15 @@ def feed_edit(request, feed_id: int):
             )
     elif request.method == "GET":
         form = FeedForm(instance=feed)
-    return render(request, "feed_edit.html", {
-        "feed": feed,
-        "form": form,
-        "tabs_selected": {"global-feed-list", "feed-edit"},
-    })
+    return render(
+        request,
+        "feed_edit.html",
+        {
+            "feed": feed,
+            "form": form,
+            "tabs_selected": {"global-feed-list", "feed-edit"},
+        },
+    )
 
 
 class FeedAddForm(ModelForm):
@@ -431,10 +452,14 @@ def feed_add(request):
         return HttpResponseNotAllowed(["GET", "POST"])
     else:
         form = FeedAddForm(instance=feed)
-    return render(request, "feed_add.html", {
-        "form": form,
-        "tabs_selected": {"global-feed-list"},
-    })
+    return render(
+        request,
+        "feed_add.html",
+        {
+            "form": form,
+            "tabs_selected": {"global-feed-list"},
+        },
+    )
 
 
 @login_required
@@ -442,26 +467,27 @@ def label_list(request):
     """
     Display a list of labels
     """
-    labels = (
-        request.user.label_set.all()
-        .annotate(
-            feed_count=Count("feeds"),
-            # TODO: Verify these give the correct results.
-            unread_count=Sum("feeds__unread_count"),
-            fave_count=Sum("feeds__fave_count"),
-        )
+    labels = request.user.label_set.all().annotate(
+        feed_count=Count("feeds"),
+        # TODO: Verify these give the correct results.
+        unread_count=Sum("feeds__unread_count"),
+        fave_count=Sum("feeds__fave_count"),
     )
-    return render(request, "label_list.html", {
-        "labels": sorted(
-            labels,
-            # XXX It would be nice to do this sorting in the database, but sqlite3 does
-            # not ship with appropriate collations. Custom collations can be installed,
-            # but there isn't much advantage to doing so right now given we always
-            # query all feeds anyway.
-            key=lambda label: (human_sort_key(label.text), label.pk),
-        ),
-        "tabs_selected": {"global-label-list"},
-    })
+    return render(
+        request,
+        "label_list.html",
+        {
+            "labels": sorted(
+                labels,
+                # XXX It would be nice to do this sorting in the database, but sqlite3 does
+                # not ship with appropriate collations. Custom collations can be installed,
+                # but there isn't much advantage to doing so right now given we always
+                # query all feeds anyway.
+                key=lambda label: (human_sort_key(label.text), label.pk),
+            ),
+            "tabs_selected": {"global-label-list"},
+        },
+    )
 
 
 @login_required
@@ -481,14 +507,18 @@ def label_show(request, label_id: int, filter: ArticleFilter):
         after=request.GET.get("after"),
     )
 
-    return render(request, 'label_show.html', {
-        "label": label,
-        **counts,
-        "articles": articles,
-        "next_page_after": next_page_after,
-        "filter": filter,
-        "tabs_selected": {"global-label-list", f"label-{filter.name}"},
-    })
+    return render(
+        request,
+        "label_show.html",
+        {
+            "label": label,
+            **counts,
+            "articles": articles,
+            "next_page_after": next_page_after,
+            "filter": filter,
+            "tabs_selected": {"global-label-list", f"label-{filter.name}"},
+        },
+    )
 
 
 class LabelForm(ModelForm):
@@ -502,7 +532,7 @@ class LabelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        assert self.instance.user, 'instance argument must be a Label instance with a user'
+        assert self.instance.user, "instance argument must be a Label instance with a user"
 
     def clean_text(self):
         """
@@ -513,10 +543,7 @@ class LabelForm(ModelForm):
             return data
 
         if self.instance.user.label_set.filter(text=data).count() > 0:
-            raise ValidationError(
-                "Label text must be unique",
-                code="duplicate"
-            )
+            raise ValidationError("Label text must be unique", code="duplicate")
 
         return data
 
@@ -551,12 +578,16 @@ def label_edit(request, label_id: int):
             )
     elif request.method == "GET":
         form = LabelForm(instance=label)
-    return render(request, "label_edit.html", {
-        "label": label,
-        "form": form,
-        **counts,
-        "tabs_selected": {"global-label-list", "label-edit"},
-    })
+    return render(
+        request,
+        "label_edit.html",
+        {
+            "label": label,
+            "form": form,
+            **counts,
+            "tabs_selected": {"global-label-list", "label-edit"},
+        },
+    )
 
 
 @login_required
@@ -595,10 +626,14 @@ def label_add(request):
         return HttpResponseNotAllowed(["GET", "POST"])
     else:
         form = LabelForm(instance=label)
-    return render(request, "label_add.html", {
-        "form": form,
-        "tabs_selected": {"global-label-list"},
-    })
+    return render(
+        request,
+        "label_add.html",
+        {
+            "form": form,
+            "tabs_selected": {"global-label-list"},
+        },
+    )
 
 
 @login_required
@@ -611,12 +646,16 @@ def article_show(request, article_id: int):
         pk=article_id,
     )
 
-    return render(request, "article_show.html", {
-        "filter": filter,
-        "article": article,
-        "article_labels": article.feed.label_set.all(),  # TODO: sort
-        "tabs_selected": set(),
-    })
+    return render(
+        request,
+        "article_show.html",
+        {
+            "filter": filter,
+            "article": article,
+            "article_labels": article.feed.label_set.all(),  # TODO: sort
+            "tabs_selected": set(),
+        },
+    )
 
 
 @login_required
@@ -626,22 +665,21 @@ def snapshots(request):
 
     :query article: One or more article IDs.
     """
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'])
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
 
-    user_feeds = request.user.feed_set.all().values_list('id', flat=True)
+    user_feeds = request.user.feed_set.all().values_list("id", flat=True)
     snapshot_params = snapshot_params_from_query(request.POST, user_feeds)
     articles = entries_for_snapshot(request.user, snapshot_params)
 
     data = {
-        'snapshot': [article.id for article in articles],
+        "snapshot": [article.id for article in articles],
         # Include the first 10 articles for instant display.
         # TODO: It would be better to include metadata for a larger number of
         # articles.
-        'articlesById': {article.id: json_for_article(article) for article in articles[:10]},
+        "articlesById": {article.id: json_for_article(article) for article in articles[:10]},
     }
-    return HttpResponse(json.dumps(data),
-                        content_type='application/json')
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 def articles_for_request(request):
@@ -651,7 +689,7 @@ def articles_for_request(request):
 
     :returns: A QuerySet for Entry model instances
     """
-    article_ids = map(int, request.POST.getlist('article'))
+    article_ids = map(int, request.POST.getlist("article"))
     qs = Article.objects.filter(feed__in=request.user.feed_set.all())
     return qs.filter(id__in=article_ids)
 
@@ -681,12 +719,11 @@ def articles(request):
 
     :query article: One or more article IDs.
     """
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'])
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
     qs = articles_for_request(request)
     data = {article.id: json_for_article(article) for article in qs}
-    return HttpResponse(json.dumps(data),
-                        content_type='application/json')
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 @login_required
@@ -698,28 +735,27 @@ def flags(request):
     :query fave: One of "true" or "false".
     :query article: One or more article IDs.
     """
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'])
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
     updates = {}
-    if 'read' in request.POST:
-        if request.POST['read'] == 'true':
-            updates['read'] = True
-        elif request.POST['read'] == 'false':
-            updates['read'] = False
-    if 'fave' in request.POST:
-        if request.POST['fave'] == 'true':
-            updates['fave'] = True
-        elif request.POST['fave'] == 'false':
-            updates['fave'] = False
+    if "read" in request.POST:
+        if request.POST["read"] == "true":
+            updates["read"] = True
+        elif request.POST["read"] == "false":
+            updates["read"] = False
+    if "fave" in request.POST:
+        if request.POST["fave"] == "true":
+            updates["fave"] = True
+        elif request.POST["fave"] == "false":
+            updates["fave"] = False
     qs = articles_for_request(request)
     if updates:
         with connection.execute_wrapper(log_on_error):
             qs.update(**updates)
     data = {
-        'articlesById': {article.id: json_for_article(article) for article in qs.all()},
+        "articlesById": {article.id: json_for_article(article) for article in qs.all()},
     }
-    return HttpResponse(json.dumps(data),
-                        content_type='application/json')
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 @login_required
@@ -754,11 +790,11 @@ def inventory(request):
     POST returns the full feed and label metadata just like GET, in the
     ``"labelsById"`` and ``"feedsById"`` members of the JSON response body.
     """
-    if request.method == 'POST':
-        action = request.POST['action']
+    if request.method == "POST":
+        action = request.POST["action"]
         data = {}
-        if action == 'create-feed':
-            feed_url = request.POST['url']
+        if action == "create-feed":
+            feed_url = request.POST["url"]
             with transaction.atomic():
                 feed = request.user.feed_set.create(
                     feed_title=feed_url,
@@ -766,33 +802,33 @@ def inventory(request):
                     added=timezone.now(),
                     next_check=timezone.now(),  # check ASAP
                 )
-            data['feedId'] = feed.id
+            data["feedId"] = feed.id
             schedule_changed.send(None)
-        elif action == 'update-feed':
+        elif action == "update-feed":
             with transaction.atomic():
-                feed = request.user.feed_set.get(id=request.POST['feed'])
-                feed.url = request.POST['url']
-                feed.user_title = request.POST['title']
-                new_labels = request.user.label_set.filter(pk__in=request.POST.getlist('label'))
+                feed = request.user.feed_set.get(id=request.POST["feed"])
+                feed.url = request.POST["url"]
+                feed.user_title = request.POST["title"]
+                new_labels = request.user.label_set.filter(pk__in=request.POST.getlist("label"))
                 feed.label_set.set(new_labels)
-                if request.POST['active'] == 'on':
+                if request.POST["active"] == "on":
                     feed.next_check = timezone.now()
                 else:
                     feed.next_check = None
                 feed.save()
             schedule_changed.send(None)
-        elif action == 'update-label':
+        elif action == "update-label":
             with transaction.atomic():
-                label = request.user.label_set.get(id=request.POST['label'])
-                label.text = request.POST['text']
-                new_feeds = request.user.feed_set.filter(pk__in=request.POST.getlist('feed'))
+                label = request.user.label_set.get(id=request.POST["label"])
+                label.text = request.POST["text"]
+                new_feeds = request.user.feed_set.filter(pk__in=request.POST.getlist("feed"))
                 label.feeds.set(new_feeds)
                 label.save()
-        elif action == 'remove':
+        elif action == "remove":
             with transaction.atomic():
-                for feed in request.user.feed_set.filter(pk__in=request.POST.getlist('feed')):
+                for feed in request.user.feed_set.filter(pk__in=request.POST.getlist("feed")):
                     feed.delete()
-                for label in request.user.label_set.filter(pk__in=request.POST.getlist('label')):
+                for label in request.user.label_set.filter(pk__in=request.POST.getlist("label")):
                     label.delete()
             schedule_changed.send(None)
         else:
@@ -800,15 +836,13 @@ def inventory(request):
 
         data.update(labels_for_user(request.user))
         data.update(feeds_for_user(request.user))
-        return HttpResponse(json.dumps(data),
-                            content_type='application/json')
-    elif request.method == 'GET':
+        return HttpResponse(json.dumps(data), content_type="application/json")
+    elif request.method == "GET":
         data = labels_for_user(request.user)
         data.update(feeds_for_user(request.user))
-        return HttpResponse(json.dumps(data),
-                            content_type='application/json')
+        return HttpResponse(json.dumps(data), content_type="application/json")
     else:
-        return HttpResponseNotAllowed(['GET', 'POST'])
+        return HttpResponseNotAllowed(["GET", "POST"])
 
 
 def manifest(request):
@@ -817,8 +851,7 @@ def manifest(request):
     """
     # A template is used to generate the JSON manifest so that the template
     # infrastructure for generating icon URLs can be reused.
-    return render(request, 'manifest.json', {},
-                  content_type='application/manifest+json')
+    return render(request, "manifest.json", {}, content_type="application/manifest+json")
 
 
 def about(request):
@@ -826,11 +859,15 @@ def about(request):
     About page, which lists the version of everything involved to assist
     with debugging.
     """
-    return render(request, 'about.html', {
-        'yarrharr_version': yarrharr.__version__,
-        'django_version': django.get_version(),
-        'feedparser_version': feedparser.__version__,
-    })
+    return render(
+        request,
+        "about.html",
+        {
+            "yarrharr_version": yarrharr.__version__,
+            "django_version": django.get_version(),
+            "feedparser_version": feedparser.__version__,
+        },
+    )
 
 
 def robots_txt(request):
@@ -838,6 +875,6 @@ def robots_txt(request):
     Serve up an empty robots.txt file so that it doesn't show as a 404 in the
     access logs.
     """
-    if request.method != 'GET':
-        return HttpResponseNotAllowed(['HEAD', 'GET'])
-    return HttpResponse(b'', content_type='text/plain')
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["HEAD", "GET"])
+    return HttpResponse(b"", content_type="text/plain")

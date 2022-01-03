@@ -62,8 +62,7 @@ log = Logger()
 
 # SquareSpace seems to reject requests with Twisted's default
 # User-Agent header, so we don't mention Twisted here.
-USER_AGENT_HEADER = 'Mozilla/5.0 (Linux x86_64) Yarrharr/{} +https://github.com/twm/yarrharr'.format(
-    __version__).encode()
+USER_AGENT_HEADER = "Mozilla/5.0 (Linux x86_64) Yarrharr/{} +https://github.com/twm/yarrharr".format(__version__).encode()
 
 
 @attr.s(slots=True, frozen=True)
@@ -73,11 +72,12 @@ class BadStatus(object):
 
     :ivar int code: HTTP status code
     """
+
     code = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u'Fetch failed: HTTP status {}'.format(self.code)
+        feed.error = u"Fetch failed: HTTP status {}".format(self.code)
         feed.schedule()
         feed.save()
 
@@ -89,11 +89,12 @@ class Unchanged(object):
 
     :ivar str reason: String describing how the feed was unchanged.
     """
+
     reason = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u''
+        feed.error = u""
         feed.schedule()
         feed.save()
 
@@ -103,9 +104,10 @@ class Gone(object):
     """
     HTTP 410 Gone was returned, so the feed should not be checked anymore.
     """
+
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u'Feed is no longer available: automatically deactivated'
+        feed.error = u"Feed is no longer available: automatically deactivated"
         feed.next_check = None
         feed.save()
 
@@ -121,12 +123,13 @@ class EmptyBody:
         Value of the Content-Type HTTP header. This is frequently a useful
         hint.
     """
+
     code = attr.ib()
     content_type = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = 'Feed HTTP response was empty'
+        feed.error = "Feed HTTP response was empty"
         feed.schedule()
         feed.save()
 
@@ -137,6 +140,7 @@ class MaybeUpdated(object):
     The contents of the feed have been retrieved and may have changed. The
     database should be updated to reflect the new content.
     """
+
     feed_title = attr.ib()
     site_url = attr.ib()
     articles = attr.ib(repr=False)
@@ -147,14 +151,17 @@ class MaybeUpdated(object):
 
     def persist(self, feed):
         feed.last_checked = self.check_time
-        feed.error = u''
+        feed.error = u""
         feed.feed_title = self.feed_title
         feed.site_url = self.site_url
         feed.etag = self.etag
         feed.last_modified = self.last_modified
         feed.digest = self.digest
-        log.debug("Upserting {upsert_count} articles to {feed}",
-                  upsert_count=len(self.articles), feed=feed)
+        log.debug(
+            "Upserting {upsert_count} articles to {feed}",
+            upsert_count=len(self.articles),
+            feed=feed,
+        )
 
         changed = False
         for upsert in self.articles:
@@ -170,8 +177,15 @@ class MaybeUpdated(object):
         # we clobber the values set by the triggers.
         feed.save(
             update_fields=[
-                'last_changed', 'last_checked', 'error', 'feed_title',
-                'site_url', 'etag', 'last_modified', 'digest', 'next_check',
+                "last_changed",
+                "last_checked",
+                "error",
+                "feed_title",
+                "site_url",
+                "etag",
+                "last_modified",
+                "digest",
+                "next_check",
             ],
         )
 
@@ -193,15 +207,15 @@ class MaybeUpdated(object):
             except IndexError:
                 pass
             else:
-                return match, 'guid'
+                return match, "guid"
 
-            if upsert.guid.startswith('https://'):
+            if upsert.guid.startswith("https://"):
                 try:
-                    match = feed.articles.filter(guid='http' + upsert.guid[5:])[0]
+                    match = feed.articles.filter(guid="http" + upsert.guid[5:])[0]
                 except IndexError:
                     pass
                 else:
-                    return match, 'guid'
+                    return match, "guid"
 
         # Fall back to the item link if no GUID is provided.
         # Note that we permit a match by link to match an article with a GUID.
@@ -213,19 +227,19 @@ class MaybeUpdated(object):
             except IndexError:
                 pass
             else:
-                return match, 'url'
+                return match, "url"
 
             # When the new URL is HTTPS, check if we have the same thing in
             # HTTP.  This heuristic helps cope with sites that are migrated
             # from HTTP to HTTPS but don't use a more stable identifier like
             # tag URIs.
-            if upsert.url.startswith('https://'):
+            if upsert.url.startswith("https://"):
                 try:
-                    match = feed.articles.filter(url='http' + upsert.url[5:])[0]
+                    match = feed.articles.filter(url="http" + upsert.url[5:])[0]
                 except IndexError:
                     pass
                 else:
-                    return match, 'url'
+                    return match, "url"
 
         return None, None
 
@@ -246,17 +260,23 @@ class MaybeUpdated(object):
             )
             created.set_content(upsert.raw_title, upsert.raw_content)
             created.save()
-            log.debug("  created {created!a} (No match for GUID {guid!r} or URL {url!r})",
-                      created=created, guid=upsert.guid, url=upsert.url)
+            log.debug(
+                "  created {created!a} (No match for GUID {guid!r} or URL {url!r})",
+                created=created,
+                guid=upsert.guid,
+                url=upsert.url,
+            )
             return True
 
         # Check if we need to update.
-        if (match.author != upsert.author or
-                match.raw_title != upsert.raw_title or
-                match.url != match.url or
-                match.guid != match.guid or
-                (upsert.date and match.date != upsert.date) or
-                match.raw_content != upsert.raw_content):
+        if (
+            match.author != upsert.author
+            or match.raw_title != upsert.raw_title
+            or match.url != match.url
+            or match.guid != match.guid
+            or (upsert.date and match.date != upsert.date)
+            or match.raw_content != upsert.raw_content
+        ):
             match.author = upsert.author
             match.url = upsert.url
             match.guid = upsert.guid
@@ -266,8 +286,11 @@ class MaybeUpdated(object):
                 match.date = upsert.date
             match.set_content(upsert.raw_title, upsert.raw_content)
             match.save()
-            log.debug("  updated {updated!a} based on {match_type}",
-                      updated=match, match_type=match_type)
+            log.debug(
+                "  updated {updated!a} based on {match_type}",
+                updated=match,
+                match_type=match_type,
+            )
             return True
         return False
 
@@ -293,17 +316,17 @@ class BozoError(object):
         hint.
     :ivar str error: The feedparser "bozo exception".
     """
+
     code = attr.ib()
     content_type = attr.ib()
     error = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.etag = b''
-        feed.last_modified = b''
-        feed.digest = b''
-        feed.error = u'Fetch failed: processing HTTP {} {} response produced error: {}'.format(
-            self.code, self.content_type, self.error)
+        feed.etag = b""
+        feed.last_modified = b""
+        feed.digest = b""
+        feed.error = u"Fetch failed: processing HTTP {} {} response produced error: {}".format(self.code, self.content_type, self.error)
         feed.schedule()
         feed.save()
 
@@ -315,6 +338,7 @@ class NetworkError(object):
     issue. This represents an expected error case (for an unexpected error
     case, see :class:`~.PollError`).
     """
+
     error = attr.ib()
 
     def persist(self, feed):
@@ -332,6 +356,7 @@ class PollError(object):
     :ivar failure: Details of the failure, captured as
         a :class:`twisted.internet.failure.Failure` object
     """
+
     failure = attr.ib(default=attr.Factory(Failure))
 
     def persist(self, feed):
@@ -359,14 +384,14 @@ def poll(reactor, max_fetch):
     start = reactor.seconds()
 
     feeds_to_check = yield deferToThread(
-        lambda: list(Feed.objects.filter(next_check__isnull=False).filter(
-            next_check__lte=timezone.now())[:max_fetch]))
+        lambda: list(Feed.objects.filter(next_check__isnull=False).filter(next_check__lte=timezone.now())[:max_fetch])
+    )
 
     if feeds_to_check:
         outcomes = []
         for feed in feeds_to_check:
             try:
-                outcome = (yield poll_feed(feed, reactor))
+                outcome = yield poll_feed(feed, reactor)
                 outcomes.append((feed, outcome))
                 log.debug("Polled {feed} -> {outcome}", feed=feed, outcome=outcome)
             except Exception:
@@ -400,50 +425,56 @@ def poll(reactor, max_fetch):
                     # [2]: https://github.com/ghaering/pysqlite/blob/e728ffbcaeb7bfae1d6b7165369bd0ae/src/util.c#L74-L84
                     # [3]: https://www.sqlite.org/c3ref/errcode.html
                     # [4]: https://docs.djangoproject.com/en/2.1/ref/databases/#database-is-locked-errors
-                    if str(e) != 'database is locked' or attempt >= 10:
+                    if str(e) != "database is locked" or attempt >= 10:
                         raise
                     attempt += 1
-                    log.debug(("Database lock contention while persisting {count} outcomes:"
-                               " will retry (attempt {attempt})"),
-                              count=len(outcomes), attempt=attempt)
+                    log.debug(
+                        ("Database lock contention while persisting {count} outcomes:" " will retry (attempt {attempt})"),
+                        count=len(outcomes),
+                        attempt=attempt,
+                    )
                 else:
                     break
         except Exception:
             log.failure("Failed to persist {count} outcomes", count=len(outcomes))
 
     next_pending = yield deferToThread(
-        lambda: Feed.objects.filter(next_check__isnull=False).order_by(
-            'next_check').values_list('next_check', flat=True)[:1])
+        lambda: Feed.objects.filter(next_check__isnull=False).order_by("next_check").values_list("next_check", flat=True)[:1]
+    )
     if next_pending:
         delay = (next_pending[0] - timezone.now()).total_seconds()
     else:
         delay = 15 * 60.0  # Default to every 15 minutes
     if delay < 0.0:
         delay = 0.0
-    log.info('Checking {count} feeds took {duration:.2f} sec. Next check in {delay:.2f} sec.',
-             count=len(feeds_to_check), duration=reactor.seconds() - start, delay=delay)
+    log.info(
+        "Checking {count} feeds took {duration:.2f} sec. Next check in {delay:.2f} sec.",
+        count=len(feeds_to_check),
+        duration=reactor.seconds() - start,
+        delay=delay,
+    )
     return delay
 
 
 def extract_etag(headers):
     try:
-        etag = headers.getRawHeaders(b'etag', [])[-1]
+        etag = headers.getRawHeaders(b"etag", [])[-1]
     except IndexError:
-        etag = b''
+        etag = b""
     if len(etag) > 1024:
-        log.debug('Ignoring oversized ETag header ({count} bytes)', count=len(etag))
-        etag = b''
+        log.debug("Ignoring oversized ETag header ({count} bytes)", count=len(etag))
+        etag = b""
     return etag
 
 
 def extract_last_modified(headers):
     try:
-        lm = headers.getRawHeaders(b'last-modified', [])[-1]
+        lm = headers.getRawHeaders(b"last-modified", [])[-1]
     except IndexError:
-        lm = b''
+        lm = b""
     if len(lm) > 45:
-        log.debug('Ignoring oversized Last-Modified header ({count} bytes)', count=len(lm))
-        lm = b''
+        log.debug("Ignoring oversized Last-Modified header ({count} bytes)", count=len(lm))
+        lm = b""
     return lm
 
 
@@ -498,15 +529,15 @@ def poll_feed(feed, clock, treq=treq):
     :param str url: URL to retrieve
     """
     headers = {
-        b'user-agent': [USER_AGENT_HEADER],
-        b'accept': [ACCEPT_HEADER],
+        b"user-agent": [USER_AGENT_HEADER],
+        b"accept": [ACCEPT_HEADER],
     }
     if feed.etag:
-        headers[b'if-none-match'] = [bytes(feed.etag)]
-        conditional_get = Unchanged('etag')
+        headers[b"if-none-match"] = [bytes(feed.etag)]
+        conditional_get = Unchanged("etag")
     elif feed.last_modified:
-        headers[b'if-modified-since'] = [bytes(feed.last_modified)]
-        conditional_get = Unchanged('last-modified')
+        headers[b"if-modified-since"] = [bytes(feed.last_modified)]
+        conditional_get = Unchanged("last-modified")
     else:
         # 304 is not expected unless we issued a conditional get.
         conditional_get = BadStatus(304)
@@ -542,7 +573,7 @@ def poll_feed(feed, clock, treq=treq):
         client.ResponseFailed,
         client.RequestTransmissionFailed,
     ) as e:
-        return NetworkError('\n'.join(str(f.value) for f in e.reasons))
+        return NetworkError("\n".join(str(f.value) for f in e.reasons))
 
     if response.code == 410:
         return Gone()
@@ -563,12 +594,11 @@ def poll_feed(feed, clock, treq=treq):
     # NOTE: the feed.digest attribute is buffer (on Python 2) which means that
     # it doesn't implement __eq__(), hence the conversion.
     if feed.digest is not None and bytes(feed.digest) == digest:
-        return Unchanged('digest')
+        return Unchanged("digest")
 
     # Convert headers to the format expected by feedparser.
-    h = {'content-location': response.request.absoluteURI.decode('ascii')}
-    h.update({k.lower().decode('latin1'): b', '.join(v).decode('latin1')
-              for (k, v) in response.headers.getAllRawHeaders()})
+    h = {"content-location": response.request.absoluteURI.decode("ascii")}
+    h.update({k.lower().decode("latin1"): b", ".join(v).decode("latin1") for (k, v) in response.headers.getAllRawHeaders()})
 
     # NOTE: feedparser.parse() will try to interpret a plain string as a URL,
     # so we wrap it in a BytesIO() to force it to parse the response.
@@ -581,15 +611,17 @@ def poll_feed(feed, clock, treq=treq):
     )
 
     articles = []
-    for entry in parsed['entries']:
-        articles.append(ArticleUpsert(
-            author=entry.get('author', u''),
-            raw_title=extract_title(entry.get('title_detail')),
-            url=entry.get('link', u''),
-            date=extract_date(entry),
-            guid=entry.get('id', u''),
-            raw_content=extract_content(entry),
-        ))
+    for entry in parsed["entries"]:
+        articles.append(
+            ArticleUpsert(
+                author=entry.get("author", u""),
+                raw_title=extract_title(entry.get("title_detail")),
+                url=entry.get("link", u""),
+                date=extract_date(entry),
+                guid=entry.get("id", u""),
+                raw_content=extract_content(entry),
+            )
+        )
 
     # feedparser can manage to extract feed metadata from HTML documents like
     # the redirect pages used by domain parkers, so we must use a heuristic to
@@ -599,17 +631,17 @@ def poll_feed(feed, clock, treq=treq):
     # a feed title or entries (which we call articles). If there are articles
     # then the bozo bit is probably set for something the end user doesn't need
     # to know about, like XML served as text/html.
-    parsed_feed = parsed.get('feed')
-    if not articles and parsed['bozo']:
+    parsed_feed = parsed.get("feed")
+    if not articles and parsed["bozo"]:
         return BozoError(
             code=response.code,
             content_type=", ".join(response.headers.getRawHeaders("content-type", [])),
-            error=str(parsed.get('bozo_exception', 'Unknown error')),
+            error=str(parsed.get("bozo_exception", "Unknown error")),
         )
     else:
         return MaybeUpdated(
             feed_title=extract_feed_title(parsed_feed, feed.url),
-            site_url=parsed_feed.get('link', u''),
+            site_url=parsed_feed.get("link", u""),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
             digest=digest,
@@ -662,9 +694,9 @@ def extract_feed_title(parsed_feed, feed_url):
     :param parsed_feed:
 
     """
-    if not parsed_feed.get('title'):
+    if not parsed_feed.get("title"):
         return feed_url
-    return html_to_text(extract_title(parsed_feed['title_detail']))
+    return html_to_text(extract_title(parsed_feed["title_detail"]))
 
 
 def extract_title(title_detail):
@@ -681,11 +713,11 @@ def extract_title(title_detail):
     .. _entry title_detail: https://pythonhosted.org/feedparser/reference-entry-title_detail.html
     """
     if title_detail is None:
-        return ''
-    if title_detail['type'] == u'text/plain':
-        return html.escape(title_detail['value'])
+        return ""
+    if title_detail["type"] == u"text/plain":
+        return html.escape(title_detail["value"])
     else:
-        return title_detail['value']
+        return title_detail["value"]
 
 
 def extract_date(entry):
@@ -701,11 +733,11 @@ def extract_date(entry):
     """
     # Avoid triggering a deprecation warning by checking for updated_parsed
     # before getting it.
-    if 'updated_parsed' in entry:
-        update = entry.get('updated_parsed')
+    if "updated_parsed" in entry:
+        update = entry.get("updated_parsed")
         if update:
             return as_datetime(update)
-    pubdate = entry.get('published_parsed')
+    pubdate = entry.get("published_parsed")
     if pubdate:
         return as_datetime(pubdate)
     return None
@@ -720,9 +752,9 @@ def extract_content(entry):
 
     :returns: HTML string
     """
-    content = entry.get('content', [])
+    content = entry.get("content", [])
     if not content:
-        return entry.get('summary', u'')
+        return entry.get("summary", u"")
     # TODO: extract the most appropriate entry if there are multiples (does
     # anyone actually ever provide more than one in the real world?)
     return content[0].value

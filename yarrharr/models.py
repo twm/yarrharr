@@ -36,11 +36,11 @@ from . import sanitize
 # Enable sqlite WAL mode so that readers don't block writers. See:
 # https://www.sqlite.org/wal.html
 # https://code.djangoproject.com/ticket/24018
-@receiver(connection_created, dispatch_uid='set_sqlite_wal_mode')
+@receiver(connection_created, dispatch_uid="set_sqlite_wal_mode")
 def _set_sqlite_wal_mode(sender, connection, **kwargs):
-    assert connection.vendor == 'sqlite'
+    assert connection.vendor == "sqlite"
     cursor = connection.cursor()
-    cursor.execute('PRAGMA journal_mode=wal;')
+    cursor.execute("PRAGMA journal_mode=wal;")
     cursor.close()
 
 
@@ -64,7 +64,8 @@ class AllViewOptions(_ViewOptions):
     """
     View options for the view of all the user's feeds.
     """
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
 
 
 class Feed(_ViewOptions):
@@ -114,7 +115,8 @@ class Feed(_ViewOptions):
     These two are combined in the `title` property, falling back to the URL if
     necessary.
     """
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     url = models.URLField(verbose_name="Feed URL")
     added = models.DateTimeField()
     deleted = models.DateTimeField(null=True, default=None)
@@ -122,14 +124,14 @@ class Feed(_ViewOptions):
     next_check = models.DateTimeField(null=True)
     last_checked = models.DateTimeField(null=True, default=None)
     last_changed = models.DateTimeField(null=True, default=None)
-    error = models.TextField(blank=True, default=u'')
-    etag = models.BinaryField(default=b'', max_length=1024)
-    last_modified = models.BinaryField(default=b'', max_length=45)
-    digest = models.BinaryField(default=b'', max_length=32)
+    error = models.TextField(blank=True, default=u"")
+    etag = models.BinaryField(default=b"", max_length=1024)
+    last_modified = models.BinaryField(default=b"", max_length=45)
+    digest = models.BinaryField(default=b"", max_length=32)
 
     feed_title = models.TextField()
-    user_title = models.TextField(default='', blank=True)
-    site_url = models.URLField(default='', blank=True, verbose_name="Site URL")
+    user_title = models.TextField(default="", blank=True)
+    site_url = models.URLField(default="", blank=True, verbose_name="Site URL")
 
     title = property(lambda self: self.user_title or self.feed_title or self.url)
 
@@ -140,7 +142,7 @@ class Feed(_ViewOptions):
     _now = staticmethod(timezone.now)
 
     def __str__(self):
-        return u'{} <{}>'.format(self.title, self.url)
+        return u"{} <{}>".format(self.title, self.url)
 
     def schedule(self):
         """
@@ -164,16 +166,11 @@ class Feed(_ViewOptions):
 
         now = self._now()
         article_dates = list(
-            self.articles
-            .filter(date__gt=now - timedelta(weeks=2), date__lt=now)
-            .order_by('-date')
-            .values_list('date', flat=True)[:100],
+            self.articles.filter(date__gt=now - timedelta(weeks=2), date__lt=now).order_by("-date").values_list("date", flat=True)[:100],
         )
 
         if len(article_dates) >= 2:
-            delta = min(first - second
-                        for first, second
-                        in zip(article_dates[:-1], article_dates[1:]))
+            delta = min(first - second for first, second in zip(article_dates[:-1], article_dates[1:]))
         else:
             delta = timedelta(days=2)
 
@@ -187,12 +184,9 @@ class Feed(_ViewOptions):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(check=models.Q(all_count__gte=0),
-                                   name='feed_all_count_nonneg'),
-            models.CheckConstraint(check=models.Q(unread_count__gte=0),
-                                   name='feed_unread_count_nonneg'),
-            models.CheckConstraint(check=models.Q(fave_count__gte=0),
-                                   name='feed_fave_count_nonneg'),
+            models.CheckConstraint(check=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
+            models.CheckConstraint(check=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
+            models.CheckConstraint(check=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
         ]
 
 
@@ -227,24 +221,25 @@ class Article(models.Model):
         *content_snippet*. This is used to migrate old HTML by comparison with
         `yarrharr.sanitize.REVISION`.
     """
-    feed = models.ForeignKey(Feed, related_name='articles', on_delete=models.CASCADE)
+
+    feed = models.ForeignKey(Feed, related_name="articles", on_delete=models.CASCADE)
     read = models.BooleanField()
     fave = models.BooleanField()
 
     author = models.TextField(blank=True)
     url = models.TextField(blank=True)
     date = models.DateTimeField()
-    guid = models.TextField(blank=True, default='')
-    raw_title = models.TextField(blank=True, default='')
+    guid = models.TextField(blank=True, default="")
+    raw_title = models.TextField(blank=True, default="")
     raw_content = models.TextField()
 
     title = models.TextField(blank=True)
     content = models.TextField()
-    content_snippet = models.TextField(blank=True, default='')
+    content_snippet = models.TextField(blank=True, default="")
     content_rev = models.IntegerField(default=0)
 
     def __str__(self):
-        return u'{} <{}>'.format(self.title, self.url)
+        return u"{} <{}>".format(self.title, self.url)
 
     def set_content(self, raw_title, raw_content):
         """
@@ -264,7 +259,7 @@ class Article(models.Model):
         self.content = content = sanitize.sanitize_html(raw_content)
         text = sanitize.html_to_text(content)
         if text.startswith(title):
-            text = text[len(title):].lstrip()
+            text = text[len(title) :].lstrip()
         self.content_snippet = text[:500]
         self.content_rev = sanitize.REVISION
 
@@ -278,12 +273,13 @@ class Label(_ViewOptions):
     :ivar text: The text of the label set by the user.
     :ivar feeds: Feeds to which the label has been applied.
     """
+
     text = models.CharField(max_length=64)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     feeds = models.ManyToManyField(Feed)
 
     def __str__(self):
         return self.text
 
     class Meta:
-        unique_together = ('user', 'text')
+        unique_together = ("user", "text")

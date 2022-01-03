@@ -44,12 +44,13 @@ def _txmain(reactor, url):
 
 
 def main(argv=sys.argv[1:]):
-    parser = argparse.ArgumentParser(description='Yarrharr fetch debug utility')
-    parser.add_argument('url')
+    parser = argparse.ArgumentParser(description="Yarrharr fetch debug utility")
+    parser.add_argument("url")
     args = parser.parse_args()
 
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'yarrharr.settings'
+    os.environ["DJANGO_SETTINGS_MODULE"] = "yarrharr.settings"
     import yarrharr.application
+
     yarrharr.application
 
     # TODO config logging

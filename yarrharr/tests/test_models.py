@@ -37,9 +37,9 @@ from ..models import Article, Feed, Label
 class FeedTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username='admin',
-            email='admin@mailhost.example',
-            password='sesame',
+            username="admin",
+            email="admin@mailhost.example",
+            password="sesame",
         )
 
     def test_str_feed_title(self):
@@ -47,15 +47,14 @@ class FeedTests(TestCase):
         The title from the feed content is used unless overridden by the user.
         """
         f = self.user.feed_set.create(
-            url='https://feed.example/',
+            url="https://feed.example/",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u'Example Feed‽',
-            user_title=u'',
+            feed_title=u"Example Feed‽",
+            user_title=u"",
         )
-        self.assertEqual(u'Example Feed‽', f.title)
-        self.assertEqual(u'Example Feed‽ <https://feed.example/>',
-                         u'{}'.format(f))
+        self.assertEqual(u"Example Feed‽", f.title)
+        self.assertEqual(u"Example Feed‽ <https://feed.example/>", u"{}".format(f))
 
     def test_str_user_title(self):
         """
@@ -63,15 +62,14 @@ class FeedTests(TestCase):
         content.
         """
         f = self.user.feed_set.create(
-            url='https://feed.example/',
+            url="https://feed.example/",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u'Example Feed',
-            user_title=u'My Example Feed',
+            feed_title=u"Example Feed",
+            user_title=u"My Example Feed",
         )
-        self.assertEqual(u'My Example Feed', f.title)
-        self.assertEqual(u'My Example Feed <https://feed.example/>',
-                         u'{}'.format(f))
+        self.assertEqual(u"My Example Feed", f.title)
+        self.assertEqual(u"My Example Feed <https://feed.example/>", u"{}".format(f))
 
 
 class FeedScheduleTests(TestCase):
@@ -84,20 +82,21 @@ class FeedScheduleTests(TestCase):
     :ivar feed: `Feed` instance under test. The feed has no articles unless
         they are added in the test (see :meth:`.add_article()`).
     """
+
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(
-            username='threads',
-            email='threads@mailhost.example',
-            password='sesame',
+            username="threads",
+            email="threads@mailhost.example",
+            password="sesame",
         )
         cls.now = timezone.now()
         cls.feed_id = user.feed_set.create(
-            url='https://feed.example',
+            url="https://feed.example",
             added=cls.now,
             next_check=cls.now,
-            feed_title=u'Feed',
-            user_title=u'',
+            feed_title=u"Feed",
+            user_title=u"",
         ).pk
 
     def setUp(self):
@@ -115,13 +114,13 @@ class FeedScheduleTests(TestCase):
         self.feed.articles.create(
             read=False,
             fave=False,
-            author='',
-            title='Article',
-            url='https://feed.example/article',
+            author="",
+            title="Article",
+            url="https://feed.example/article",
             date=self.now - since,
-            guid='',
-            raw_content='...',
-            content='...',
+            guid="",
+            raw_content="...",
+            content="...",
         )
 
     def assert_scheduled(self, expected):
@@ -130,10 +129,11 @@ class FeedScheduleTests(TestCase):
         :type expected: datetime.timedelta
         """
         actual = self.feed.next_check - self.now
-        self.assertEqual(expected, actual, (
-            '\nNext check should be {} from'
-            '\nnow, but found it is {} from now.'
-        ).format(expected, actual))
+        self.assertEqual(
+            expected,
+            actual,
+            ("\nNext check should be {} from" "\nnow, but found it is {} from now.").format(expected, actual),
+        )
 
     def test_disabled(self):
         """
@@ -172,7 +172,7 @@ class FeedScheduleTests(TestCase):
         """
         self.add_article(timedelta(days=1, minutes=90))
         self.add_article(timedelta(days=1, minutes=30))  # +60m
-        self.add_article(timedelta(days=1))              # +30m
+        self.add_article(timedelta(days=1))  # +30m
 
         self.feed.schedule()
 
@@ -185,9 +185,9 @@ class FeedScheduleTests(TestCase):
         """
         self.add_article(timedelta(days=1, minutes=1))
         self.add_article(timedelta(days=1, seconds=1))  # +59s
-        self.add_article(timedelta(days=1))             # +1s
-        self.add_article(timedelta(days=1))             # +0
-        self.add_article(timedelta(days=1))             # +0
+        self.add_article(timedelta(days=1))  # +1s
+        self.add_article(timedelta(days=1))  # +0
+        self.add_article(timedelta(days=1))  # +0
 
         self.feed.schedule()
 
@@ -200,7 +200,7 @@ class FeedScheduleTests(TestCase):
         """
         self.add_article(timedelta(days=12))
         self.add_article(timedelta(days=10))  # +2d
-        self.add_article(timedelta(days=7))   # +3d
+        self.add_article(timedelta(days=7))  # +3d
 
         self.feed.schedule()
 
@@ -225,63 +225,63 @@ class ArticleTests(TestCase):
         a = Article(
             feed=Feed(
                 user=User.objects.create_user(
-                    username='admin',
-                    email='admin@mailhost.example',
-                    password='sesame',
+                    username="admin",
+                    email="admin@mailhost.example",
+                    password="sesame",
                 ),
-                url='https://feed.example/',
+                url="https://feed.example/",
                 added=timezone.now(),
                 next_check=timezone.now(),
-                feed_title=u'Example Feed',
+                feed_title=u"Example Feed",
             ),
             read=False,
             fave=False,
-            author='',
-            title='Some Article',
-            url='https://feed.example/1',
+            author="",
+            title="Some Article",
+            url="https://feed.example/1",
             date=timezone.now(),
-            guid='1',
-            raw_content='...',
-            content='...',
+            guid="1",
+            raw_content="...",
+            content="...",
         )
 
-        self.assertEqual("Some Article <https://feed.example/1>",
-                         u'{}'.format(a))
+        self.assertEqual("Some Article <https://feed.example/1>", u"{}".format(a))
 
 
 class ArticleSetContentTests(TestCase):
     """
     Test the `yarrharr.models.Article.set_content()` method.
     """
+
     def setUp(self):
         self.article = Article(
             feed=Feed(
                 user=User.objects.create_user(
-                    username='user',
-                    email='user@mailhost.example',
-                    password='sesame',
+                    username="user",
+                    email="user@mailhost.example",
+                    password="sesame",
                 ),
-                url='https://feed.example/',
+                url="https://feed.example/",
                 added=timezone.now(),
                 next_check=timezone.now(),
-                feed_title='Example Feed',
+                feed_title="Example Feed",
             ),
             read=False,
             fave=False,
-            author='',
-            url='https://feed.example/1',
+            author="",
+            url="https://feed.example/1",
             date=timezone.now(),
-            guid='1',
+            guid="1",
         )
 
     def test_set_raw(self):
         """
         The `set_content()` method sets the `title` and `raw_content` fields.
         """
-        self.article.set_content('Title', '<p>Content</p>')
+        self.article.set_content("Title", "<p>Content</p>")
 
-        self.assertEqual('Title', self.article.raw_title)
-        self.assertEqual('<p>Content</p>', self.article.raw_content)
+        self.assertEqual("Title", self.article.raw_title)
+        self.assertEqual("<p>Content</p>", self.article.raw_content)
 
     def test_derived(self):
         """
@@ -291,36 +291,46 @@ class ArticleSetContentTests(TestCase):
           * `content_snippet` — textual prefix of the HTML
           * `content_rev` — revision number of the sanitization scheme
         """
-        self.article.set_content('Title', (
-            '<p>' + '1' * 100 + '</p>' +
-            '<script>.</script>' +
-            '<p>' + '2' * 100 + '</p>' +
-            '<p>' + '3' * 100 + '</p>' +
-            '<p>' + '4' * 100 + '</p>' +
-            '<p>' + '5' * 100 + '</p>' +
-            '<p>' + '6' * 100 + '</p>'
-        ))
-
-        self.assertEqual('Title', self.article.title)
-        self.assertEqual(
+        self.article.set_content(
+            "Title",
             (
-                '<p>' + '1' * 100 +
-                '<p>' + '2' * 100 +
-                '<p>' + '3' * 100 +
-                '<p>' + '4' * 100 +
-                '<p>' + '5' * 100 +
-                '<p>' + '6' * 100
+                "<p>"
+                + "1" * 100
+                + "</p>"
+                + "<script>.</script>"
+                + "<p>"
+                + "2" * 100
+                + "</p>"
+                + "<p>"
+                + "3" * 100
+                + "</p>"
+                + "<p>"
+                + "4" * 100
+                + "</p>"
+                + "<p>"
+                + "5" * 100
+                + "</p>"
+                + "<p>"
+                + "6" * 100
+                + "</p>"
             ),
+        )
+
+        self.assertEqual("Title", self.article.title)
+        self.assertEqual(
+            ("<p>" + "1" * 100 + "<p>" + "2" * 100 + "<p>" + "3" * 100 + "<p>" + "4" * 100 + "<p>" + "5" * 100 + "<p>" + "6" * 100),
             self.article.content,
         )
         self.assertEqual(
-            ' '.join([
-                '1' * 100,
-                '2' * 100,
-                '3' * 100,
-                '4' * 100,
-                '5' * 96,
-            ]),
+            " ".join(
+                [
+                    "1" * 100,
+                    "2" * 100,
+                    "3" * 100,
+                    "4" * 100,
+                    "5" * 96,
+                ]
+            ),
             self.article.content_snippet,
         )
 
@@ -330,10 +340,10 @@ class ArticleSetContentTests(TestCase):
         remove that prefix. This is common in webcomic feeds, where the feed
         entry title tends to be the same as the alt text of the comic image.
         """
-        self.article.set_content('TITLE', 'TITLE content content content')
+        self.article.set_content("TITLE", "TITLE content content content")
 
-        self.assertEqual('TITLE', self.article.title)
-        self.assertEqual('content content content', self.article.content_snippet)
+        self.assertEqual("TITLE", self.article.title)
+        self.assertEqual("content content content", self.article.content_snippet)
 
 
 class FeedArticleCountTriggerTests(TestCase):
@@ -351,34 +361,35 @@ class FeedArticleCountTriggerTests(TestCase):
     :ivar int article_id:
         Primary key of the article created by setUp().
     """
+
     @classmethod
     def setUpTestData(cls):
         f1 = Feed.objects.create(
             user=User.objects.create_user(
-                username='user',
-                email='user@mailhost.example',
-                password='sesame',
+                username="user",
+                email="user@mailhost.example",
+                password="sesame",
             ),
-            url='https://feed.example/1',
+            url="https://feed.example/1",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title='Feed with articles',
+            feed_title="Feed with articles",
         )
         f2 = Feed.objects.create(
             user=f1.user,
-            url='https://feed.example/2',
+            url="https://feed.example/2",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title='Feed without articles',
+            feed_title="Feed without articles",
         )
         a = Article.objects.create(
             read=False,
             fave=False,
             feed=f1,
-            author='',
-            url='https://feed.example/1',
+            author="",
+            url="https://feed.example/1",
             date=timezone.now(),
-            guid='1',
+            guid="1",
         )
 
         cls.feed_id = f1.pk
@@ -395,15 +406,18 @@ class FeedArticleCountTriggerTests(TestCase):
         """
         f1 = Feed.objects.get(pk=self.feed_id)
         f2 = Feed.objects.get(pk=self.other_feed_id)
-        self.assertEqual({
-            'all': all,
-            'unread': unread,
-            'fave': fave,
-        }, {
-            'all': f1.all_count,
-            'unread': f1.unread_count,
-            'fave': f1.fave_count,
-        })
+        self.assertEqual(
+            {
+                "all": all,
+                "unread": unread,
+                "fave": fave,
+            },
+            {
+                "all": f1.all_count,
+                "unread": f1.unread_count,
+                "fave": f1.fave_count,
+            },
+        )
         self.assertEqual((0, 0, 0), (f2.all_count, f2.unread_count, f2.fave_count))
 
     def test_initial(self):
@@ -452,7 +466,13 @@ class FeedArticleCountTriggerTests(TestCase):
         Creating and deleting articles increments the counters according to the
         flags on the article.
         """
-        kw = dict(feed_id=self.feed_id, author='', url='https://feed.example/2', date=timezone.now(), guid='2')
+        kw = dict(
+            feed_id=self.feed_id,
+            author="",
+            url="https://feed.example/2",
+            date=timezone.now(),
+            guid="2",
+        )
 
         a2 = Article.objects.create(read=False, fave=False, **kw)
         self.assertCounts(all=2, unread=2, fave=0)
@@ -484,11 +504,12 @@ class FeedArticleCountTriggerTests(TestCase):
                     read=False,
                     fave=True,
                     feed_id=self.feed_id,
-                    author='',
-                    url='https://feed.example/' + str(i),
+                    author="",
+                    url="https://feed.example/" + str(i),
                     date=timezone.now(),
                     guid=str(i),
-                ) for i in range(10)
+                )
+                for i in range(10)
             ]
         self.assertCounts(all=11, unread=11, fave=10)
 
@@ -522,14 +543,14 @@ class FeedCountConstraintTests(TestCase):
     def setUpTestData(cls):
         cls.feed_id = Feed.objects.create(
             user=User.objects.create_user(
-                username='user',
-                email='user@mailhost.example',
-                password='sesame',
+                username="user",
+                email="user@mailhost.example",
+                password="sesame",
             ),
-            url='https://feed.example/f.xml',
+            url="https://feed.example/f.xml",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title='Feed with articles',
+            feed_title="Feed with articles",
         ).pk
 
     def test_negative_all(self):
@@ -549,13 +570,13 @@ class FeedCountConstraintTests(TestCase):
         a = f.articles.create(
             read=False,
             fave=True,
-            author='',
-            title='Article',
-            url='https://feed.example/article',
+            author="",
+            title="Article",
+            url="https://feed.example/article",
             date=timezone.now(),
-            guid='',
-            raw_content='...',
-            content='...',
+            guid="",
+            raw_content="...",
+            content="...",
         )
         f.all_count = 0
         f.unread_count = 0
@@ -573,25 +594,26 @@ class LabelTests(TestCase):
     :cvar user_a: ID of a user
     :cvar user_b: ID of a different user
     """
+
     @classmethod
     def setUpTestData(cls):
         cls.user_a = User.objects.create_user(
-            username='user_a',
-            email='user.a@mailhost.example',
-            password='a',
+            username="user_a",
+            email="user.a@mailhost.example",
+            password="a",
         ).pk
         cls.user_b = User.objects.create_user(
-            username='user_b',
-            email='user.b@mailhost.example',
-            password='b',
+            username="user_b",
+            email="user.b@mailhost.example",
+            password="b",
         ).pk
 
     def test_test_user_unique(self):
         """
         Label text is unique per-user.
         """
-        Label.objects.create(text='1', user_id=self.user_a)
-        Label.objects.create(text='1', user_id=self.user_b)
+        Label.objects.create(text="1", user_id=self.user_a)
+        Label.objects.create(text="1", user_id=self.user_b)
 
         with self.assertRaises(IntegrityError):
-            Label.objects.create(text='1', user_id=self.user_a)
+            Label.objects.create(text="1", user_id=self.user_a)

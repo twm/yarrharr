@@ -30,38 +30,56 @@ import yarrharr.views
 
 from .converters import ArticleFilterConverter
 
-register_converter(ArticleFilterConverter, 'filter')
+register_converter(ArticleFilterConverter, "filter")
 
-app_name = 'yarrharr'
+app_name = "yarrharr"
 urlpatterns = (
     # GUI
-    re_path(r'^$', yarrharr.views.home, name='home'),
+    re_path(r"^$", yarrharr.views.home, name="home"),
     path("all/<filter:filter>/", yarrharr.views.all_show, name="all-show"),
     path("labels/", yarrharr.views.label_list, name="label-list"),
     path("labels/add/", yarrharr.views.label_add, name="label-add"),
     path("label/<int:label_id>/", yarrharr.views.label_edit, name="label-edit"),
-    path("label/<int:label_id>/<filter:filter>/", yarrharr.views.label_show, name="label-show"),
+    path(
+        "label/<int:label_id>/<filter:filter>/",
+        yarrharr.views.label_show,
+        name="label-show",
+    ),
     path("label/<int:label_id>/delete/", yarrharr.views.label_delete, name="label-delete"),
     path("feeds/", yarrharr.views.feed_list, name="feed-list"),
     path("feeds/add/", yarrharr.views.feed_add, name="feed-add"),
     path("feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
-    path("feed/<int:feed_id>/<filter:filter>/", yarrharr.views.feed_show, name="feed-show"),
+    path(
+        "feed/<int:feed_id>/<filter:filter>/",
+        yarrharr.views.feed_show,
+        name="feed-show",
+    ),
     path("article/<int:article_id>/", yarrharr.views.article_show, name="article-show"),
-
     # Old URLs
-    re_path(R"^all/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
-    re_path(R"^label/(?:\d+)/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
-    re_path(R"^feed/(?:\d+)/(?:unread|fave|all)/(?P<article_id>\d+)/$", yarrharr.views.redirect_to_article),
-
+    re_path(
+        R"^all/(?:unread|fave|all)/(?P<article_id>\d+)/$",
+        yarrharr.views.redirect_to_article,
+    ),
+    re_path(
+        R"^label/(?:\d+)/(?:unread|fave|all)/(?P<article_id>\d+)/$",
+        yarrharr.views.redirect_to_article,
+    ),
+    re_path(
+        R"^feed/(?:\d+)/(?:unread|fave|all)/(?P<article_id>\d+)/$",
+        yarrharr.views.redirect_to_article,
+    ),
     # API
-    re_path(r'^api/snapshots/$', yarrharr.views.snapshots),
-    re_path(r'^api/articles/$', yarrharr.views.articles),
-    re_path(r'^api/flags/$', yarrharr.views.flags, name="api-flags"),
-    re_path(r'^api/inventory/$', yarrharr.views.inventory),
-
-    re_path(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    re_path(r'^logout/$', auth_views.logout_then_login, name='logout'),
-    re_path(r'^about/$', yarrharr.views.about, name='about'),
-    re_path(r'^manifest\.webmanifest$', yarrharr.views.manifest, name='manifest'),
-    re_path(r'^robots\.txt$', yarrharr.views.robots_txt, name='robots'),
+    re_path(r"^api/snapshots/$", yarrharr.views.snapshots),
+    re_path(r"^api/articles/$", yarrharr.views.articles),
+    re_path(r"^api/flags/$", yarrharr.views.flags, name="api-flags"),
+    re_path(r"^api/inventory/$", yarrharr.views.inventory),
+    re_path(
+        r"^login/$",
+        auth_views.LoginView.as_view(template_name="login.html"),
+        name="login",
+    ),
+    re_path(r"^logout/$", auth_views.logout_then_login, name="logout"),
+    re_path(r"^about/$", yarrharr.views.about, name="about"),
+    re_path(r"^manifest\.webmanifest$", yarrharr.views.manifest, name="manifest"),
+    re_path(r"^robots\.txt$", yarrharr.views.robots_txt, name="robots"),
 )

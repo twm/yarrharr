@@ -31,23 +31,25 @@ from pathlib import Path
 import brotli
 import zopfli.gzip
 
-static_dir = Path('yarrharr/static')
+static_dir = Path("yarrharr/static")
 src_files = []
-for pattern in ('*.js', '*.css', '*.svg', '*.ico', '*.map'):
+for pattern in ("*.js", "*.css", "*.svg", "*.ico", "*.map"):
     src_files.extend(static_dir.glob(pattern))
 src_files.sort()
 
 print("ORIGINAL   ZOPFLI    (.gz)  BROTLI   (.br)  FILE")
-print("---------  ---------------  --------------  ------------------------------------------")
+print(
+    "---------  ---------------  --------------  ------------------------------------------"
+)
 
 for path in src_files:
     buf = path.read_bytes()
 
-    gz_path = path.with_suffix(path.suffix + '.gz')
+    gz_path = path.with_suffix(path.suffix + ".gz")
     gz = zopfli.gzip.compress(buf)
     gz_path.write_bytes(gz)
 
-    br_path = path.with_suffix(path.suffix + '.br')
+    br_path = path.with_suffix(path.suffix + ".br")
     br = brotli.compress(buf, quality=11)
     br_path.write_bytes(br)
 
@@ -56,4 +58,8 @@ for path in src_files:
     gz_pct = gz_size / base_size
     br_size = len(br)
     br_pct = br_size / base_size
-    print("{base_size:>9,d}  {gz_size:>9,d} {gz_pct:>5.0%} {br_size:>9,d} {br_pct:>5.0%}  {path.name}".format_map(locals()))
+    print(
+        "{base_size:>9,d}  {gz_size:>9,d} {gz_pct:>5.0%} {br_size:>9,d} {br_pct:>5.0%}  {path.name}".format_map(
+            locals()
+        )
+    )

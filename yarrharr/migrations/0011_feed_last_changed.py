@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0010_label_nonunique'),
+        ("yarrharr", "0010_label_nonunique"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='feed',
-            old_name='last_updated',
-            new_name='last_changed',
+            model_name="feed",
+            old_name="last_updated",
+            new_name="last_changed",
         ),
     ]

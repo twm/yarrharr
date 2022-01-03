@@ -35,7 +35,7 @@ from django import template
 from django.template.defaultfilters import stringfilter
 
 register = template.Library()
-_static_dir = os.path.join(os.path.dirname(__file__), '../static')
+_static_dir = os.path.join(os.path.dirname(__file__), "../static")
 
 
 @attr.s(auto_exc=True)
@@ -70,7 +70,7 @@ def newest_static(pattern):
     :raises: :exc:`NoStaticMatch` when no file matching the pattern exists
     """
     # TODO The result of this should be cached when not in DEBUG mode.
-    assert '/' not in pattern  # don't support subdirectories
+    assert "/" not in pattern  # don't support subdirectories
 
     name, mtime = None, None
     for entry in os.scandir(_static_dir):
@@ -78,15 +78,15 @@ def newest_static(pattern):
             continue
 
         if not (
-            fnmatch.fnmatchcase(entry.name, pattern) or
-            fnmatch.fnmatchcase(entry.name, pattern + '.gz') or
-            fnmatch.fnmatchcase(entry.name, pattern + '.br')
+            fnmatch.fnmatchcase(entry.name, pattern)
+            or fnmatch.fnmatchcase(entry.name, pattern + ".gz")
+            or fnmatch.fnmatchcase(entry.name, pattern + ".br")
         ):
             continue
 
         s = entry.stat()
         if mtime is None or s.st_mtime > mtime:
-            if entry.name.endswith(('.br', '.gz')):
+            if entry.name.endswith((".br", ".gz")):
                 name = entry.name[:-3]
             else:
                 name = entry.name

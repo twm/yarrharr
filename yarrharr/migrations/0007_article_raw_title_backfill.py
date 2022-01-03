@@ -33,9 +33,9 @@ def backfill_article_raw_title(apps, schema_editor):
     Backfill the `yarrharr.models.Article.raw_title` column with an
     HTML-escaped version of the `title` column.
     """
-    Article = apps.get_model('yarrharr', 'Article')
+    Article = apps.get_model("yarrharr", "Article")
 
-    for article in Article.objects.all().only('title', 'raw_title'):
+    for article in Article.objects.all().only("title", "raw_title"):
         article.raw_title = html.escape(article.title)
         article.save()
 
@@ -43,7 +43,7 @@ def backfill_article_raw_title(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yarrharr', '0006_article_content_snippet'),
+        ("yarrharr", "0006_article_content_snippet"),
     ]
 
     operations = [

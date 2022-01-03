@@ -30,12 +30,7 @@ from importlib import resources
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
-from yarrharr.conf import (
-    NoConfError,
-    UnreadableConfError,
-    find_conf_files,
-    read_yarrharr_conf,
-)
+from yarrharr.conf import NoConfError, UnreadableConfError, find_conf_files, read_yarrharr_conf
 
 
 class ConfTests(unittest.TestCase):
@@ -46,7 +41,7 @@ class ConfTests(unittest.TestCase):
         A :env:`YARRHARR_CONF` pattern which doesn't match anything results in
         an exception.
         """
-        with mock.patch('os.environ', {'YARRHARR_CONF': '/does-not-exist/*.ini'}):
+        with mock.patch("os.environ", {"YARRHARR_CONF": "/does-not-exist/*.ini"}):
             self.assertRaises(NoConfError, find_conf_files)
 
     def test_file_exists(self):
@@ -54,16 +49,15 @@ class ConfTests(unittest.TestCase):
         A file given in the environment variable is picked up on.
         """
         with NamedTemporaryFile() as f:
-            with mock.patch('os.environ', {'YARRHARR_CONF': f.name}):
+            with mock.patch("os.environ", {"YARRHARR_CONF": f.name}):
                 self.assertEqual([f.name], find_conf_files())
 
     def test_unreadable(self):
         """
         If a conf file doesn't exist an exception results.
         """
-        fn = '/foo/bar/does-not-exist'
-        self.assertRaisesRegex(UnreadableConfError, re.escape(fn),
-                               read_yarrharr_conf, [fn], {})
+        fn = "/foo/bar/does-not-exist"
+        self.assertRaisesRegex(UnreadableConfError, re.escape(fn), read_yarrharr_conf, [fn], {})
 
     def test_read_defaults(self):
         """
@@ -72,8 +66,7 @@ class ConfTests(unittest.TestCase):
         """
         # Since at least one file is required, use an empty temp file.
         with NamedTemporaryFile() as f:
-            self.assertRaisesRegex(NoOptionError, r'secret_key',
-                                   read_yarrharr_conf, [f.name], {})
+            self.assertRaisesRegex(NoOptionError, r"secret_key", read_yarrharr_conf, [f.name], {})
 
     def test_read_minimal(self):
         """
@@ -88,143 +81,151 @@ class ConfTests(unittest.TestCase):
             settings = {}
             read_yarrharr_conf([f.name], settings)
 
-        self.assertEqual(settings, {
-            'ATOMIC_REQUESTS': True,
-            'DEBUG': False,
-            'DATABASES': {
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': '/var/lib/yarrharr/db.sqlite',
-                    'USER': '',
-                    'PASSWORD': '',
-                    'HOST': '',
-                    'PORT': '',
+        self.assertEqual(
+            settings,
+            {
+                "ATOMIC_REQUESTS": True,
+                "DEBUG": False,
+                "DATABASES": {
+                    "default": {
+                        "ENGINE": "django.db.backends.sqlite3",
+                        "NAME": "/var/lib/yarrharr/db.sqlite",
+                        "USER": "",
+                        "PASSWORD": "",
+                        "HOST": "",
+                        "PORT": "",
+                    },
                 },
+                "DEFAULT_AUTO_FIELD": "django.db.models.AutoField",
+                "ALLOWED_HOSTS": ["127.0.0.1"],
+                "SERVER_ENDPOINT": "tcp:8888:interface=127.0.0.1",
+                "ROOT_URLCONF": "yarrharr.urls",
+                "LOGIN_URL": "login",
+                "LOGIN_REDIRECT_URL": "home",
+                "LOGOUT_URL": "logout",
+                "LANGUAGE_CODE": "en-us",
+                "USE_I18N": True,
+                "USE_TZ": True,
+                "USE_X_FORWARDED_HOST": False,
+                "TIME_ZONE": "UTC",
+                "STATIC_ROOT": "/var/lib/yarrharr/static/",
+                "STATIC_URL": "/static/",
+                "STATICFILES_FINDERS": ("django.contrib.staticfiles.finders.AppDirectoriesFinder",),
+                "TEMPLATES": [
+                    {
+                        "APP_DIRS": True,
+                        "BACKEND": "django.template.backends.django.DjangoTemplates",
+                        "DIRS": [],
+                        "OPTIONS": {
+                            "context_processors": [
+                                "django.contrib.auth.context_processors.auth",
+                            ],
+                        },
+                    }
+                ],
+                "SECRET_KEY": "sarlona",
+                "X_FRAME_OPTIONS": "DENY",
+                "MIDDLEWARE": (
+                    "django.middleware.common.CommonMiddleware",
+                    "django.contrib.sessions.middleware.SessionMiddleware",
+                    "django.middleware.csrf.CsrfViewMiddleware",
+                    "django.contrib.auth.middleware.AuthenticationMiddleware",
+                    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+                ),
+                "SESSION_ENGINE": "django.contrib.sessions.backends.signed_cookies",
+                "SESSION_COOKIE_HTTPONLY": True,
+                "SESSION_COOKIE_SECURE": False,
+                "CSRF_COOKIE_SECURE": False,
+                "CSRF_TRUSTED_ORIGINS": ["http://127.0.0.1:8888"],
+                "WSGI_APPLICATION": "yarrharr.wsgi.application",
+                "INSTALLED_APPS": (
+                    "django.contrib.auth",
+                    "django.contrib.contenttypes",
+                    "django.contrib.sessions",
+                    "django.contrib.staticfiles",
+                    "yarrharr",
+                ),
+                "LOGGING_CONFIG": None,
             },
-            'DEFAULT_AUTO_FIELD': 'django.db.models.AutoField',
-            'ALLOWED_HOSTS': ['127.0.0.1'],
-            'SERVER_ENDPOINT': 'tcp:8888:interface=127.0.0.1',
-            'ROOT_URLCONF': 'yarrharr.urls',
-            'LOGIN_URL': 'login',
-            'LOGIN_REDIRECT_URL': 'home',
-            'LOGOUT_URL': 'logout',
-            'LANGUAGE_CODE': 'en-us',
-            'USE_I18N': True,
-            'USE_TZ': True,
-            'USE_X_FORWARDED_HOST': False,
-            'TIME_ZONE': 'UTC',
-            'STATIC_ROOT': '/var/lib/yarrharr/static/',
-            'STATIC_URL': '/static/',
-            'STATICFILES_FINDERS': (
-                'django.contrib.staticfiles.finders.AppDirectoriesFinder',),
-            'TEMPLATES': [{
-                'APP_DIRS': True,
-                'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                'DIRS': [],
-                'OPTIONS': {
-                    'context_processors': [
-                        'django.contrib.auth.context_processors.auth',
-                    ],
-                },
-            }],
-            'SECRET_KEY': 'sarlona',
-            'X_FRAME_OPTIONS': 'DENY',
-            'MIDDLEWARE': (
-                'django.middleware.common.CommonMiddleware',
-                'django.contrib.sessions.middleware.SessionMiddleware',
-                'django.middleware.csrf.CsrfViewMiddleware',
-                'django.contrib.auth.middleware.AuthenticationMiddleware',
-                'django.middleware.clickjacking.XFrameOptionsMiddleware',
-            ),
-            'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
-            'SESSION_COOKIE_HTTPONLY': True,
-            'SESSION_COOKIE_SECURE': False,
-            "CSRF_COOKIE_SECURE": False,
-            "CSRF_TRUSTED_ORIGINS": ["http://127.0.0.1:8888"],
-            'WSGI_APPLICATION': 'yarrharr.wsgi.application',
-            'INSTALLED_APPS': (
-                'django.contrib.auth',
-                'django.contrib.contenttypes',
-                'django.contrib.sessions',
-                'django.contrib.staticfiles',
-                'yarrharr',
-            ),
-            'LOGGING_CONFIG': None,
-        })
+        )
 
     def test_read_dev_config(self):
         """
         The development config decodes as expected.
         """
         settings = {}
-        with resources.path('yarrharr.tests', 'dev.ini') as path:
+        with resources.path("yarrharr.tests", "dev.ini") as path:
             read_yarrharr_conf([str(path)], settings)
 
-        self.assertEqual(settings, {
-            'ATOMIC_REQUESTS': True,
-            'DEBUG': True,
-            'DATABASES': {
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': 'testdb.sqlite',
-                    'USER': '',
-                    'PASSWORD': '',
-                    'HOST': '',
-                    'PORT': '',
+        self.assertEqual(
+            settings,
+            {
+                "ATOMIC_REQUESTS": True,
+                "DEBUG": True,
+                "DATABASES": {
+                    "default": {
+                        "ENGINE": "django.db.backends.sqlite3",
+                        "NAME": "testdb.sqlite",
+                        "USER": "",
+                        "PASSWORD": "",
+                        "HOST": "",
+                        "PORT": "",
+                    },
                 },
+                "DEFAULT_AUTO_FIELD": "django.db.models.AutoField",
+                "ALLOWED_HOSTS": ["127.0.0.1"],
+                "INTERNAL_IPS": ["127.0.0.1"],
+                "SERVER_ENDPOINT": "tcp:8888:interface=127.0.0.1",
+                "ROOT_URLCONF": "yarrharr.urls",
+                "LOGIN_URL": "login",
+                "LOGIN_REDIRECT_URL": "home",
+                "LOGOUT_URL": "logout",
+                "LANGUAGE_CODE": "en-us",
+                "USE_I18N": True,
+                "USE_TZ": True,
+                "USE_X_FORWARDED_HOST": False,
+                "TIME_ZONE": "UTC",
+                "STATIC_ROOT": "yarrharr/static/",
+                "STATIC_URL": "/static/",
+                "STATICFILES_FINDERS": ("django.contrib.staticfiles.finders.AppDirectoriesFinder",),
+                "TEMPLATES": [
+                    {
+                        "APP_DIRS": True,
+                        "BACKEND": "django.template.backends.django.DjangoTemplates",
+                        "DIRS": [],
+                        "OPTIONS": {
+                            "context_processors": [
+                                "django.contrib.auth.context_processors.auth",
+                                "django.template.context_processors.debug",
+                            ],
+                        },
+                    }
+                ],
+                "SECRET_KEY": "supersekrit",
+                "X_FRAME_OPTIONS": "DENY",
+                "MIDDLEWARE": (
+                    "django.middleware.common.CommonMiddleware",
+                    "django.contrib.sessions.middleware.SessionMiddleware",
+                    "django.middleware.csrf.CsrfViewMiddleware",
+                    "django.contrib.auth.middleware.AuthenticationMiddleware",
+                    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+                ),
+                "SESSION_ENGINE": "django.contrib.sessions.backends.signed_cookies",
+                "SESSION_COOKIE_HTTPONLY": True,
+                "SESSION_COOKIE_SECURE": False,
+                "CSRF_COOKIE_SECURE": False,
+                "CSRF_TRUSTED_ORIGINS": ["http://127.0.0.1:8888"],
+                "WSGI_APPLICATION": "yarrharr.wsgi.application",
+                "INSTALLED_APPS": (
+                    "django.contrib.auth",
+                    "django.contrib.contenttypes",
+                    "django.contrib.sessions",
+                    "django.contrib.staticfiles",
+                    "yarrharr",
+                ),
+                "LOGGING_CONFIG": None,
             },
-            'DEFAULT_AUTO_FIELD': 'django.db.models.AutoField',
-            'ALLOWED_HOSTS': ['127.0.0.1'],
-            'INTERNAL_IPS': ['127.0.0.1'],
-            'SERVER_ENDPOINT': 'tcp:8888:interface=127.0.0.1',
-            'ROOT_URLCONF': 'yarrharr.urls',
-            'LOGIN_URL': 'login',
-            'LOGIN_REDIRECT_URL': 'home',
-            'LOGOUT_URL': 'logout',
-            'LANGUAGE_CODE': 'en-us',
-            'USE_I18N': True,
-            'USE_TZ': True,
-            'USE_X_FORWARDED_HOST': False,
-            'TIME_ZONE': 'UTC',
-            'STATIC_ROOT': 'yarrharr/static/',
-            'STATIC_URL': '/static/',
-            'STATICFILES_FINDERS': (
-                'django.contrib.staticfiles.finders.AppDirectoriesFinder',),
-            'TEMPLATES': [{
-                'APP_DIRS': True,
-                'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                'DIRS': [],
-                'OPTIONS': {
-                    'context_processors': [
-                        'django.contrib.auth.context_processors.auth',
-                        'django.template.context_processors.debug',
-                    ],
-                },
-            }],
-            'SECRET_KEY': 'supersekrit',
-            'X_FRAME_OPTIONS': 'DENY',
-            'MIDDLEWARE': (
-                'django.middleware.common.CommonMiddleware',
-                'django.contrib.sessions.middleware.SessionMiddleware',
-                'django.middleware.csrf.CsrfViewMiddleware',
-                'django.contrib.auth.middleware.AuthenticationMiddleware',
-                'django.middleware.clickjacking.XFrameOptionsMiddleware',
-            ),
-            'SESSION_ENGINE': 'django.contrib.sessions.backends.signed_cookies',
-            'SESSION_COOKIE_HTTPONLY': True,
-            'SESSION_COOKIE_SECURE': False,
-            "CSRF_COOKIE_SECURE": False,
-            "CSRF_TRUSTED_ORIGINS": ["http://127.0.0.1:8888"],
-            'WSGI_APPLICATION': 'yarrharr.wsgi.application',
-            'INSTALLED_APPS': (
-                'django.contrib.auth',
-                'django.contrib.contenttypes',
-                'django.contrib.sessions',
-                'django.contrib.staticfiles',
-                'yarrharr',
-            ),
-            'LOGGING_CONFIG': None,
-        })
+        )
 
     def test_read_prod_proxy_config(self):
         """
@@ -236,22 +237,22 @@ class ConfTests(unittest.TestCase):
         """
         with NamedTemporaryFile() as f:
             f.write(
-                b'[yarrharr]\n'
-                b'external_url = https://f.q.d.n\n'
-                b'server_endpoint = tcp:8182:interface=127.0.0.1\n'
-                b'proxied = x-forwarded\n'
-                b'[secrets]\n'
-                b'secret_key = sarlona\n',
+                b"[yarrharr]\n"
+                b"external_url = https://f.q.d.n\n"
+                b"server_endpoint = tcp:8182:interface=127.0.0.1\n"
+                b"proxied = x-forwarded\n"
+                b"[secrets]\n"
+                b"secret_key = sarlona\n",
             )
             f.flush()
 
             settings = {}
             read_yarrharr_conf([f.name], settings)
 
-        self.assertEqual(['f.q.d.n'], settings['ALLOWED_HOSTS'])
-        self.assertEqual('tcp:8182:interface=127.0.0.1', settings['SERVER_ENDPOINT'])
-        self.assertTrue(settings['USE_X_FORWARDED_HOST'])
-        self.assertTrue(settings['SESSION_COOKIE_SECURE'])
+        self.assertEqual(["f.q.d.n"], settings["ALLOWED_HOSTS"])
+        self.assertEqual("tcp:8182:interface=127.0.0.1", settings["SERVER_ENDPOINT"])
+        self.assertTrue(settings["USE_X_FORWARDED_HOST"])
+        self.assertTrue(settings["SESSION_COOKIE_SECURE"])
         self.assertTrue(settings["CSRF_COOKIE_SECURE"])
         self.assertEqual(["https://f.q.d.n"], settings["CSRF_TRUSTED_ORIGINS"])
 
@@ -261,11 +262,11 @@ class ConfTests(unittest.TestCase):
         """
         with NamedTemporaryFile() as f:
             f.write(
-                b'[yarrharr]\n'
-                b'external_url = https://f.q.d.n/foo/bar\n'
-                b'server_endpoint = tcp:8182:interface=127.0.0.1\n'
-                b'[secrets]\n'
-                b'secret_key = sarlona\n',
+                b"[yarrharr]\n"
+                b"external_url = https://f.q.d.n/foo/bar\n"
+                b"server_endpoint = tcp:8182:interface=127.0.0.1\n"
+                b"[secrets]\n"
+                b"secret_key = sarlona\n",
             )
             f.flush()
 
@@ -274,4 +275,4 @@ class ConfTests(unittest.TestCase):
             with self.assertRaises(ValueError) as c:
                 read_yarrharr_conf([f.name], settings)
 
-        self.assertEqual(str(c.exception), 'external_url must not include path: remove \'/foo/bar\'')
+        self.assertEqual(str(c.exception), "external_url must not include path: remove '/foo/bar'")
