@@ -43,17 +43,7 @@ from twisted.web.client import ResponseNeverReceived, readBody
 from twisted.web.resource import ErrorPage, IResource
 from zope.interface import implementer
 
-from ..fetch import (
-    ArticleUpsert,
-    BadStatus,
-    BozoError,
-    EmptyBody,
-    Gone,
-    MaybeUpdated,
-    NetworkError,
-    Unchanged,
-    poll_feed,
-)
+from ..fetch import ArticleUpsert, BadStatus, BozoError, EmptyBody, Gone, MaybeUpdated, NetworkError, Unchanged, poll_feed
 from ..models import Feed
 
 EMPTY_RSS = resources.read_binary("yarrharr.examples", "empty.rss")
