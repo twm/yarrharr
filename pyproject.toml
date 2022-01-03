@@ -7,3 +7,7 @@ multi_line_output = 3
 include_trailing_comma = true
 skip = "yarrharr/wsgi.py"
 skip_glob = "yarrharr/migrations/*.py"
+line_length = 150
+
+[tool.black]
+line-length = 150
