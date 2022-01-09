@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2020, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -312,16 +311,19 @@ class Root(FallbackResource):
         # sanitizer.
         request.setHeader(b"Referrer-Policy", b"same-origin")
         request.setHeader(b"X-Content-Type-Options", b"nosniff")
+        request.setHeader(b"Cross-Origin-Opener-Policy", b"same-origin")
 
         request.setHeader(
             b"Content-Security-Policy",
-            # b"default-src 'none'; "
-            b"img-src *; "
-            b"script-src 'self' 'unsafe-inline'; "
-            b"style-src 'self'; "
-            b"frame-ancestors 'none'; "
-            b"form-action 'self'; "
-            b"report-uri /csp-report",
+            (
+                # b"default-src 'none'; "
+                b"img-src *; "
+                b"script-src 'self' 'unsafe-inline'; "
+                b"style-src 'self'; "
+                b"frame-ancestors 'none'; "
+                b"form-action 'self'; "
+                b"report-uri /csp-report"
+            ),
         )
 
         return super().getChildWithDefault(name, request)
