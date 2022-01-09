@@ -32,6 +32,8 @@ import json
 import logging
 import re
 import sys
+import os
+from base64 import b64encode
 
 import attr
 from django.conf import settings
@@ -313,17 +315,20 @@ class Root(FallbackResource):
         request.setHeader(b"X-Content-Type-Options", b"nosniff")
         request.setHeader(b"Cross-Origin-Opener-Policy", b"same-origin")
 
+        script_nonce = b64encode(os.urandom(32))
+        request.requestHeaders.setRawHeaders(b"Yarrharr-Script-Nonce", [script_nonce])
         request.setHeader(
             b"Content-Security-Policy",
             (
                 # b"default-src 'none'; "
                 b"img-src *; "
-                b"script-src 'self' 'unsafe-inline'; "
+                b"script-src 'self' 'nonce-%s'; "
                 b"style-src 'self'; "
                 b"frame-ancestors 'none'; "
                 b"form-action 'self'; "
                 b"report-uri /csp-report"
-            ),
+            )
+            % (script_nonce,),
         )
 
         return super().getChildWithDefault(name, request)
