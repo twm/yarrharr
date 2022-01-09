@@ -28,8 +28,7 @@ devserver: webpack
 	YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8888
 
 .PHONY: realserver
-realserver:
-	NODE_ENV=development RUNMODE=dev-static npm run webpack
+realserver: webpack
 	tox -e run -- django-admin migrate
 	tox -e run -- django-admin collectstatic --noinput
 	tox -e run -- yarrharr
