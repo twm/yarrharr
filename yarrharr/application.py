@@ -30,9 +30,9 @@ Yarrharr production server via Twisted Web
 import io
 import json
 import logging
+import os
 import re
 import sys
-import os
 from base64 import b64encode
 
 import attr
