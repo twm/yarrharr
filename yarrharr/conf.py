@@ -215,9 +215,14 @@ def read_yarrharr_conf(files, namespace):
         "yarrharr",
     )
 
-    # Disable Django's logging configuration stuff (except when running under
-    # the dev server).
     if "runserver" not in sys.argv:
+        # Disable Django's logging configuration stuff (except when running under
+        # the dev server).
         namespace["LOGGING_CONFIG"] = None
+    else:
+        # Under the dev server send the same headers as the real Twisted server.
+        # See yarrharr.application.Root.
+        namespace["SECURE_REFERRER_POLICY"] = "same-origin"
+        namespace["SECURE_CROSS_ORIGIN_OPENER_POLICY"] = "same-origin"
 
     return conf
