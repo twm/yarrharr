@@ -50,11 +50,11 @@ class FeedTests(TestCase):
             url="https://feed.example/",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u"Example Feed‽",
-            user_title=u"",
+            feed_title="Example Feed‽",
+            user_title="",
         )
-        self.assertEqual(u"Example Feed‽", f.title)
-        self.assertEqual(u"Example Feed‽ <https://feed.example/>", u"{}".format(f))
+        self.assertEqual("Example Feed‽", f.title)
+        self.assertEqual("Example Feed‽ <https://feed.example/>", "{}".format(f))
 
     def test_str_user_title(self):
         """
@@ -65,11 +65,11 @@ class FeedTests(TestCase):
             url="https://feed.example/",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u"Example Feed",
-            user_title=u"My Example Feed",
+            feed_title="Example Feed",
+            user_title="My Example Feed",
         )
-        self.assertEqual(u"My Example Feed", f.title)
-        self.assertEqual(u"My Example Feed <https://feed.example/>", u"{}".format(f))
+        self.assertEqual("My Example Feed", f.title)
+        self.assertEqual("My Example Feed <https://feed.example/>", "{}".format(f))
 
 
 class FeedScheduleTests(TestCase):
@@ -95,8 +95,8 @@ class FeedScheduleTests(TestCase):
             url="https://feed.example",
             added=cls.now,
             next_check=cls.now,
-            feed_title=u"Feed",
-            user_title=u"",
+            feed_title="Feed",
+            user_title="",
         ).pk
 
     def setUp(self):
@@ -232,7 +232,7 @@ class ArticleTests(TestCase):
                 url="https://feed.example/",
                 added=timezone.now(),
                 next_check=timezone.now(),
-                feed_title=u"Example Feed",
+                feed_title="Example Feed",
             ),
             read=False,
             fave=False,
@@ -245,7 +245,7 @@ class ArticleTests(TestCase):
             content="...",
         )
 
-        self.assertEqual("Some Article <https://feed.example/1>", u"{}".format(a))
+        self.assertEqual("Some Article <https://feed.example/1>", "{}".format(a))
 
 
 class ArticleSetContentTests(TestCase):
