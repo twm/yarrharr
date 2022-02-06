@@ -124,7 +124,7 @@ class Feed(_ViewOptions):
     next_check = models.DateTimeField(null=True)
     last_checked = models.DateTimeField(null=True, default=None)
     last_changed = models.DateTimeField(null=True, default=None)
-    error = models.TextField(blank=True, default=u"")
+    error = models.TextField(blank=True, default="")
     etag = models.BinaryField(default=b"", max_length=1024)
     last_modified = models.BinaryField(default=b"", max_length=45)
     digest = models.BinaryField(default=b"", max_length=32)
@@ -142,7 +142,7 @@ class Feed(_ViewOptions):
     _now = staticmethod(timezone.now)
 
     def __str__(self):
-        return u"{} <{}>".format(self.title, self.url)
+        return "{} <{}>".format(self.title, self.url)
 
     def schedule(self):
         """
@@ -239,7 +239,7 @@ class Article(models.Model):
     content_rev = models.IntegerField(default=0)
 
     def __str__(self):
-        return u"{} <{}>".format(self.title, self.url)
+        return "{} <{}>".format(self.title, self.url)
 
     def set_content(self, raw_title, raw_content):
         """

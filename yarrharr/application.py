@@ -207,7 +207,7 @@ class Static(Resource):
     """
 
     _dir = FilePath(settings.STATIC_ROOT)
-    _validName = re.compile(br"^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$")
+    _validName = re.compile(rb"^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$")
     # NOTE: RFC 7231 § 5.3.4 is not completely clear about whether
     # content-coding tokens are case-sensitive or not. The "identity" token
     # appears in EBNF and is therefore definitely case-insensitive, but the
@@ -215,8 +215,8 @@ class Static(Resource):
     # contrast, the transfer-coding possibilities are clearly defined in EBNF
     # so are definitely case-insensitive. For content-coding every implementer
     # seems to agree on lowercase, so I'm not going to worry about it.
-    _brToken = re.compile(br"(:?^|[\s,])br(:?$|[\s,;])")
-    _gzToken = re.compile(br"(:?^|[\s,])(:?x-)?gzip(:?$|[\s,;])")
+    _brToken = re.compile(rb"(:?^|[\s,])br(:?$|[\s,;])")
+    _gzToken = re.compile(rb"(:?^|[\s,])(:?x-)?gzip(:?$|[\s,;])")
     _contentTypes = {
         b".js": "application/javascript",
         b".css": "text/css",

@@ -39,15 +39,15 @@ class HtmlToTextTests(unittest.TestCase):
         """
         Plain text passes through unaltered.
         """
-        self.assertEqual(u"Foo Bar", html_to_text(u"Foo Bar"))
+        self.assertEqual("Foo Bar", html_to_text("Foo Bar"))
 
     def test_simple(self):
         """
         HTML tags are stripped.
         """
         self.assertEqual(
-            u"Foo Bar",
-            html_to_text(u"Fo<b>o <i>B</i>a</b>r"),
+            "Foo Bar",
+            html_to_text("Fo<b>o <i>B</i>a</b>r"),
         )
 
     def test_style_dropped(self):
@@ -56,8 +56,8 @@ class HtmlToTextTests(unittest.TestCase):
         representation.
         """
         self.assertEqual(
-            u"ABC",
-            html_to_text(u"<a>A<style scoped>a { font-weight: bold }</style>B</a><b>C</b>"),
+            "ABC",
+            html_to_text("<a>A<style scoped>a { font-weight: bold }</style>B</a><b>C</b>"),
         )
 
     def test_script_dropped(self):
@@ -66,8 +66,8 @@ class HtmlToTextTests(unittest.TestCase):
         representation.
         """
         self.assertEqual(
-            u"ABC",
-            html_to_text(u"A<script>bbbab</script>B<b>C</b>"),
+            "ABC",
+            html_to_text("A<script>bbbab</script>B<b>C</b>"),
         )
 
     def test_block_spaces(self):
@@ -125,8 +125,8 @@ class SanitizeHtmlTests(unittest.TestCase):
         """
         self.assertEqual("<p>.", sanitize_html('<p style="float: left">.'))
         self.assertEqual(
-            u"<span>.</span>",
-            sanitize_html(u'<span style="display:none">.</span>'),
+            "<span>.</span>",
+            sanitize_html('<span style="display:none">.</span>'),
         )
 
     def test_script_dropped(self):
@@ -135,15 +135,15 @@ class SanitizeHtmlTests(unittest.TestCase):
         contain scripts by accident.
         """
         scripts = [
-            u'<p>Hello, world!<script>alert("!");</script>',
-            u"<p>Hello, <script></script>world!</p>",
-            u"<p><script>Hello</script>Hello, world!",
-            u"<p>Hello, <script>...<script>...</script></script>world!",
-            u'<p><style type="text/javascript"><script type="text/css"></style>Hello, world!',
+            '<p>Hello, world!<script>alert("!");</script>',
+            "<p>Hello, <script></script>world!</p>",
+            "<p><script>Hello</script>Hello, world!",
+            "<p>Hello, <script>...<script>...</script></script>world!",
+            '<p><style type="text/javascript"><script type="text/css"></style>Hello, world!',
         ]
 
         for s in scripts:
-            self.assertEqual(u"<p>Hello, world!", sanitize_html(s))
+            self.assertEqual("<p>Hello, world!", sanitize_html(s))
 
     def test_style_tag_dropped(self):
         """
@@ -151,8 +151,8 @@ class SanitizeHtmlTests(unittest.TestCase):
         contain styles by accident.
         """
         self.assertEqual(
-            u"<p><b>Hello</b>, world!",
-            sanitize_html(u'<p><b>Hello</b>, world<style type="text/css">b { color: red }</style>!'),
+            "<p><b>Hello</b>, world!",
+            sanitize_html('<p><b>Hello</b>, world<style type="text/css">b { color: red }</style>!'),
         )
 
     def test_object_replaced(self):
@@ -160,27 +160,25 @@ class SanitizeHtmlTests(unittest.TestCase):
         An ``<object>`` tag is replaced with its content, omitting any
         ``<param>`` tags as well.
         """
-        html = (
-            u'<object data="obsolete.swf" type="application/x-shockwave-flash">' u'<param name="foo" value="bar">' u"<p>Flash video</p>" u"</object>"
-        )
-        self.assertEqual(u"<p>Flash video", sanitize_html(html))
+        html = '<object data="obsolete.swf" type="application/x-shockwave-flash">' '<param name="foo" value="bar">' "<p>Flash video</p>" "</object>"
+        self.assertEqual("<p>Flash video", sanitize_html(html))
 
     def test_object_nest_replaced(self):
         """
         Nested ``<object>`` tags are recursively replaced with their content.
         """
         html = (
-            u"<p>"
-            u"<object>"
-            u'<param name="level" value="1">'
-            u"Level 1<br>"
-            u"<object>"
-            u'<param name="level" value="2">'
-            u"Level 2"
-            u"</object>"
-            u"</object>"
+            "<p>"
+            "<object>"
+            '<param name="level" value="1">'
+            "Level 1<br>"
+            "<object>"
+            '<param name="level" value="2">'
+            "Level 2"
+            "</object>"
+            "</object>"
         )
-        self.assertEqual(u"<p>Level 1<br>Level 2", sanitize_html(html))
+        self.assertEqual("<p>Level 1<br>Level 2", sanitize_html(html))
 
     def test_link_tag_dropped(self):
         """
@@ -200,8 +198,8 @@ class SanitizeHtmlTests(unittest.TestCase):
         """
         ``<img>`` tags are safe and pass right through.
         """
-        html = u'<img alt="" src="https://example.com/baz.png">'
-        html2 = u'<img src="https://example.com/baz.png" alt="">'
+        html = '<img alt="" src="https://example.com/baz.png">'
+        html2 = '<img src="https://example.com/baz.png" alt="">'
         # FIXME: the order of the attributes varies as dicts aren't ordered...
         self.assertIn(sanitize_html(html), (html, html2))
 
@@ -211,17 +209,17 @@ class SanitizeHtmlTests(unittest.TestCase):
         which links to the original video.
         """
         html = (
-            u"<p>"
-            u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
-            u' height="315" src="http://www.youtube.com/embed/XsyogXtyU9o" '
-            u' width="560"></iframe></p>'
+            "<p>"
+            '<iframe allowfullscreen="allowfullscreen" frameborder="0" '
+            ' height="315" src="http://www.youtube.com/embed/XsyogXtyU9o" '
+            ' width="560"></iframe></p>'
         )
         self.assertEqual(
             (
-                u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o"'
-                u' rel="noopener noreferrer" target=_blank>'
-                u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
-                u" width=320 height=180></a>"
+                '<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o"'
+                ' rel="noopener noreferrer" target=_blank>'
+                '<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
+                " width=320 height=180></a>"
             ),
             sanitize_html(html),
         )
@@ -231,14 +229,14 @@ class SanitizeHtmlTests(unittest.TestCase):
         A "privacy-enhanced" YouTube embed, which uses the youtube-nocookie.com domain, is replaced with a link.
         """
         html = (
-            u'<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q0CbN8sfihY"' u' frameborder="0" allowfullscreen></iframe>'
+            '<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q0CbN8sfihY"' ' frameborder="0" allowfullscreen></iframe>'
         )
         self.assertEqual(
             (
-                u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
-                u' rel="noopener noreferrer" target=_blank>'
-                u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
-                u" width=320 height=180></a>"
+                '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
+                ' rel="noopener noreferrer" target=_blank>'
+                '<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
+                " width=320 height=180></a>"
             ),
             sanitize_html(html),
         )
@@ -248,15 +246,15 @@ class SanitizeHtmlTests(unittest.TestCase):
         A YouTube embed which links to a specific time in the video produces a link to that same time.
         """
         html = (
-            u'<iframe width="560" height="315" frameborder="0" allowfullscreen '
-            u' src="https://www.youtube.com/embed/wZZ7oFKsKzY?rel=0&amp;showinfo=0&amp;start=3601"></iframe>'
+            '<iframe width="560" height="315" frameborder="0" allowfullscreen '
+            ' src="https://www.youtube.com/embed/wZZ7oFKsKzY?rel=0&amp;showinfo=0&amp;start=3601"></iframe>'
         )
         self.assertEqual(
             (
-                u'<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s"'
-                u' rel="noopener noreferrer" target=_blank>'
-                u'<img alt="YouTube video" src="https://i.ytimg.com/vi/wZZ7oFKsKzY/mqdefault.jpg"'
-                u" width=320 height=180></a>"
+                '<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s"'
+                ' rel="noopener noreferrer" target=_blank>'
+                '<img alt="YouTube video" src="https://i.ytimg.com/vi/wZZ7oFKsKzY/mqdefault.jpg"'
+                " width=320 height=180></a>"
             ),
             sanitize_html(html),
         )
@@ -266,16 +264,16 @@ class SanitizeHtmlTests(unittest.TestCase):
         Stuff inside a YouTube embed ``<iframe>`` tag is discarded.
         """
         html = (
-            u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
-            u' height="315" src="http://www.youtube.com/embed/Q0CbN8sfihY" '
-            u' width="560"><p>inside</iframe>after'
+            '<iframe allowfullscreen="allowfullscreen" frameborder="0" '
+            ' height="315" src="http://www.youtube.com/embed/Q0CbN8sfihY" '
+            ' width="560"><p>inside</iframe>after'
         )
         self.assertEqual(
             (
-                u'<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
-                u' rel="noopener noreferrer" target=_blank>'
-                u'<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
-                u" width=320 height=180></a>after"
+                '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
+                ' rel="noopener noreferrer" target=_blank>'
+                '<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
+                " width=320 height=180></a>after"
             ),
             sanitize_html(html),
         )
@@ -287,17 +285,17 @@ class SanitizeHtmlTests(unittest.TestCase):
         This reproduces https://github.com/twm/yarrharr/issues/619.
         """
         html = (
-            u"<p>"
-            u'<iframe allowfullscreen="allowfullscreen" frameborder="0" '
-            u' height="315" src="https://www.youtube.com/embed/XsyogXtyU9o&amp;amp"'
-            u' width="560"></iframe></p>'
+            "<p>"
+            '<iframe allowfullscreen="allowfullscreen" frameborder="0" '
+            ' height="315" src="https://www.youtube.com/embed/XsyogXtyU9o&amp;amp"'
+            ' width="560"></iframe></p>'
         )
         self.assertEqual(
             (
-                u'<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o%26amp"'
-                u' rel="noopener noreferrer" target=_blank>'
-                u'<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o&amp;amp/mqdefault.jpg"'
-                u" width=320 height=180></a>"
+                '<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o%26amp"'
+                ' rel="noopener noreferrer" target=_blank>'
+                '<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o&amp;amp/mqdefault.jpg"'
+                " width=320 height=180></a>"
             ),
             sanitize_html(html),
         )
@@ -308,16 +306,16 @@ class SanitizeHtmlTests(unittest.TestCase):
         a touchscreen device, inject the text as an ``<aside>`` element after
         the image.
         """
-        html = u'<img title="blah blah">'
-        self.assertEqual(u'<img title="blah blah"><aside>blah blah</aside>', sanitize_html(html))
+        html = '<img title="blah blah">'
+        self.assertEqual('<img title="blah blah"><aside>blah blah</aside>', sanitize_html(html))
 
     def test_a_attrs(self):
         """
         ``<a>`` tags are given ``rel`` and ``target`` attributes.
         """
-        html = u'<a href="foo.html">bar</a>'
+        html = '<a href="foo.html">bar</a>'
         self.assertEqual(
-            u'<a href=foo.html rel="noopener noreferrer" target=_blank>bar</a>',
+            '<a href=foo.html rel="noopener noreferrer" target=_blank>bar</a>',
             sanitize_html(html),
         )
 
@@ -326,9 +324,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<video>`` tags must have ``controls`` attribute, and must not have an
         ``autoplay`` attribute.
         """
-        html = u"<video autoplay />"
+        html = "<video autoplay />"
         self.assertEqual(
-            u"<video controls preload=metadata></video>",
+            "<video controls preload=metadata></video>",
             sanitize_html(html),
         )
 
