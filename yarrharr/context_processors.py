@@ -27,15 +27,25 @@
 Yarrharr template context processors.
 """
 
+import os
+
 from django.conf import settings
 
 
 def csp(request):
     """
-    Add the script nonce from the ``Content-Security-Policy`` header to the request context.
+    Add the script nonce from the ``Content-Security-Policy`` header to the
+    request context.
     """
     if settings.YARRHARR_SCRIPT_NONCE:
-        nonce = request.headers["Yarrharr-Script-Nonce"]
+        try:
+            nonce = request.headers["Yarrharr-Script-Nonce"]
+        except KeyError:
+            if os.environ.get("YARRHARR_TESTING") == "yes":
+                # Only ignore this in unit tests so we fail safe in production.
+                nonce = None
+            else:
+                raise
     else:
         nonce = None
     return {"script_nonce": nonce}
