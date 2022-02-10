@@ -119,6 +119,7 @@ class ConfTests(unittest.TestCase):
                         "OPTIONS": {
                             "context_processors": [
                                 "django.contrib.auth.context_processors.auth",
+                                "yarrharr.context_processors.csp",
                             ],
                         },
                     }
@@ -146,6 +147,7 @@ class ConfTests(unittest.TestCase):
                     "yarrharr",
                 ),
                 "LOGGING_CONFIG": None,
+                "YARRHARR_SCRIPT_NONCE": True,
             },
         )
 
@@ -196,6 +198,7 @@ class ConfTests(unittest.TestCase):
                         "OPTIONS": {
                             "context_processors": [
                                 "django.contrib.auth.context_processors.auth",
+                                "yarrharr.context_processors.csp",
                                 "django.template.context_processors.debug",
                             ],
                         },
@@ -224,6 +227,7 @@ class ConfTests(unittest.TestCase):
                     "yarrharr",
                 ),
                 "LOGGING_CONFIG": None,
+                "YARRHARR_SCRIPT_NONCE": True,
             },
         )
 

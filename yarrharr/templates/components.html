@@ -38,7 +38,7 @@
 </template>
 
 
-<script type="module">
+<script type="module" nonce="{{ script_nonce }}">
 {% url 'api-flags' as flag_api_url %}
 const flagsApi = "{{ flag_api_url|escapejs }}";
 

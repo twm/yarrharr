@@ -172,6 +172,7 @@ def read_yarrharr_conf(files, namespace):
     # in the default list as Yarrharr's templates don't use them.
     context_processors = [
         "django.contrib.auth.context_processors.auth",
+        "yarrharr.context_processors.csp",
     ]
     if namespace["DEBUG"]:
         # When in debug mode, display SQL queries for requests coming from the
@@ -215,9 +216,16 @@ def read_yarrharr_conf(files, namespace):
         "yarrharr",
     )
 
-    # Disable Django's logging configuration stuff (except when running under
-    # the dev server).
     if "runserver" not in sys.argv:
+        # Disable Django's logging configuration stuff (except when running under
+        # the dev server).
         namespace["LOGGING_CONFIG"] = None
+        namespace["YARRHARR_SCRIPT_NONCE"] = True
+    else:
+        # Under the dev server send the same headers as the real Twisted server.
+        # See yarrharr.application.Root.
+        namespace["SECURE_REFERRER_POLICY"] = "same-origin"
+        namespace["SECURE_CROSS_ORIGIN_OPENER_POLICY"] = "same-origin"
+        namespace["YARRHARR_SCRIPT_NONCE"] = False
 
     return conf
