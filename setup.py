@@ -15,7 +15,6 @@ setup(
         "Django >=4.0.2,<4.1",
         "Twisted[tls,http2] >= 22.1.0",
         "treq >= 22.2.0",
-        "pytz",
         "feedparser >= 6.0.8",
         "html5lib == 1.1",
     ],
