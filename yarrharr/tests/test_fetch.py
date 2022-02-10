@@ -24,7 +24,8 @@
 # OpenSSL used as well as that of the covered work.
 
 import hashlib
-from datetime import datetime, timedelta, timezone as tz
+from datetime import datetime, timedelta
+from datetime import timezone as tz
 from importlib import resources
 from unittest import mock
 

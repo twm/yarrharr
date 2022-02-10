@@ -30,7 +30,8 @@ Feed fetcher based on Twisted Web
 
 import hashlib
 import html
-from datetime import datetime, timezone as tz
+from datetime import datetime
+from datetime import timezone as tz
 from io import BytesIO
 
 import attr

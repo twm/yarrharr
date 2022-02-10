@@ -18,7 +18,7 @@ setup(
         "feedparser >= 6.0.8",
         "html5lib == 1.1",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     entry_points={
         "console_scripts": [
             "yarrharr=yarrharr.scripts.yarrharr:main",
@@ -34,7 +34,7 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Internet :: WWW/HTTP",
     ],
     packages=find_packages(),
