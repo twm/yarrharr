@@ -112,7 +112,7 @@ window.customElements.define("fave-toggle", class extends HTMLElement {
     this.checked = !!this.checked;
     this._button.onclick = (e) => {
       this.checked = !this.checked;
-      setFlag(this.getAttribute("article-id"), 'read', this.checked).catch(() => {
+      setFlag(this.getAttribute("article-id"), "fave", this.checked).catch(() => {
         this.checked = !this.checked;
       })
     }

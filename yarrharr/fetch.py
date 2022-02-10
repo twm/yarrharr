@@ -77,7 +77,7 @@ class BadStatus(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u"Fetch failed: HTTP status {}".format(self.code)
+        feed.error = "Fetch failed: HTTP status {}".format(self.code)
         feed.schedule()
         feed.save()
 
@@ -94,7 +94,7 @@ class Unchanged(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u""
+        feed.error = ""
         feed.schedule()
         feed.save()
 
@@ -107,7 +107,7 @@ class Gone(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = u"Feed is no longer available: automatically deactivated"
+        feed.error = "Feed is no longer available: automatically deactivated"
         feed.next_check = None
         feed.save()
 
@@ -151,7 +151,7 @@ class MaybeUpdated(object):
 
     def persist(self, feed):
         feed.last_checked = self.check_time
-        feed.error = u""
+        feed.error = ""
         feed.feed_title = self.feed_title
         feed.site_url = self.site_url
         feed.etag = self.etag
@@ -326,7 +326,7 @@ class BozoError(object):
         feed.etag = b""
         feed.last_modified = b""
         feed.digest = b""
-        feed.error = u"Fetch failed: processing HTTP {} {} response produced error: {}".format(self.code, self.content_type, self.error)
+        feed.error = "Fetch failed: processing HTTP {} {} response produced error: {}".format(self.code, self.content_type, self.error)
         feed.schedule()
         feed.save()
 
@@ -614,11 +614,11 @@ def poll_feed(feed, clock, treq=treq):
     for entry in parsed["entries"]:
         articles.append(
             ArticleUpsert(
-                author=entry.get("author", u""),
+                author=entry.get("author", ""),
                 raw_title=extract_title(entry.get("title_detail")),
-                url=entry.get("link", u""),
+                url=entry.get("link", ""),
                 date=extract_date(entry),
-                guid=entry.get("id", u""),
+                guid=entry.get("id", ""),
                 raw_content=extract_content(entry),
             )
         )
@@ -641,7 +641,7 @@ def poll_feed(feed, clock, treq=treq):
     else:
         return MaybeUpdated(
             feed_title=extract_feed_title(parsed_feed, feed.url),
-            site_url=parsed_feed.get("link", u""),
+            site_url=parsed_feed.get("link", ""),
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
             digest=digest,
@@ -714,7 +714,7 @@ def extract_title(title_detail):
     """
     if title_detail is None:
         return ""
-    if title_detail["type"] == u"text/plain":
+    if title_detail["type"] == "text/plain":
         return html.escape(title_detail["value"])
     else:
         return title_detail["value"]
@@ -754,7 +754,7 @@ def extract_content(entry):
     """
     content = entry.get("content", [])
     if not content:
-        return entry.get("summary", u"")
+        return entry.get("summary", "")
     # TODO: extract the most appropriate entry if there are multiples (does
     # anyone actually ever provide more than one in the real world?)
     return content[0].value

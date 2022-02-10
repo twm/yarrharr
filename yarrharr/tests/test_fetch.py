@@ -57,7 +57,7 @@ class FetchFeed(object):
     fetching works.
     """
 
-    url = attr.ib(default=u"http://an.example/feed.xml")
+    url = attr.ib(default="http://an.example/feed.xml")
     last_modified = attr.ib(default=b"", validator=instance_of(bytes))
     etag = attr.ib(default=b"", validator=instance_of(bytes))
     digest = attr.ib(default=b"", validator=instance_of(bytes))
@@ -147,14 +147,14 @@ class StaticLastModifiedResourceTests(SynchronousTestCase):
         client = StubTreq(
             StaticLastModifiedResource(
                 content=b"abcd",
-                last_modified=u"Mon, 6 Feb 2017 00:00:00 GMT",
+                last_modified="Mon, 6 Feb 2017 00:00:00 GMT",
             )
         )
         response = self.successResultOf(client.get("http://an.example/"))
         self.assertEqual(200, response.code)
         self.assertEqual(
-            [u"Mon, 6 Feb 2017 00:00:00 GMT"],
-            response.headers.getRawHeaders(u"Last-Modified"),
+            ["Mon, 6 Feb 2017 00:00:00 GMT"],
+            response.headers.getRawHeaders("Last-Modified"),
         )
         body = self.successResultOf(response.content())
         self.assertEqual(b"abcd", body)
@@ -163,21 +163,21 @@ class StaticLastModifiedResourceTests(SynchronousTestCase):
         client = StubTreq(
             StaticLastModifiedResource(
                 content=b"abcd",
-                last_modified=u"Mon, 6 Feb 2017 00:00:00 GMT",
+                last_modified="Mon, 6 Feb 2017 00:00:00 GMT",
             )
         )
         response = self.successResultOf(
             client.get(
                 "http://an.example/",
                 headers={
-                    "if-modified-since": [u"Mon, 6 Feb 2017 00:00:00 GMT"],
+                    "if-modified-since": ["Mon, 6 Feb 2017 00:00:00 GMT"],
                 },
             )
         )
         self.assertEqual(304, response.code)
         self.assertEqual(
-            [u"Mon, 6 Feb 2017 00:00:00 GMT"],
-            response.headers.getRawHeaders(u"Last-Modified"),
+            ["Mon, 6 Feb 2017 00:00:00 GMT"],
+            response.headers.getRawHeaders("Last-Modified"),
         )
         body = self.successResultOf(response.content())
         self.assertEqual(b"", body)
@@ -319,7 +319,7 @@ class FetchTests(SynchronousTestCase):
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertIn(u"<script>", outcome.articles[0].raw_content)
+        self.assertIn("<script>", outcome.articles[0].raw_content)
 
     def test_feed_title_html(self):
         """
@@ -332,7 +332,7 @@ class FetchTests(SynchronousTestCase):
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, MaybeUpdated)
-        self.assertEqual(u"Feed with HTML <title/>", outcome.feed_title)
+        self.assertEqual("Feed with HTML <title/>", outcome.feed_title)
 
     def test_raw_title_html(self):
         """
@@ -346,7 +346,7 @@ class FetchTests(SynchronousTestCase):
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
         self.assertIsInstance(outcome, MaybeUpdated)
-        self.assertEqual(u"Feed with HTML <title/>", outcome.feed_title)
+        self.assertEqual("Feed with HTML <title/>", outcome.feed_title)
         self.assertEqual(
             "&lt;b&gt;Entry with Escaped HTML &amp;lt;title/&amp;gt;&lt;/b&gt;",
             outcome.articles[0].raw_title,
@@ -523,7 +523,7 @@ class FetchTests(SynchronousTestCase):
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertEqual(Unchanged(u"digest"), result)
+        self.assertEqual(Unchanged("digest"), result)
 
     def test_etag_304(self):
         """
@@ -536,7 +536,7 @@ class FetchTests(SynchronousTestCase):
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertEqual(Unchanged(u"etag"), result)
+        self.assertEqual(Unchanged("etag"), result)
 
     def test_etag_200(self):
         """
@@ -550,8 +550,8 @@ class FetchTests(SynchronousTestCase):
 
         self.assertEqual(
             MaybeUpdated(
-                feed_title=u"Empty RSS feed",
-                site_url=u"http://an.example/",
+                feed_title="Empty RSS feed",
+                site_url="http://an.example/",
                 etag=b'"1234"',
                 last_modified=b"",
                 digest=mock.ANY,
@@ -577,7 +577,7 @@ class FetchTests(SynchronousTestCase):
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertEqual(Unchanged(u"last-modified"), result)
+        self.assertEqual(Unchanged("last-modified"), result)
 
     def test_last_modified_200(self):
         """
@@ -588,7 +588,7 @@ class FetchTests(SynchronousTestCase):
         client = StubTreq(
             StaticLastModifiedResource(
                 content=EMPTY_RSS,
-                last_modified=u"Tue, 7 Feb 2017 10:25:00 GMT",
+                last_modified="Tue, 7 Feb 2017 10:25:00 GMT",
             )
         )
 
@@ -596,8 +596,8 @@ class FetchTests(SynchronousTestCase):
 
         self.assertEqual(
             MaybeUpdated(
-                feed_title=u"Empty RSS feed",
-                site_url=u"http://an.example/",
+                feed_title="Empty RSS feed",
+                site_url="http://an.example/",
                 etag=b"",
                 last_modified=b"Tue, 7 Feb 2017 10:25:00 GMT",
                 digest=mock.ANY,
@@ -618,7 +618,7 @@ class FetchTests(SynchronousTestCase):
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
 
-        self.assertEqual(BozoError(code=200, content_type=u"text/html", error=mock.ANY), outcome)
+        self.assertEqual(BozoError(code=200, content_type="text/html", error=mock.ANY), outcome)
 
     def test_bozo_empty(self):
         """
@@ -679,11 +679,11 @@ class MaybeUpdatedTests(DjangoTestCase):
         self.feed = Feed.objects.create(
             user=self.user,
             url="https://example.com/feed",
-            site_url=u"",
+            site_url="",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u"Before",
-            user_title=u"",
+            feed_title="Before",
+            user_title="",
             etag=b"",
             last_modified=b"",
             digest=b"",
@@ -694,8 +694,8 @@ class MaybeUpdatedTests(DjangoTestCase):
         When no articles are present, only feed metadata is refreshed.
         """
         mu = MaybeUpdated(
-            feed_title=u"After",
-            site_url=u"https://example.com/",
+            feed_title="After",
+            site_url="https://example.com/",
             articles=[],
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
@@ -705,11 +705,11 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
-        self.assertEqual(u"", self.feed.error)
-        self.assertEqual(u"After", self.feed.feed_title)
+        self.assertEqual("", self.feed.error)
+        self.assertEqual("After", self.feed.feed_title)
         self.assertEqual(mu.check_time, self.feed.last_checked)
         self.assertEqual(mu.check_time, self.feed.last_changed)
-        self.assertEqual(u"https://example.com/", self.feed.site_url)
+        self.assertEqual("https://example.com/", self.feed.site_url)
         self.assertEqual(b'"etag"', self.feed.etag)
         self.assertEqual(b"Tue, 15 Nov 1994 12:45:26 GMT", self.feed.last_modified)
         self.assertEqual(b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", self.feed.digest)
@@ -723,16 +723,16 @@ class MaybeUpdatedTests(DjangoTestCase):
         marks the feed as changed.
         """
         mu = MaybeUpdated(
-            feed_title=u"Example",
-            site_url=u"https://example.com/",
+            feed_title="Example",
+            site_url="https://example.com/",
             articles=[
                 ArticleUpsert(
-                    author=u"Joe Bloggs",
+                    author="Joe Bloggs",
                     raw_title="Blah Blah",
-                    url=u"https://example.com/blah-blah",
+                    url="https://example.com/blah-blah",
                     date=timezone.now(),
-                    guid=u"doesnotexist",
-                    raw_content=u"<p>Hello, world!</p>",
+                    guid="doesnotexist",
+                    raw_content="<p>Hello, world!</p>",
                 ),
             ],
             etag=b'"etag"',
@@ -748,11 +748,11 @@ class MaybeUpdatedTests(DjangoTestCase):
             article,
             read=False,
             fave=False,
-            author=u"Joe Bloggs",
-            title=u"Blah Blah",
-            url=u"https://example.com/blah-blah",
-            raw_content=u"<p>Hello, world!</p>",
-            content=u"<p>Hello, world!",
+            author="Joe Bloggs",
+            title="Blah Blah",
+            url="https://example.com/blah-blah",
+            raw_content="<p>Hello, world!</p>",
+            content="<p>Hello, world!",
         )
 
     def test_persist_article_lacking_date(self):
@@ -763,16 +763,16 @@ class MaybeUpdatedTests(DjangoTestCase):
         articles in the feed when it is first added have the same date.
         """
         mu = MaybeUpdated(
-            feed_title=u"Example",
-            site_url=u"https://example.com/",
+            feed_title="Example",
+            site_url="https://example.com/",
             articles=[
                 ArticleUpsert(
-                    author=u"Joe Bloggs",
-                    raw_title=u"Blah Blah",
-                    url=u"https://example.com/blah-blah",
+                    author="Joe Bloggs",
+                    raw_title="Blah Blah",
+                    url="https://example.com/blah-blah",
                     date=None,
-                    guid=u"49e3c525-724c-44d8-ad0c-d78bd216d003",
-                    raw_content=u"<p>Hello, world!</p>",
+                    guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
+                    raw_content="<p>Hello, world!</p>",
                 ),
             ],
             etag=b'"etag"',
@@ -793,25 +793,25 @@ class MaybeUpdatedTests(DjangoTestCase):
         self.feed.articles.create(
             read=True,
             fave=False,
-            author=u"???",
-            title=u"???",
+            author="???",
+            title="???",
             date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
-            url=u"http://example.com/blah-blah",
-            guid=u"49e3c525-724c-44d8-ad0c-d78bd216d003",
+            url="http://example.com/blah-blah",
+            guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
             raw_content="",
             content="",
         )
         mu = MaybeUpdated(
-            feed_title=u"After",
-            site_url=u"https://example.com/",
+            feed_title="After",
+            site_url="https://example.com/",
             articles=[
                 ArticleUpsert(
-                    author=u"Joe Bloggs",
+                    author="Joe Bloggs",
                     raw_title="Blah Blah",
-                    url=u"https://example.com/blah-blah",
+                    url="https://example.com/blah-blah",
                     date=timezone.now(),
-                    guid=u"49e3c525-724c-44d8-ad0c-d78bd216d003",
-                    raw_content=u"<p>Hello, world!</p>",
+                    guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
+                    raw_content="<p>Hello, world!</p>",
                 ),
             ],
             etag=b'"etag"',
@@ -827,11 +827,11 @@ class MaybeUpdatedTests(DjangoTestCase):
             article,
             read=True,  # It does not become unread due to the update.
             fave=False,
-            author=u"Joe Bloggs",
-            title=u"Blah Blah",
-            url=u"https://example.com/blah-blah",
-            raw_content=u"<p>Hello, world!</p>",
-            content=u"<p>Hello, world!",
+            author="Joe Bloggs",
+            title="Blah Blah",
+            url="https://example.com/blah-blah",
+            raw_content="<p>Hello, world!</p>",
+            content="<p>Hello, world!",
         )
 
     def test_persist_article_guid_http_to_https_match(self):
@@ -875,8 +875,8 @@ class MaybeUpdatedTests(DjangoTestCase):
             article,
             read=True,  # It does not become unread due to the update.
             fave=False,
-            author=u"Joe Bloggs",
-            title=u"Blah Blah",
+            author="Joe Bloggs",
+            title="Blah Blah",
             url="https://www2.example.com/blah-blah",
             guid="https://example.com/1",
         )
@@ -894,22 +894,22 @@ class MaybeUpdatedTests(DjangoTestCase):
             raw_title="???",
             title="???",
             date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
-            url=u"https://example.com/blah-blah",
-            guid=u"",  # Must not have a GUID to match by URL
+            url="https://example.com/blah-blah",
+            guid="",  # Must not have a GUID to match by URL
             raw_content="",
             content="",
         )
         mu = MaybeUpdated(
-            feed_title=u"Blah Blah",
-            site_url=u"https://example.com/",
+            feed_title="Blah Blah",
+            site_url="https://example.com/",
             articles=[
                 ArticleUpsert(
-                    author=u"Joe Bloggs",
+                    author="Joe Bloggs",
                     raw_title="Blah Blah",
                     date=new_date,
-                    url=u"https://example.com/blah-blah",
-                    guid=u"",
-                    raw_content=u"<p>Hello, world!</p>",
+                    url="https://example.com/blah-blah",
+                    guid="",
+                    raw_content="<p>Hello, world!</p>",
                 ),
             ],
             etag=b"",
@@ -924,10 +924,10 @@ class MaybeUpdatedTests(DjangoTestCase):
             article,
             read=True,  # It does not become unread due to the update.
             fave=False,
-            author=u"Joe Bloggs",
+            author="Joe Bloggs",
             raw_title="Blah Blah",
             date=new_date,
-            url=u"https://example.com/blah-blah",
+            url="https://example.com/blah-blah",
             raw_content="<p>Hello, world!</p>",
         )
 
@@ -959,7 +959,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     date=new_date,
                     url="https://example.com/blah-blah",
                     guid="",
-                    raw_content=u"<p>Hello, world!</p>",
+                    raw_content="<p>Hello, world!</p>",
                 ),
             ],
             etag=b"",
@@ -974,10 +974,10 @@ class MaybeUpdatedTests(DjangoTestCase):
             article,
             read=True,  # It does not become unread due to the update.
             fave=True,
-            author=u"Joe Bloggs",
+            author="Joe Bloggs",
             raw_title="Blah Blah",
             date=new_date,
-            url=u"https://example.com/blah-blah",
+            url="https://example.com/blah-blah",
         )
 
     def test_persist_article_sanitize(self):
@@ -985,16 +985,16 @@ class MaybeUpdatedTests(DjangoTestCase):
         The HTML associated with an article is sanitized when it is persisted.
         """
         mu = MaybeUpdated(
-            feed_title=u"<b>Example</b>",
-            site_url=u"https://example.com/",
+            feed_title="<b>Example</b>",
+            site_url="https://example.com/",
             articles=[
                 ArticleUpsert(
-                    author=u"Joe Bloggs",
+                    author="Joe Bloggs",
                     raw_title="Blah &amp; Blah",
-                    url=u"https://example.com/blah-blah",
+                    url="https://example.com/blah-blah",
                     date=timezone.now(),
-                    guid=u"49e3c525-724c-44d8-ad0c-d78bd216d003",
-                    raw_content=u"<p>Hello, <style>...</style>world" u'<script type="text/javascript">alert("lololol")</script>!',
+                    guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
+                    raw_content="<p>Hello, <style>...</style>world" '<script type="text/javascript">alert("lololol")</script>!',
                 ),
             ],
             etag=b'"etag"',
@@ -1004,7 +1004,7 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         mu.persist(self.feed)
 
-        self.assertEqual(u"<b>Example</b>", self.feed.title)
+        self.assertEqual("<b>Example</b>", self.feed.title)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
@@ -1029,18 +1029,18 @@ class BozoErrorTests(DjangoTestCase):
         feed = Feed.objects.create(
             user=user,
             url="https://example.com/feed",
-            site_url=u"",
+            site_url="",
             added=timezone.now(),
             next_check=timezone.now(),
-            feed_title=u"Before",
-            user_title=u"",
+            feed_title="Before",
+            user_title="",
             etag=b"",
             last_modified=b"",
             digest=b"",
         )
         be = BozoError(
             code=201,
-            content_type=u"text/plain",
+            content_type="text/plain",
             error="Not XML",
         )
 
@@ -1051,6 +1051,6 @@ class BozoErrorTests(DjangoTestCase):
         self.assertEqual(feed.last_modified, b"")
         self.assertEqual(feed.digest, b"")
         self.assertEqual(
-            u"Fetch failed: processing HTTP 201 text/plain response produced error: Not XML",
+            "Fetch failed: processing HTTP 201 text/plain response produced error: Not XML",
             feed.error,
         )
