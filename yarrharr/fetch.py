@@ -31,11 +31,11 @@ Feed fetcher based on Twisted Web
 import hashlib
 import html
 from datetime import datetime
+from datetime import timezone as tz
 from io import BytesIO
 
 import attr
 import feedparser
-import pytz
 import treq
 from django.db import OperationalError, transaction
 from django.utils import timezone
@@ -683,7 +683,7 @@ def as_datetime(t):
         hour=t[3],
         minute=t[4],
         second=t[5],
-        tzinfo=pytz.utc,
+        tzinfo=tz.utc,
     )
 
 

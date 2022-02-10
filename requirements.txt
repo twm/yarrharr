@@ -64,8 +64,6 @@ pycparser==2.21
     # via cffi
 pyopenssl==21.0.0
     # via twisted
-pytz==2021.3
-    # via yarrharr (setup.py)
 requests==2.26.0
     # via treq
 service-identity==21.1.0

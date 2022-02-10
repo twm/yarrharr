@@ -25,11 +25,11 @@
 
 import hashlib
 from datetime import datetime, timedelta
+from datetime import timezone as tz
 from importlib import resources
 from unittest import mock
 
 import attr
-import pytz
 from attr.validators import instance_of
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
@@ -651,8 +651,8 @@ class FetchTests(SynchronousTestCase):
         self.assertIsInstance(outcome, MaybeUpdated)
         self.assertEqual(
             [
-                datetime(2017, 3, 17, tzinfo=pytz.UTC),
-                datetime(2013, 1, 1, tzinfo=pytz.UTC),
+                datetime(2017, 3, 17, tzinfo=tz.utc),
+                datetime(2013, 1, 1, tzinfo=tz.utc),
             ],
             [article.date for article in outcome.articles],
         )
