@@ -80,7 +80,7 @@ sqlparse==0.4.2
     # via django
 treq==22.2.0
     # via yarrharr (setup.py)
-twisted[http2,tls]==22.1.0
+twisted[http2,tls]==22.4.0
     # via
     #   treq
     #   yarrharr (setup.py)
