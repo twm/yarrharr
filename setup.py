@@ -12,7 +12,7 @@ setup(
     license="GPLv3+",
     install_requires=[
         "attrs >= 19.3.0",
-        "Django >=4.0.2,<4.1",
+        "Django >=4.0.4,<4.1",
         "Twisted[tls,http2] >= 22.1.0",
         "treq >= 22.2.0",
         "feedparser >= 6.0.8",

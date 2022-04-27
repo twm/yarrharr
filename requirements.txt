@@ -27,7 +27,7 @@ cryptography==36.0.1
     # via
     #   pyopenssl
     #   service-identity
-django==4.0.2
+django==4.0.4
     # via yarrharr (setup.py)
 feedparser==6.0.8
     # via yarrharr (setup.py)
