@@ -19,7 +19,7 @@ jobs:
       TOXENV: "${{ matrix.tox-env }}"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - uses: actions/setup-python@v3.1.2
       with:
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: apt install
       run: |
