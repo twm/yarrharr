@@ -33,29 +33,6 @@ const config = {
     },
     module: {
         rules: [{
-        // FIXME WP4: Restore eslint
-            // test: /\.jsm?$/,
-            // enforce: 'pre',
-            // rules: [{loader: 'eslint-loader'}],
-            // exclude: /node_modules/,
-        // }, {
-            test: /\.less$/,
-            rules: [{
-                loader: MiniCssExtractPlugin.loader,
-            }, {
-                loader: 'css-loader',
-                options: {sourceMap: true}
-            }, {
-                loader: 'less-loader',
-                options: {
-                    sourceMap: true,
-                    lessOptions: {
-                        strictMath: true,
-                        noIeCompat: true,
-                    },
-                },
-            }],
-        }, {
             test: /\.jsm?$/,
             rules: [{
                 loader: 'babel-loader',
@@ -79,9 +56,6 @@ const config = {
         filename: '[name]-[contenthash].js',
     },
     plugins: [
-        new MiniCssExtractPlugin({
-            filename: "[name]-[contenthash].css",
-        }),
         new FaviconPlugin(),
         new webpack.DefinePlugin({
             __hot__: 'false',

@@ -11,6 +11,9 @@
 .PHONY: webpack
 webpack:
 	rm -rf yarrharr/static
+	mkdir yarrharr/static
+	cp -v vendor/normalize.css/normalize-*.css yarrharr/static/
+	bin/compile-less.sh
 	NODE_ENV=production RUNMODE=release npm run webpack
 	@if grep -q __debug__ yarrharr/static/main-*.js; then echo "ERROR: __debug__ found in bundle. Is minification working?"; exit 1; fi
 	@if grep -q propTypes yarrharr/static/main-*.js; then echo "ERROR: propTypes found in bundle. Please remove them."; exit 1; fi
