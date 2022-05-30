@@ -1,12 +1,7 @@
 #!/usr/bin/python3
 # Copyright © 2018, 2019, 2020, 2022 Tom Most <twm@freecog.net>
 """
-This script optimizes SVG files with scour and uses Inkscape to
-generate two raster versions of the favicon:
 
-  * icon-[hexchars].png — a 152x152 PNG, optimized with optipng.
-  * icon-[hexchars].ico — ICO with 16x16, 24x24, 32x32, and 64x64 versions.
-    Built with icotool.
 
 The aforementioned CLI tools must be installed and on the PATH so that this
 script can invoke them.
@@ -31,7 +26,29 @@ _parser.add_argument("--out-dir", type=Path, default=repo_root / "yarrharr" / "s
 _parser.add_argument("--build-dir", type=Path, default=repo_root / "build")
 
 
+def hashname(prefix: str, ext: str, content: bytes) -> str:
+    """
+    Generate a filename based on file content.
+
+    See `yarrharr.application.Static`.
+    """
+    return f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
+
+
+async def _run(args: Sequence[str]) -> None:
+    """
+    Run a command. Raise an exception if it exits non-zero.
+    """
+    proc = await asyncio.create_subprocess_exec(*args)
+    await proc.wait()
+    if proc.returncode != 0:
+        raise Exception(f"{' '.join(shlex.quote(a) for a in args)} exited {proc.returncode}")
+
+
 async def scour_svg(svg: Path) -> bytes:
+    """
+    Run ``scour`` on an SVG file, returning the minified SVG.
+    """
     proc = await asyncio.create_subprocess_exec(
         "/usr/bin/scour",
         "-i",
@@ -48,14 +65,14 @@ async def scour_svg(svg: Path) -> bytes:
     return stdout
 
 
-async def _run(args: Sequence[str]) -> None:
-    proc = await asyncio.create_subprocess_exec(*args)
-    await proc.wait()
-    if proc.returncode != 0:
-        raise Exception(f"{' '.join(shlex.quote(a) for a in args)} exited {proc.returncode}")
-
-
 async def rasterize_favicon(favicon: Path, build_dir: Path, out_dir: Path) -> None:
+    """
+    Use Inkscape to generate two raster versions of the favicon:
+
+    - icon-[hexchars].png — a 152x152 PNG, optimized with optipng.
+    - icon-[hexchars].ico — ICO with 16x16, 24x24, 32x32, and 64x64 versions.
+      Built with icotool.
+    """
     proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE)
     outfiles = []
     commands = []
@@ -79,11 +96,10 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, out_dir: Path) -> No
     copyfile(ico_path, out_dir / hashname("icon", "ico", ico_path.read_bytes()))
 
 
-def hashname(prefix: str, ext: str, content: bytes) -> str:
-    return f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
-
-
 async def process_svg(svg: Path, out_dir: Path) -> None:
+    """
+    Minify the SVG and copy it to the output directory.
+    """
     svg_bytes = await scour_svg(svg)
     (out_dir / hashname(svg.stem, "svg", svg_bytes)).write_bytes(svg_bytes)
 

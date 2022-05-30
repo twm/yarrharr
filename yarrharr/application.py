@@ -177,17 +177,16 @@ class FallbackResource(Resource):
 
 class Static(Resource):
     """
-    Serve up Yarrharr's static assets directory. The files in this directory
-    have names like::
+    Serve up Yarrharr's static assets directory.
 
     In development, the files are served uncompressed and named like so::
 
         icon-afffb00fd22ca3ce0250.svg
 
-    The second dot-delimited section is a hash of the file's contents or source
-    material. As the filename changes each time the content does, these files
-    are served with a long max-age and the ``immutable`` flag in the
-    `Cache-Control`_ header.
+    The second hyphen-delimited section is usually a hash of the file's
+    contents or source material. As the filename changes each time the content
+    does, these files are served with a long max-age and the ``immutable`` flag
+    in the `Cache-Control`_ header.
 
     In production, each file has two pre-compressed variants: one with
     a ``.gz`` extension, and one with a ``.br`` extension. For example::
