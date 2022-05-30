@@ -16,7 +16,7 @@ lessc \
     --verbose \
     --source-map="$tmpdir/$map" \
     --source-map-url="$map" \
-    assets/base.less \
+    less/main.less \
     "$tmpdir/$css"
 
 hash=$(sha256sum -b - < "$tmpdir/$css" | head -c 16)

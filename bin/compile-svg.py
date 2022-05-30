@@ -26,7 +26,7 @@ from pathlib import Path
 repo_root = Path(__file__).parent.parent
 
 _parser = argparse.ArgumentParser()
-_parser.add_argument("--art-dir", type=Path, default=repo_root / "assets" / "art")
+_parser.add_argument("--img-dir", type=Path, default=repo_root / "img")
 _parser.add_argument("--out-dir", type=Path, default=repo_root / "yarrharr" / "static")
 _parser.add_argument("--build-dir", type=Path, default=repo_root / "build")
 
@@ -88,14 +88,14 @@ async def process_svg(svg: Path, out_dir: Path) -> None:
     (out_dir / hashname(svg.stem, "svg", svg_bytes)).write_bytes(svg_bytes)
 
 
-async def _main(art_dir: Path, build_dir: Path, out_dir: Path) -> None:
+async def _main(img_dir: Path, build_dir: Path, out_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    icon = art_dir / "icon.svg"
+    icon = img_dir / "icon.svg"
     await asyncio.gather(
-        process_svg(art_dir / "lettertype.svg", out_dir),
-        process_svg(art_dir / "logotype.svg", out_dir),
+        process_svg(img_dir / "lettertype.svg", out_dir),
+        process_svg(img_dir / "logotype.svg", out_dir),
         process_svg(icon, out_dir),
         rasterize_favicon(icon, build_dir, out_dir),
     )
@@ -103,7 +103,7 @@ async def _main(art_dir: Path, build_dir: Path, out_dir: Path) -> None:
 
 def main():
     args = _parser.parse_args()
-    asyncio.run(_main(args.art_dir, args.build_dir, args.out_dir))
+    asyncio.run(_main(args.img_dir, args.build_dir, args.out_dir))
 
 
 if __name__ == "__main__":
