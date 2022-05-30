@@ -11,6 +11,7 @@
         <link rel="icon" sizes="any" type="image/svg+xml" href="{% static 'icon-*.svg'|newest_static %}">
         <link rel="apple-touch-icon-precomposed" type="image/png" href="{% static 'icon-*.png'|newest_static %}">
         <link rel="manifest" href="{% url 'manifest' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'normalize-*.css'|newest_static %}">
         <link rel="stylesheet" type="text/css" href="{% static 'main-*.css'|newest_static %}">
         <script src="{% static 'runtime-*.js'|newest_static %}" defer nonce="{{ script_nonce }}"></script>
         <script src="{% static 'main-*.js'|newest_static %}" defer nonce="{{ script_nonce }}"></script>

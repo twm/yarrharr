@@ -215,7 +215,7 @@ select[multiple] {
 
 .about-page {
     .about-page-inner {
-        max-width: --layout-max-width;
+        max-width: var(--layout-max-width);
         margin: 0 auto;
         padding: 1px 0 1px 0; /* disable margin collapsing */
     }
@@ -228,7 +228,7 @@ select[multiple] {
     max-width: var(--layout-max-width);
     margin: 0 auto;
     line-height: @bar_line_height;
-    contain: size layout style;
+    contain: size layout;
 
     & > a[href],
     & > button {

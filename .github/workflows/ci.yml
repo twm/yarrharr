@@ -41,7 +41,7 @@ jobs:
     - run: |
         mkdir yarrharr/static
         touch yarrharr/static/{icon,logotype,lettertype}-xyz.{ico,png,svg}
-        touch yarrharr/static/{vendor,main}-xyz.css
+        touch yarrharr/static/{normalize,main}-xyz.css
         touch yarrharr/static/{runtime,vendor,main}-xyz.js
 
     - run: "python -m tox"
