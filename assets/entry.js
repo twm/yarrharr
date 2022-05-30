@@ -2,4 +2,3 @@
 import './art/icon.svg';
 import './art/logotype.svg';
 import './art/lettertype.svg';
-import './base.less'
