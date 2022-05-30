@@ -15,6 +15,7 @@ lessc \
     --strict-math=on \
     --verbose \
     --source-map="$tmpdir/$map" \
+    --source-map-url="$map" \
     assets/base.less \
     "$tmpdir/$css"
 
