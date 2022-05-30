@@ -13,8 +13,6 @@
         <link rel="manifest" href="{% url 'manifest' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'normalize-*.css'|newest_static %}">
         <link rel="stylesheet" type="text/css" href="{% static 'main-*.css'|newest_static %}">
-        <script src="{% static 'runtime-*.js'|newest_static %}" defer nonce="{{ script_nonce }}"></script>
-        <script src="{% static 'main-*.js'|newest_static %}" defer nonce="{{ script_nonce }}"></script>
     </head>
     <body>
         {% include "icons.html" %}

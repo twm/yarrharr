@@ -182,7 +182,7 @@ class Static(Resource):
 
     In development, the files are served uncompressed and named like so::
 
-        main-afffb00fd22ca3ce0250.js
+        icon-afffb00fd22ca3ce0250.svg
 
     The second dot-delimited section is a hash of the file's contents or source
     material. As the filename changes each time the content does, these files
@@ -192,9 +192,9 @@ class Static(Resource):
     In production, each file has two pre-compressed variants: one with
     a ``.gz`` extension, and one with a ``.br`` extension. For example::
 
-        main-afffb00fd22ca3ce0250.js
-        main-afffb00fd22ca3ce0250.js.br
-        main-afffb00fd22ca3ce0250.js.gz
+        icon-afffb00fd22ca3ce0250.svg
+        icon-afffb00fd22ca3ce0250.svg.br
+        icon-afffb00fd22ca3ce0250.svg.gz
 
     The actual serving of the files is done by `twisted.web.static.File`, which
     is fancy and supports range requests, conditional gets, etc.
