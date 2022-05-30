@@ -1,17 +1,14 @@
 # Yarrharr
 
-[![Build Status](https://travis-ci.org/twm/yarrharr.svg?branch=master)](https://travis-ci.org/twm/yarrharr)
-
 Yarrharr is a simple web-based feed reader intended for self-hosting.
 
 ## Project Status
 
 This is a personal passion project and learning tool.
+I’m not looking for collaborators.
 
-* The user interface, which is written in <a href="https://reactjs.org/">React</a>, is prototype-quality, with many changes planned.
-  “Prototype quality” means “is really ugly”, “changes frequently” and “has no tests”.
-* The backend, [Django](https://www.djangoproject.com/) served via [Twisted](https://twistedmatrix.com/trac/) is in solid shape, though several functional improvements are planned.
-  It has tests and does not change frequently.
+It’s implemented as a [Django](https://www.djangoproject.com/) app served via [Twisted](https://twisted.org/).
+The frontend is mostly static HTML with a few web components for in-page interactivity.
 
 Yarrharr isn’t ready for you to use it, and probably won't be any time soon.
 The [1.0 milestone](https://github.com/twm/yarrharr/milestone/1) tracks whether the project is ready for general use.
@@ -19,7 +16,7 @@ The [1.0 milestone](https://github.com/twm/yarrharr/milestone/1) tracks whether 
 ## Development
 
 Yarrharr is a Python application, but also a modern web app, so its dependencies are numerous.
-The following steps work on Ubuntu 16.04; some modification may be necessary for Debian.
+The following steps work on Ubuntu 20.04; some modification may be necessary for Debian.
 
 The [conventions document](./conventions.md) describes some idioms used in the codebase.
 
@@ -27,42 +24,25 @@ The [conventions document](./conventions.md) describes some idioms used in the c
 
 Grab the build dependencies with:
 
-    $ sudo apt-get install brotli inkscape icoutils git scour optipng \
-                           python3-dev build-essential \
-                           node-less node-source-map
+    $ sudo apt install brotli inkscape icoutils git scour optipng \
+                       python3-dev build-essential \
+                       node-less node-source-map
 
 Install [install pip](https://pip.pypa.io/en/latest/installing/#get-pip), then install [Tox](http://tox.readthedocs.org/en/latest/).
 (I actually recommend installing this in your home directory, but that's outside the scope of this document.)
 
-Install [nvm](https://github.com/creationix/nvm).
-
-Check out the repository and the git submodules:
+Check out the repository:
 
     $ git checkout https://github.com/twm/yarrharr.git
     $ cd yarrharr
-    $ git submodule update --init
-
-Next install the frontend build tools:
-
-    $ nvm use
-    $ npm install
-
-This will take a minute to produce a ``node_modules`` directory with gobs of JavaScript in it.
 
 ### Running the Django Development Server
-
-When doing development you must run separate server processes for the Django backend and the Webpack frontend.
 
 Run the Django development server via Tox with:
 
     $ make devserver
 
-In another terminal, run the [Webpack](http://webpack.github.io/) development server with:
-
-    $ make webpack
-
-The Webpack dev server is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
-It has [hot module replacement](https://webpack.js.org/guides/hot-module-replacement/) configured, so the page will automatically update as you edit the source files in [./assets/](./assets/).
+The Django dev server is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 
 If you make changes to the Django models you can generate migrations by running `django-admin` under Tox::
 
@@ -80,7 +60,7 @@ To schedule an immediate check of all feeds:
 
 ## Running the `yarrharr` Executable
 
-To run the `yarrharr` Twisted executable in a development, stop the Django and Webpack dev servers and run:
+To run the `yarrharr` Twisted executable in a development, stop the Django dev server and run:
 
     $ make realserver
 
