@@ -12,7 +12,6 @@
 static:
 	rm -rf yarrharr/static
 	mkdir yarrharr/static
-	cp -v vendor/normalize.css/normalize-*.css yarrharr/static/
 	tox -e run -- python bin/compile.py
 	tox -e compress
 

@@ -26,6 +26,18 @@
 """
 Compile static assets.
 
+All files in the yarrharr/static/ directory conform to this naming convention:
+
+    {prefix}-{version}.{ext}
+
+Where:
+
+- The combination of {prefix} and {ext} are unique.
+- {version} is a string that changes every time the content of the file
+  changes, usually a hash of the file content.
+
+See `yarrharr.application.Static`.
+
 Temporary files are generated in the build/ directory.
 """
 
@@ -48,8 +60,6 @@ _parser.add_argument("--build-dir", type=Path, default=repo_root / "build")
 def hashname(prefix: str, ext: str, content: bytes) -> str:
     """
     Generate a filename based on file content.
-
-    See `yarrharr.application.Static`.
     """
     return f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
 
@@ -180,18 +190,29 @@ async def process_less(less: Path, build_dir: Path, w: Writer) -> None:
     w.add_file(map_name, map_path)
 
 
+async def process_glob(paths: Path, w: Writer) -> None:
+    """
+    Copy files to the output directory. They must match the naming convention.
+    """
+    for path in paths:
+        if not path.is_file():
+            raise Exception(f"{path} is not a file")
+        w.add_file(path.name, path)
+
+
 async def _main(build_dir: Path, out_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
-    writer = Writer(out_dir)
+    w = Writer(out_dir)
 
     icon = repo_root / "img" / "icon.svg"
     await asyncio.gather(
-        process_svg(icon, writer),
-        rasterize_favicon(icon, build_dir, writer),
-        process_svg(repo_root / "img" / "lettertype.svg", writer),
-        process_svg(repo_root / "img" / "logotype.svg", writer),
-        process_less(repo_root / "less" / "main.less", build_dir, writer),
+        process_svg(icon, w),
+        rasterize_favicon(icon, build_dir, w),
+        process_svg(repo_root / "img" / "lettertype.svg", w),
+        process_svg(repo_root / "img" / "logotype.svg", w),
+        process_glob((repo_root / "vendor" / "normalize.css").glob("normalize-*.css"), w),
+        process_less(repo_root / "less" / "main.less", build_dir, w),
     )
 
 
