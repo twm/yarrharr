@@ -18,8 +18,6 @@ Specifically:
 * Chrome ≥ 60
 * Edge ≥ 15
 
-This is ensured via Babel transformations as specified in [./.babelrc](.babelrc).
-
 ## CSS Features
 
 The following are okay to use:
@@ -33,7 +31,7 @@ Use of [CSS containment](https://www.w3.org/TR/css-contain-1/) may speed up layo
 ## Units
 
 New CSS should use the rem unit for all things.
-Old CSS is converted at a ratio of 16px to 1 rem.
+Old CSS is converted at a ratio of 16px to 1rem.
 
 ## Page Layout
 
@@ -95,16 +93,10 @@ Icons have the form:
 Within the SVG, the ``currentColor`` keyword is used so that the icon color can be assigned from CSS like ``.icon { color: blue }``.
 Parts of the icon may be assigned classes to allow individual targeting.
 
-There are two icon definition styles:
-
-1. A simple React component in `assets/widgets/icons.js`.
-   Really simple, geometric icons are often easiest to write by hand, or generate programmatically.
-
-2. A React component which references a symbol defined in the `IconSprites` (again in `icons.js`).
+Icons are defined in an inline sprite, found at ``yarrharr/templates/icons.html``.
 
 All icons are drawn on a 20×20 grid.
 This is generally defined as`viewBox="0 0 20 20"` or `viewBox="-10 -10 20 20"`.
 The latter form is useful for symmetrical icons, as 0,0 is the center of the icon.
 
 The [live JSX editor](https://reactjs.org/) on reactjs.org can be useful when authoring icons.
-When build in development mode by `make webpack`, Yarrharr includes a page which list all of the icons at `/debug/`.

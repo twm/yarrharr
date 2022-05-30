@@ -70,8 +70,7 @@ Yarrharr is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 
  1. Bump the version number in ``yarrharr/__init__.py``.
  2. Tag the release: ``git tag "v$(python3 setup.py --version)"``
- 3. Type ``nvm use`` to activate Node according to ``.nvmrc``.
- 4. Type ``make release`` to output a tarball to the ``dist`` directory.
+ 3. Type ``make release`` to output a tarball to the ``dist`` directory.
 
 ## License
 
