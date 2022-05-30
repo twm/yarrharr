@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2019 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2022 Tom Most <twm@freecog.net>; GPLv3+
 # Yarrharr development Makefile.  This file contains recipes useful during
 # development, but isn't part of the sdist release.
 #
@@ -8,8 +8,8 @@
 # Clear default rules.
 .SUFFIXES:
 
-.PHONY: webpack
-webpack:
+.PHONY: static
+static:
 	rm -rf yarrharr/static
 	mkdir yarrharr/static
 	cp -v vendor/normalize.css/normalize-*.css yarrharr/static/
@@ -18,18 +18,18 @@ webpack:
 	tox -e compress
 
 .PHONY: release
-release: webpack
+release: static
 	rm -rf build/lib build/bdist.*  # Work around https://github.com/pypa/wheel/issues/147
 	python3 setup.py sdist bdist_wheel
 
 .PHONY: devserver
-devserver: webpack
+devserver: static
 	tox -e run -- django-admin migrate
 	tox -e run -- django-admin updatehtml
 	YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8888
 
 .PHONY: realserver
-realserver: webpack
+realserver: static
 	tox -e run -- django-admin migrate
 	tox -e run -- django-admin collectstatic --noinput
 	tox -e run -- yarrharr

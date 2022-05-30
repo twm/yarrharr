@@ -47,7 +47,7 @@ jobs:
     - run: "python -m tox"
 
   webpack:
-    name: "make webpack"
+    name: "make static"
 
     runs-on: ubuntu-20.04
 
@@ -76,38 +76,4 @@ jobs:
 
     - run: "python -m tox -e compress --notest"
 
-    - name: Introspect nvm
-      id: nvm_info
-      run: echo ::set-output name=cache-dir::$(nvm cache dir)
-      shell: "bash -l {0}"
-
-    - name: nvm cache
-      uses: actions/cache@v3
-      with:
-        path: "${{ steps.nvm_info.outputs.cache-dir }}"
-        key: "${{ runner.os }}-nvm-${{ hashFiles('.nvmrc') }}"
-        restore-keys: |
-          ${{ runner.os }}-nvm-
-
-    - run: nvm install
-      shell: "bash -l {0}"
-
-    - name: npm cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: "${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}"
-        restore-keys: |
-          ${{ runner.os }}-npm-
-
-    - name: npm install
-      run: |
-        nvm use
-        npm install
-      shell: "bash -l {0}"
-
-    - name: "make webpack"
-      run: |
-        nvm use
-        make webpack
-      shell: "bash -l {0}"
+    - run: "make static"
