@@ -54,6 +54,26 @@ def hashname(prefix: str, ext: str, content: bytes) -> str:
     return f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
 
 
+class Writer:
+    def __init__(self, out_dir: Path) -> None:
+        self._out_dir = out_dir
+
+    def add_file_bytes(self, name: str, data: bytes) -> None:
+        """
+        Write a file to the static directory from an in-memory buffer.
+        """
+        (self._out_dir / name).write_bytes(data)
+
+    def add_file(self, name: str, source: Path) -> None:
+        """
+        Copy a file to the static directory.
+        """
+        copyfile(
+            source,
+            (self._out_dir / name),
+        )
+
+
 async def _run(args: Sequence[str]) -> None:
     """
     Run a command. Raise an exception if it exits non-zero.
@@ -84,7 +104,7 @@ async def scour_svg(svg: Path) -> bytes:
     return stdout
 
 
-async def rasterize_favicon(favicon: Path, build_dir: Path, out_dir: Path) -> None:
+async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
     """
     Use Inkscape to generate two raster versions of the favicon:
 
@@ -111,19 +131,19 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, out_dir: Path) -> No
         _run(["icotool", "--create", "-o", str(ico_path), *outfiles]),
     )
 
-    copyfile(png_path, out_dir / hashname("icon", "png", png_path.read_bytes()))
-    copyfile(ico_path, out_dir / hashname("icon", "ico", ico_path.read_bytes()))
+    w.add_file(hashname("icon", "png", png_path.read_bytes()), png_path)
+    w.add_file(hashname("icon", "ico", ico_path.read_bytes()), ico_path)
 
 
-async def process_svg(svg: Path, out_dir: Path) -> None:
+async def process_svg(svg: Path, w: Writer) -> None:
     """
     Minify the SVG and copy it to the output directory.
     """
     svg_bytes = await scour_svg(svg)
-    (out_dir / hashname(svg.stem, "svg", svg_bytes)).write_bytes(svg_bytes)
+    w.add_file_bytes(hashname(svg.stem, "svg", svg_bytes), svg_bytes)
 
 
-async def process_less(less: Path, build_dir: Path, out_dir: Path) -> None:
+async def process_less(less: Path, build_dir: Path, w: Writer) -> None:
     """
     Convert .less to a CSS file and source map.
     """
@@ -156,24 +176,22 @@ async def process_less(less: Path, build_dir: Path, out_dir: Path) -> None:
     # ❤ copies
     css = css[:last_line_index] + f"/*# sourceMappingURL={map_name} */".encode()
 
-    (out_dir / css_name).write_bytes(css)
-    copyfile(
-        map_path,
-        out_dir / map_name,
-    )
+    w.add_file_bytes(css_name, css)
+    w.add_file(map_name, map_path)
 
 
 async def _main(build_dir: Path, out_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
+    writer = Writer(out_dir)
 
     icon = repo_root / "img" / "icon.svg"
     await asyncio.gather(
-        process_svg(icon, out_dir),
-        rasterize_favicon(icon, build_dir, out_dir),
-        process_svg(repo_root / "img" / "lettertype.svg", out_dir),
-        process_svg(repo_root / "img" / "logotype.svg", out_dir),
-        process_less(repo_root / "less" / "main.less", build_dir, out_dir),
+        process_svg(icon, writer),
+        rasterize_favicon(icon, build_dir, writer),
+        process_svg(repo_root / "img" / "lettertype.svg", writer),
+        process_svg(repo_root / "img" / "logotype.svg", writer),
+        process_less(repo_root / "less" / "main.less", build_dir, writer),
     )
 
 
