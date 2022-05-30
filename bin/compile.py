@@ -1,27 +1,23 @@
 #!/usr/bin/python3
 # Copyright © 2018, 2019, 2020, 2022 Tom Most <twm@freecog.net>
 """
-
-
-The aforementioned CLI tools must be installed and on the PATH so that this
-script can invoke them.
+Compile static assets.
 
 Temporary files are generated in the build/ directory.
 """
 
-import asyncio
 import argparse
+import asyncio
 import hashlib
 import shlex
-from shutil import copyfile
-from typing import Sequence
 from asyncio.subprocess import PIPE
 from pathlib import Path
+from shutil import copyfile
+from typing import Sequence
 
 repo_root = Path(__file__).parent.parent
 
 _parser = argparse.ArgumentParser()
-_parser.add_argument("--img-dir", type=Path, default=repo_root / "img")
 _parser.add_argument("--out-dir", type=Path, default=repo_root / "yarrharr" / "static")
 _parser.add_argument("--build-dir", type=Path, default=repo_root / "build")
 
@@ -104,22 +100,63 @@ async def process_svg(svg: Path, out_dir: Path) -> None:
     (out_dir / hashname(svg.stem, "svg", svg_bytes)).write_bytes(svg_bytes)
 
 
-async def _main(img_dir: Path, build_dir: Path, out_dir: Path) -> None:
+async def process_less(less: Path, build_dir: Path, out_dir: Path) -> None:
+    """
+    Convert .less to a CSS file and source map.
+    """
+    css_path = build_dir / f"{less.stem}.css"
+    map_path = build_dir / f"{less.stem}.css.map"
+    await _run(
+        [
+            "lessc",
+            "--no-ie-compat",
+            "--no-js",
+            "--strict-imports",
+            "--strict-math=on",
+            "--verbose",
+            f"--source-map={map_path}",
+            str(less),
+            str(css_path),
+        ]
+    )
+    css = css_path.read_bytes()
+    css_name = hashname(less.stem, "css", css)
+    map_name = f"{css_name}.map"
+
+    # We must change the source map reference on the last line when renaming
+    # the file.
+    last_line_index = css.rindex(b"\n") + 1
+    last_line = css[last_line_index:]
+    if not last_line.startswith(b"/*# sourceMappingURL="):
+        raise Exception("Expected sourceMappingURL comment at the end of {css_path}, but found {last_line!r}")
+
+    # ❤ copies
+    css = css[:last_line_index] + f"/*# sourceMappingURL={map_name} */".encode()
+
+    (out_dir / css_name).write_bytes(css)
+    copyfile(
+        map_path,
+        out_dir / map_name,
+    )
+
+
+async def _main(build_dir: Path, out_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    icon = img_dir / "icon.svg"
+    icon = repo_root / "img" / "icon.svg"
     await asyncio.gather(
-        process_svg(img_dir / "lettertype.svg", out_dir),
-        process_svg(img_dir / "logotype.svg", out_dir),
         process_svg(icon, out_dir),
         rasterize_favicon(icon, build_dir, out_dir),
+        process_svg(repo_root / "img" / "lettertype.svg", out_dir),
+        process_svg(repo_root / "img" / "logotype.svg", out_dir),
+        process_less(repo_root / "less" / "main.less", build_dir, out_dir),
     )
 
 
 def main():
     args = _parser.parse_args()
-    asyncio.run(_main(args.img_dir, args.build_dir, args.out_dir))
+    asyncio.run(_main(args.build_dir, args.out_dir))
 
 
 if __name__ == "__main__":
