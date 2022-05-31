@@ -167,10 +167,11 @@ async def scour_svg(svg: Path) -> bytes:
         "--enable-id-stripping",
         "--shorten-ids",
         stdout=PIPE,
+        stderr=PIPE,
     )
-    stdout, _ = await proc.communicate()
+    stdout, stderr = await proc.communicate()
     if proc.returncode != 0:
-        raise Exception(f"scour exited {proc.returncode}")
+        raise Exception(f"scour exited {proc.returncode}: {stderr}")
     return stdout
 
 
@@ -182,7 +183,7 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
     - icon-[hexchars].ico — ICO with 16x16, 24x24, 32x32, and 64x64 versions.
       Built with icotool.
     """
-    proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE)
+    proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE, stdout=PIPE, stderr=PIPE)
     outfiles = []
     commands = []
 
@@ -190,9 +191,9 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
         outfile = str(build_dir / f"{favicon.stem}.{size}.png")
         commands.append(f"{favicon} --export-png={outfile} -w {size} -h {size} --export-area-page\n".encode())
         outfiles.append(outfile)
-    await proc.communicate(b"".join(commands))
+    stdout, stderr = await proc.communicate(b"".join(commands))
     if proc.returncode != 0:
-        raise Exception(f"inkscape exited {proc.returncode}")
+        raise Exception(f"inkscape exited {proc.returncode}: {stdout=} {stderr=}")
 
     png_path = Path(outfiles.pop())
     ico_path = build_dir / f"{favicon.stem}.ico"
@@ -226,7 +227,6 @@ async def process_less(less: Path, build_dir: Path, w: Writer) -> None:
             "--no-js",
             "--strict-imports",
             "--strict-math=on",
-            "--verbose",
             f"--source-map={map_path}",
             str(less),
             str(css_path),
