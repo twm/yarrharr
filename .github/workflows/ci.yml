@@ -67,13 +67,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: "${{ runner.os }}-pip-compress-${{ hashFiles('tox.ini') }}"
+        key: "${{ runner.os }}-pip-static-${{ hashFiles('tox.ini') }}"
         restore-keys: |
-          ${{ runner.os }}-pip-compress-
+          ${{ runner.os }}-pip-static-
           ${{ runner.os }}-pip-
 
     - run: "python -m pip install tox"
 
-    - run: "python -m tox -e compress --notest"
+    - run: "python -m tox -e static --notest"
 
     - run: "make static"

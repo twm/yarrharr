@@ -10,12 +10,7 @@
 
 .PHONY: static
 static:
-	rm -rf yarrharr/static
-	mkdir yarrharr/static
-	cp -v vendor/normalize.css/normalize-*.css yarrharr/static/
-	bin/compile-less.sh
-	tox -e run -- python bin/compile-svg.py
-	tox -e compress
+	tox -e static
 
 .PHONY: release
 release: static
