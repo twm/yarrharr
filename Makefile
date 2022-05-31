@@ -10,8 +10,6 @@
 
 .PHONY: static
 static:
-	rm -rf yarrharr/static
-	mkdir yarrharr/static
 	tox -e static
 
 .PHONY: release

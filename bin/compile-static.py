@@ -50,6 +50,7 @@ import shlex
 from asyncio.subprocess import PIPE
 from dataclasses import dataclass
 from pathlib import Path
+from shutil import rmtree
 from typing import Optional, Sequence
 
 import brotli
@@ -261,6 +262,8 @@ async def process_glob(paths: Path, w: Writer) -> None:
 
 async def _main(build_dir: Path, out_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
+    if out_dir.exists():
+        rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     w = Writer(out_dir, compress=True)
 
