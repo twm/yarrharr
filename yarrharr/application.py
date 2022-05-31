@@ -224,6 +224,8 @@ class Static(Resource):
         b".ico": "image/x-icon",
         b".svg": "image/svg+xml",
         b".png": "image/png",
+        b".woff2": "font/woff2",
+        b".ttf": "font/ttf",
     }
 
     def _file(self, path, type, encoding=None):
