@@ -12,8 +12,7 @@
 static:
 	rm -rf yarrharr/static
 	mkdir yarrharr/static
-	tox -e run -- python bin/compile.py
-	tox -e compress
+	tox -e static
 
 .PHONY: release
 release: static

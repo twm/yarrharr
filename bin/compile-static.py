@@ -36,7 +36,9 @@ Where:
 - {version} is a string that changes every time the content of the file
   changes, usually a hash of the file content.
 
-See `yarrharr.application.Static`.
+Pre-compressed versions of most static assets are automatically generated in
+gzip (.gz) and Brotli (.br) formats. See `yarrharr.application.Static`, which
+serves these files.
 
 Temporary files are generated in the build/ directory.
 """
@@ -46,11 +48,16 @@ import asyncio
 import hashlib
 import shlex
 from asyncio.subprocess import PIPE
+from dataclasses import dataclass
 from pathlib import Path
-from shutil import copyfile
-from typing import Sequence
+from typing import Optional, Sequence
+
+import brotli
+import zopfli.gzip
 
 repo_root = Path(__file__).parent.parent
+
+COMPRESS_EXTS = (".js", ".css", ".svg", ".ico", ".map")
 
 _parser = argparse.ArgumentParser()
 _parser.add_argument("--out-dir", type=Path, default=repo_root / "yarrharr" / "static")
@@ -64,24 +71,76 @@ def hashname(prefix: str, ext: str, content: bytes) -> str:
     return f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
 
 
+@dataclass
+class WriteRecord:
+    name: str
+    base_size: int
+    gz_size: Optional[int] = None
+    br_size: Optional[int] = None
+
+
 class Writer:
-    def __init__(self, out_dir: Path) -> None:
+    def __init__(self, out_dir: Path, compress: bool) -> None:
         self._out_dir = out_dir
+        self._compress = compress
+        self._written = []
 
     def add_file_bytes(self, name: str, data: bytes) -> None:
         """
         Write a file to the static directory from an in-memory buffer.
         """
-        (self._out_dir / name).write_bytes(data)
+        path = self._out_dir / name
+        path.write_bytes(data)
+
+        if self._compress and name.endswith(COMPRESS_EXTS):
+            gz_path = path.with_suffix(path.suffix + ".gz")
+            gz = zopfli.gzip.compress(data)
+            gz_path.write_bytes(gz)
+
+            br_path = path.with_suffix(path.suffix + ".br")
+            br = brotli.compress(data, quality=11)
+            br_path.write_bytes(br)
+
+            self._written.append(WriteRecord(name, len(data), len(gz), len(br)))
+        else:
+            self._written.append(WriteRecord(name, len(data)))
 
     def add_file(self, name: str, source: Path) -> None:
         """
         Copy a file to the static directory.
         """
-        copyfile(
-            source,
-            (self._out_dir / name),
-        )
+        self.add_file_bytes(name, source.read_bytes())
+
+    def summarize(self) -> str:
+        lines = [
+            "ORIGINAL   ZOPFLI    (.gz)  BROTLI   (.br)  FILE",
+            "---------  ---------------  --------------  ------------------------------------------",
+        ]
+
+        def pct(size, total) -> str:
+            if size is None:
+                left = right = "-"
+            elif total == 0:
+                left = f"{size:,d}"
+                right = "-"
+            else:
+                left = f"{size:,d}"
+                right = f"{size / total:.0%}"
+            return f"{left:>9} {right:>5}"
+
+        for r in self._written:
+            lines.append(
+                " ".join(
+                    [
+                        f"{r.base_size:>9,d} ",
+                        pct(r.gz_size, r.base_size),
+                        pct(r.br_size, r.base_size),
+                        f" {r.name}",
+                    ]
+                )
+            )
+
+        return "\n".join(lines)
 
 
 async def _run(args: Sequence[str]) -> None:
@@ -203,7 +262,7 @@ async def process_glob(paths: Path, w: Writer) -> None:
 async def _main(build_dir: Path, out_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
-    w = Writer(out_dir)
+    w = Writer(out_dir, compress=True)
 
     icon = repo_root / "img" / "icon.svg"
     await asyncio.gather(
@@ -214,6 +273,7 @@ async def _main(build_dir: Path, out_dir: Path) -> None:
         process_glob((repo_root / "vendor" / "normalize.css").glob("normalize-*.css"), w),
         process_less(repo_root / "less" / "main.less", build_dir, w),
     )
+    print(w.summarize())
 
 
 def main():
