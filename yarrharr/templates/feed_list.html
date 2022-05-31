@@ -23,10 +23,10 @@
     <tbody>
       {% for feed in feeds %}
         <tr class="feed-list-item">
-          <td class="col-feed"><a href="{% url "feed-show" feed.id "unread" %}">{{ feed.title }}</a></td>
+          <td class="col-feed"><a class="no-underline" href="{% url "feed-show" feed.id "unread" %}">{{ feed.title }}</a></td>
           <td class="col-unread">{{ feed.unread_count }}</td>
           <td class="col-fave">{{ feed.fave_count }}</td>
-          <td class="col-site-url"><a target="_blank" rel="noreferrer noopener" href="{{ feed.site_url }}">{{ feed.site_url }}</a></td>
+          <td class="col-site-url"><a class="no-underline" target="_blank" rel="noreferrer noopener" href="{{ feed.site_url }}">{{ feed.site_url }}</a></td>
           <td class="col-changed">{{ feed.last_changed }}</td>
           <td class="col-edit"><a title="Edit Feed" href="{% url "feed-edit" feed.id %}"><svg width="1em" height="1em" aria-label="Edit Feed" class="icon" aria-hidden="false"><use xlink:href="#icon-edit"></use></svg></a></td>
         </tr>

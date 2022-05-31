@@ -262,6 +262,37 @@ async def process_glob(paths: Path, w: Writer) -> None:
         w.add_file(path.name, path)
 
 
+async def process_fonts(root_dir: Path, w: Writer) -> None:
+    nr_base = root_dir / "vendor" / "newsreader"
+    nr_normal = (nr_base / "Newsreader[opsz,wght].woff2").read_bytes()
+    nr_normal_name = hashname("newsreader", "woff2", nr_normal)
+    w.add_file_bytes(nr_normal_name, nr_normal)
+    nr_italic = (nr_base / "Newsreader-Italic[opsz,wght].woff2").read_bytes()
+    nr_italic_name = hashname("newsreaderi", "woff2", nr_italic)
+    w.add_file_bytes(nr_italic_name, nr_italic)
+
+    css = (
+        f"""\
+@font-face {{
+  font-family: 'Newsreader';
+  font-weight: 200 900;
+  font-style: normal;
+  font-stretch: normal;
+  src: url('{nr_normal_name}') format('woff2');
+}}
+
+@font-face {{
+  font-family: 'Newsreader';
+  font-weight: 200 900;
+  font-style: italic;
+  font-stretch: normal;
+  src: url('{nr_italic_name}') format('woff2');
+}}
+"""
+    ).encode()
+    w.add_file_bytes(hashname("fonts", "css", css), css)
+
+
 async def _main(build_dir: Path, out_dir: Path, compress: bool) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     if out_dir.exists():
@@ -277,6 +308,7 @@ async def _main(build_dir: Path, out_dir: Path, compress: bool) -> None:
         process_svg(repo_root / "img" / "logotype.svg", w),
         process_glob((repo_root / "vendor" / "normalize.css").glob("normalize-*.css"), w),
         process_less(repo_root / "less" / "main.less", build_dir, w),
+        process_fonts(repo_root, w),
     )
     print(w.summarize())
 
