@@ -25,4 +25,4 @@
 
 __author__ = "Tom Most"
 __author_email__ = "twm@freecog.net"
-__version__ = "2022.5.0"
+__version__ = "2022.5.1"
