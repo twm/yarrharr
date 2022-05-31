@@ -46,6 +46,7 @@ Temporary files are generated in the build/ directory.
 import argparse
 import asyncio
 import hashlib
+import re
 import shlex
 from asyncio.subprocess import PIPE
 from dataclasses import dataclass
@@ -59,6 +60,7 @@ import zopfli.gzip
 repo_root = Path(__file__).parent.parent
 
 COMPRESS_EXTS = (".js", ".css", ".svg", ".ico", ".map")
+_validName = re.compile(r"\A[a-zA-Z0-9]+-[a-z0-9]+(\.[a-z0-9]+)+\Z")
 
 _parser = argparse.ArgumentParser()
 _parser.add_argument("--out-dir", type=Path, default=repo_root / "yarrharr" / "static")
@@ -71,7 +73,9 @@ def hashname(prefix: str, ext: str, content: bytes) -> str:
     """
     Generate a filename based on file content.
     """
-    return f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
+    name = f"{prefix}-{hashlib.sha256(content).hexdigest()[:12]}.{ext}"
+    assert _validName.match(name) is not None, f"{name=} isn't valid"
+    return name
 
 
 @dataclass
@@ -92,6 +96,8 @@ class Writer:
         """
         Write a file to the static directory from an in-memory buffer.
         """
+        assert _validName.match(name) is not None, f"{name=} isn't valid"
+
         path = self._out_dir / name
         path.write_bytes(data)
 

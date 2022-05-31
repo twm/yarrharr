@@ -207,7 +207,6 @@ class Static(Resource):
     """
 
     _dir = FilePath(settings.STATIC_ROOT)
-    _validName = re.compile(rb"^[a-zA-Z0-9]+-[a-zA-Z0-9]+(\.[a-z]+)+$")
     # NOTE: RFC 7231 § 5.3.4 is not completely clear about whether
     # content-coding tokens are case-sensitive or not. The "identity" token
     # appears in EBNF and is therefore definitely case-insensitive, but the
@@ -227,6 +226,8 @@ class Static(Resource):
         b".woff2": "font/woff2",
         b".ttf": "font/ttf",
     }
+
+    _validName = re.compile(rb"\A[a-zA-Z0-9]+-[a-z0-9]+(\.[a-z0-9]+)+\Z")
 
     def _file(self, path, type, encoding=None):
         """
@@ -253,7 +254,7 @@ class Static(Resource):
 
          *  ``br``, which selects any Brotli-compressed ``.br`` variant of
             the file.
-         * ``gzip``, which selects any gzip-compressed ``.br`` variant of the
+         * ``gzip``, which selects any gzip-compressed ``.gz`` variant of the
             file. ``x-gzip`` is also supported.
 
         qvalues are ignored as browsers don't use them. This may produce an
