@@ -63,6 +63,8 @@ COMPRESS_EXTS = (".js", ".css", ".svg", ".ico", ".map")
 _parser = argparse.ArgumentParser()
 _parser.add_argument("--out-dir", type=Path, default=repo_root / "yarrharr" / "static")
 _parser.add_argument("--build-dir", type=Path, default=repo_root / "build")
+_parser.add_argument("--no-compress", action="store_false", dest="compress")
+_parser.add_argument("--compress", action="store_true", default=True)
 
 
 def hashname(prefix: str, ext: str, content: bytes) -> str:
@@ -260,12 +262,12 @@ async def process_glob(paths: Path, w: Writer) -> None:
         w.add_file(path.name, path)
 
 
-async def _main(build_dir: Path, out_dir: Path) -> None:
+async def _main(build_dir: Path, out_dir: Path, compress: bool) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
     if out_dir.exists():
         rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    w = Writer(out_dir, compress=True)
+    w = Writer(out_dir, compress)
 
     icon = repo_root / "img" / "icon.svg"
     await asyncio.gather(
@@ -281,7 +283,7 @@ async def _main(build_dir: Path, out_dir: Path) -> None:
 
 def main():
     args = _parser.parse_args()
-    asyncio.run(_main(args.build_dir, args.out_dir))
+    asyncio.run(_main(args.build_dir, args.out_dir, args.compress))
 
 
 if __name__ == "__main__":
