@@ -4,9 +4,9 @@
 #
 #    pip-compile --output-file=requirements.txt setup.py
 #
-asgiref==3.4.1
+asgiref==3.5.2
     # via django
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   automat
     #   service-identity
@@ -15,29 +15,29 @@ attrs==21.2.0
     #   yarrharr (setup.py)
 automat==20.2.0
     # via twisted
-certifi==2021.10.8
+certifi==2022.6.15
     # via requests
 cffi==1.15.0
     # via cryptography
-charset-normalizer==2.0.9
+charset-normalizer==2.0.12
     # via requests
 constantly==15.1.0
     # via twisted
-cryptography==36.0.1
+cryptography==37.0.2
     # via
     #   pyopenssl
     #   service-identity
-django==4.0.4
+django==4.0.5
     # via yarrharr (setup.py)
-feedparser==6.0.8
+feedparser==6.0.10
     # via yarrharr (setup.py)
-h2==3.2.0
+h2==4.1.0
     # via twisted
-hpack==3.0.0
+hpack==4.0.0
     # via h2
 html5lib==1.1
     # via yarrharr (setup.py)
-hyperframe==5.2.0
+hyperframe==6.0.1
     # via h2
 hyperlink==21.0.0
     # via
@@ -62,9 +62,9 @@ pyasn1-modules==0.2.8
     # via service-identity
 pycparser==2.21
     # via cffi
-pyopenssl==21.0.0
+pyopenssl==22.0.0
     # via twisted
-requests==2.26.0
+requests==2.28.0
     # via treq
 service-identity==21.1.0
     # via twisted
@@ -74,7 +74,6 @@ six==1.16.0
     # via
     #   automat
     #   html5lib
-    #   pyopenssl
     #   service-identity
 sqlparse==0.4.2
     # via django
@@ -84,9 +83,9 @@ twisted[http2,tls]==22.4.0
     # via
     #   treq
     #   yarrharr (setup.py)
-typing-extensions==4.0.1
+typing-extensions==4.2.0
     # via twisted
-urllib3==1.26.7
+urllib3==1.26.9
     # via requests
 webencodings==0.5.1
     # via html5lib
