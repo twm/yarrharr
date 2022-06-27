@@ -59,7 +59,7 @@ import zopfli.gzip
 
 repo_root = Path(__file__).parent.parent
 
-COMPRESS_EXTS = (".js", ".css", ".svg", ".ico", ".map")
+COMPRESS_EXTS = (".js", ".css", ".svg", ".ico", ".map", ".ttf")
 _validName = re.compile(r"\A[a-zA-Z0-9]+-[a-z0-9]+(\.[a-z0-9]+)+\Z")
 
 _parser = argparse.ArgumentParser()
@@ -277,6 +277,11 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
     nr_italic_name = hashname("newsreaderi", "woff2", nr_italic)
     w.add_file_bytes(nr_italic_name, nr_italic)
 
+    ic_base = root_dir / "vendor" / "inconsolata"
+    ic_var = (ic_base / "Inconsolata-VF.ttf").read_bytes()
+    ic_var_name = hashname("inconsolata", "ttf", ic_var)
+    w.add_file_bytes(ic_var_name, ic_var)
+
     css = (
         f"""\
 @font-face {{
@@ -293,6 +298,14 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
   font-style: italic;
   font-stretch: normal;
   src: url('{nr_italic_name}') format('woff2');
+}}
+
+@font-face {{
+  font-family: 'Inconsolata';
+  font-weight: 200 900;
+  font-style: normal;
+  font-stretch: normal;
+  src: url('{ic_var_name}');
 }}
 """
     ).encode()
