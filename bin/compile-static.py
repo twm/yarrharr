@@ -301,7 +301,7 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
 }}
 
 @font-face {{
-  font-family: 'Inconsolata';
+  font-family: 'Inconsolata VF';
   font-weight: 200 900;
   font-style: normal;
   font-stretch: normal;

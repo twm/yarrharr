@@ -23,6 +23,9 @@
     --check-color: #39cc5c;
     --focus-color: #0098ff;
     --selected-color: hsl(24.1, 100%, 49.2%);
+
+    --font-wdth-mono: 100;
+    --font-weight-mono: 400;
 }
 
 @media screen and (prefers-color-scheme: dark) {
@@ -41,7 +44,15 @@
         // don't go 100% because it is pretty bold.
         --logo-filter: invert(90%);
 
+        --font-weight-mono: 300;
+
         scrollbar-color: var(--quiet-text-color) var(--background-color);
+    }
+}
+
+@media screen and (max-width: 32rem) {
+    :root {
+        --font-wdth-mono: 80;
     }
 }
 
@@ -53,6 +64,11 @@ html {
     color: var(--text-color);
     background: var(--background-color);
     touch-action: manipulation;
+}
+
+code, kbd, samp, pre {
+    font-family: "Inconsolata VF";
+    font-variation-settings: "wdth" var(--font-wdth-mono);
 }
 
 a {
