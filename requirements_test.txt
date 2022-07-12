@@ -16,7 +16,7 @@ greenlet==1.0.0
     # via pytest-twisted
 iniconfig==1.1.1
     # via pytest
-lxml==4.9.0
+lxml==4.9.1
     # via -r requirements_test.in
 packaging==20.9
     # via pytest
