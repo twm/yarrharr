@@ -34,3 +34,5 @@ testfixtures==6.17.1
     # via flake8-isort
 tomli==1.2.3
     # via black
+typing-extensions==4.3.0
+    # via black
