@@ -58,5 +58,27 @@ article {
         pre {
             white-space: pre-wrap;
         }
+
+        /* <a href=... class=youtube-thumb>
+         *    <img src=thumbnail>
+         *    <svg><!-- icon --></svg>
+         * </a> */
+        a.youtube-thumb {
+            display: inline-block;
+            position: relative;
+
+            img {
+                display: block;
+            }
+
+            svg {
+                position: absolute;
+                bottom: 0.5rem;
+                right: 0.5rem;
+                width: 2rem;
+                height: 2rem;
+                color: red;
+            }
+        }
     }
 }

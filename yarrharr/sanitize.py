@@ -35,7 +35,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import URL, DecodedURL
 
-REVISION = 6
+REVISION = 7
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -348,6 +348,8 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         ),
     ):
         html_ns = namespaces["html"]
+        svg_ns = namespaces["svg"]
+        xlink_ns = namespaces["xlink"]
         elide = False
         for token in BaseFilter.__iter__(self):
             token_type = token["type"]
@@ -387,6 +389,35 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                                 (None, "width"): "320",
                                 (None, "height"): "180",
                             },
+                        }
+                        # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
+                        yield {
+                            "type": "StartTag",
+                            "namespace": svg_ns,
+                            "name": "svg",
+                            "data": {
+                                (None, "width"): "1em",
+                                (None, "height"): "1em",
+                                (None, "class"): "icon",
+                                (None, "aria-hidden"): "true",
+                            },
+                        }
+                        # html5lib tokenizes a self-closing <use /> like this
+                        yield {
+                            "type": "StartTag",
+                            "namespace": svg_ns,
+                            "name": "use",
+                            "data": {(xlink_ns, "href"): "#icon-video"},
+                        }
+                        yield {
+                            "type": "EndTag",
+                            "namespace": svg_ns,
+                            "name": "use",
+                        }
+                        yield {
+                            "type": "EndTag",
+                            "namespace": svg_ns,
+                            "name": "svg",
                         }
                         yield {
                             "type": "EndTag",
