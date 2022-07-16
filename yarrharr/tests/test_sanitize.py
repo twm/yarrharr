@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2020, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,8 +32,12 @@ import html5lib
 
 from ..sanitize import html_to_text, sanitize_html
 
+VIDEO_ICON = "<svg width=1em height=1em class=icon><use href=#icon-video></use></svg>"
+
 
 class HtmlToTextTests(unittest.TestCase):
+    maxDiff = None
+
     def test_plain(self):
         """
         Plain text passes through unaltered.
@@ -103,6 +106,8 @@ class HtmlToTextTests(unittest.TestCase):
 
 
 class SanitizeHtmlTests(unittest.TestCase):
+    maxDiff = None
+
     def test_id_attr_dropped(self):
         """
         The ``id`` attribute is dropped as it might conflict with IDs used in
@@ -217,9 +222,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
-                " width=320 height=180></a>"
+                " width=320 height=180>" + VIDEO_ICON + "</a>"
             ),
             sanitize_html(html),
         )
@@ -234,9 +239,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
-                " width=320 height=180></a>"
+                " width=320 height=180>" + VIDEO_ICON + "</a>"
             ),
             sanitize_html(html),
         )
@@ -252,9 +257,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/wZZ7oFKsKzY/mqdefault.jpg"'
-                " width=320 height=180></a>"
+                " width=320 height=180>" + VIDEO_ICON + "</a>"
             ),
             sanitize_html(html),
         )
@@ -271,9 +276,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
-                " width=320 height=180></a>after"
+                " width=320 height=180>" + VIDEO_ICON + "</a>after"
             ),
             sanitize_html(html),
         )
@@ -293,9 +298,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o%26amp"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o&amp;amp/mqdefault.jpg"'
-                " width=320 height=180></a>"
+                " width=320 height=180>" + VIDEO_ICON + "</a>"
             ),
             sanitize_html(html),
         )
