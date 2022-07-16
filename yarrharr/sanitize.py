@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +27,6 @@ from __future__ import unicode_literals
 
 import re
 import warnings
-from collections import OrderedDict
 from io import StringIO
 
 import html5lib
@@ -306,7 +304,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
             return watch_url
         if not start.isdigit():
             return watch_url  # Ignore an invalid second offset.
-        return watch_url.replace(fragment="t={}s".format(start))
+        return watch_url.replace(fragment=f"t={start}s")
 
     def _thumbnail_url(self, embed_url) -> DecodedURL:
         """
@@ -375,24 +373,18 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                             "type": "StartTag",
                             "namespace": html_ns,
                             "name": "a",
-                            "data": OrderedDict(
-                                [
-                                    ((None, "href"), self._watch_url(url).to_text()),
-                                ]
-                            ),
+                            "data": {(None, "href"): self._watch_url(url).to_text()},
                         }
                         yield {
                             "type": "EmptyTag",
                             "namespace": html_ns,
                             "name": "img",
-                            "data": OrderedDict(
-                                [
-                                    ((None, "alt"), "YouTube video"),
-                                    (_SRC_ATTR, self._thumbnail_url(url).to_text()),
-                                    ((None, "width"), "320"),
-                                    ((None, "height"), "180"),
-                                ]
-                            ),
+                            "data": {
+                                (None, "alt"): "YouTube video",
+                                _SRC_ATTR: self._thumbnail_url(url).to_text(),
+                                (None, "width"): "320",
+                                (None, "height"): "180",
+                            },
                         }
                         yield {
                             "type": "EndTag",
@@ -422,7 +414,7 @@ class _ExtractTitleTextFilter(BaseFilter):
                         "type": "StartTag",
                         "namespace": html_ns,
                         "name": "aside",
-                        "data": OrderedDict(),  # TODO Some way to pass through special styling.
+                        "data": {},  # TODO Some way to pass through special styling.
                     }
                     yield {
                         "type": "Characters",
