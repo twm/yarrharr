@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright © 2017, 2018, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2020, 2022 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -217,7 +216,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o/mqdefault.jpg"'
                 " width=320 height=180></a>"
             ),
@@ -234,7 +233,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
                 " width=320 height=180></a>"
             ),
@@ -252,7 +251,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=wZZ7oFKsKzY#t=3601s"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/wZZ7oFKsKzY/mqdefault.jpg"'
                 " width=320 height=180></a>"
             ),
@@ -271,7 +270,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/Q0CbN8sfihY/mqdefault.jpg"'
                 " width=320 height=180></a>after"
             ),
@@ -293,7 +292,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         self.assertEqual(
             (
                 '<p><a href="https://www.youtube.com/watch?v=XsyogXtyU9o%26amp"'
-                ' rel="noopener noreferrer" target=_blank>'
+                ' class=youtube-thumb rel="noopener noreferrer" target=_blank>'
                 '<img alt="YouTube video" src="https://i.ytimg.com/vi/XsyogXtyU9o&amp;amp/mqdefault.jpg"'
                 " width=320 height=180></a>"
             ),
