@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements_lint.txt requirements_lint.in
 #
-black==22.6.0
+black==22.8.0
     # via -r requirements_lint.in
 click==8.0.3
     # via black
@@ -33,6 +33,4 @@ pyflakes==2.4.0
 testfixtures==6.17.1
     # via flake8-isort
 tomli==1.2.3
-    # via black
-typing-extensions==4.3.0
     # via black
