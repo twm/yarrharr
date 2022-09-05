@@ -6,7 +6,7 @@
 #
 asgiref==3.5.2
     # via django
-attrs==21.4.0
+attrs==22.1.0
     # via
     #   automat
     #   service-identity
@@ -17,17 +17,17 @@ automat==20.2.0
     # via twisted
 certifi==2022.6.15
     # via requests
-cffi==1.15.0
+cffi==1.15.1
     # via cryptography
-charset-normalizer==2.0.12
+charset-normalizer==2.1.1
     # via requests
 constantly==15.1.0
     # via twisted
-cryptography==37.0.2
+cryptography==37.0.4
     # via
     #   pyopenssl
     #   service-identity
-django==4.0.6
+django==4.0.7
     # via yarrharr (setup.py)
 feedparser==6.0.10
     # via yarrharr (setup.py)
@@ -64,7 +64,7 @@ pycparser==2.21
     # via cffi
 pyopenssl==22.0.0
     # via twisted
-requests==2.28.0
+requests==2.28.1
     # via treq
 service-identity==21.1.0
     # via twisted
@@ -83,9 +83,9 @@ twisted[http2,tls]==22.4.0
     # via
     #   treq
     #   yarrharr (setup.py)
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via twisted
-urllib3==1.26.9
+urllib3==1.26.12
     # via requests
 webencodings==0.5.1
     # via html5lib
