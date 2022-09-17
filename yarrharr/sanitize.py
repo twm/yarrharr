@@ -49,7 +49,7 @@ else:
     html5lib.treewalkers.base.voidElements = voidElements
 
 
-def html_tag(tag):
+def html_tag(tag: str) -> str:
     return "{http://www.w3.org/1999/xhtml}" + tag
 
 
@@ -107,7 +107,7 @@ _NO_WHITESPACE_TAGS = (
 _WHITESPACE_RE = re.compile(r"[ \t\r\n]{2,}", re.U)
 
 
-def html_to_text(html):
+def html_to_text(html: str) -> str:
     """
     Convert HTML to representative text.
 
@@ -147,7 +147,7 @@ def html_to_text(html):
     return _WHITESPACE_RE.sub(" ", buf.getvalue()).strip()
 
 
-def sanitize_html(html):
+def sanitize_html(html: str) -> str:
     """
     Make the given HTML string safe to display in a Yarrharr page.
     """
