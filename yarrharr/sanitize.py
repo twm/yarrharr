@@ -23,8 +23,6 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from __future__ import unicode_literals
-
 import re
 import warnings
 from io import StringIO
