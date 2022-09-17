@@ -31,7 +31,7 @@ import html5lib
 from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
-from hyperlink import URL, DecodedURL
+from hyperlink import DecodedURL, EncodedURL
 
 REVISION = 7
 
@@ -293,7 +293,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         """
         video_id = embed_url.path[1]
         watch_url = DecodedURL(
-            URL(scheme="https", host="www.youtube.com", path=("watch",)),
+            EncodedURL(scheme="https", host="www.youtube.com", path=("watch",)),
         ).add("v", video_id)
         try:
             [start] = embed_url.get("start")
@@ -328,7 +328,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         """
         video_id = embed_url.path[1]
         return DecodedURL(
-            URL(
+            EncodedURL(
                 scheme="https",
                 host="i.ytimg.com",
                 path=("vi", video_id, "mqdefault.jpg"),
