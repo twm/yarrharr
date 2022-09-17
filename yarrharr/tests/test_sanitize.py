@@ -204,9 +204,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<img>`` tags are safe and pass right through.
         """
         html = '<img alt="" src="https://example.com/baz.png">'
-        html2 = '<img src="https://example.com/baz.png" alt="">'
-        # FIXME: the order of the attributes varies as dicts aren't ordered...
-        self.assertIn(sanitize_html(html), (html, html2))
+        self.assertEqual(sanitize_html(html), html)
 
     def test_youtube_embed_replaced(self):
         """
@@ -350,13 +348,9 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<img class="wp-smiley">`` which represents an emoticon (rather than
         an emoji) is left as-is.
         """
-        # FIXME: the order of the attributes varies as dicts aren't ordered...
-        self.assertIn(
+        self.assertEqual(
             sanitize_html('<img alt=";-)" class="wp-smiley">'),
-            (
-                "<img alt=;-) class=wp-smiley>",
-                "<img class=wp-smiley alt=;-)>",
-            ),
+            "<img alt=;-) class=wp-smiley>",
         )
 
     def test_wbr_allowed(self):
