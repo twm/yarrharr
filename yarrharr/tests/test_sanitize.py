@@ -308,7 +308,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         the image.
         """
         html = '<img title="blah blah">'
-        self.assertEqual('<img title="blah blah"><aside>blah blah</aside>', sanitize_html(html))
+        self.assertEqual('<img title="blah blah"><aside class=title-text>blah blah</aside>', sanitize_html(html))
 
     def test_a_attrs(self):
         """
