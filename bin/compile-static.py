@@ -230,11 +230,10 @@ async def process_less(less: Path, build_dir: Path, w: Writer) -> None:
     map_path = build_dir / f"{less.stem}.css.map"
     await _run(
         [
-            "lessc",
-            "--no-ie-compat",
+            "/usr/bin/node",
+            "/usr/bin/lessc",
             "--no-js",
             "--strict-imports",
-            "--strict-math=on",
             f"--source-map={map_path}",
             str(less),
             str(css_path),
