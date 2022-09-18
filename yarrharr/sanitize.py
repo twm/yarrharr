@@ -33,7 +33,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 7
+REVISION = 8
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -443,7 +443,7 @@ def _extract_title_text(source):
                     "type": "StartTag",
                     "namespace": html_ns,
                     "name": "aside",
-                    "data": {},  # TODO Some way to pass through special styling.
+                    "data": {(None, "class"): "title-text"},
                 }
                 yield {
                     "type": "Characters",
