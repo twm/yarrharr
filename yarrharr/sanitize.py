@@ -23,8 +23,6 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from __future__ import unicode_literals
-
 import re
 import warnings
 from io import StringIO
@@ -33,7 +31,7 @@ import html5lib
 from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
-from hyperlink import URL, DecodedURL
+from hyperlink import DecodedURL, EncodedURL
 
 REVISION = 7
 
@@ -51,7 +49,7 @@ else:
     html5lib.treewalkers.base.voidElements = voidElements
 
 
-def html_tag(tag):
+def html_tag(tag: str) -> str:
     return "{http://www.w3.org/1999/xhtml}" + tag
 
 
@@ -109,7 +107,7 @@ _NO_WHITESPACE_TAGS = (
 _WHITESPACE_RE = re.compile(r"[ \t\r\n]{2,}", re.U)
 
 
-def html_to_text(html):
+def html_to_text(html: str) -> str:
     """
     Convert HTML to representative text.
 
@@ -149,7 +147,7 @@ def html_to_text(html):
     return _WHITESPACE_RE.sub(" ", buf.getvalue()).strip()
 
 
-def sanitize_html(html):
+def sanitize_html(html: str) -> str:
     """
     Make the given HTML string safe to display in a Yarrharr page.
     """
@@ -158,10 +156,10 @@ def sanitize_html(html):
     source = html5lib.getTreeWalker("etree")(tree)
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
-    source = _ReplaceObjectFilter(source)
-    source = _ElideFilter(source)
+    source = _replace_objects(source)
+    source = _elide(source)
     source = _ReplaceYoutubeEmbedFilter(source)
-    source = _ExtractTitleTextFilter(source)
+    source = _extract_title_text(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
     source = _wp_smileys(source)
@@ -217,7 +215,7 @@ def _drop_empty_tags(source):
         yield token
 
 
-class _ElideFilter(BaseFilter):
+def _elide(source):
     """
     Some tags are dropped entirely, including their content:
 
@@ -234,53 +232,51 @@ class _ElideFilter(BaseFilter):
         )
     )
 
-    def __iter__(self):
-        elide = 0
-        elide_ns = None
-        elide_name = None
-        for token in BaseFilter.__iter__(self):
-            token_type = token["type"]
-            if elide:
-                if token_type == "EndTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
-                    elide -= 1
-                if token_type == "StartTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
+    elide = 0
+    elide_ns = None
+    elide_name = None
+    for token in source:
+        token_type = token["type"]
+        if elide:
+            if token_type == "EndTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
+                elide -= 1
+            if token_type == "StartTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
+                elide += 1
+            continue  # Drop the token
+        else:
+            if token_type == "StartTag":
+                if (token["namespace"], token["name"]) in _elide_tags:
                     elide += 1
-                continue  # Drop the token
-            else:
-                if token_type == "StartTag":
-                    if (token["namespace"], token["name"]) in self._elide_tags:
-                        elide += 1
-                        elide_name = token["name"]
-                        elide_ns = token["namespace"]
-                        continue  # Drop this token.
-                yield token
+                    elide_name = token["name"]
+                    elide_ns = token["namespace"]
+                    continue  # Drop this token.
+            yield token
 
 
-class _ReplaceObjectFilter(BaseFilter):
+def _replace_objects(source):
     """
     ``<object>`` tags are replaced with their content.
     """
 
-    def __iter__(self):
-        html_ns = namespaces["html"]
-        nest = 0
-        for token in BaseFilter.__iter__(self):
-            token_type = token["type"]
-            # Drop <param> when inside <object>. We don't handle nesting
-            # properly, but they're not valid anywhere else so that's not
-            # a problem.
-            if nest >= 1 and token_type == "EmptyTag" and token["name"] == "param" and token["namespace"] == html_ns:
-                continue
+    html_ns = namespaces["html"]
+    nest = 0
+    for token in source:
+        token_type = token["type"]
+        # Drop <param> when inside <object>. We don't handle nesting
+        # properly, but they're not valid anywhere else so that's not
+        # a problem.
+        if nest >= 1 and token_type == "EmptyTag" and token["name"] == "param" and token["namespace"] == html_ns:
+            continue
 
-            if token_type == "EndTag" and token["name"] == "object" and token["namespace"] == html_ns:
-                nest -= 1
-                continue
+        if token_type == "EndTag" and token["name"] == "object" and token["namespace"] == html_ns:
+            nest -= 1
+            continue
 
-            if token_type == "StartTag" and token["name"] == "object" and token["namespace"] == html_ns:
-                nest += 1
-                continue
+        if token_type == "StartTag" and token["name"] == "object" and token["namespace"] == html_ns:
+            nest += 1
+            continue
 
-            yield token
+        yield token
 
 
 class _ReplaceYoutubeEmbedFilter(BaseFilter):
@@ -295,7 +291,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         """
         video_id = embed_url.path[1]
         watch_url = DecodedURL(
-            URL(scheme="https", host="www.youtube.com", path=("watch",)),
+            EncodedURL(scheme="https", host="www.youtube.com", path=("watch",)),
         ).add("v", video_id)
         try:
             [start] = embed_url.get("start")
@@ -330,7 +326,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
         """
         video_id = embed_url.path[1]
         return DecodedURL(
-            URL(
+            EncodedURL(
                 scheme="https",
                 host="i.ytimg.com",
                 path=("vi", video_id, "mqdefault.jpg"),
@@ -431,33 +427,33 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                     yield token
 
 
-class _ExtractTitleTextFilter(BaseFilter):
+def _extract_title_text(source):
     """
     ``<img title="...">`` becomes ``<img><aside>...</aside>``
     """
 
-    def __iter__(self, _title_attr=(None, "title")):
-        html_ns = namespaces["html"]
-        for token in BaseFilter.__iter__(self):
-            yield token
-            if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and "data" in token:
-                attrs = token["data"]
-                if _title_attr in attrs:
-                    yield {
-                        "type": "StartTag",
-                        "namespace": html_ns,
-                        "name": "aside",
-                        "data": {},  # TODO Some way to pass through special styling.
-                    }
-                    yield {
-                        "type": "Characters",
-                        "data": attrs[_title_attr],
-                    }
-                    yield {
-                        "type": "EndTag",
-                        "namespace": html_ns,
-                        "name": "aside",
-                    }
+    html_ns = namespaces["html"]
+    _title_attr = (None, "title")
+    for token in source:
+        yield token
+        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and "data" in token:
+            attrs = token["data"]
+            if _title_attr in attrs:
+                yield {
+                    "type": "StartTag",
+                    "namespace": html_ns,
+                    "name": "aside",
+                    "data": {},  # TODO Some way to pass through special styling.
+                }
+                yield {
+                    "type": "Characters",
+                    "data": attrs[_title_attr],
+                }
+                yield {
+                    "type": "EndTag",
+                    "namespace": html_ns,
+                    "name": "aside",
+                }
 
 
 def _adjust_links(source):

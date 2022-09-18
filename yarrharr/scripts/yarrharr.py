@@ -24,8 +24,6 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
-from __future__ import absolute_import
-
 import argparse
 import os
 import sys
