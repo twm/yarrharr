@@ -234,7 +234,6 @@ async def process_less(less: Path, build_dir: Path, w: Writer) -> None:
             "/usr/bin/lessc",
             "--no-js",
             "--strict-imports",
-            "--math=strict",
             f"--source-map={map_path}",
             str(less),
             str(css_path),
