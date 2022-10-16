@@ -81,10 +81,6 @@ a .underline {
     text-decoration-line: underline;
     text-decoration-color: var(--underline-color);
 }
-// FIXME: Remove all [role=button], just use <button>
-a[role=button] {
-    text-decoration-line: none;
-}
 a:visited {
     text-decoration-style: dashed;
 }
@@ -100,7 +96,7 @@ a:visited[aria-disabled=true] {
     cursor: default;
 }
 
-main {
+#main {
     min-height: 100vh; /* push the footer off the page */
 }
 
@@ -337,7 +333,7 @@ form.small-form {
     }
 }
 
-footer {
+#footer {
     padding: 3em 0.25em;
     text-align: center;
     background: var(--footer-background-color);
