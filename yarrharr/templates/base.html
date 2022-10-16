@@ -18,10 +18,10 @@
     <body>
         {% include "icons.html" %}
 
-        <main role=main>
+        <main id="main">
             {% block content %}{% endblock %}
         </main>
-        <footer>
+        <footer id="footer">
             {% if user.is_authenticated %}
                 <p><a href="{% url 'home' %}">Home</a> ∙ <a href="{% url 'logout' %}">Log out</a>
             {% endif %}
