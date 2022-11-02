@@ -11,9 +11,9 @@ setup(
     url="https://github.com/twm/yarrharr",
     license="GPLv3+",
     install_requires=[
-        "attrs >= 19.3.0",
+        "attrs >= 21.3.0",
         "Django >=4.1.2,<4.2",
-        "Twisted[tls,http2] >= 22.4.0",
+        "Twisted[tls,http2] >= 22.10.0",
         "treq >= 22.2.0",
         "feedparser >= 6.0.8",
         "html5lib == 1.1",
