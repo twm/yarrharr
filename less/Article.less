@@ -1,6 +1,35 @@
 @import "./include.less";
 
+
+.article-header {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+
+    .meta {
+        text-transform: uppercase;
+        font-size: smaller;
+        color: var(--quiet-text-color);
+        p {
+            margin: 0;
+        }
+    }
+
+    .tools {
+        display: flex;
+        flex-flow: row nowrap;
+
+        .icon {
+            width: 2em;
+            height: 2em;
+        }
+    }
+}
+
 article {
+    h1 {
+        margin: 1rem auto;
+    }
+
     padding: 0 0 1rem 0;
     margin: 0.5rem 0;
     word-wrap: break-word; /* Don't let long lines break the layout */
@@ -11,15 +40,6 @@ article {
     }
     .layout-narrow & > * {
         max-width: var(--layout-max-width);
-    }
-
-    .meta {
-        text-transform: uppercase;
-        font-size: smaller;
-        color: var(--quiet-text-color);
-        p {
-            margin: 0;
-        }
     }
 
     .content {
@@ -86,5 +106,15 @@ article {
                 color: red;
             }
         }
+    }
+}
+
+.article-footer {
+    display: flex;
+    justify-content: center;
+
+    .icon {
+        width: 2em;
+        height: 2em;
     }
 }

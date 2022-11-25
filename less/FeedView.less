@@ -1,31 +1,9 @@
 @import "./include.less";
 
 .feed-header {
-    display: grid;
-    grid-template-columns: 1fr min-content;
-    grid-template-rows: 1fr;
-
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
-
     h1 {
         margin: 1rem 0;
-    }
-
-    .header-tools {
-        margin: 1rem 0;
-
-        display: flex;
-        align-items: flex-start;
-
-        button {
-            background: transparent;
-            border: none;
-        }
-        .icon {
-            width: 2em;
-            height: 2em;
-        }
+        word-wrap: break-word; /* Don't let words in feed titles break the layout */
     }
 }
 
@@ -39,22 +17,5 @@
     a {
         display: block;
         padding: 1em 3em; /* Big click area */
-    }
-}
-
-.footer-tools {
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
-
-    display: flex;
-    justify-content: center;
-
-    button {
-        background: transparent;
-        border: none;
-    }
-    .icon {
-        width: 2em;
-        height: 2em;
     }
 }

@@ -1,8 +1,8 @@
 @import "./include.less";
 
 /**
- * <div.tabs>    // container with bottom border
- *   <div.tabs-tabs> // container which applies max-width
+ * <div.tabs>
+ *   <div.tabs-tabs>
  *     <a>text</a>
  *     <a aria-disabled="true">current tab</a>
  *   </div>
@@ -10,16 +10,17 @@
  */
 .tabs {
     background: var(--background-color);
-    flex-basis: 100%;
 }
 .tabs-tabs {
-    max-width: var(--layout-max-width);
+    max-width: 100%;
     display: flex;
-    margin: 0 auto;
+    flex-flow: row wrap;
+    gap: 1rem;
     padding: 0 0 2px 0;
 }
 /* base tab styles */
 .tabs-tabs > a {
+    flex: 0 1 2rem;
     --tab-shape-color: transparent;
 
     border-style: solid;
@@ -29,7 +30,6 @@
     text-decoration: none;
     line-height: 1.7;
     padding: 0.125rem 8px 0 8px;
-    margin: 0 2rem 0 0;
     white-space: nowrap;
     text-align: center;
     text-overflow: ellipsis;
@@ -37,24 +37,6 @@
 /* current tab */
 .tabs-tabs > a[aria-selected=true] {
     --border-color: var(--selected-color);
-}
-@media screen and (max-width: 34em) {
-    .tabs-tabs {
-        justify-content: space-around;
-    }
-    .tabs-tabs > a {
-        margin: 0 4px 0 0; /* Prevent borders from abutting, which looks bad. */
-        padding-left: 3%;
-        padding-right: 3%;
-        line-height: 2.0; /* Increases height so tabs are more tappable. */
-    }
-    .tabs-tabs > a + a {
-    }
-    .tabs-tabs > a:first-child {
-    }
-    .tabs-tabs > a:last-child {
-        margin-right: 0;
-    }
 }
 
 .tabs-tabs .count {
