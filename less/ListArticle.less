@@ -1,19 +1,11 @@
 @import "./include.less";
 
 .list-article {
-    height: @bar_height;
-
-    /* The line height relates to the above height calculation, which allows
-     * for two lines of text. We must make sure that the line-height is
-     * a static value, not based on the x-height of the font, since we don't
-     * specify the font. */
-    line-height: @bar_line_height;
-
     margin: 0.75rem 0;
 }
 
 .list-article-inner {
-    max-width: var(--layout-max-width);
+    // max-width: var(--layout-max-width);
     margin: 0 auto;
     overflow: hidden;
 }
