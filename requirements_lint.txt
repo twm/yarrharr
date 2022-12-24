@@ -12,7 +12,7 @@ flake8==5.0.4
     # via
     #   -r requirements_lint.in
     #   flake8-isort
-flake8-isort==5.0.3
+flake8-isort==6.0.0
     # via -r requirements_lint.in
 isort==5.11.4
     # via
