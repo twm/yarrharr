@@ -1,4 +1,4 @@
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2020, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2020, 2022, 2023 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -131,6 +131,8 @@ class CSPReportLogger(Resource):
         if report.sample and report.sample.startswith(";(function installGlobalHook(window) {"):
             # This seems to be a misbehavior in some Firefox extension.
             # I cannot reproduce it with a clean profile.
+            return b""
+        if report.source.startswith("moz-extension "):  # See #1032 for an example.
             return b""
         self._log.debug(
             "Content Security Policy violation reported by {userAgent!r}:\n{report}",
