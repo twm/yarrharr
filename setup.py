@@ -13,7 +13,7 @@ setup(
     install_requires=[
         "attrs >= 21.3.0",
         "Django >=4.1.6,<4.2",
-        "Twisted[tls,http2] >= 22.10.0",
+        "Twisted[tls] >= 22.10.0",
         "treq >= 22.2.0",
         "feedparser >= 6.0.8",
         "html5lib == 1.1",
