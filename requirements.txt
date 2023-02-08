@@ -13,7 +13,7 @@ attrs==22.1.0
     #   treq
     #   twisted
     #   yarrharr (setup.py)
-automat==20.2.0
+automat==22.10.0
     # via twisted
 certifi==2022.6.15
     # via requests
