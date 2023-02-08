@@ -41,7 +41,6 @@ def backfill_article_raw_title(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("yarrharr", "0006_article_content_snippet"),
     ]

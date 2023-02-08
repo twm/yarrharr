@@ -7,7 +7,6 @@ from ._0008_triggers import CREATE_TRIGGERS, DROP_TRIGGERS
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("auth", "0012_alter_user_first_name_max_length"),
         ("yarrharr", "0002_url_help_text"),

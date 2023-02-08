@@ -33,7 +33,6 @@ from ._0008_triggers import CREATE_TRIGGERS, DROP_TRIGGERS
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("yarrharr", "0001_initial"),
         ("yarrharr", "0002_feed_digest"),

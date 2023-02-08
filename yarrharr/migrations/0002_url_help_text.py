@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("yarrharr", "0001_squashed_0012_feed_count_constraint"),
     ]
