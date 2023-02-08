@@ -42,7 +42,6 @@ def init_feed_counts(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("yarrharr", "0007_article_raw_title_backfill"),
     ]
