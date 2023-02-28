@@ -1,4 +1,4 @@
-# Copyright © 2017–2021 Tom Most <twm@freecog.net>
+# Copyright © 2017–2021, 2023 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,7 +40,8 @@ from twisted.python.failure import Failure
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.web import http, server
 from twisted.web.client import ResponseNeverReceived, readBody
-from twisted.web.resource import ErrorPage, IResource
+from twisted.web.pages import errorPage
+from twisted.web.resource import IResource
 from zope.interface import implementer
 
 from ..fetch import ArticleUpsert, BadStatus, BozoError, EmptyBody, Gone, MaybeUpdated, NetworkError, Unchanged, poll_feed
@@ -496,7 +497,7 @@ class FetchTests(SynchronousTestCase):
         A 410 HTTP status code translates to a Gone result.
         """
         feed = FetchFeed()
-        client = StubTreq(ErrorPage(410, "Gone", "Gone"))
+        client = StubTreq(errorPage(410, "Gone", "Gone"))
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
@@ -507,7 +508,7 @@ class FetchTests(SynchronousTestCase):
         A 404 HTTP status code translates to a BadStatus result.
         """
         feed = FetchFeed()
-        client = StubTreq(ErrorPage(404, "Not Found", "???"))
+        client = StubTreq(errorPage(404, "Not Found", "???"))
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
@@ -795,7 +796,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=False,
             author="???",
             title="???",
-            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="http://example.com/blah-blah",
             guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
             raw_content="",
@@ -844,7 +845,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=False,
             author="???",
             title="???",
-            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="http://www.example.com/blah-blah",
             guid="http://example.com/1",
             raw_content="",
@@ -886,14 +887,14 @@ class MaybeUpdatedTests(DjangoTestCase):
         An article which matches by URL when no GUID is available is updated in
         place.
         """
-        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=tz.utc)
         self.feed.articles.create(
             read=True,
             fave=False,
             author="???",
             raw_title="???",
             title="???",
-            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="https://example.com/blah-blah",
             guid="",  # Must not have a GUID to match by URL
             raw_content="",
@@ -936,14 +937,14 @@ class MaybeUpdatedTests(DjangoTestCase):
         An article with a HTTPS URL can match an older article with the
         equivalent HTTP URL.
         """
-        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+        new_date = datetime(2011, 1, 2, 3, 4, 5, tzinfo=tz.utc)
         self.feed.articles.create(
             read=True,
             fave=True,
             author="???",
             raw_title="???",
             title="???",
-            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="http://example.com/blah-blah",
             guid="",  # Must not have a GUID to match by URL
             raw_content="",
