@@ -52,7 +52,8 @@ from twisted.logger import (
     globalLogPublisher,
 )
 from twisted.python.filepath import FilePath
-from twisted.web.resource import ErrorPage, NoResource, Resource
+from twisted.web.pages import notFound
+from twisted.web.resource import Resource
 from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.wsgi import WSGIResource
@@ -256,13 +257,13 @@ class Static(Resource):
         incorrect response if a variant is disabled like ``identity;q=0``.
         """
         if not self._validName.match(path):
-            return NoResource("Not found.")
+            return notFound("Not found.")
 
         ext = path[path.rindex(b".") :]
         try:
             type = self._contentTypes[ext]
         except KeyError:
-            return NoResource("Unknown type.")
+            return notFound("Unknown type.")
 
         acceptEncoding = request.getHeader(b"accept-encoding") or b"*"
 
@@ -300,7 +301,7 @@ class Root(FallbackResource):
         # Handle requests for /favicon.ico and paths hit by script kiddies at
         # the Twisted level so that they don't make it down to Django, which
         # logs 404s as errors:
-        a404 = ErrorPage(404, "Not Found", "")
+        a404 = notFound()
         for path in (b"favicon.ico", b"index.php", b"wp-login.php"):
             self.putChild(path, a404)
 

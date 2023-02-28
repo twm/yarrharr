@@ -40,7 +40,8 @@ from twisted.python.failure import Failure
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.web import http, server
 from twisted.web.client import ResponseNeverReceived, readBody
-from twisted.web.resource import ErrorPage, IResource
+from twisted.web.pages import errorPage
+from twisted.web.resource import IResource
 from zope.interface import implementer
 
 from ..fetch import ArticleUpsert, BadStatus, BozoError, EmptyBody, Gone, MaybeUpdated, NetworkError, Unchanged, poll_feed
@@ -496,7 +497,7 @@ class FetchTests(SynchronousTestCase):
         A 410 HTTP status code translates to a Gone result.
         """
         feed = FetchFeed()
-        client = StubTreq(ErrorPage(410, "Gone", "Gone"))
+        client = StubTreq(errorPage(410, "Gone", "Gone"))
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
@@ -507,7 +508,7 @@ class FetchTests(SynchronousTestCase):
         A 404 HTTP status code translates to a BadStatus result.
         """
         feed = FetchFeed()
-        client = StubTreq(ErrorPage(404, "Not Found", "???"))
+        client = StubTreq(errorPage(404, "Not Found", "???"))
 
         result = self.successResultOf(poll_feed(feed, self.clock, client))
 
