@@ -1,5 +1,53 @@
 [build-system]
-requires = ["setuptools >= 46.4.0", "wheel"]
+requires = ["setuptools >= 67.7.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+name = "yarrharr"
+license = {text = "GPLv3+"}
+readme = "README.md"
+dependencies = [
+    "attrs >= 21.3.0",
+    "Django >=4.2.1,<4.3",
+    "Twisted[tls] >= 22.10.0",
+    "treq >= 22.2.0",
+    "feedparser >= 6.0.8",
+    "html5lib == 1.1",
+]
+requires-python = ">=3.9"
+authors = [
+  {name = "Tom Most", email = "twm@freecog.net"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Intended Audience :: End Users/Desktop",
+    "Framework :: Django",
+    "Framework :: Twisted",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Internet :: WWW/HTTP",
+]
+
+[project.urls]
+homepage = "https://github.com/twm/yarrharr"
+
+[project.scripts]
+yarrharr = "yarrharr.scripts.yarrharr:main"
+yarrharr-fetch = "yarrharr.scripts.fetch:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "yarrharr.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["yarrharr", "yarrharr/*"]
+namespaces = false
 
 [tool.isort]
 profile = "black"

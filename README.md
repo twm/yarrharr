@@ -69,12 +69,11 @@ Yarrharr is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 ## Releasing Yarrharr
 
  1. Bump the version number in ``yarrharr/__init__.py``.
- 2. Tag the release: ``git tag "v$(python3 setup.py --version)"``
- 3. Type ``make release`` to output a tarball to the ``dist`` directory.
+ 2. Build and tag the release: ``make release``
 
 ## License
 
-Copyright © 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Tom Most
+Copyright © 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Tom Most
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the [GNU General Public License](./COPYING) as published by the Free Software
