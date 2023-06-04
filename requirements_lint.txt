@@ -16,9 +16,5 @@ pathspec==0.10.1
     # via black
 platformdirs==2.5.2
     # via black
-ruff==0.0.269
+ruff==0.0.270
     # via -r requirements_lint.in
-tomli==2.0.1
-    # via black
-typing-extensions==4.5.0
-    # via black
