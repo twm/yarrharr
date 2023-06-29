@@ -209,14 +209,14 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
       Built with icotool.
     """
     proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    outfiles = []
-    commands = []
+    outfiles: list[str] = []
+    commands: list[str] = [f"file-open:{favicon}; export-area page\n"]
 
     for size in (16, 24, 32, 64, 152):
         outfile = str(build_dir / f"{favicon.stem}.{size}.png")
-        commands.append(f"{favicon} --export-png={outfile} -w {size} -h {size} --export-area-page\n".encode())
+        commands.append(f"export-filename:{outfile}; export-width:{size}; export-height:{size}; export-do\n")
         outfiles.append(outfile)
-    stdout, stderr = await proc.communicate(b"".join(commands))
+    stdout, stderr = await proc.communicate("".join(commands).encode())
     if proc.returncode != 0:
         raise ProcFailed(f"inkscape exited {proc.returncode}", stdout, stderr)
     for outfile in outfiles:
