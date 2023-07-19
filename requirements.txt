@@ -77,7 +77,7 @@ twisted[tls]==22.10.0
     #   yarrharr (pyproject.toml)
 typing-extensions==4.3.0
     # via twisted
-urllib3==1.26.12
+urllib3==2.0.3
     # via requests
 webencodings==0.5.1
     # via html5lib
