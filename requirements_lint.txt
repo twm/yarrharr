@@ -8,7 +8,7 @@ black==23.7.0
     # via -r requirements_lint.in
 click==8.1.6
     # via black
-mypy-extensions==0.4.3
+mypy-extensions==1.0.0
     # via black
 packaging==23.0
     # via black
