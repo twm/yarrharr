@@ -16,7 +16,7 @@ pathspec==0.10.1
     # via black
 platformdirs==2.5.2
     # via black
-ruff==0.0.276
+ruff==0.0.278
     # via -r requirements_lint.in
 tomli==2.0.1
     # via black
