@@ -16,12 +16,10 @@ iniconfig==2.0.0
     # via pytest
 lxml==4.9.3
     # via -r requirements_test.in
-packaging==21.3
+packaging==23.1
     # via pytest
 pluggy==1.0.0
     # via pytest
-pyparsing==3.0.9
-    # via packaging
 pytest==7.4.0
     # via
     #   -r requirements_test.in
