@@ -82,7 +82,7 @@ urllib3==2.0.3
     # via requests
 webencodings==0.5.1
     # via html5lib
-zope-interface==5.4.0
+zope-interface==6.0
     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
