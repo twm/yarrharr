@@ -50,7 +50,7 @@ pygments==2.15.1
     #   rich
 pyproject-hooks==1.0.0
     # via build
-readme-renderer==37.3
+readme-renderer==40.0
     # via twine
 requests==2.31.0
     # via
