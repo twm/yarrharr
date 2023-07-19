@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt pyproject.toml
 #
-asgiref==3.6.0
+asgiref==3.7.2
     # via django
 attrs==22.1.0
     # via
@@ -76,7 +76,9 @@ twisted[tls]==22.10.0
     #   treq
     #   yarrharr (pyproject.toml)
 typing-extensions==4.3.0
-    # via twisted
+    # via
+    #   asgiref
+    #   twisted
 urllib3==2.0.3
     # via requests
 webencodings==0.5.1
