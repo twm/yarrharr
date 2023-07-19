@@ -6,7 +6,7 @@
 #
 asgiref==3.7.2
     # via django
-attrs==22.1.0
+attrs==23.1.0
     # via
     #   automat
     #   service-identity
