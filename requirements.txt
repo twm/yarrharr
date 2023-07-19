@@ -42,7 +42,7 @@ idna==3.4
     #   hyperlink
     #   requests
     #   twisted
-incremental==21.3.0
+incremental==22.10.0
     # via
     #   treq
     #   twisted
