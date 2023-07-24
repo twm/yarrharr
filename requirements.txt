@@ -4,9 +4,9 @@
 #
 #    pip-compile --output-file=requirements.txt pyproject.toml
 #
-asgiref==3.6.0
+asgiref==3.7.2
     # via django
-attrs==22.1.0
+attrs==23.1.0
     # via
     #   automat
     #   service-identity
@@ -15,11 +15,11 @@ attrs==22.1.0
     #   yarrharr (pyproject.toml)
 automat==22.10.0
     # via twisted
-certifi==2022.6.15
+certifi==2023.5.7
     # via requests
 cffi==1.15.1
     # via cryptography
-charset-normalizer==2.1.1
+charset-normalizer==3.2.0
     # via requests
 constantly==15.1.0
     # via twisted
@@ -37,12 +37,12 @@ hyperlink==21.0.0
     # via
     #   treq
     #   twisted
-idna==3.3
+idna==3.4
     # via
     #   hyperlink
     #   requests
     #   twisted
-incremental==21.3.0
+incremental==22.10.0
     # via
     #   treq
     #   twisted
@@ -50,15 +50,15 @@ pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   service-identity
-pyasn1-modules==0.2.8
+pyasn1-modules==0.3.0
     # via service-identity
 pycparser==2.21
     # via cffi
-pyopenssl==23.0.0
+pyopenssl==23.2.0
     # via twisted
 requests==2.31.0
     # via treq
-service-identity==21.1.0
+service-identity==23.1.0
     # via twisted
 sgmllib3k==1.0.0
     # via feedparser
@@ -66,8 +66,7 @@ six==1.16.0
     # via
     #   automat
     #   html5lib
-    #   service-identity
-sqlparse==0.4.2
+sqlparse==0.4.4
     # via django
 treq==22.2.0
     # via yarrharr (pyproject.toml)
@@ -75,13 +74,15 @@ twisted[tls]==22.10.0
     # via
     #   treq
     #   yarrharr (pyproject.toml)
-typing-extensions==4.3.0
-    # via twisted
+typing-extensions==4.7.1
+    # via
+    #   asgiref
+    #   twisted
 urllib3==2.0.3
     # via requests
 webencodings==0.5.1
     # via html5lib
-zope-interface==5.4.0
+zope-interface==6.0
     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
