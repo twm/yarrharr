@@ -14,7 +14,7 @@ packaging==23.1
     # via black
 pathspec==0.11.2
     # via black
-platformdirs==3.9.1
+platformdirs==3.10.0
     # via black
 ruff==0.0.278
     # via -r requirements_lint.in
