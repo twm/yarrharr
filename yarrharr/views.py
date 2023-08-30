@@ -1,4 +1,4 @@
-# Copyright © 2013–2022 Tom Most <twm@freecog.net>
+# Copyright © 2013–2023 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -658,30 +658,6 @@ def article_show(request, article_id: int):
     )
 
 
-@login_required
-def snapshots(request):
-    """
-    Get a list of article IDs matching the snapshot parameters.
-
-    :query article: One or more article IDs.
-    """
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
-
-    user_feeds = request.user.feed_set.all().values_list("id", flat=True)
-    snapshot_params = snapshot_params_from_query(request.POST, user_feeds)
-    articles = entries_for_snapshot(request.user, snapshot_params)
-
-    data = {
-        "snapshot": [article.id for article in articles],
-        # Include the first 10 articles for instant display.
-        # TODO: It would be better to include metadata for a larger number of
-        # articles.
-        "articlesById": {article.id: json_for_article(article) for article in articles[:10]},
-    }
-    return HttpResponse(json.dumps(data), content_type="application/json")
-
-
 def articles_for_request(request):
     """
     Get a QuerySet for the Entry objects listed by the request's "article"
@@ -713,20 +689,6 @@ def redirect_to_article(request, article_id: str):
 
 
 @login_required
-def articles(request):
-    """
-    Get article contents as JSON.
-
-    :query article: One or more article IDs.
-    """
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
-    qs = articles_for_request(request)
-    data = {article.id: json_for_article(article) for article in qs}
-    return HttpResponse(json.dumps(data), content_type="application/json")
-
-
-@login_required
 def flags(request):
     """
     Change the flags of articles.
@@ -753,7 +715,11 @@ def flags(request):
         with connection.execute_wrapper(log_on_error):
             qs.update(**updates)
     data = {
-        "articlesById": {article.id: json_for_article(article) for article in qs.all()},
+        id_: {
+            "fave": fave,
+            "read": read,
+        }
+        for (id_, fave, read) in qs.values_list("id", "fave", "read")
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
 

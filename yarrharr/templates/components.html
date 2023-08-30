@@ -43,6 +43,7 @@
 const flagsApi = "{{ flag_api_url|escapejs }}";
 
 function post(path, body) {
+  // console.log('POST %s %o', path, body);
   return fetch(path, {
     method: 'POST', // a.k.a. "RPC"
     body: body,
@@ -66,11 +67,49 @@ function setFlag(articleId, flagName, flagValue) {
   body.append(flagName, flagValue ? 'true' : 'false');
 
   return post(flagsApi, body).catch(e => {
-    console.error(`Flag request articleId=${articleId}, ${flagName}=${flagValue} failed`, e);
+    console.error(`setFlag request articleId=${articleId}, ${flagName}=${flagValue} failed`, e);
     throw e;
   })
 }
 
+const toggles = new Map();
+
+function registerToggle(articleId, element) {
+  if (!toggles.has(articleId)) {
+    toggles.set(articleId, []);
+  }
+  toggles.get(articleId).push(element);
+}
+
+function updateToggles(articleId, flagName, value) {
+  // console.log('updateToggles(%o, %o, %o', articleId, flagName, value)
+  for (const element of toggles.get(articleId)) {
+    if (element.flagName === flagName) {
+      element.checked = value;
+    }
+  }
+}
+
+document.onvisibilitychange = (e) => {
+  console.log('visibilitychange %o %s', e, document.visibilityState)
+  if (document.visibilityState !== 'visible')
+    return;
+
+  const body = new FormData();
+  for (let articleId of toggles.keys()) {
+    body.append('article', articleId);
+  }
+  return post(flagsApi, body).then(flagsById => {
+    // console.log('flagsById = %o', flagsById);
+    for (const [articleId, {read, fave}] of Object.entries(flagsById)) {
+      updateToggles(articleId, "read", read);
+      updateToggles(articleId, "fave", fave);
+    }
+  }).catch(e => {
+    console.error('Flag update failed', e);
+    throw e;
+  });
+}
 
 const readButtonTemplate = document.getElementById("read-toggle-template").content.querySelector("button");
 
@@ -78,17 +117,27 @@ window.customElements.define("read-toggle", class extends HTMLElement {
   connectedCallback() {
     this._button = readButtonTemplate.cloneNode(true);
     this.checked = !!this.checked;
+    registerToggle(this.articleId, this)
     this._button.onclick = (e) => {
-      this.checked = !this.checked;
-      setFlag(this.getAttribute("article-id"), 'read', this.checked).catch(() => {
-        this.checked = !this.checked;
+      updateToggles(this.articleId, this.flagName, !this.checked);
+      setFlag(this.articleId, this.flagName, this.checked).catch((e) => {
+        updateToggles(this.articleId, this.flagName, !this.checked);
+        throw e;
       })
     }
     this.appendChild(this._button);
   }
 
+  get flagName() {
+    return "read";
+  }
+
+  get articleId() {
+    return this.getAttribute("article-id")
+  }
+
   get checked() {
-      return this.hasAttribute("checked");
+    return this.hasAttribute("checked");
   }
 
   set checked(value) {
@@ -109,18 +158,28 @@ const faveButtonTemplate = document.getElementById("fave-toggle-template").conte
 window.customElements.define("fave-toggle", class extends HTMLElement {
   connectedCallback() {
     this._button = faveButtonTemplate.cloneNode(true);
+    registerToggle(this.articleId, this)
     this.checked = !!this.checked;
     this._button.onclick = (e) => {
-      this.checked = !this.checked;
-      setFlag(this.getAttribute("article-id"), "fave", this.checked).catch(() => {
-        this.checked = !this.checked;
+      updateToggles(this.articleId, this.flagName, !this.checked);
+      setFlag(this.articleId, this.flagName, this.checked).catch((e) => {
+        updateToggles(this.articleId, this.flagName, !this.checked);
+        throw e;
       })
     }
     this.appendChild(this._button);
   }
 
+  get flagName() {
+    return "fave";
+  }
+
+  get articleId() {
+    return this.getAttribute("article-id")
+  }
+
   get checked() {
-      return this.hasAttribute("checked");
+    return this.hasAttribute("checked");
   }
 
   set checked(value) {

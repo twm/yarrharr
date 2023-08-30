@@ -69,8 +69,6 @@ urlpatterns = (
         yarrharr.views.redirect_to_article,
     ),
     # API
-    re_path(r"^api/snapshots/$", yarrharr.views.snapshots),
-    re_path(r"^api/articles/$", yarrharr.views.articles),
     re_path(r"^api/flags/$", yarrharr.views.flags, name="api-flags"),
     re_path(r"^api/inventory/$", yarrharr.views.inventory),
     re_path(
