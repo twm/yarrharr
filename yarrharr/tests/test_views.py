@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2021, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021, 2022, 2023 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -735,6 +735,88 @@ class FeedShowTests(TestCase):
 
         # No more pages
         self.assertEqual([], page2.cssselect(".pagination a"))
+
+
+class FlagsViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="bill",
+            email="bill@mail.example",
+            password="hunter2",
+        )
+        self.client.force_login(self.user)
+        self.feed = self.user.feed_set.create(
+            url="http://example.com/feed.xml",
+            feed_title="Feed A",
+            site_url="http://example.com/",
+            added=timezone.now(),
+        )
+        for i in range(1, 10):
+            self.feed.articles.create(
+                id=i,
+                read=False,
+                fave=False,
+                author=f"Author {i}",
+                title=f"Article {i}",
+                url=f"http://example.com/{i}",
+                date=timezone.now() - timedelta(hours=i),
+                guid=str(i),
+                raw_content="...",
+                content="...",
+                content_snippet=f"{i} " * i,
+            )
+
+    maxDiff = None
+
+    def test_flag(self):
+        flag_url = reverse("api-flags")
+        self.assertEqual(
+            self.client.post(
+                flag_url,
+                {"read": "true", "article": ["1", "2"]},
+            ).json(),
+            {
+                "1": {"read": True, "fave": False},
+                "2": {"read": True, "fave": False},
+            },
+        )
+
+        self.assertEqual(
+            self.client.post(
+                flag_url,
+                {"fave": "true", "article": ["4", "3"]},
+            ).json(),
+            {
+                "3": {"read": False, "fave": True},
+                "4": {"read": False, "fave": True},
+            },
+        )
+
+        self.assertEqual(
+            self.client.post(
+                flag_url,
+                {"fave": "false", "read": "false", "article": ["2", "4"]},
+            ).json(),
+            {
+                "2": {"read": False, "fave": False},
+                "4": {"read": False, "fave": False},
+            },
+        )
+
+        self.assertEqual(
+            {
+                "1": {"read": True, "fave": False},
+                "2": {"read": False, "fave": False},
+                "3": {"read": False, "fave": True},
+                "4": {"read": False, "fave": False},
+                "5": {"read": False, "fave": False},
+                "6": {"read": False, "fave": False},
+            },
+            self.client.post(
+                flag_url,
+                {"article": ["1", "2", "3", "4", "5", "6"]},
+            ).json(),
+        )
 
 
 class ManifestTests(TestCase):
