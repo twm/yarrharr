@@ -17,6 +17,7 @@ static:
 
 .PHONY: release
 release: static
+	git diff --quiet HEAD
 	tox -e release --notest
 	version=$$(grep -oP '(?<=__version__ = ")([^"]+)(?=")' yarrharr/__init__.py)
 	.tox/release/bin/python -m build
