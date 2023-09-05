@@ -40,7 +40,7 @@ Check out the repository:
 
 Run the Django development server via Tox with:
 
-    $ make devserver
+    $ just devserver
 
 The Django dev server is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 
@@ -51,25 +51,25 @@ If you make changes to the Django models you can generate migrations by running 
 
 If you wish to check feeds for updates:
 
-    $ make poll-feeds
+    $ just poll-feeds
 
 By default, polling for feeds will only poll feeds that have been scheduled to be checked.
 To schedule an immediate check of all feeds:
 
-    $ make force-poll
+    $ just force-poll
 
 ## Running the `yarrharr` Executable
 
 To run the `yarrharr` Twisted executable in a development, stop the Django dev server and run:
 
-    $ make realserver
+    $ just realserver
 
 Yarrharr is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 
 ## Releasing Yarrharr
 
  1. Bump the version number in ``yarrharr/__init__.py``.
- 2. Build and tag the release: ``make release``
+ 2. Build and tag the release: ``just release``
 
 ## License
 
