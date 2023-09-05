@@ -6,7 +6,7 @@
 #
 bleach==6.0.0
     # via readme-renderer
-build==0.10.0
+build==1.0.0
     # via -r requirements_release.in
 certifi==2023.7.22
     # via requests
@@ -22,8 +22,11 @@ idna==3.4
     # via requests
 importlib-metadata==6.8.0
     # via
+    #   build
     #   keyring
     #   twine
+importlib-resources==6.0.1
+    # via keyring
 jaraco-classes==3.3.0
     # via keyring
 jeepney==0.8.0
@@ -72,6 +75,8 @@ tomli==2.0.1
     #   pyproject-hooks
 twine==4.0.2
     # via -r requirements_release.in
+typing-extensions==4.7.1
+    # via rich
 urllib3==2.0.4
     # via
     #   requests
@@ -79,4 +84,6 @@ urllib3==2.0.4
 webencodings==0.5.1
     # via bleach
 zipp==3.16.2
-    # via importlib-metadata
+    # via
+    #   importlib-metadata
+    #   importlib-resources
