@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements_static.txt requirements_static.in
 #
-brotli==1.0.9
+brotli==1.1.0
     # via -r requirements_static.in
 zopfli==0.2.2
     # via -r requirements_static.in
