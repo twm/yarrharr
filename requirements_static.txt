@@ -6,5 +6,5 @@
 #
 brotli==1.1.0
     # via -r requirements_static.in
-zopfli==0.2.2
+zopfli==0.2.3
     # via -r requirements_static.in
