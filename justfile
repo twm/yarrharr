@@ -5,10 +5,10 @@ set shell := ["bash", "-euc"]
 default:
     just --list
 
-static:
+_static:
     tox -e static
 
-release: static
+release: _static
     #!/usr/bin/env bash
     set -exu -o pipefail
     git diff --quiet HEAD || exit 1
@@ -18,12 +18,12 @@ release: static
     .tox/release/bin/python -m twine check "dist/yarrharr-${version}.tar.gz" "dist/yarrharr-${version}-py3-none-any.whl"
     git tag "v${version}"
 
-devserver: static
+devserver: _static
     tox -e run -- django-admin migrate
     tox -e run -- django-admin updatehtml
     YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8888
 
-realserver: static
+realserver: _static
     tox -e run -- django-admin migrate
     tox -e run -- django-admin collectstatic --noinput
     tox -e run -- yarrharr
