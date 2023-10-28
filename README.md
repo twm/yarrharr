@@ -28,8 +28,10 @@ Grab the build dependencies with:
                        python3-dev build-essential \
                        node-less node-source-map
 
-Install [install pip](https://pip.pypa.io/en/latest/installing/#get-pip), then install [Tox](http://tox.readthedocs.org/en/latest/).
+[Install pip](https://pip.pypa.io/en/latest/installing/#get-pip), then install [Tox](http://tox.readthedocs.org/en/latest/).
 (I actually recommend installing this in your home directory, but that's outside the scope of this document.)
+
+[Install Just](https://just.systems/man/en/), probaby via Cargo.
 
 Check out the repository:
 
