@@ -25,7 +25,7 @@ pytest==7.4.2
     #   -r requirements_test.in
     #   pytest-django
     #   pytest-twisted
-pytest-django==4.5.2
+pytest-django==4.6.0
     # via -r requirements_test.in
 pytest-twisted==1.14.0
     # via -r requirements_test.in
