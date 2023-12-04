@@ -23,11 +23,11 @@ charset-normalizer==3.2.0
     # via requests
 constantly==15.1.0
     # via twisted
-cryptography==41.0.4
+cryptography==41.0.7
     # via
     #   pyopenssl
     #   service-identity
-django==4.2.4
+django==4.2.7
     # via yarrharr (pyproject.toml)
 feedparser==6.0.10
     # via yarrharr (pyproject.toml)
@@ -68,9 +68,9 @@ six==1.16.0
     #   html5lib
 sqlparse==0.4.4
     # via django
-treq==22.2.0
+treq==23.11.0
     # via yarrharr (pyproject.toml)
-twisted[tls]==22.10.0
+twisted[tls]==23.10.0
     # via
     #   treq
     #   yarrharr (pyproject.toml)
