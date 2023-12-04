@@ -29,8 +29,13 @@ def _requirements() -> list[tuple[str, str]]:
             for line in f:
                 if line.startswith((" ", "#")):
                     continue
-                if (i := line.find("==")) == -1:
+
+                i = line.find("[")  # Extra, like "twisted[tls]==..."
+                if i == -1:
+                    i = line.find("==")  # Otherwise "twisted==..."
+                if i == -1:
                     continue
+
                 yield line[:i], line[i + 2 :]
 
 
