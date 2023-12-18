@@ -4,21 +4,5 @@
 #
 #    pip-compile --output-file=requirements_lint.txt requirements_lint.in
 #
-black==23.10.0
-    # via -r requirements_lint.in
-click==8.1.6
-    # via black
-mypy-extensions==1.0.0
-    # via black
-packaging==23.1
-    # via black
-pathspec==0.11.2
-    # via black
-platformdirs==3.10.0
-    # via black
 ruff==0.1.8
     # via -r requirements_lint.in
-tomli==2.0.1
-    # via black
-typing-extensions==4.8.0
-    # via black

@@ -36,9 +36,7 @@ CREATE_TRIGGERS = [
         SELECT RAISE(ABORT, 'negative {column}')
         WHERE NEW.{column} < 0;
     END
-    """.format(
-        column=c
-    )
+    """.format(column=c)
     for c in COUNT_COLUMNS
 ]
 
