@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       TOXENV: "${{ matrix.tox-env }}"
+      RUFF_OUTPUT_FORMAT: "github"
 
     steps:
     - uses: actions/checkout@v4
