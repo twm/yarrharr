@@ -183,6 +183,23 @@ async def scour_svg(svg: Path) -> bytes:
     return stdout
 
 
+class ProcFailed(Exception):
+    def __init__(self, message: str, stdout: Optional[bytes] = None, stderr: Optional[bytes] = None):
+        self._message = message
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def __str__(self):
+        s = str(self._message)
+        if self.stdout:
+            s += "\n\nSTDOUT:\n\n"
+            s += self.stdout.decode("utf8", "replace")
+        if self.stderr:
+            s += "\n\nSTDERR:\n\n"
+            s += self.stderr.decode("utf8", "replace")
+        return s
+
+
 async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
     """
     Use Inkscape to generate two raster versions of the favicon:
@@ -192,16 +209,19 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
       Built with icotool.
     """
     proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    outfiles = []
-    commands = []
+    outfiles: list[str] = []
+    commands: list[str] = [f"file-open:{favicon}; export-area page\n"]
 
     for size in (16, 24, 32, 64, 152):
         outfile = str(build_dir / f"{favicon.stem}.{size}.png")
-        commands.append(f"{favicon} --export-png={outfile} -w {size} -h {size} --export-area-page\n".encode())
+        commands.append(f"export-filename:{outfile}; export-width:{size}; export-height:{size}; export-do\n")
         outfiles.append(outfile)
-    stdout, stderr = await proc.communicate(b"".join(commands))
+    stdout, stderr = await proc.communicate("".join(commands).encode())
     if proc.returncode != 0:
-        raise Exception(f"inkscape exited {proc.returncode}: {stdout=} {stderr=}")
+        raise ProcFailed(f"inkscape exited {proc.returncode}", stdout, stderr)
+    for outfile in outfiles:
+        if not Path(outfile).is_file():
+            raise ProcFailed(f"inkscape failed to write {outfile!r}", stdout, stderr)
 
     png_path = Path(outfiles.pop())
     ico_path = build_dir / f"{favicon.stem}.ico"
@@ -218,6 +238,8 @@ async def process_svg(svg: Path, w: Writer) -> None:
     """
     Minify the SVG and copy it to the output directory.
     """
+    if not svg.is_file():
+        raise Exception(f"Input file {svg} not found")
     svg_bytes = await scour_svg(svg)
     w.add_file_bytes(hashname(svg.stem, "svg", svg_bytes), svg_bytes)
 

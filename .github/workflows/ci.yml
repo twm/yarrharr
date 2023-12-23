@@ -14,7 +14,7 @@ jobs:
       matrix:
         tox-env: ["test", "lint"]
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       TOXENV: "${{ matrix.tox-env }}"
       RUFF_OUTPUT_FORMAT: "github"
@@ -50,7 +50,7 @@ jobs:
   webpack:
     name: "tox -e static"
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v4
