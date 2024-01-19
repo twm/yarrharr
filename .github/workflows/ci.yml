@@ -27,7 +27,7 @@ jobs:
         python-version: "3.9"
 
     - name: pip cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: "${{ runner.os }}-pip-${{ matrix.tox-env }}-${{ hashFiles('tox.ini') }}"
@@ -65,7 +65,7 @@ jobs:
         python-version: "3.9"
 
     - name: pip cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: "${{ runner.os }}-pip-static-${{ hashFiles('tox.ini') }}"
