@@ -23,7 +23,7 @@ charset-normalizer==3.2.0
     # via requests
 constantly==15.1.0
     # via twisted
-cryptography==41.0.7
+cryptography==42.0.5
     # via
     #   pyopenssl
     #   service-identity
