@@ -36,7 +36,7 @@ def _requirements() -> list[tuple[str, str]]:
                 if i == -1:
                     continue
 
-                yield line[:i], line[i + 2 :]
+                yield line[:i], line[line.index("==") + 2 :]
 
 
 def _list_packages() -> list[str]:
