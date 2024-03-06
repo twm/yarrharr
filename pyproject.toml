@@ -50,6 +50,10 @@ include = ["yarrharr", "yarrharr/*"]
 namespaces = false
 
 [tool.ruff]
+line-length = 150
+target-version = "py39"
+
+[tool.ruff.lint]
 select = [
   "E",
   "F",
@@ -57,9 +61,7 @@ select = [
 ]
 ignore = [
 ]
-line-length = 150
-target-version = "py39"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "yarrharr/wsgi.py" = ["E402"]
 "yarrharr/migrations/*.py" = ["I", "F401"]

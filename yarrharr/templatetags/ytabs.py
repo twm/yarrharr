@@ -26,6 +26,7 @@
 """
 A template tag that generates common attributes for Yarrharr's tab markup.
 """
+
 import html
 
 from django.template import Library, Node, TemplateSyntaxError
