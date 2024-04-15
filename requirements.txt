@@ -37,7 +37,7 @@ hyperlink==21.0.0
     # via
     #   treq
     #   twisted
-idna==3.4
+idna==3.7
     # via
     #   hyperlink
     #   requests
@@ -73,6 +73,7 @@ treq==23.11.0
 twisted[tls]==24.3.0
     # via
     #   treq
+    #   twisted
     #   yarrharr (pyproject.toml)
 typing-extensions==4.7.1
     # via
