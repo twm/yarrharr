@@ -14,20 +14,20 @@ greenlet==2.0.2
     # via pytest-twisted
 iniconfig==2.0.0
     # via pytest
-lxml==4.9.4
+lxml==5.2.1
     # via -r requirements_test.in
 packaging==23.1
     # via pytest
 pluggy==1.4.0
     # via pytest
-pytest==8.0.2
+pytest==8.1.2
     # via
     #   -r requirements_test.in
     #   pytest-django
     #   pytest-twisted
 pytest-django==4.8.0
     # via -r requirements_test.in
-pytest-twisted==1.14.0
+pytest-twisted==1.14.1
     # via -r requirements_test.in
 tomli==2.0.1
     # via pytest
