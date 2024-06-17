@@ -4,5 +4,5 @@
 #
 #    pip-compile --output-file=requirements_lint.txt requirements_lint.in
 #
-ruff==0.4.3
+ruff==0.4.9
     # via -r requirements_lint.in
