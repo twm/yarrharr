@@ -71,7 +71,7 @@ tomli==2.0.1
     # via
     #   build
     #   pyproject-hooks
-twine==5.0.0
+twine==5.1.1
     # via -r requirements_release.in
 urllib3==2.2.0
     # via
