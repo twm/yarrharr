@@ -79,5 +79,5 @@ urllib3==2.2.2
     #   twine
 webencodings==0.5.1
     # via bleach
-zipp==3.16.2
+zipp==3.19.2
     # via importlib-metadata
