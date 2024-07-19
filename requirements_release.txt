@@ -8,7 +8,7 @@ bleach==6.0.0
     # via readme-renderer
 build==1.2.1
     # via -r requirements_release.in
-certifi==2024.2.2
+certifi==2024.7.4
     # via requests
 cffi==1.15.1
     # via cryptography
@@ -53,7 +53,7 @@ pyproject-hooks==1.0.0
     # via build
 readme-renderer==40.0
     # via twine
-requests==2.31.0
+requests==2.32.3
     # via
     #   requests-toolbelt
     #   twine
@@ -73,11 +73,11 @@ tomli==2.0.1
     #   pyproject-hooks
 twine==5.1.1
     # via -r requirements_release.in
-urllib3==2.2.0
+urllib3==2.2.2
     # via
     #   requests
     #   twine
 webencodings==0.5.1
     # via bleach
-zipp==3.16.2
+zipp==3.19.2
     # via importlib-metadata
