@@ -18,9 +18,9 @@ lxml==5.2.1
     # via -r requirements_test.in
 packaging==23.1
     # via pytest
-pluggy==1.4.0
+pluggy==1.5.0
     # via pytest
-pytest==8.1.2
+pytest==8.3.2
     # via
     #   -r requirements_test.in
     #   pytest-django
