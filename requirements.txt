@@ -72,7 +72,7 @@ tomli==2.0.1
     # via incremental
 treq==23.11.0
     # via yarrharr (pyproject.toml)
-twisted[tls]==24.3.0
+twisted[tls]==24.7.0
     # via
     #   treq
     #   twisted
