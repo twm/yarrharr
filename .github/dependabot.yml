@@ -12,7 +12,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      dependency-name: ruff
+    - dependency-name: ruff
       update-types:
-        - "version-update:semver-minor"
+        # Ruff releases very frequently which results in
+        # an annoying number of Dependabot PRs.
         - "version-update:semver-patch"
