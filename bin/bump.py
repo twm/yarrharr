@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright © 2023 Tom Most <twm@freecog.net>
+# Copyright © 2023, 2024 Tom Most <twm@freecog.net>
 
 import argparse
 import asyncio
@@ -10,7 +10,7 @@ from typing import Sequence
 repo_root = Path(__file__).parent.parent
 
 _parser = argparse.ArgumentParser()
-_parser.add_argument("-P", "--upgrade-package", dest="packages", nargs="*")
+_parser.add_argument("packages", nargs="*")
 
 
 async def _run(args: Sequence[str]) -> None:
@@ -36,7 +36,7 @@ def _requirements() -> list[tuple[str, str]]:
                 if i == -1:
                     continue
 
-                yield line[:i], line[line.index("==") + 2 :]
+                yield line[:i], line[line.index("==") + 2 : -1]
 
 
 def _list_packages() -> list[str]:
@@ -51,15 +51,15 @@ async def _main(packages: list[str]) -> None:
     if not packages:
         packages = _list_packages()
 
-    for package in sorted(set(packages)):
+    for package in packages:
         print(f"Attempting bump of {package}")
         await _run(["tox", "-e", "deps", "--", "--upgrade-package", package])
         proc = await asyncio.create_subprocess_exec("git", "diff", "--exit-code")
         await proc.wait()
         if proc.returncode == 0:
             continue
-        versions = _list_versions(package)
-        msg = f"{package} {' '.join(versions)}"
+        versions = _list_versions(package.lower())
+        msg = f"{package} {', '.join(versions)}"
         print(msg)
         await _run(["git", "commit", "-am", msg])
 

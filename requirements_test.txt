@@ -30,4 +30,6 @@ pytest-django==4.8.0
 pytest-twisted==1.14.2
     # via -r requirements_test.in
 tomli==2.0.1
-    # via pytest
+    # via
+    #   -c requirements.txt
+    #   pytest
