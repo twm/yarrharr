@@ -42,7 +42,7 @@ idna==3.7
     #   hyperlink
     #   requests
     #   twisted
-incremental==22.10.0
+incremental==24.7.2
     # via
     #   treq
     #   twisted
@@ -68,6 +68,8 @@ six==1.16.0
     #   html5lib
 sqlparse==0.4.4
     # via django
+tomli==2.0.1
+    # via incremental
 treq==23.11.0
     # via yarrharr (pyproject.toml)
 twisted[tls]==24.3.0
