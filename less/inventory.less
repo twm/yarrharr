@@ -106,7 +106,7 @@
         grid:
             "feed     unread edit" min-content
             "changed  fave   edit" min-content / 1fr min-content min-content;
-        padding: 0.75rem @text_padding;
+        padding: 0.75rem var(--text-padding);
 
         & > .col-feed { grid-area: feed; padding: 0 0.5rem 0 0; }
         & > .col-unread { grid-area: unread; padding: 0 0.5rem; text-align: right; }
@@ -230,7 +230,7 @@
         grid:
             "icon title unread edit" min-content
             "icon feeds fave   edit" min-content / min-content 1fr min-content min-content;
-        padding: 0.75rem @text_padding;
+        padding: 0.75rem var(--text-padding);
 
         & > td:nth-child(1) { grid-area: icon; padding: 0 0.5rem 0 0; }
         & > td:nth-child(2) { grid-area: title; }
@@ -278,7 +278,7 @@
     }
     input[type=submit] {
         flex: 1 1 0;
-        margin-left: @text_padding;
+        margin-left: var(--text-padding);
     }
 }
 

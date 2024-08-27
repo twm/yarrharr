@@ -17,7 +17,7 @@
 
     .outbound {
         .flat-button;
-        padding: ((2 * @button_border_width));
+        padding: calc(2 * var(--button-border-width));
         flex: 1 1 100%;
         width: 100%;
         display: grid;
@@ -61,7 +61,7 @@
 
     read-toggle,
     .view-link {
-        flex: 0 0 @bar_height;
+        flex: 0 0 var(--bar-height);
     }
     read-toggle {
         button {
@@ -79,7 +79,7 @@
     .outbound-icon,
     read-toggle button,
     .view-link {
-        font-size: @icon_size;
+        font-size: var(--icon-size);
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
