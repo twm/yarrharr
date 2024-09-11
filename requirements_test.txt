@@ -27,7 +27,7 @@ pytest==8.3.3
     #   pytest-twisted
 pytest-django==4.9.0
     # via -r requirements_test.in
-pytest-twisted==1.14.2
+pytest-twisted==1.14.3
     # via -r requirements_test.in
 tomli==2.0.1
     # via
