@@ -53,7 +53,7 @@ jobs:
     - name: apt install
       run: |
         sudo apt-get update
-        sudo apt-get install --no-install-suggests --no-install-recommends inkscape icoutils scour optipng node-less node-source-map
+        sudo apt-get install --no-install-suggests --no-install-recommends inkscape icoutils scour optipng
 
     - uses: actions/setup-python@v5.2.0
       with:
