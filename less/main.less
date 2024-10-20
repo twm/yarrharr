@@ -138,23 +138,19 @@ button:-moz-focusring,
  * Base form styles
  *
  */
-.form-item-layout() {
+label:not(.checkbox) {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--quiet-text-color);
+    padding: 0 0 var(--text-padding) 0;
+}
+
+label.checkbox {
     display: block;
     box-sizing: border-box;
     width: 100%;
     height: 2.5rem;
     padding: 0 var(--text-padding);
-    font: normal 0.9rem / 2.1rem sans-serif;
-}
-
-label:not(.checkbox) {
-    display: block;
-    font-size: 0.9rem;
-    color: var(--quiet-text-color);
-}
-
-label.checkbox {
-    .form-item-layout;
 
     input[type=checkbox] {
         display: inline-block;
@@ -166,7 +162,11 @@ input[type=password],
 input[type=url],
 input[type=email],
 select[multiple] {
-    .form-item-layout;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 var(--text-padding);
 
     color: var(--text-color);
     background: var(--background-color);
@@ -188,7 +188,11 @@ select[multiple] {
 }
 
 .text-button {
-    .form-item-layout;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 var(--text-padding);
     cursor: pointer;
     white-space: nowrap;
 
@@ -204,7 +208,11 @@ select[multiple] {
     border-radius: calc(1.5 * var(--text-padding));
     transition: border-color 0.05s;
 
-    text-shadow: var(--gradient-border-color) 0 0 .025rem; /* bump contrast */
+    /* bump contrast */
+    text-shadow: var(--gradient-border-color) 0 0 .1rem,
+        var(--gradient-border-color) -1px -1px .01rem,
+        var(--gradient-border-color) 1px 1px .01rem;
+
     box-shadow: inset var(--gradient-end) 0 0 .25rem;
     padding: 0 0.75rem;
 
