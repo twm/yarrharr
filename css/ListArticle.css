@@ -1,11 +1,8 @@
-@import "./include.less";
-
 .list-article {
     margin: 0.75rem 0;
 }
 
 .list-article-inner {
-    // max-width: var(--layout-max-width);
     margin: 0 auto;
     overflow: hidden;
 }
@@ -14,14 +11,14 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: stretch;
+    --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
     .outbound {
-        .flat-button;
-        padding: ((2 * @button_border_width));
+        padding: calc(2 * var(--button-border-width));
         flex: 1 1 100%;
         width: 100%;
         display: grid;
-        // XXX: Using grid here is starting to look a little silly.
+        /* XXX: Using grid here is starting to look a little silly. */
         grid-template-areas:
             "meta1"
             "meta2";
@@ -37,12 +34,10 @@
             color: var(--quiet-text-color);
             text-transform: uppercase;
             font-size: smaller;
-            // background: red;
         }
         .meta2 {
             grid-area: meta2;
             font-family: "Newsreader";
-            // background: blue;
         }
         .meta1,
         .meta2 {
@@ -61,25 +56,21 @@
 
     read-toggle,
     .view-link {
-        flex: 0 0 @bar_height;
+        flex: 0 0 var(--bar-height);
     }
     read-toggle {
         button {
-            .flat-button;
             width: 100%;
             height: 100%;
         }
-        // background: purple;
     }
     .view-link {
-        // background: magenta;
-        .flat-button;
     }
 
     .outbound-icon,
     read-toggle button,
     .view-link {
-        font-size: @icon_size;
+        font-size: var(--icon-size);
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
@@ -87,7 +78,6 @@
 
         .icon {
             flex: 0 0 auto;
-            // background: white;
             display: block;
             align-self: center;
             justify-self: center;

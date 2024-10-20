@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright © 2018, 2019, 2020, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2018, 2019, 2020, 2022, 2024 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,13 +49,16 @@ import hashlib
 import re
 import shlex
 from asyncio.subprocess import PIPE
-from dataclasses import dataclass
+from collections import deque
+from dataclasses import dataclass, field
 from pathlib import Path
 from shutil import rmtree
 from typing import Optional, Sequence
 
 import brotli
+import tinycss2
 import zopfli.gzip
+from tinycss2.ast import AtRule, ParseError
 
 repo_root = Path(__file__).parent.parent
 
@@ -244,39 +247,57 @@ async def process_svg(svg: Path, w: Writer) -> None:
     w.add_file_bytes(hashname(svg.stem, "svg", svg_bytes), svg_bytes)
 
 
-async def process_less(less: Path, build_dir: Path, w: Writer) -> None:
+async def process_css(css: Path, w: Writer) -> None:
     """
-    Convert .less to a CSS file and source map.
+    Process a stylesheet to inline stylesheets referenced via @include rules.
     """
-    css_path = build_dir / f"{less.stem}.css"
-    map_path = build_dir / f"{less.stem}.css.map"
-    await _run(
-        [
-            "/usr/bin/node",
-            "/usr/bin/lessc",
-            "--no-js",
-            "--strict-imports",
-            f"--source-map={map_path}",
-            str(less),
-            str(css_path),
-        ]
-    )
-    css = css_path.read_bytes()
-    css_name = hashname(less.stem, "css", css)
-    map_name = f"{css_name}.map"
+    combiner = CombinedCss(root_dir=css.parent)
+    combiner.include(css.name, "utf-8")
 
-    # We must change the source map reference on the last line when renaming
-    # the file.
-    last_line_index = css.rindex(b"\n") + 1
-    last_line = css[last_line_index:]
-    if not last_line.startswith(b"/*# sourceMappingURL="):
-        raise Exception("Expected sourceMappingURL comment at the end of {css_path}, but found {last_line!r}")
+    combined = combiner.serialize().encode("utf-8")
+    w.add_file_bytes(hashname(css.stem, "css", combined), combined)
 
-    # ❤ copies
-    css = css[:last_line_index] + f"/*# sourceMappingURL={map_name} */".encode()
 
-    w.add_file_bytes(css_name, css)
-    w.add_file(map_name, map_path)
+@dataclass
+class CombinedCss:
+    root_dir: Path
+    _included: set[str] = field(default_factory=set, init=False)
+    _rules: list[object] = field(default_factory=list, init=False)
+
+    def include(self, path: str, protocol_encoding=None, environment_encoding=None) -> None:
+        if path in self._included:
+            # print(f"Skipping duplicate @import {path!r}")
+            return
+        else:
+            # TODO: Should normalize the path to avoid dupe includes
+            # TODO: Should verify the path is within root_dir
+            # print(f"Including rules from @import {path!r}")
+            self._included.add(path)
+
+        with (self.root_dir / path).open("rb") as f:
+            rules, encoding = tinycss2.parse_stylesheet_bytes(
+                f.read(),
+                protocol_encoding,
+                environment_encoding,
+            )
+
+        for rule in rules:
+            if rule.type == "at-rule" and rule.lower_at_keyword == "import":
+                # We only support the form `@import "./foo". The full syntax is quite complex:
+                # https://developer.mozilla.org/en-US/docs/Web/CSS/@import
+                [ws, urlish] = rule.prelude
+                assert ws.type == "whitespace"
+                assert urlish.type == "string"
+                self.include(urlish.value)
+            elif rule.type == "parse-error":
+                # Note that very little counts as a parse error in CSS, so
+                # this is not a useful diagnostic tool.
+                raise ValueError(f"Parse error in {path}: {rule.message}")
+            else:
+                self._rules.append(rule)
+
+    def serialize(self):
+        return tinycss2.serialize(self._rules)
 
 
 async def process_glob(paths: Path, w: Writer) -> None:
@@ -347,7 +368,7 @@ async def _main(build_dir: Path, out_dir: Path, compress: bool) -> None:
         process_svg(repo_root / "img" / "lettertype.svg", w),
         process_svg(repo_root / "img" / "logotype.svg", w),
         process_glob((repo_root / "vendor" / "normalize.css").glob("normalize-*.css"), w),
-        process_less(repo_root / "less" / "main.less", build_dir, w),
+        process_css(repo_root / "css" / "main.css", w),
         process_fonts(repo_root, w),
     )
     print(w.summarize())

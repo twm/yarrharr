@@ -1,5 +1,3 @@
-@import "./include.less";
-
 .inventory-centered {
     max-width: var(--layout-max-width);
     margin: 0 auto;
@@ -42,7 +40,7 @@
         align-content: center;
         a {
             display: block;
-            padding: 0.25rem; // increase clickable area
+            padding: 0.25rem; /* increase clickable area */
         }
         svg {
             display: block;
@@ -52,7 +50,7 @@
     }
 }
 
-// On wide displays, show a table with scannable columns.
+/* On wide displays, show a table with scannable columns. */
 @media screen and (min-width: 32rem) {
     .feed-list {
         display: grid;
@@ -83,7 +81,7 @@
         font-size: smaller;
     }
 
-    // Zebra stripes. Have to handle the header specially.
+    /* Zebra stripes. Have to handle the header specially. */
     .feed-list-item-header > th {
         font: inherit;
         background: var(--footer-background-color);
@@ -94,7 +92,7 @@
     }
 }
 
-// On narrow displays display a fatter row suitable for touchscreens.
+/* On narrow displays display a fatter row suitable for touchscreens. */
 @media screen and (max-width: 32rem) {
     .feed-list {
         display: grid;
@@ -106,7 +104,7 @@
         grid:
             "feed     unread edit" min-content
             "changed  fave   edit" min-content / 1fr min-content min-content;
-        padding: 0.75rem @text_padding;
+        padding: 0.75rem var(--text-padding);
 
         & > .col-feed { grid-area: feed; padding: 0 0.5rem 0 0; }
         & > .col-unread { grid-area: unread; padding: 0 0.5rem; text-align: right; }
@@ -119,26 +117,26 @@
         & > .col-edit { grid-area: edit; padding: 0 0 0 0.5rem; }
     }
 
-    // Hide the header, as we have duplicated its function inline.
+    /* Hide the header, as we have duplicated its function inline. */
     .feed-list-item-header {
         display: none;
     }
 
-    // Zebra stripes
+    /* Zebra stripes */
     .feed-list-item:nth-child(odd) {
         background: var(--footer-background-color);
     }
 }
 
 .label-list-item {
-    // & > :nth-child(1) { background: hsla(160, 60%, 50%, 0.5); }
-    // & > :nth-child(2) { background: hsla(120, 60%, 50%, 0.5); }
-    // & > :nth-child(3) { background: hsla(060, 60%, 50%, 0.5); }
-    // & > :nth-child(4) { background: hsla(190, 60%, 50%, 0.5); }
-    // & > :nth-child(5) { background: hsla(000, 60%, 50%, 0.5); }
-    // & > :nth-child(6) { background: hsla(040, 60%, 50%, 0.5); }
+    /*& > :nth-child(1) { background: hsla(160, 60%, 50%, 0.5); }*/
+    /*& > :nth-child(2) { background: hsla(120, 60%, 50%, 0.5); }*/
+    /*& > :nth-child(3) { background: hsla(060, 60%, 50%, 0.5); }*/
+    /*& > :nth-child(4) { background: hsla(190, 60%, 50%, 0.5); }*/
+    /*& > :nth-child(5) { background: hsla(000, 60%, 50%, 0.5); }*/
+    /*& > :nth-child(6) { background: hsla(040, 60%, 50%, 0.5); }*/
 
-    // Icon
+    /* Icon */
     & > :nth-child(1) {
         display: flex;
         align-items: center;
@@ -148,26 +146,26 @@
         }
     }
 
-    // Label name
+    /* Label name */
     & > :nth-child(2) {
     }
 
-    // Feed count
+    /* Feed count */
     & > :nth-child(3) {
     }
 
-    // Unread count
+    /* Unread count */
     & > :nth-child(4) {
     }
 
-    // Fave count
+    /* Fave count */
     & > :nth-child(5) {
     }
-    // Edit button
+    /* Edit button */
     & > :nth-child(6) {
         a {
             display: block;
-            padding: 0.25rem; // increase clickable area
+            padding: 0.25rem; /* increase clickable area */
         }
         svg {
             display: block;
@@ -177,7 +175,7 @@
     }
 }
 
-// On wide displays, show a table with scannable columns.
+/* On wide displays, show a table with scannable columns. */
 @media screen and (min-width: 32rem) {
     .label-list {
         display: grid;
@@ -207,7 +205,7 @@
         font-size: smaller;
     }
 
-    // Zebra stripes. Have to handle the header specially.
+    /* Zebra stripes. Have to handle the header specially. */
     .label-list-item-header > th {
         font-weight: normal;
         background: var(--footer-background-color);
@@ -218,7 +216,7 @@
     }
 }
 
-// On narrow displays display a fatter row suitable for touchscreens.
+/* On narrow displays display a fatter row suitable for touchscreens. */
 @media screen and (max-width: 32rem) {
     .label-list {
         display: grid;
@@ -230,7 +228,7 @@
         grid:
             "icon title unread edit" min-content
             "icon feeds fave   edit" min-content / min-content 1fr min-content min-content;
-        padding: 0.75rem @text_padding;
+        padding: 0.75rem var(--text-padding);
 
         & > td:nth-child(1) { grid-area: icon; padding: 0 0.5rem 0 0; }
         & > td:nth-child(2) { grid-area: title; }
@@ -243,12 +241,12 @@
         & > td:nth-child(6) { grid-area: edit; padding: 0 0 0 0.5rem; }
     }
 
-    // Hide the header, as we have duplicated its function inline.
+    /* Hide the header, as we have duplicated its function inline. */
     .label-list-item-header {
         display: none;
     }
 
-    // Zebra stripes
+    /* Zebra stripes */
     .label-list-item:nth-child(odd) {
         background: var(--footer-background-color);
     }
@@ -278,7 +276,7 @@
     }
     input[type=submit] {
         flex: 1 1 0;
-        margin-left: @text_padding;
+        margin-left: var(--text-padding);
     }
 }
 

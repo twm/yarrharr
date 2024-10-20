@@ -1,6 +1,3 @@
-@import "./include.less";
-
-
 .article-header {
     display: grid;
     grid-template-columns: 1fr min-content;
@@ -17,6 +14,7 @@
     .tools {
         display: flex;
         flex-flow: row nowrap;
+        --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
         .icon {
             width: 2em;

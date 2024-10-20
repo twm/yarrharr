@@ -1,10 +1,8 @@
 /**
  * Global base styles for the Yarrharr UI.
  */
-@import "./include.less";
-
 :root {
-    // Column width whenever a narrow layout is desired.
+    /* Column width whenever a narrow layout is desired. */
     --layout-max-width: 50rem;
 
     --background-color: white;
@@ -21,11 +19,27 @@
 
     --heart-color: #c92ccc;
     --check-color: #39cc5c;
-    --focus-color: #0098ff;
     --selected-color: hsl(24.1, 100%, 49.2%);
 
     --font-wdth-mono: 100;
     --font-weight-mono: 400;
+
+    /* By default, the focus ring is offset so it doesn't bump against text ("out").
+     In packed UI contexts, it is inset relative to layout ("in"). */
+    --focus-color: #0098ff;
+    --focus-offset-out: 2px;
+    --focus-offset-in: -2px;
+    --focus-offset: var(--focus-offset-out);
+
+    /* There is always this much padding between text and the edge of stuff. */
+    --text-padding: 0.25rem;
+
+    /* Buttons have thick borders, also used to indicate focus. */
+    --button-border-width: 2px;
+
+    --icon-size: 2.0rem;
+    --bar-line-height: 1.25rem;
+    --bar-height: calc(2 * var(--bar-line-height) + 2 * var(--text-padding) + 2 * var(--button-border-width));
 }
 
 @media screen and (prefers-color-scheme: dark) {
@@ -40,8 +54,9 @@
         --icon-color: #eee;
         --icon-color-off: #666;
 
-        // Invert the logo image so that it is legible in the dark theme. We
-        // don't go 100% because it is pretty bold.
+        /* Invert the logo image so that it is legible in the dark theme. We
+         * don't go 100% because it is pretty bold.
+         */
         --logo-filter: invert(90%);
 
         --font-weight-mono: 300;
@@ -88,7 +103,7 @@ a:visited {
     color: var(--text-color);
 }
 a:active {
-    --underline-color: rgb(185, 28, 199); // TODO Make this more vibrant
+    --underline-color: rgb(185, 28, 199); /* TODO Make this more vibrant */
 }
 a:link[aria-disabled=true],
 a:visited[aria-disabled=true] {
@@ -106,31 +121,37 @@ h1 {
     hyphens: auto;
 }
 
+/* Default focus styles.  */
 :focus-visible {
     outline: 2px solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+}
+/* Same as above, but with higher precedence to address a specificity conflict with normalize.css. */
+button:-moz-focusring,
+[type="button"]:-moz-focusring,
+[type="reset"]:-moz-focusring,
+[type="submit"]:-moz-focusring {
+  outline: 2px solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /**
  * Base form styles
  *
  */
-.form-item-layout() {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    height: 2.5rem;
-    padding: 0 @text_padding;
-    font: normal 0.9rem / 2.1rem sans-serif;
-}
-
 label:not(.checkbox) {
     display: block;
     font-size: 0.9rem;
     color: var(--quiet-text-color);
+    padding: 0 0 var(--text-padding) 0;
 }
 
 label.checkbox {
-    .form-item-layout;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 var(--text-padding);
 
     input[type=checkbox] {
         display: inline-block;
@@ -142,11 +163,15 @@ input[type=password],
 input[type=url],
 input[type=email],
 select[multiple] {
-    .form-item-layout;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 var(--text-padding);
 
     color: var(--text-color);
     background: var(--background-color);
-    border: @button_border_width solid var(--border-color);
+    border: var(--button-border-width) solid var(--border-color);
     transition: border-color 0.05s;
 
     &:focus {
@@ -164,7 +189,11 @@ select[multiple] {
 }
 
 .text-button {
-    .form-item-layout;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 var(--text-padding);
     cursor: pointer;
     white-space: nowrap;
 
@@ -176,11 +205,15 @@ select[multiple] {
 
     color: var(--text-color);
     background: linear-gradient(to bottom, var(--gradient-start) 0%, var(--gradient-mid) 28%, var(--gradient-end) 100%);
-    border: @button_border_width solid var(--gradient-border-color);
-    border-radius: (1.5 * @text_padding);
+    border: var(--button-border-width) solid var(--gradient-border-color);
+    border-radius: calc(1.5 * var(--text-padding));
     transition: border-color 0.05s;
 
-    text-shadow: var(--gradient-border-color) 0 0 .025rem; /* bump contrast */
+    /* bump contrast */
+    text-shadow: var(--gradient-border-color) 0 0 .1rem,
+        var(--gradient-border-color) -1px -1px .01rem,
+        var(--gradient-border-color) 1px 1px .01rem;
+
     box-shadow: inset var(--gradient-end) 0 0 .25rem;
     padding: 0 0.75rem;
 
@@ -236,15 +269,18 @@ select[multiple] {
 .bar {
     display: flex;
     justify-content: space-between;
-    height: @bar_height;
+    height: var(--bar-height);
     max-width: var(--layout-max-width);
     margin: 0 auto;
-    line-height: @bar_line_height;
+    line-height: var(--bar-line-height);
     contain: size layout;
+
+    --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
     & > a[href],
     & > button {
-        .flat-button;
+        background: transparent;
+        border: none;
     }
 
     & > * {
@@ -256,27 +292,11 @@ select[multiple] {
 
     & > * > .icon {
         display: block;
-        font-size: @icon_size;
+        font-size: var(--icon-size);
     }
 
-    & > .square,
-    & > .expand > .square {
-        flex: 0 0 @bar_height;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    & > .expand {
-        flex: 1 1 0;
-        min-width: @bar_height; /* allow shrinking below content size */
-    }
-
-    & > .header {
-        justify-content: start;
-        white-space: nowrap;
-        text-overflow: ellipsis; // TODO: get ellipsis working here.
-        overflow: hidden;
+    & > .square {
+        flex: 0 0 var(--bar-height);
     }
 }
 
@@ -340,11 +360,11 @@ form.small-form {
     color: var(--footer-text-color);
 }
 
-@import "./Article.less";
-@import "./GlobalBar.less";
-@import "./icons.less";
-@import "./ListArticle.less";
-@import "./StateToggle.less";
-@import "./Tabs.less";
-@import "./FeedView.less";
-@import "./inventory.less";
+@import "./Article.css";
+@import "./GlobalBar.css";
+@import "./icons.css";
+@import "./ListArticle.css";
+@import "./StateToggle.css";
+@import "./Tabs.css";
+@import "./FeedView.css";
+@import "./inventory.css";
