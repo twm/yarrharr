@@ -1,9 +1,7 @@
 fave-toggle {
     button {
-        box-sizing: border-box;
         background: transparent;
         border: none;
-        padding: 1px 4px;
     }
 
     .inactive {
@@ -24,10 +22,8 @@ fave-toggle {
 
 read-toggle {
     button {
-        box-sizing: border-box;
         background: transparent;
         border: none;
-        padding: 1px 4px;
     }
 
     .inactive {
