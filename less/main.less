@@ -1,8 +1,6 @@
 /**
  * Global base styles for the Yarrharr UI.
  */
-@import "./include.less";
-
 :root {
     /* Column width whenever a narrow layout is desired. */
     --layout-max-width: 50rem;
@@ -21,11 +19,17 @@
 
     --heart-color: #c92ccc;
     --check-color: #39cc5c;
-    --focus-color: #0098ff;
     --selected-color: hsl(24.1, 100%, 49.2%);
 
     --font-wdth-mono: 100;
     --font-weight-mono: 400;
+
+    /* By default, the focus ring is offset so it doesn't bump against text ("out").
+     In packed UI contexts, it is inset relative to layout ("in"). */
+    --focus-color: #0098ff;
+    --focus-offset-out: 2px;
+    --focus-offset-in: -2px;
+    --focus-offset: var(--focus-offset-out);
 
     /* There is always this much padding between text and the edge of stuff. */
     --text-padding: 0.25rem;
@@ -116,8 +120,18 @@ h1 {
     hyphens: auto;
 }
 
+/* Default focus styles.  */
 :focus-visible {
     outline: 2px solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+}
+/* Same as above, but with higher precedence to address a specificity conflict with normalize.css. */
+button:-moz-focusring,
+[type="button"]:-moz-focusring,
+[type="reset"]:-moz-focusring,
+[type="submit"]:-moz-focusring {
+  outline: 2px solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /**
@@ -252,9 +266,12 @@ select[multiple] {
     line-height: var(--bar-line-height);
     contain: size layout;
 
+    --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
+
     & > a[href],
     & > button {
-        .flat-button;
+        background: transparent;
+        border: none;
     }
 
     & > * {
@@ -269,24 +286,8 @@ select[multiple] {
         font-size: var(--icon-size);
     }
 
-    & > .square,
-    & > .expand > .square {
+    & > .square {
         flex: 0 0 var(--bar-height);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    & > .expand {
-        flex: 1 1 0;
-        min-width: var(--bar-height); /* allow shrinking below content size */
-    }
-
-    & > .header {
-        justify-content: start;
-        white-space: nowrap;
-        text-overflow: ellipsis; /* TODO: get ellipsis working here. */
-        overflow: hidden;
     }
 }
 
