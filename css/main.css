@@ -359,11 +359,11 @@ form.small-form {
     color: var(--footer-text-color);
 }
 
-@import "./Article.less";
-@import "./GlobalBar.less";
-@import "./icons.less";
-@import "./ListArticle.less";
-@import "./StateToggle.less";
-@import "./Tabs.less";
-@import "./FeedView.less";
-@import "./inventory.less";
+@import "./Article.css";
+@import "./GlobalBar.css";
+@import "./icons.css";
+@import "./ListArticle.css";
+@import "./StateToggle.css";
+@import "./Tabs.css";
+@import "./FeedView.css";
+@import "./inventory.css";
