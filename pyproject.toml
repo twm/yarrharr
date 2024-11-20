@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools >= 67.7.2", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 dynamic = ["version"]
@@ -39,15 +39,16 @@ homepage = "https://github.com/twm/yarrharr"
 yarrharr = "yarrharr.scripts.yarrharr:main"
 yarrharr-fetch = "yarrharr.scripts.fetch:main"
 
-[tool.setuptools]
-include-package-data = true
+[tool.hatch.build.targets.sdist]
+packages = ["yarrharr"]
+artifacts = ["/yarrharr/static"]
 
-[tool.setuptools.dynamic]
-version = {attr = "yarrharr.__version__"}
+[tool.hatch.build.targets.wheel]
+packages = ["yarrharr"]
+artifacts = ["/yarrharr/static"]
 
-[tool.setuptools.packages.find]
-include = ["yarrharr", "yarrharr/*"]
-namespaces = false
+[tool.hatch.version]
+path = "yarrharr/__init__.py"
 
 [tool.ruff]
 line-length = 150
