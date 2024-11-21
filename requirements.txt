@@ -75,7 +75,6 @@ treq==24.9.1
 twisted[tls]==24.7.0
     # via
     #   treq
-    #   twisted
     #   yarrharr (pyproject.toml)
 typing-extensions==4.7.1
     # via
