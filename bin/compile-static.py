@@ -49,7 +49,6 @@ import hashlib
 import re
 import shlex
 from asyncio.subprocess import PIPE
-from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
 from shutil import rmtree
@@ -58,7 +57,6 @@ from typing import Optional, Sequence
 import brotli
 import tinycss2
 import zopfli.gzip
-from tinycss2.ast import AtRule, ParseError
 
 repo_root = Path(__file__).parent.parent
 
