@@ -23,6 +23,8 @@
 # such a combination shall include the source code for the parts of
 # OpenSSL used as well as that of the covered work.
 
+from importlib.metadata import version
+
 __author__ = "Tom Most"
 __author_email__ = "twm@freecog.net"
-__version__ = "2024.11.0"
+__version__ = version("yarrharr")
