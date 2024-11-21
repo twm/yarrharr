@@ -9,14 +9,7 @@ _static:
     tox -e static
 
 release: _static
-    #!/usr/bin/env bash
-    set -exu -o pipefail
-    git diff --quiet HEAD || exit 1
-    tox -e release --notest
-    version=$(grep -oP '(?<=__version__ = ")([^"]+)(?=")' yarrharr/__init__.py)
-    .tox/release/bin/python -m build
-    .tox/release/bin/python -m twine check "dist/yarrharr-${version}.tar.gz" "dist/yarrharr-${version}-py3-none-any.whl"
-    git tag "v${version}"
+    bin/release.sh
 
 devserver: _static
     tox -e run -- django-admin migrate
