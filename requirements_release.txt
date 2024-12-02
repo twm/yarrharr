@@ -40,7 +40,9 @@ mdurl==0.1.2
 more-itertools==10.0.0
     # via jaraco-classes
 packaging==23.1
-    # via build
+    # via
+    #   build
+    #   twine
 pkginfo==1.9.6
     # via twine
 pycparser==2.21
@@ -71,7 +73,7 @@ tomli==2.0.1
     # via
     #   build
     #   pyproject-hooks
-twine==5.1.1
+twine==6.0.1
     # via -r requirements_release.in
 urllib3==2.2.2
     # via
