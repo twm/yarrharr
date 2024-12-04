@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: ["trunk"]
+    tags: ["v*"]
   pull_request:
     branches: ["trunk"]
 
@@ -24,6 +25,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - uses: actions/setup-python@v5.3.0
       with:
@@ -46,12 +49,12 @@ jobs:
     - run: "python -m tox"
 
   build:
-    name: "build dist"
-
     runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - name: apt install
       run: |
@@ -78,3 +81,34 @@ jobs:
         name: dist
         path: dist/*.*
         if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build]
+
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    steps:
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - run: |
+        set -eux
+        tag="${TAG_REF##*/}"
+        version=${tag#v}
+        gh release create "$tag" \
+            --repo twm/yarrharr \
+            --verify-tag \
+            --title "Yarrharr $version" \
+            --generate-notes \
+            "dist/yarrharr-${version}.tar.gz" \
+            "dist/yarrharr-${version}"*.whl
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG_REF: ${{ github.ref }}
