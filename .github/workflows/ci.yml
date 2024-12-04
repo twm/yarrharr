@@ -3,8 +3,12 @@ name: CI
 on:
   push:
     branches: ["trunk"]
+    tags: ["v*"]
   pull_request:
     branches: ["trunk"]
+
+permissions:
+  contents: read
 
 jobs:
   tox:
@@ -21,6 +25,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - uses: actions/setup-python@v5.3.0
       with:
@@ -32,8 +38,8 @@ jobs:
 
     - run: "python -m pip install tox"
 
-      # Temporary hack: create files normally created by Webpack that are
-      # expected to exist by the manifest.json view test.
+      # Temporary hack: create files normally created by bin/compile-static.py
+      # that are expected to exist by the manifest.json view test.
     - run: |
         mkdir yarrharr/static
         touch yarrharr/static/{icon,logotype,lettertype}-xyz.{ico,png,svg}
@@ -42,13 +48,13 @@ jobs:
 
     - run: "python -m tox"
 
-  webpack:
-    name: "tox -e static"
-
+  build:
     runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - name: apt install
       run: |
@@ -67,3 +73,42 @@ jobs:
     - run: "python -m tox -e static --notest"
 
     - run: "tox -e static"
+
+    - run: "bin/release.sh"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/*.*
+        if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build]
+
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    steps:
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - run: |
+        set -eux
+        tag="${TAG_REF##*/}"
+        version=${tag#v}
+        gh release create "$tag" \
+            --repo twm/yarrharr \
+            --verify-tag \
+            --title "Yarrharr $version" \
+            --generate-notes \
+            "dist/yarrharr-${version}.tar.gz" \
+            "dist/yarrharr-${version}"*.whl
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG_REF: ${{ github.ref }}
