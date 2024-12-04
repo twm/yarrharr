@@ -136,7 +136,7 @@ tomlkit==0.13.2
     # via hatch
 trove-classifiers==2024.10.21.16
     # via hatchling
-twine==5.1.1
+twine==6.0.1
     # via -r requirements_release.in
 typing-extensions==4.12.2
     # via anyio
