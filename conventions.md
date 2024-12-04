@@ -25,8 +25,7 @@ The following are okay to use:
 * Flexbox (`display: flex`, `flex-*` properties)
 * Grid layout (`display: grid`, `grid-*` properties, `fr` unit, `display: content`)
 * Variables a.k.a. custom properties (`--foo: 1rem`, `font-size: var(--foo)`)
-
-Use of [CSS containment](https://www.w3.org/TR/css-contain-1/) may speed up layout in long lists, but be sure to test in Chrome as [it is the only browser with support at the time of this writing](https://caniuse.com/#feat=css-containment).
+* [CSS containment](https://www.w3.org/TR/css-contain-1/) and [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries)
 
 ## Units
 
