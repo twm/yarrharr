@@ -49,7 +49,6 @@ import hashlib
 import re
 import shlex
 from asyncio.subprocess import PIPE
-from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
 from shutil import rmtree
@@ -58,7 +57,6 @@ from typing import Optional, Sequence
 import brotli
 import tinycss2
 import zopfli.gzip
-from tinycss2.ast import AtRule, ParseError
 
 repo_root = Path(__file__).parent.parent
 
@@ -128,6 +126,7 @@ class Writer:
             "ORIGINAL   ZOPFLI    (.gz)  BROTLI   (.br)  FILE",
             "---------  ---------------  --------------  ------------------------------------------",
         ]
+        base_sum = gz_sum = br_sum = 0
 
         def pct(size, total) -> str:
             if size is None:
@@ -141,6 +140,9 @@ class Writer:
             return f"{left:>9} {right:>5}"
 
         for r in self._written:
+            base_sum += r.base_size
+            gz_sum += r.base_size if r.gz_size is None else r.gz_size
+            br_sum += r.base_size if r.gz_size is None else r.br_size
             lines.append(
                 " ".join(
                     [
@@ -152,6 +154,17 @@ class Writer:
                 )
             )
 
+        lines.append(lines[1])
+        lines.append(
+            " ".join(
+                [
+                    f"{base_sum:>9,d} ",
+                    pct(gz_sum, base_sum),
+                    pct(br_sum, base_sum),
+                    " TOTAL",
+                ]
+            )
+        )
         return "\n".join(lines)
 
 
