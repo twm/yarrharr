@@ -29,17 +29,15 @@ distlib==0.3.9
     # via virtualenv
 docutils==0.20.1
     # via readme-renderer
-editables==0.5
-    # via hatchling
 exceptiongroup==1.2.2
     # via anyio
 filelock==3.16.1
     # via virtualenv
 h11==0.14.0
     # via httpcore
-hatch==1.9.7
+hatch==1.13.0
     # via -r requirements_release.in
-hatchling==1.21.1
+hatchling==1.26.3
     # via hatch
 httpcore==1.0.7
     # via httpx
@@ -74,11 +72,12 @@ mdurl==0.1.2
     # via markdown-it-py
 more-itertools==10.0.0
     # via jaraco-classes
-packaging==23.1
+packaging==24.2
     # via
     #   build
     #   hatch
     #   hatchling
+    #   twine
 pathspec==0.12.1
     # via hatchling
 pexpect==4.9.0
@@ -146,7 +145,9 @@ urllib3==2.2.2
     #   twine
 userpath==1.9.2
     # via hatch
-virtualenv==20.25.3
+uv==0.5.6
+    # via hatch
+virtualenv==20.28.0
     # via hatch
 webencodings==0.5.1
     # via bleach
