@@ -69,8 +69,8 @@ Yarrharr is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 
 ## Releasing Yarrharr
 
- 1. Bump the version number in ``yarrharr/__init__.py``.
- 2. Build and tag the release: ``just release``
+ 1. Set the version: ``incremental update yarrharr --newversion YYYY.MM.PP``
+ 2. Tag the release: ``just release``
 
 ## License
 
