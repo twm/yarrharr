@@ -8,8 +8,16 @@ default:
 _static:
     tox -e static
 
-release: _static
-    bin/release.sh
+# Tag a release and trigger the GHA release workflow
+release:
+    set -exu -o pipefail
+    git diff --quiet HEAD || exit 1
+    [[ $(git rev-parse --abbrev-ref HEAD) == trunk ]]
+    version=$(.tox/release/bin/hatch version)
+    tag="v${version}"
+    git tag "$tag"
+    git push origin "$tag"
+    git push origin trunk
 
 devserver: _static
     tox -e run -- django-admin migrate
