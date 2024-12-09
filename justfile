@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2022, 2023 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2022, 2023, 2024 Tom Most <twm@freecog.net>; GPLv3+
 
 set shell := ["bash", "-euc"]
 
@@ -10,9 +10,19 @@ _static:
 
 # Tag a release and trigger the GHA release workflow
 release:
+    #!/bin/bash
     set -exu -o pipefail
-    git diff --quiet HEAD || exit 1
-    [[ $(git rev-parse --abbrev-ref HEAD) == trunk ]]
+    if [[ $(git rev-parse --abbrev-ref HEAD) != trunk ]]
+    then
+        echo "ERROR: Must be on trunk branch"
+        exit 1
+    fi
+    if ! git diff --quiet HEAD
+    then
+        echo "ERROR: Dirty working copy"
+        exit 1
+    fi
+    tox -e release --notest --recreate
     version=$(.tox/release/bin/hatch version)
     tag="v${version}"
     git tag "$tag"
