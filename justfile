@@ -29,6 +29,33 @@ release:
     git push origin "$tag"
     git push origin trunk
 
+iterstatic:
+    #!/bin/bash
+    tox -e static --notest
+    exec watchexec \
+        --watch css \
+        --watch img \
+        --watch vendor \
+        --watch bin \
+        --on-busy-update=queue \
+        --shell=none \
+        -- \
+        .tox/static/bin/python bin/compile-static.py --no-compress
+
+itertests +args='yarrharr':
+    #!/bin/bash
+    tox -e test --develop --notest
+    export YARRHARR_CONF=./yarrharr/tests/dev.ini
+    export YARRHARR_TESTING=yes
+    export DJANGO_SETTINGS_MODULE=yarrharr.settings
+    export PYTHONDONTWRITEBYTECODE=yes
+    exec watchexec \
+        --watch yarrharr \
+        --on-busy-update=queue \
+        --shell=none \
+        -- \
+        .tox/test/bin/pytest -vvv ./yarrharr "$@"
+
 devserver: _static
     tox -e run -- django-admin migrate
     tox -e run -- django-admin updatehtml
