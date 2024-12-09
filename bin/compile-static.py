@@ -391,8 +391,6 @@ async def _main(build_dir: Path, out_dir: Path, compress: bool) -> None:
     await asyncio.gather(
         process_svg(icon, w),
         rasterize_favicon(icon, build_dir, w),
-        process_svg(repo_root / "img" / "lettertype.svg", w),
-        process_svg(repo_root / "img" / "logotype.svg", w),
         process_glob((repo_root / "vendor" / "normalize.css").glob("normalize-*.css"), w),
         process_css(repo_root / "css" / "main.css", w),
         process_fonts(repo_root, w),
