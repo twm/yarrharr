@@ -337,6 +337,11 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
     ic_var_name = hashname("inconsolata", "ttf", ic_var)
     w.add_file_bytes(ic_var_name, ic_var)
 
+    montez_base = root_dir / "vendor" / "montez"
+    montez = (montez_base / "Montez-Regular.ttf").read_bytes()
+    montez_name = hashname("montez", "ttf", montez)
+    w.add_file_bytes(montez_name, montez)
+
     css = (
         f"""\
 @font-face {{
@@ -361,6 +366,14 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
   font-style: normal;
   font-stretch: normal;
   src: url('{ic_var_name}');
+}}
+
+@font-face {{
+  font-family: 'Montez';
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+  src: url('{montez_name}');
 }}
 """
     ).encode()
