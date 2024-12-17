@@ -54,12 +54,32 @@
 }
 
 .global-link {
-    flex: 0 1 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
     padding: 1rem; /* Ensure spacing between */
     font-variant: small-caps;
     font-variation-settings: "opsz" 25;
+
+    .icon {
+        --icon-color: var(--selected-color);
+    }
+
+    span {
+        padding: 0 0 0 0.25rem;
+    }
+
+    @media (max-width: 30rem) {
+        display: flex;
+        padding: 0.25rem;
+        flex-flow: column nowrap;
+        align-items: center;
+
+        &.secondary {
+            display: none;
+        }
+
+        span {
+            padding: 0.25rem 0 0 0;
+            font-size: smaller;
+        }
+    }
 }
