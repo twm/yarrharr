@@ -7,7 +7,7 @@
 
     --background-color: white;
     --text-color: black;
-    --quiet-text-color: lighten(black, 40%);
+    --quiet-text-color: #2f2f2f;
     --footer-background-color: #fafafa;
     --foter-text-color: #141414;
 
@@ -44,7 +44,7 @@
     :root {
         --background-color: black;
         --text-color: white;
-        --quiet-text-color: darken(white, 40%);
+        --quiet-text-color: #cecece;
         --footer-background-color: #111;
         --footer-text-color: #eee;
 
