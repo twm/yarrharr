@@ -37,7 +37,7 @@ h11==0.14.0
     # via httpcore
 hatch==1.13.0
     # via -r requirements_release.in
-hatchling==1.26.3
+hatchling==1.27.0
     # via hatch
 httpcore==1.0.7
     # via httpx
