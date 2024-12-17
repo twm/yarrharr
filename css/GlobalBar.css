@@ -1,7 +1,39 @@
-.yarrharr-masthead {
+#global-nav {
+    display: flex;
+    justify-content: space-between;
+    background: var(--footer-background-color);
+
+    --focus-offset: calc(2 * var(--focus-offset-in)); /* Don't clip focus ring. */
+
+    & > a[href],
+    & > button {
+        background: transparent;
+        border: none;
+    }
+
+    & > * {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    & > * > .icon {
+        display: block;
+        font-size: var(--icon-size);
+    }
+
+    & > .square {
+        flex: 0 0 var(--bar-height);
+    }
+}
+
+
+#masthead {
     display: flex;
     flex: 0 0 auto;
     font: 1.5rem Montez, sans-serif;
+    padding: 0 0.5rem;
 
     &:link {
         text-decoration: none;
@@ -20,6 +52,7 @@
     flex: 1 1 100%;
     display: flex;
 }
+
 .global-link {
     flex: 0 1 auto;
     display: flex;
@@ -27,4 +60,6 @@
     justify-content: center;
     --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
     padding: 1rem; /* Ensure spacing between */
+    font-variant: small-caps;
+    font-variation-settings: "opsz" 25;
 }

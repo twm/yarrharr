@@ -256,40 +256,6 @@ select[multiple] {
     }
 }
 
-.bar {
-    display: flex;
-    justify-content: space-between;
-    height: var(--bar-height);
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
-    line-height: var(--bar-line-height);
-    contain: size layout;
-
-    --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
-
-    & > a[href],
-    & > button {
-        background: transparent;
-        border: none;
-    }
-
-    & > * {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-    }
-
-    & > * > .icon {
-        display: block;
-        font-size: var(--icon-size);
-    }
-
-    & > .square {
-        flex: 0 0 var(--bar-height);
-    }
-}
-
 /* Mostly used for the login page. */
 form.small-form {
     display: block;
