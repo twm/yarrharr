@@ -8,7 +8,7 @@ anyio==4.6.2.post1
     # via httpx
 bleach==6.0.0
     # via readme-renderer
-build==1.2.1
+build==1.2.2.post1
     # via -r requirements_release.in
 certifi==2024.8.30
     # via
@@ -35,9 +35,9 @@ filelock==3.16.1
     # via virtualenv
 h11==0.14.0
     # via httpcore
-hatch==1.13.0
+hatch==1.14.0
     # via -r requirements_release.in
-hatchling==1.26.3
+hatchling==1.27.0
     # via hatch
 httpcore==1.0.7
     # via httpx
@@ -82,7 +82,7 @@ pathspec==0.12.1
     # via hatchling
 pexpect==4.9.0
     # via hatch
-pkginfo==1.10.0
+pkginfo==1.12.0
     # via twine
 platformdirs==4.3.6
     # via
