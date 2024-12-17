@@ -337,6 +337,11 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
     ic_var_name = hashname("inconsolata", "ttf", ic_var)
     w.add_file_bytes(ic_var_name, ic_var)
 
+    montez_base = root_dir / "vendor" / "montez"
+    montez = (montez_base / "Montez-Regular.ttf").read_bytes()
+    montez_name = hashname("montez", "ttf", montez)
+    w.add_file_bytes(montez_name, montez)
+
     css = (
         f"""\
 @font-face {{
@@ -362,6 +367,14 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
   font-stretch: normal;
   src: url('{ic_var_name}');
 }}
+
+@font-face {{
+  font-family: 'Montez';
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+  src: url('{montez_name}');
+}}
 """
     ).encode()
     w.add_file_bytes(hashname("fonts", "css", css), css)
@@ -378,8 +391,6 @@ async def _main(build_dir: Path, out_dir: Path, compress: bool) -> None:
     await asyncio.gather(
         process_svg(icon, w),
         rasterize_favicon(icon, build_dir, w),
-        process_svg(repo_root / "img" / "lettertype.svg", w),
-        process_svg(repo_root / "img" / "logotype.svg", w),
         process_glob((repo_root / "vendor" / "normalize.css").glob("normalize-*.css"), w),
         process_css(repo_root / "css" / "main.css", w),
         process_fonts(repo_root, w),

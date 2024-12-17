@@ -2,17 +2,36 @@
 {% load static_glob %}
 {% load ytabs %}
 
-<div class="bar">
-  <a class="yarrharr-masthead" href="{% url 'home' %}">
-    <img class="logotype" width="46" height="15" src="{% static 'logotype-*.svg'|newest_static %}" alt="Yarrharr">
-    <img class="lettertype" width="20" height="20" src="{% static 'lettertype-*.svg'|newest_static %}" alt="Yarrharr">
+<div id="global-nav">
+  <a id="masthead" href="{% url 'home' %}">
+    <span class="lettertype">Y</span><span class="logotype">arrharr</span>
   </a>
 
   <nav class="global-links">
-    <a {% tabattrs "global-all-show" %} class="global-link no-underline" href="{% url 'all-show' 'unread' %}">All</a>
-    <a {% tabattrs "global-label-list" %} class="global-link no-underline" href="{% url 'label-list' %}">Labels</a>
-    <a {% tabattrs "global-feed-list" %} class="global-link no-underline" href="{% url 'feed-list' %}">Feeds</a>
-    <a {% tabattrs "global-feed-add" %} class="global-link no-underline" href="{% url 'feed-add' %}">+</a>
+    <a class="global-link no-underline" href="{% url 'all-show' 'unread' %}">
+      <svg width="1em" height="1em" class="icon" aria-hidden="true">
+         <use xlink:href="#icon-all" />
+      </svg>
+      <span>All</span>
+    </a>
+    <a class="global-link no-underline" href="{% url 'label-list' %}">
+      <svg width="1em" height="1em" class="icon" aria-hidden="true">
+       <use xlink:href="#icon-label" />
+      </svg>
+      <span>Labels</span>
+    </a>
+    <a class="global-link no-underline" href="{% url 'feed-list' %}">
+      <svg width="1em" height="1em" class="icon" aria-hidden="true">
+       <use xlink:href="#icon-feed" />
+      </svg>
+      <span>Feeds</span>
+    </a>
+    <a class="global-link secondary no-underline" href="{% url 'feed-add' %}">
+      <svg width="1em" height="1em" class="icon" aria-hidden="true">
+       <use xlink:href="#icon-plus" />
+      </svg>
+      <span>Add Feed</span>
+    </a>
   </nav>
 
   <button id="layout-button" class="square" aria-label="Wide" title="Switch to wide layout">

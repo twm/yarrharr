@@ -42,7 +42,7 @@ jobs:
       # that are expected to exist by the manifest.json view test.
     - run: |
         mkdir yarrharr/static
-        touch yarrharr/static/{icon,logotype,lettertype}-xyz.{ico,png,svg}
+        touch yarrharr/static/icon-xyz.{ico,png,svg}
         touch yarrharr/static/{normalize,main,fonts}-xyz.css
         touch yarrharr/static/{runtime,vendor,main}-xyz.js
 

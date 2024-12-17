@@ -5,6 +5,7 @@
 /* Icons have this class by default, which makes them a generic gray. */
 .icon {
     color: var(--icon-color);
+    transform: translateY(0.075em);
 }
 
 .icon-heart {

@@ -7,8 +7,7 @@
     display: grid;
     grid-template-columns: 1fr min-content;
     align-items: center;
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
+    padding: 0 0.5rem;
 }
 
 
@@ -77,7 +76,7 @@
     }
 
     .feed-list-item-header {
-        text-transform: uppercase;
+        font-variant: small-caps;
         font-size: smaller;
     }
 
@@ -201,7 +200,7 @@
     }
 
     .label-list-item-header {
-        text-transform: uppercase;
+        font-variant: small-caps;
         font-size: smaller;
     }
 

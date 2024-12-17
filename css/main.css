@@ -15,8 +15,6 @@
     --icon-color: #666;
     --icon-color-off: var(--border-color);
 
-    --logo-filter: none;
-
     --heart-color: #c92ccc;
     --check-color: #39cc5c;
     --selected-color: hsl(24.1, 100%, 49.2%);
@@ -53,11 +51,6 @@
         --border-color: #222;
         --icon-color: #eee;
         --icon-color-off: #666;
-
-        /* Invert the logo image so that it is legible in the dark theme. We
-         * don't go 100% because it is pretty bold.
-         */
-        --logo-filter: invert(90%);
 
         --font-weight-mono: 300;
 
@@ -263,40 +256,6 @@ select[multiple] {
     }
 }
 
-.bar {
-    display: flex;
-    justify-content: space-between;
-    height: var(--bar-height);
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
-    line-height: var(--bar-line-height);
-    contain: size layout;
-
-    --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
-
-    & > a[href],
-    & > button {
-        background: transparent;
-        border: none;
-    }
-
-    & > * {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-    }
-
-    & > * > .icon {
-        display: block;
-        font-size: var(--icon-size);
-    }
-
-    & > .square {
-        flex: 0 0 var(--bar-height);
-    }
-}
-
 /* Mostly used for the login page. */
 form.small-form {
     display: block;
@@ -322,6 +281,8 @@ form.small-form {
         margin: 0;
         padding: 1rem 1rem 0 0;
         flex: 100 1 auto;
+
+        font: 3.5rem Montez, sans-serif;
 
         text-align: center;
 
