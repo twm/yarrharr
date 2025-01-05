@@ -226,7 +226,7 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
     - icon-[hexchars].ico — ICO with 16x16, 24x24, 32x32, and 64x64 versions.
     """
     proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    sizes: list[int] = [16, 24, 32, 64, 152]
+    sizes: list[int] = [16, 24, 32, 64, 128, 152]
     outfiles: list[Path] = []
     commands: list[str] = [f"file-open:{favicon}; export-area page\n"]
 
@@ -265,8 +265,9 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
         )
         pngs.append(path.read_bytes())
 
+    # https://en.wikipedia.org/wiki/ICO_(file_format)#Outline
     ICONDIR = struct.Struct("<hhh")
-    ICONDIRENTRY = struct.Struct("<bbbbhhII")
+    ICONDIRENTRY = struct.Struct("<BBbbhhII")
     buf = bytearray()
     buf += ICONDIR.pack(0, 1, len(pngs))
     # Data starts after the header
