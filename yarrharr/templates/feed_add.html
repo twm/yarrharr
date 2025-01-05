@@ -3,16 +3,32 @@
 {% block title %}Add Feed{% endblock %}
 
 {% block content %}
-<div id="yarrharr" class="layout-narrow">
+
+<style>
+.feed-add {
+  margin: 2rem auto;
+  padding: 1.5rem 2rem 2rem 2rem;
+  max-width: var(--layout-max-width);
+  background: var(--footer-background-color);
+  border: 2px solid var(--border-color);
+
+  border-radius: 0.5rem;
+}
+h1 {
+  margin: 0 0 1rem 0;
+}
+
+</style>
+
+
+<div id="yarrharr">
 
   {% include "header.html" %}
 
-  <div class="feed-header">
+  <div class="feed-add">
     <h1>Add Feed</h1>
-  </div>
 
-  <div class="inventory-centered">
-    <form action="{% url 'feed-add' %}" method="POST" name="feed-add">
+    <form action="{% url 'feed-add' %}" method="POST" name="feed-add" class="small-form">
       {% csrf_token %}
       {{ form.as_p }}
       <div class="inventory-tools">

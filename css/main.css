@@ -7,7 +7,7 @@
 
     --background-color: white;
     --text-color: black;
-    --quiet-text-color: lighten(black, 40%);
+    --quiet-text-color: #2f2f2f;
     --footer-background-color: #fafafa;
     --foter-text-color: #141414;
 
@@ -44,7 +44,7 @@
     :root {
         --background-color: black;
         --text-color: white;
-        --quiet-text-color: darken(white, 40%);
+        --quiet-text-color: #cecece;
         --footer-background-color: #111;
         --footer-text-color: #eee;
 
@@ -256,60 +256,13 @@ select[multiple] {
     }
 }
 
-/* Mostly used for the login page. */
-form.small-form {
-    display: block;
-    margin: 0 auto;
-    padding: 0.5rem 1rem;
-
-    .errorlist {
-        padding: 0;
-        list-style: none;
-        hyphens: auto;
-    }
+/* Django form errors */
+.errorlist {
+    padding: 0;
+    list-style: none;
+    hyphens: auto;
 }
 
-.login-page {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: stretch;
-
-    margin: 0 auto;
-    max-width: 32rem;
-
-    h1 {
-        margin: 0;
-        padding: 1rem 1rem 0 0;
-        flex: 100 1 auto;
-
-        font: 3.5rem Montez, sans-serif;
-
-        text-align: center;
-
-        img {
-            display: block;
-            margin: 0 auto;
-            filter: var(--logo-filter);
-        }
-    }
-
-    form {
-        flex: 1 1 100%;
-        min-width: 0;
-        margin: 0;
-    }
-
-    /* Desktop layout */
-    @media screen and (min-width: 32rem) {
-        flex-flow: row nowrap;
-        align-items: center;
-        min-height: 90vh;
-
-        form {
-            flex-basis: 15rem;
-        }
-    }
-}
 
 #footer {
     padding: 3em 0.25em;
