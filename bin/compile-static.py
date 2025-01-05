@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright © 2018, 2019, 2020, 2022, 2024 Tom Most <twm@freecog.net>
+# Copyright © 2018, 2019, 2020, 2022, 2024, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ from shutil import rmtree
 from typing import Optional, Sequence
 
 import brotli
+import oxipng
 import tinycss2
 import zopfli.gzip
 
@@ -220,7 +221,7 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
     """
     Use Inkscape to generate two raster versions of the favicon:
 
-    - icon-[hexchars].png — a 152x152 PNG, optimized with optipng.
+    - icon-[hexchars].png — a 152x152 PNG, optimized with oxipng.
     - icon-[hexchars].ico — ICO with 16x16, 24x24, 32x32, and 64x64 versions.
       Built with icotool.
     """
@@ -240,13 +241,19 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
             raise ProcFailed(f"inkscape failed to write {outfile!r}", stdout, stderr)
 
     png_path = Path(outfiles.pop())
-    ico_path = build_dir / f"{favicon.stem}.ico"
-    await asyncio.gather(
-        _run(["optipng", "-quiet", str(png_path)]),
-        _run(["icotool", "--create", "-o", str(ico_path), *outfiles]),
+    oxipng.optimize(
+        str(png_path),
+        level=4,
+        interlace=oxipng.Interlacing.Off,
+        strip=oxipng.StripChunks.safe(),
+        deflate=oxipng.Deflaters.zopfli(15),
+        optimize_alpha=True,
     )
-
     w.add_file(hashname("icon", "png", png_path.read_bytes()), png_path)
+
+    ico_path = build_dir / f"{favicon.stem}.ico"
+    # icotool reencodes the PNGs with libpng, so there's no point optimizing them.
+    await _run(["icotool", "--create", "-o", str(ico_path), *outfiles])
     w.add_file(hashname("icon", "ico", ico_path.read_bytes()), ico_path)
 
 

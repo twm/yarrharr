@@ -24,7 +24,7 @@ The [conventions document](./conventions.md) describes some idioms used in the c
 
 Grab the build dependencies with:
 
-    $ sudo apt install brotli inkscape icoutils git scour optipng \
+    $ sudo apt install brotli inkscape icoutils git scour \
                        python3-dev build-essential
 
 [Install pip](https://pip.pypa.io/en/latest/installing/#get-pip), then install [Tox](http://tox.readthedocs.org/en/latest/).

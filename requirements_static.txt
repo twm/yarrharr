@@ -6,6 +6,8 @@
 #
 brotli==1.1.0
     # via -r requirements_static.in
+pyoxipng==9.1.0
+    # via -r requirements_static.in
 tinycss2==1.4.0
     # via -r requirements_static.in
 webencodings==0.5.1
