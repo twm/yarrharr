@@ -48,6 +48,7 @@ import asyncio
 import hashlib
 import re
 import shlex
+import struct
 from asyncio.subprocess import PIPE
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -61,7 +62,7 @@ import zopfli.gzip
 
 repo_root = Path(__file__).parent.parent
 
-COMPRESS_EXTS = (".js", ".css", ".svg", ".ico", ".map", ".ttf")
+COMPRESS_EXTS = (".js", ".css", ".svg", ".map", ".ttf")
 _validName = re.compile(r"\A[a-zA-Z0-9]+-[a-z0-9]+(\.[a-z0-9]+)+\Z")
 
 _parser = argparse.ArgumentParser()
@@ -223,24 +224,25 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
 
     - icon-[hexchars].png — a 152x152 PNG, optimized with oxipng.
     - icon-[hexchars].ico — ICO with 16x16, 24x24, 32x32, and 64x64 versions.
-      Built with icotool.
     """
     proc = await asyncio.create_subprocess_exec("inkscape", "--shell", stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    outfiles: list[str] = []
+    sizes: list[int] = [16, 24, 32, 64, 152]
+    outfiles: list[Path] = []
     commands: list[str] = [f"file-open:{favicon}; export-area page\n"]
 
-    for size in (16, 24, 32, 64, 152):
-        outfile = str(build_dir / f"{favicon.stem}.{size}.png")
+    for size in sizes:
+        outfile = build_dir / f"{favicon.stem}.{size}.png"
         commands.append(f"export-filename:{outfile}; export-width:{size}; export-height:{size}; export-do\n")
         outfiles.append(outfile)
     stdout, stderr = await proc.communicate("".join(commands).encode())
     if proc.returncode != 0:
         raise ProcFailed(f"inkscape exited {proc.returncode}", stdout, stderr)
     for outfile in outfiles:
-        if not Path(outfile).is_file():
+        if not outfile.is_file():
             raise ProcFailed(f"inkscape failed to write {outfile!r}", stdout, stderr)
 
     png_path = Path(outfiles.pop())
+    sizes.pop()
     oxipng.optimize(
         str(png_path),
         level=4,
@@ -251,10 +253,31 @@ async def rasterize_favicon(favicon: Path, build_dir: Path, w: Writer) -> None:
     )
     w.add_file(hashname("icon", "png", png_path.read_bytes()), png_path)
 
-    ico_path = build_dir / f"{favicon.stem}.ico"
-    # icotool reencodes the PNGs with libpng, so there's no point optimizing them.
-    await _run(["icotool", "--create", "-o", str(ico_path), *outfiles])
-    w.add_file(hashname("icon", "ico", ico_path.read_bytes()), ico_path)
+    pngs: list[bytes] = []
+    for path in outfiles:
+        oxipng.optimize(
+            str(path),
+            level=4,
+            interlace=oxipng.Interlacing.Off,
+            strip=oxipng.StripChunks.all(),
+            deflate=oxipng.Deflaters.libdeflater(12),
+            optimize_alpha=True,
+        )
+        pngs.append(path.read_bytes())
+
+    ICONDIR = struct.Struct("<hhh")
+    ICONDIRENTRY = struct.Struct("<bbbbhhII")
+    buf = bytearray()
+    buf += ICONDIR.pack(0, 1, len(pngs))
+    # Data starts after the header
+    data_offset = ICONDIR.size + ICONDIRENTRY.size * len(pngs)
+    for size, png in zip(sizes, pngs):
+        buf += ICONDIRENTRY.pack(size, size, 0, 0, 0, 32, len(png), data_offset)
+        data_offset += len(png)
+    for png in pngs:
+        buf += png
+    ico_bytes = bytes(buf)
+    w.add_file_bytes(hashname("icon", "ico", ico_bytes), ico_bytes)
 
 
 async def process_svg(svg: Path, w: Writer) -> None:
