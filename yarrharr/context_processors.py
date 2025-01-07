@@ -1,4 +1,4 @@
-# Copyright © 2022 Tom Most <twm@freecog.net>
+# Copyright © 2022, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,13 +29,13 @@ def csp(request):
     """
     if settings.YARRHARR_SCRIPT_NONCE:
         try:
-            nonce = request.headers["Yarrharr-Script-Nonce"]
+            csp_nonce = request.headers["Yarrharr-Csp-Nonce"]
         except KeyError:
             if os.environ.get("YARRHARR_TESTING") == "yes":
                 # Only ignore this in unit tests so we fail safe in production.
-                nonce = None
+                csp_nonce = None
             else:
                 raise
     else:
-        nonce = None
-    return {"script_nonce": nonce}
+        csp_nonce = None
+    return {"csp_nonce": csp_nonce}

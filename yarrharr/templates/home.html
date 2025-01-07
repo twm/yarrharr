@@ -6,7 +6,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<style>
+<style nonce="{{ csp_nonce }}">
 .home-view {
     margin: 0 auto;
     max-width: var(--layout-max-width);

@@ -48,7 +48,7 @@
 
 </div>
 
-<script type="module" nonce="{{ script_nonce }}">
+<script type="module" nonce="{{ csp_nonce }}">
   const b = document.getElementById("layout-button");
   const y = document.getElementById("yarrharr");
 
@@ -79,7 +79,7 @@
   readFromStorage();
 </script>
 
-<script type="module" nonce="{{ script_nonce }}">
+<script type="module" nonce="{{ csp_nonce }}">
   const b = document.getElementById("fullscreen-button");
   b.onclick = e =>  {
     if (document.fullscreenElement) {

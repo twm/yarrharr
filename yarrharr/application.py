@@ -1,4 +1,4 @@
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2020, 2022, 2023 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2020, 2022, 2023, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -303,20 +303,20 @@ class Root(FallbackResource):
         request.setHeader(b"X-Content-Type-Options", b"nosniff")
         request.setHeader(b"Cross-Origin-Opener-Policy", b"same-origin")
 
-        script_nonce = b64encode(os.urandom(32))
-        request.requestHeaders.setRawHeaders(b"Yarrharr-Script-Nonce", [script_nonce])
+        csp_nonce = b64encode(os.urandom(32))
+        request.requestHeaders.setRawHeaders(b"Yarrharr-Csp-Nonce", [csp_nonce])
         request.setHeader(
             b"Content-Security-Policy",
             (
                 # b"default-src 'none'; "
                 b"img-src *; "
                 b"script-src 'self' 'nonce-%s'; "
-                b"style-src 'self'; "
+                b"style-src 'self' 'nonce-%s'; "
                 b"frame-ancestors 'none'; "
                 b"form-action 'self'; "
                 b"report-uri /csp-report"
             )
-            % (script_nonce,),
+            % (csp_nonce, csp_nonce),
         )
 
         return super().getChildWithDefault(name, request)
