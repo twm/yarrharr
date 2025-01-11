@@ -404,7 +404,7 @@ class FormatForSystemdTests(SynchronousTestCase):
         log.info("info\n{more}", more="info")
         log.error("err")
 
-        self.assertEqual(("<6>[ns] info\n" "<6>  info\n" "<3>[ns] err\n"), fout.getvalue())
+        self.assertEqual(("<6>[ns] info\n<6>  info\n<3>[ns] err\n"), fout.getvalue())
 
     def test_logger_namespace_failure(self):
         """

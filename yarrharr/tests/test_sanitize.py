@@ -219,9 +219,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         """
         A "privacy-enhanced" YouTube embed, which uses the youtube-nocookie.com domain, is replaced with a link.
         """
-        html = (
-            '<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q0CbN8sfihY"' ' frameborder="0" allowfullscreen></iframe>'
-        )
+        html = '<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Q0CbN8sfihY" frameborder="0" allowfullscreen></iframe>'
         self.assertEqual(
             (
                 '<a href="https://www.youtube.com/watch?v=Q0CbN8sfihY"'

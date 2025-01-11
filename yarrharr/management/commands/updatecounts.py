@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
         self.stdout.write("{:,d} feeds were audited.".format(feeds))
         style = self.style.WARNING if sum(counts.values()) > 0 else self.style.SUCCESS
-        self.stdout.write(style(("{all:,d} all, {unread:,d} unread," " {fave:,d} fave counters were off.").format_map(counts)))
+        self.stdout.write(style(("{all:,d} all, {unread:,d} unread, {fave:,d} fave counters were off.").format_map(counts)))
 
     def _audit_feed(self, feed, mutate, counts):
         for name, count in (

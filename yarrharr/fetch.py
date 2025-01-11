@@ -418,7 +418,7 @@ def poll(reactor, max_fetch):
                         raise
                     attempt += 1
                     log.debug(
-                        ("Database lock contention while persisting {count} outcomes:" " will retry (attempt {attempt})"),
+                        ("Database lock contention while persisting {count} outcomes: will retry (attempt {attempt})"),
                         count=len(outcomes),
                         attempt=attempt,
                     )

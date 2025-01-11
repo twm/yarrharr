@@ -985,7 +985,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     url="https://example.com/blah-blah",
                     date=timezone.now(),
                     guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
-                    raw_content="<p>Hello, <style>...</style>world" '<script type="text/javascript">alert("lololol")</script>!',
+                    raw_content='<p>Hello, <style>...</style>world<script type="text/javascript">alert("lololol")</script>!',
                 ),
             ],
             etag=b'"etag"',
@@ -1001,7 +1001,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             article,
             raw_title="Blah &amp; Blah",
             title="Blah & Blah",
-            raw_content=("<p>Hello, <style>...</style>world" '<script type="text/javascript">alert("lololol")</script>!'),
+            raw_content=('<p>Hello, <style>...</style>world<script type="text/javascript">alert("lololol")</script>!'),
             content="<p>Hello, world!",
         )
 
