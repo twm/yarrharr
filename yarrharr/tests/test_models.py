@@ -122,7 +122,7 @@ class FeedScheduleTests(TestCase):
         self.assertEqual(
             expected,
             actual,
-            ("\nNext check should be {} from" "\nnow, but found it is {} from now.").format(expected, actual),
+            ("\nNext check should be {} from\nnow, but found it is {} from now.").format(expected, actual),
         )
 
     def test_disabled(self):

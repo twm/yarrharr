@@ -1,4 +1,4 @@
-# Copyright © 2018, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2018, 2020, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -404,7 +404,7 @@ class FormatForSystemdTests(SynchronousTestCase):
         log.info("info\n{more}", more="info")
         log.error("err")
 
-        self.assertEqual(("<6>[ns] info\n" "<6>  info\n" "<3>[ns] err\n"), fout.getvalue())
+        self.assertEqual(("<6>[ns] info\n<6>  info\n<3>[ns] err\n"), fout.getvalue())
 
     def test_logger_namespace_failure(self):
         """
@@ -417,14 +417,14 @@ class FormatForSystemdTests(SynchronousTestCase):
         log.failure("Something went wrong", Failure(Exception("1\n2\n3")))
 
         self.assertEqual(
-            (
-                "<2>[ns] Something went wrong\n"
-                "<2>  Traceback (most recent call last):\n"
-                "<2>  Failure: builtins.Exception: 1\n"
-                "<2>  2\n"
-                "<2>  3\n"
-            ),
-            fout.getvalue(),
+            [
+                "<2>[ns] Something went wrong",
+                "<2>  Traceback (most recent call last):",
+                "<2>  Failure: builtins.Exception: 1",
+                "<2>  2",
+                "<2>  3",
+            ],
+            fout.getvalue().splitlines(),
         )
 
     def test_log_legacy(self):
@@ -436,8 +436,14 @@ class FormatForSystemdTests(SynchronousTestCase):
         p.msg("m\ns\ng", logLevel=logging.DEBUG)
 
         self.assertEqual(
-            ("<6>[-] msg\n" "<6>[system] msg\n" "<7>[-] m\n" "<7>  s\n" "<7>  g\n"),
-            fout.getvalue(),
+            [
+                "<6>[-] msg",
+                "<6>[system] msg",
+                "<7>[-] m",
+                "<7>  s",
+                "<7>  g",
+            ],
+            fout.getvalue().splitlines(),
         )
 
     def _get_stdlib_logger(self, name):
