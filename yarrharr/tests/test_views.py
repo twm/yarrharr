@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2021, 2022, 2023 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021, 2022, 2023, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -112,7 +112,9 @@ class LoginRedirectTests(TestCase):
             "/label/1234/all/1234/",
             "/feed/1/unread",
             "/feed/2/fave/",
-            "/feed/3/all/4" "/feed/5/all/678/" "/labels/",
+            "/feed/3/all/4",
+            "/feed/5/all/678/",
+            "/labels/",
             "/labels/add",
             "/feeds/",
             "/feeds/add/",
