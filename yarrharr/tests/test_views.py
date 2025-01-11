@@ -121,19 +121,17 @@ class LoginRedirectTests(TestCase):
             "/article/1234/",
         ]
 
-        redirects = []
         for next_ in nexts:
-            response = c.post(
-                "/login/",
-                {
-                    "next": next_,
-                    "username": "james",
-                    "password": "hunter2",
-                },
-            )
-            redirects.append(response["Location"])
-
-        self.assertEqual(nexts, redirects)
+            with self.subTest("login", next=next_):
+                response = c.post(
+                    "/login/",
+                    {
+                        "next": next_,
+                        "username": "james",
+                        "password": "hunter2",
+                    },
+                )
+                self.assertEqual(next_, response["Location"])
 
 
 class LabelListTests(TestCase):
