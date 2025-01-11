@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2020, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2020, 2022, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -153,25 +153,28 @@ class SanitizeHtmlTests(unittest.TestCase):
         An ``<object>`` tag is replaced with its content, omitting any
         ``<param>`` tags as well.
         """
-        html = '<object data="obsolete.swf" type="application/x-shockwave-flash">' '<param name="foo" value="bar">' "<p>Flash video</p>" "</object>"
-        self.assertEqual("<p>Flash video", sanitize_html(html))
+        html = [
+            '<object data="obsolete.swf" type="application/x-shockwave-flash">',
+            '<param name="foo" value="bar"><p>Flash video</p></object>',
+        ]
+        self.assertEqual("<p>Flash video", sanitize_html("".join(html)))
 
     def test_object_nest_replaced(self):
         """
         Nested ``<object>`` tags are recursively replaced with their content.
         """
         html = (
-            "<p>"
-            "<object>"
-            '<param name="level" value="1">'
-            "Level 1<br>"
-            "<object>"
-            '<param name="level" value="2">'
-            "Level 2"
-            "</object>"
-            "</object>"
+            "<p>",
+            "<object>",
+            '<param name="level" value="1">',
+            "Level 1<br>",
+            "<object>",
+            '<param name="level" value="2">',
+            "Level 2",
+            "</object>",
+            "</object>",
         )
-        self.assertEqual("<p>Level 1<br>Level 2", sanitize_html(html))
+        self.assertEqual("<p>Level 1<br>Level 2", sanitize_html("".join(html)))
 
     def test_link_tag_dropped(self):
         """
