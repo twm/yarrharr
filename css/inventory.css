@@ -14,6 +14,7 @@
 .feed-list,
 .label-list {
     white-space: nowrap;
+    border-block: 2px solid var(--border-color);
 
     thead, tbody, tfoot {
         display: contents;
@@ -84,7 +85,7 @@
     .feed-list-item-header > th {
         font: inherit;
         background: var(--footer-background-color);
-        border-bottom: 2px solid var(--quiet-text-color);
+        border-bottom: 2px solid var(--border-color);
     }
     .feed-list-item:nth-child(even) > td {
         background: var(--footer-background-color);
@@ -180,6 +181,7 @@
         display: grid;
         grid: "icon title feeds unread fave edit" auto /
             max-content 5fr minmax(max-content, 1fr) minmax(max-content, 1fr) minmax(max-content, 1fr) minmax(max-content, 1fr);
+        border-block: 2px solid var(--border-color);
     }
 
     .label-list-item {
@@ -208,7 +210,7 @@
     .label-list-item-header > th {
         font-weight: normal;
         background: var(--footer-background-color);
-        border-bottom: 2px solid var(--quiet-text-color);
+        border-bottom: 2px solid var(--border-color);
     }
     .label-list-item:nth-child(even) > td {
         background: var(--footer-background-color);
