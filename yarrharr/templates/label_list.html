@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}Labels{% endblock %}
 
@@ -32,9 +33,9 @@
         </svg>
       </td>
       <td><a class="no-underline" href="{% url 'label-show' label.id 'unread' %}">{{ label.text }}</a></td>
-      <td>{{ label.feeds.count }}</td>
-      <td>{{ label.unread_count }}</a></td>
-      <td><a href="{% url 'label-show' label.id 'fave' %}">{{ label.fave_count }}</a></td>
+      <td>{{ label.feeds.count|intcomma }}</td>
+      <td>{{ label.unread_count|intcomma }}</a></td>
+      <td><a href="{% url 'label-show' label.id 'fave' %}">{{ label.fave_count|intcomma }}</a></td>
       <td>
         <a title="Edit Label" href="{% url 'label-edit' label.id %}"
           ><svg

@@ -1,4 +1,5 @@
 {% load ytabs %}
+{% load humanize %}
 
 <div class="feed-header">
   <h1>
@@ -12,10 +13,10 @@
 <div class="tabs">
   <div class="tabs-tabs">
     <a {% tabattrs "all-unread" %} class="no-underline" href="{% url 'all-show' 'unread' %}">
-      Unread{% if all_unread_count %} <span class="count">{{ all_unread_count }}</span>{% endif %}
+      Unread{% if all_unread_count %} <span class="count">{{ all_unread_count|intcomma }}</span>{% endif %}
     </a>
     <a {% tabattrs "all-fave" %} class="no-underline" href="{% url 'all-show' 'fave' %}">
-      Favorite{% if all_fave_count %} <span class="count">{{ all_fave_count }}</span>{% endif %}
+      Favorite{% if all_fave_count %} <span class="count">{{ all_fave_count|intcomma }}</span>{% endif %}
     </a>
     <a {% tabattrs "all-all" %} class="no-underline" href="{% url 'all-show' 'all' %}">
       All
