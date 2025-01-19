@@ -26,7 +26,7 @@ cryptography==44.0.0
     # via
     #   pyopenssl
     #   service-identity
-django==4.2.17
+django==4.2.18
     # via yarrharr (pyproject.toml)
 feedparser==6.0.11
     # via yarrharr (pyproject.toml)

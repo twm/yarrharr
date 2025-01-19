@@ -1,4 +1,4 @@
-# Copyright © 2013–2019, 2021, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2013–2019, 2021, 2022, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -203,6 +203,7 @@ def read_yarrharr_conf(files, namespace):
         "django.contrib.contenttypes",
         "django.contrib.sessions",
         "django.contrib.staticfiles",
+        "django.contrib.humanize",
         "yarrharr",
     )
 
