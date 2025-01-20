@@ -156,7 +156,8 @@ input[type=text],
 input[type=password],
 input[type=url],
 input[type=email],
-select[multiple] {
+select[multiple],
+textarea {
     display: block;
     box-sizing: border-box;
     width: 100%;
@@ -178,8 +179,15 @@ select[multiple] {
         color: inherit;
     }
 }
-select[multiple] {
+select[multiple],
+textarea {
     height: auto; /* allow size attribute to have an effect */
+}
+
+input[readonly],
+textarea[readonly] {
+  border: none;
+  padding: 0;
 }
 
 .text-button {
