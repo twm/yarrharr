@@ -7,14 +7,14 @@
 
 <div class="tabs">
   <div class="tabs-tabs">
+    <a {% tabattrs "label-all" %} class="no-underline" href="{% url 'label-show' label.id 'all' %}">
+      All
+    </a>
     <a {% tabattrs "label-unread" %} class="no-underline" href="{% url 'label-show' label.id 'unread' %}">
       Unread{% if label_unread_count %} <span class="count">{{ label_unread_count|intcomma }}</span>{% endif %}
     </a>
     <a {% tabattrs "label-fave" %} class="no-underline" href="{% url 'label-show' label.id 'fave' %}">
       Favorite{% if label_fave_count %} <span class="count">{{ label_fave_count|intcomma }}</span>{% endif %}
-    </a>
-    <a {% tabattrs "label-all" %} class="no-underline" href="{% url 'label-show' label.id 'all' %}">
-      All
     </a>
     <a {% tabattrs "label-edit" %} class="no-underline" href="{% url 'label-edit' label.id %}" title="Edit Label">
       <svg width="1em" height="1em" aria-label="Edit Label" class="icon" aria-hidden="false"><use xlink:href="#icon-edit"></use></svg>
