@@ -321,7 +321,7 @@ def feed_list(request):
                 # query all feeds anyway.
                 key=lambda feed: (human_sort_key(feed.title), feed.pk),
             ),
-            "tabs_selected": {"global-feed-list"},
+            "tabs_selected": {},
         },
     )
 
@@ -347,7 +347,7 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
             "articles": articles,
             "next_page_after": next_page_after,
             "filter": filter,
-            "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
+            "tabs_selected": {f"feed-{filter.name}"},
         },
     )
 
@@ -412,7 +412,7 @@ def feed_edit(request, feed_id: int):
         {
             "feed": feed,
             "form": form,
-            "tabs_selected": {"global-feed-list", "feed-edit"},
+            "tabs_selected": {"feed-edit"},
         },
     )
 
@@ -456,7 +456,7 @@ def feed_add(request):
         "feed_add.html",
         {
             "form": form,
-            "tabs_selected": {"global-feed-list"},
+            "tabs_selected": {},
         },
     )
 
@@ -484,7 +484,6 @@ def label_list(request):
                 # query all feeds anyway.
                 key=lambda label: (human_sort_key(label.text), label.pk),
             ),
-            "tabs_selected": {"global-label-list"},
         },
     )
 
@@ -515,7 +514,7 @@ def label_show(request, label_id: int, filter: ArticleFilter):
             "articles": articles,
             "next_page_after": next_page_after,
             "filter": filter,
-            "tabs_selected": {"global-label-list", f"label-{filter.name}"},
+            "tabs_selected": {f"label-{filter.name}"},
         },
     )
 
@@ -584,7 +583,7 @@ def label_edit(request, label_id: int):
             "label": label,
             "form": form,
             **counts,
-            "tabs_selected": {"global-label-list", "label-edit"},
+            "tabs_selected": {"label-edit"},
         },
     )
 
@@ -630,7 +629,6 @@ def label_add(request):
         "label_add.html",
         {
             "form": form,
-            "tabs_selected": {"global-label-list"},
         },
     )
 
