@@ -84,7 +84,8 @@ a {
     --underline-color: var(--text-color);
     text-decoration-line: none;
 }
-a:not(.no-underline),
+a:not(:is(.no-underline, .lazy-underline)),
+a.lazy-underline:is(:hover, :focus),
 a .underline {
     text-decoration-line: underline;
     text-decoration-color: var(--underline-color);
