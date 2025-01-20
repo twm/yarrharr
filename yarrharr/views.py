@@ -1,4 +1,4 @@
-# Copyright © 2013–2023 Tom Most <twm@freecog.net>
+# Copyright © 2013–2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
-from django.forms import CharField, ModelForm, ModelMultipleChoiceField, ValidationError
+from django.forms import BooleanField, CharField, ModelForm, ModelMultipleChoiceField, ValidationError
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -321,7 +321,7 @@ def feed_list(request):
                 # query all feeds anyway.
                 key=lambda feed: (human_sort_key(feed.title), feed.pk),
             ),
-            "tabs_selected": {"global-feed-list"},
+            "tabs_selected": {},
         },
     )
 
@@ -347,7 +347,7 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
             "articles": articles,
             "next_page_after": next_page_after,
             "filter": filter,
-            "tabs_selected": {"global-feed-list", f"feed-{filter.name}"},
+            "tabs_selected": {f"feed-{filter.name}"},
         },
     )
 
@@ -360,13 +360,17 @@ class FeedForm(ModelForm):
     which must have an assigned user.
     """
 
-    # TODO: Support toggling feed.active
-
     class Meta:
         model = Feed
-        fields = ["user_title", "url", "label_set"]
+        fields = [
+            "user_title",
+            "url",
+            "active",
+            "label_set",
+        ]
 
     user_title = CharField(required=False, max_length=200, label="Title override")
+    active = BooleanField(required=False, label="Check for updates")
     label_set = ModelMultipleChoiceField(queryset=None, required=False, label="Labels")
 
     def __init__(self, *args, **kwargs):
@@ -374,10 +378,14 @@ class FeedForm(ModelForm):
         assert self.instance.pk, "instance argument must be a saved Feed instance"
         assert self.instance.user, "instance argument must be a Feed instance with a user"
         self.fields["label_set"].queryset = self.instance.user.label_set.all()
+        self.fields["label_set"].widget.attrs["size"] = self.instance.user.label_set.count()
         self.initial["label_set"] = self.instance.label_set.all()
+        self.initial["active"] = self.instance.next_check is not None
 
     def clean(self):
         cleaned_data = super().clean()
+        if not cleaned_data["active"]:
+            cleaned_data["next_check"] = None
         self.instance.label_set.set(cleaned_data["label_set"])
         return cleaned_data
 
@@ -404,7 +412,7 @@ def feed_edit(request, feed_id: int):
         {
             "feed": feed,
             "form": form,
-            "tabs_selected": {"global-feed-list", "feed-edit"},
+            "tabs_selected": {"feed-edit"},
         },
     )
 
@@ -448,7 +456,7 @@ def feed_add(request):
         "feed_add.html",
         {
             "form": form,
-            "tabs_selected": {"global-feed-list"},
+            "tabs_selected": {},
         },
     )
 
@@ -476,7 +484,6 @@ def label_list(request):
                 # query all feeds anyway.
                 key=lambda label: (human_sort_key(label.text), label.pk),
             ),
-            "tabs_selected": {"global-label-list"},
         },
     )
 
@@ -507,7 +514,7 @@ def label_show(request, label_id: int, filter: ArticleFilter):
             "articles": articles,
             "next_page_after": next_page_after,
             "filter": filter,
-            "tabs_selected": {"global-label-list", f"label-{filter.name}"},
+            "tabs_selected": {f"label-{filter.name}"},
         },
     )
 
@@ -576,7 +583,7 @@ def label_edit(request, label_id: int):
             "label": label,
             "form": form,
             **counts,
-            "tabs_selected": {"global-label-list", "label-edit"},
+            "tabs_selected": {"label-edit"},
         },
     )
 
@@ -622,7 +629,6 @@ def label_add(request):
         "label_add.html",
         {
             "form": form,
-            "tabs_selected": {"global-label-list"},
         },
     )
 

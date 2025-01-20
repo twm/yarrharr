@@ -3,12 +3,20 @@
 {% block title %}{{ feed.title }} - Edit{% endblock %}
 
 {% block content %}
+
+<style nonce="{{ csp_nonce }}">
+.feed-edit {
+  margin: 2rem auto;
+  max-width: var(--layout-max-width);
+}
+</style>
+
 <div id="yarrharr" class="layout-narrow">
 
   {% include "header.html" %}
   {% include "feed_header.html" %}
 
-  <div class="inventory-centered">
+  <div class="feed-edit">
     <form action="{% url 'feed-edit' feed.id %}" method="POST" name="feed-edit">
       {% csrf_token %}
       {{ form.as_p }}

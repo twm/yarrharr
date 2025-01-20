@@ -84,7 +84,8 @@ a {
     --underline-color: var(--text-color);
     text-decoration-line: none;
 }
-a:not(.no-underline),
+a:not(:is(.no-underline, .lazy-underline)),
+a.lazy-underline:is(:hover, :focus),
 a .underline {
     text-decoration-line: underline;
     text-decoration-color: var(--underline-color);
@@ -155,7 +156,8 @@ input[type=text],
 input[type=password],
 input[type=url],
 input[type=email],
-select[multiple] {
+select[multiple],
+textarea {
     display: block;
     box-sizing: border-box;
     width: 100%;
@@ -177,8 +179,15 @@ select[multiple] {
         color: inherit;
     }
 }
-select[multiple] {
+select[multiple],
+textarea {
     height: auto; /* allow size attribute to have an effect */
+}
+
+input[readonly],
+textarea[readonly] {
+  border: none;
+  padding: 0;
 }
 
 .text-button {

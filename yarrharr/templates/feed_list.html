@@ -18,11 +18,15 @@
     <tbody>
       {% for feed in feeds %}
         <tr class="feed-list-item">
-          <td class="col-feed"><a class="no-underline" href="{% url "feed-show" feed.id "unread" %}">{{ feed.title }}</a></td>
-          <td class="col-unread">{{ feed.unread_count|intcomma }}</td>
-          <td class="col-fave">{{ feed.fave_count|intcomma }}</td>
-          <td class="col-site-url"><a class="no-underline" target="_blank" rel="noreferrer noopener" href="{{ feed.site_url }}">{{ feed.site_url }}</a></td>
-          <td class="col-changed">{{ feed.last_changed|naturaltime }}</td>
+          <td class="col-feed"><a class="lazy-underline" href="{% url "feed-show" feed.id "all" %}">{{ feed.title }}</a></td>
+          <td class="col-unread">
+            <a class="lazy-underline" href="{% url 'feed-show' feed.id 'unread' %}">{{ feed.unread_count|intcomma }}</a>
+          </td>
+          <td class="col-fave">
+            <a class="lazy-underline" href="{% url 'feed-show' feed.id 'fave' %}">{{ feed.fave_count|intcomma }}</a>
+          </td>
+          <td class="col-site-url"><a class="lazy-underline" target="_blank" rel="noreferrer noopener" href="{{ feed.site_url }}">{{ feed.site_url }}</a></td>
+          <td class="col-changed">{{ feed.last_changed|naturaltime|default:"never" }}</td>
           <td class="col-edit"><a title="Edit Feed" href="{% url "feed-edit" feed.id %}"><svg width="1em" height="1em" aria-label="Edit Feed" class="icon" aria-hidden="false"><use xlink:href="#icon-edit"></use></svg></a></td>
         </tr>
       {% endfor %}
