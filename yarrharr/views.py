@@ -20,7 +20,7 @@ import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
-from django.forms import BooleanField, CharField, ModelForm, ModelMultipleChoiceField, ValidationError
+from django.forms import BooleanField, CharField, ModelForm, ModelMultipleChoiceField, URLField, URLInput, ValidationError
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -421,6 +421,11 @@ class FeedAddForm(ModelForm):
     """
     Create a feed
     """
+
+    url = URLField(
+        label="Feed URL",
+        widget=URLInput(attrs={"autofocus": "autofocus"}),
+    )
 
     class Meta:
         model = Feed
