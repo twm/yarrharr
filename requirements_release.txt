@@ -45,6 +45,8 @@ httpx==0.28.1
     # via hatch
 hyperlink==21.0.0
     # via hatch
+id==1.5.0
+    # via twine
 idna==3.10
     # via
     #   anyio
@@ -90,8 +92,6 @@ pathspec==0.12.1
     # via hatchling
 pexpect==4.9.0
     # via hatch
-pkginfo==1.12.0
-    # via twine
 platformdirs==4.3.6
     # via
     #   hatch
@@ -112,6 +112,7 @@ readme-renderer==44.0
     # via twine
 requests==2.32.3
     # via
+    #   id
     #   requests-toolbelt
     #   twine
 requests-toolbelt==1.0.0
@@ -138,7 +139,7 @@ tomlkit==0.13.2
     # via hatch
 trove-classifiers==2024.10.21.16
     # via hatchling
-twine==6.0.1
+twine==6.1.0
     # via -r requirements_release.in
 typing-extensions==4.12.2
     # via
