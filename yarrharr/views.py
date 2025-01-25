@@ -1,4 +1,4 @@
-# Copyright © 2013–2025 Tom Most <twm@freecog.net>
+# Copyright © 2013–2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ import json
 import django
 import feedparser
 from django.contrib.auth.decorators import login_required
-from django.db import connection, transaction
+from django.db import connection
 from django.db.models import Count, F, Q, Sum
 from django.forms import CharField, ModelForm, ModelMultipleChoiceField, URLField, URLInput, ValidationError
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
@@ -56,101 +56,6 @@ def human_sort_key(s):
         A case-normalized version of `s` less non-alphanumeric characters.
     """
     return "".join(c for c in s.casefold() if c.isalnum() or c.isspace())
-
-
-def ms_timestamp(dt):
-    """
-    Convert a :class:`datetime.datetime` to a JavaScript-style timestamp:
-    milliseconds since the UNIX epoch.
-
-    :param dt: :class:`datetime.datetime`, which may be ``None`` (which
-        propagates).
-    :returns: :class:`float` or ``None``
-    """
-    if dt is None:
-        return None
-    return dt.timestamp() * 1000
-
-
-def json_for_article(article):
-    """
-    Translate a `yarrharr.Article` into the JSON data for an article.
-    """
-    return {
-        "feedId": article.feed.id,
-        "id": article.id,
-        "read": article.read,
-        "fave": article.fave,
-        "title": article.title,
-        "snippet": article.content_snippet,
-        "content": article.content,
-        "author": article.author,
-        "date": ms_timestamp(article.date),
-        "url": article.url,
-    }
-
-
-def json_for_feed(feed):
-    return {
-        "id": feed.id,
-        "title": feed.feed_title,
-        "text": feed.user_title,
-        "active": feed.next_check is not None,
-        "unreadCount": feed.unread_count,
-        "faveCount": feed.fave_count,
-        "labels": sorted(feed.label_set.all().values_list("id", flat=True)),
-        "url": feed.url,
-        "siteUrl": feed.site_url,
-        "added": ms_timestamp(feed.added),
-        "changed": ms_timestamp(feed.last_changed),
-        "checked": ms_timestamp(feed.last_checked),
-        # 'nextCheck': str(feed.next_check or ''),
-        "error": feed.error,
-    }
-
-
-def feeds_for_user(user):
-    feeds_by_id = {}
-    feed_order_decorated = []
-    for feed in user.feed_set.all():
-        feeds_by_id[feed.id] = json_for_feed(feed)
-        feed_order_decorated.append((human_sort_key(feed.title), feed.id))
-    # XXX It would be nice to do this sorting in the database, but sqlite3 does
-    # not ship with appropriate collations. Custom collations can be installed,
-    # but there isn't much advantage to doing so right now given we always
-    # query all feeds anyway.
-    feed_order_decorated.sort()
-    return {
-        "feedsById": feeds_by_id,
-        "feedOrder": list(pk for _, pk in feed_order_decorated),
-    }
-
-
-def labels_for_user(user):
-    labels_by_id = {}
-    label_order_decorated = []
-    for label in user.label_set.all():
-        labels_by_id[label.id] = json_for_label(label)
-        label_order_decorated.append((human_sort_key(label.text), label.id))
-    return {
-        "labelsById": labels_by_id,
-        "labelOrder": list(pk for _, pk in label_order_decorated),
-    }
-
-
-def json_for_label(label):
-    counts = label.feeds.all().aggregate(
-        unread=Sum("unread_count"),
-        fave=Sum("fave_count"),
-    )
-    return {
-        "id": label.id,
-        "text": label.text,
-        "feeds": list(label.feeds.all().order_by("id").values_list("id", flat=True)),
-        # Aggregations return NULL if there are no feeds; translate that into 0.
-        "unreadCount": counts["unread"] or 0,
-        "faveCount": counts["fave"] or 0,
-    }
 
 
 def entries_for_snapshot(user, params):
@@ -777,93 +682,6 @@ def flags(request):
         for (id_, fave, read) in qs.values_list("id", "fave", "read")
     }
     return HttpResponse(json.dumps(data), content_type="application/json")
-
-
-@login_required
-def inventory(request):
-    """
-    Manipulate feeds and labels.
-
-    On GET, retrieve full feed and label metadata.  On POST, the
-    :param:`action` field determines what is done:
-
-    ``"create-feed"`` creates a new feed where :param:`url` is the URL of the
-    feed (and also the initial title).  The ID of the feed is returned in the
-    ``"feedId"`` member of the response.
-
-    ``"update-feed"`` sets the :attr:`~Feed.user_title` and :attr:`~Feed.url`
-    according to the :param:`title` and :param:`url` parameters. Iff
-    :param:`active` is ``on`` then the feed is scheduled to be checked.
-    The set of labels associated with the feed is adjusted to match the IDs
-    presented in the :param:`label` parameter.
-
-    ``"update-label"`` sets the :attr:`~Feed.text` according to the
-    :param:`text` parameter and adjusts the set of associated feeds to match
-    the IDs presented in the :param:`feed` parameter.
-
-    ``"remove"`` deletes objects:
-
-     *  Feeds specified by :param:`feed`. The operation cascades to all of the
-        articles from the feed.
-     *  Labels specified by :param:`label`. This does not affect any associated
-        feeds.
-
-    POST returns the full feed and label metadata just like GET, in the
-    ``"labelsById"`` and ``"feedsById"`` members of the JSON response body.
-    """
-    if request.method == "POST":
-        action = request.POST["action"]
-        data = {}
-        if action == "create-feed":
-            feed_url = request.POST["url"]
-            with transaction.atomic():
-                feed = request.user.feed_set.create(
-                    feed_title=feed_url,
-                    url=feed_url,
-                    added=timezone.now(),
-                    next_check=timezone.now(),  # check ASAP
-                )
-            data["feedId"] = feed.id
-            schedule_changed.send(None)
-        elif action == "update-feed":
-            with transaction.atomic():
-                feed = request.user.feed_set.get(id=request.POST["feed"])
-                feed.url = request.POST["url"]
-                feed.user_title = request.POST["title"]
-                new_labels = request.user.label_set.filter(pk__in=request.POST.getlist("label"))
-                feed.label_set.set(new_labels)
-                if request.POST["active"] == "on":
-                    feed.next_check = timezone.now()
-                else:
-                    feed.next_check = None
-                feed.save()
-            schedule_changed.send(None)
-        elif action == "update-label":
-            with transaction.atomic():
-                label = request.user.label_set.get(id=request.POST["label"])
-                label.text = request.POST["text"]
-                new_feeds = request.user.feed_set.filter(pk__in=request.POST.getlist("feed"))
-                label.feeds.set(new_feeds)
-                label.save()
-        elif action == "remove":
-            with transaction.atomic():
-                for feed in request.user.feed_set.filter(pk__in=request.POST.getlist("feed")):
-                    feed.delete()
-                for label in request.user.label_set.filter(pk__in=request.POST.getlist("label")):
-                    label.delete()
-            schedule_changed.send(None)
-        else:
-            raise ValueError(action)
-
-        data.update(labels_for_user(request.user))
-        data.update(feeds_for_user(request.user))
-        return HttpResponse(json.dumps(data), content_type="application/json")
-    elif request.method == "GET":
-        data = labels_for_user(request.user)
-        data.update(feeds_for_user(request.user))
-        return HttpResponse(json.dumps(data), content_type="application/json")
-    else:
-        return HttpResponseNotAllowed(["GET", "POST"])
 
 
 def manifest(request):

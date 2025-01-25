@@ -61,7 +61,6 @@ urlpatterns = (
     ),
     # API
     re_path(r"^api/flags/$", yarrharr.views.flags, name="api-flags"),
-    re_path(r"^api/inventory/$", yarrharr.views.inventory),
     re_path(
         r"^login/$",
         auth_views.LoginView.as_view(template_name="login.html"),
