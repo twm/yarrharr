@@ -25,11 +25,11 @@ pytest==8.3.4
     #   -r requirements_test.in
     #   pytest-django
     #   pytest-twisted
-pytest-django==4.9.0
+pytest-django==4.10.0
     # via -r requirements_test.in
 pytest-twisted==1.14.3
     # via -r requirements_test.in
 tomli==2.2.1
     # via
-    #   -c /home/twm/dev/yarrharr/requirements.txt
+    #   -c requirements.txt
     #   pytest
