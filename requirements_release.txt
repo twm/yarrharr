@@ -35,7 +35,7 @@ filelock==3.16.1
     # via virtualenv
 h11==0.14.0
     # via httpcore
-hatch==1.14.0
+hatch==1.14.1
     # via -r requirements_release.in
 hatchling==1.27.0
     # via hatch
@@ -151,7 +151,7 @@ urllib3==2.2.3
     #   twine
 userpath==1.9.2
     # via hatch
-uv==0.5.9
+uv==0.6.12
     # via hatch
 virtualenv==20.28.0
     # via hatch
