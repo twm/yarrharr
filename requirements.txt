@@ -71,7 +71,7 @@ twisted==24.11.0
     # via
     #   treq
     #   yarrharr (pyproject.toml)
-typing-extensions==4.12.2
+typing-extensions==4.13.2
     # via
     #   pyopenssl
     #   treq

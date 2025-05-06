@@ -128,7 +128,7 @@ trove-classifiers==2025.5.1.12
     # via hatchling
 twine==6.1.0
     # via -r requirements_release.in
-typing-extensions==4.12.2
+typing-extensions==4.13.2
     # via anyio
 urllib3==2.2.3
     # via
