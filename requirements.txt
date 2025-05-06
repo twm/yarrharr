@@ -14,7 +14,7 @@ attrs==25.3.0
     #   yarrharr (pyproject.toml)
 automat==25.4.16
     # via twisted
-certifi==2024.12.14
+certifi==2025.4.26
     # via requests
 cffi==1.17.1
     # via cryptography
