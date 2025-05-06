@@ -76,7 +76,7 @@ typing-extensions==4.13.2
     #   pyopenssl
     #   treq
     #   twisted
-urllib3==2.2.3
+urllib3==2.4.0
     # via requests
 webencodings==0.5.1
     # via html5lib
