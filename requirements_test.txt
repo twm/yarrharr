@@ -10,7 +10,7 @@ decorator==5.2.1
     # via pytest-twisted
 greenlet==3.2.1
     # via pytest-twisted
-iniconfig==2.0.0
+iniconfig==2.1.0
     # via pytest
 lxml==5.4.0
     # via -r requirements_test.in
