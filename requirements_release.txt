@@ -124,7 +124,7 @@ tomli-w==1.2.0
     # via hatch
 tomlkit==0.13.2
     # via hatch
-trove-classifiers==2024.10.21.16
+trove-classifiers==2025.5.1.12
     # via hatchling
 twine==6.1.0
     # via -r requirements_release.in
