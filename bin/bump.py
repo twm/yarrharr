@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # Copyright © 2023, 2024 Tom Most <twm@freecog.net>
+#
+# Please note this script is buggy and you shouldn't use it.
 
 import argparse
 import asyncio
