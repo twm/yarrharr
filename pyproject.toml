@@ -15,7 +15,7 @@ dependencies = [
     "feedparser >= 6.0.8",
     "html5lib == 1.1",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 authors = [
   {name = "Tom Most", email = "twm@freecog.net"}
 ]
@@ -28,7 +28,7 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet :: WWW/HTTP",
 ]
 
