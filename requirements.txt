@@ -6,7 +6,7 @@
 #
 asgiref==3.8.1
     # via django
-attrs==24.3.0
+attrs==25.3.0
     # via
     #   service-identity
     #   treq
