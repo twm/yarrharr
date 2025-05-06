@@ -53,7 +53,7 @@ pyasn1-modules==0.4.2
     # via service-identity
 pycparser==2.22
     # via cffi
-pyopenssl==24.3.0
+pyopenssl==25.0.0
     # via twisted
 requests==2.32.3
     # via treq
@@ -73,6 +73,7 @@ twisted==24.11.0
     #   yarrharr (pyproject.toml)
 typing-extensions==4.12.2
     # via
+    #   pyopenssl
     #   treq
     #   twisted
 urllib3==2.2.3
