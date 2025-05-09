@@ -1,4 +1,4 @@
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -95,6 +95,9 @@ class Feed(_ViewOptions):
         <https://tools.ietf.org/html/rfc7231#section-7.1.1.1>`_ like ``b'Tue,
         15 Nov 1994 12:45:26 GMT'``, but the length limit is set slightly
         higher to allow for obsolete or non-compliant servers.
+    :ivar content_length:
+        Size of the feed response body (after any chunking, transfer- or
+        content-encoding) when last checked.
 
     The feed title is taken from the feed itself by default, but may be
     overridden by the user:
@@ -118,6 +121,7 @@ class Feed(_ViewOptions):
     etag = models.BinaryField(default=b"", max_length=1024)
     last_modified = models.BinaryField(default=b"", max_length=45)
     digest = models.BinaryField(default=b"", max_length=32)
+    content_length = models.IntegerField(null=True, default=None)
 
     feed_title = models.TextField()
     user_title = models.TextField(default="", blank=True)
