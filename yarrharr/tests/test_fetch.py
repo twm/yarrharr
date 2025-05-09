@@ -1,4 +1,4 @@
-# Copyright © 2017–2021, 2023 Tom Most <twm@freecog.net>
+# Copyright © 2017–2021, 2023, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -546,6 +546,7 @@ class FetchTests(SynchronousTestCase):
                 etag=b'"1234"',
                 last_modified=b"",
                 digest=mock.ANY,
+                content_length=len(EMPTY_RSS),
                 articles=[],
                 check_time=mock.ANY,
             ),
@@ -592,6 +593,7 @@ class FetchTests(SynchronousTestCase):
                 etag=b"",
                 last_modified=b"Tue, 7 Feb 2017 10:25:00 GMT",
                 digest=mock.ANY,
+                content_length=len(EMPTY_RSS),
                 articles=[],
                 check_time=mock.ANY,
             ),
@@ -691,6 +693,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=1234,
             check_time=timezone.now(),
         )
 
@@ -704,6 +707,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         self.assertEqual(b'"etag"', self.feed.etag)
         self.assertEqual(b"Tue, 15 Nov 1994 12:45:26 GMT", self.feed.last_modified)
         self.assertEqual(b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", self.feed.digest)
+        self.assertEqual(1234, self.feed.content_length)
         # Right now scheduling is naïve, but this will need to be changed
         # when that does.
         self.assertGreater(self.feed.next_check, timezone.now() + timedelta(hours=12))
@@ -729,6 +733,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)
@@ -769,6 +774,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)
@@ -808,6 +814,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)
@@ -857,6 +864,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)
@@ -906,6 +914,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b"",
             last_modified=b"",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)
@@ -956,6 +965,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b"",
             last_modified=b"",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)
@@ -991,6 +1001,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             etag=b'"etag"',
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
         )
 
         mu.persist(self.feed)

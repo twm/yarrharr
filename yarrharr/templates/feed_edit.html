@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}{{ feed.title }} - Edit{% endblock %}
 
@@ -24,7 +25,61 @@
         <input class="text-button text-button-primary" type="submit" value="Save">
       </div>
     </form>
+
+    <h2>Status</h2>
+    {% if feed.error %}
+      <p>⚠️ {{ feed.error }}</p>
+    {% endif %}
+
+    <table>
+      <tbody>
+        <tr>
+          <th>Next check</th>
+          <td>{{ feed.next_check }}</td>
+        </tr>
+        <tr>
+          <th>Last checked</th>
+          <td>{{ feed.last_checked }}</td>
+        </tr>
+        <tr>
+          <th>Last changed</th>
+          <td>{{ feed.last_changed }}</td>
+        </tr>
+        <tr>
+          <th>ETag</th>
+          <td><code>{{ feed.etag }}</code></td>
+        </tr>
+        <tr>
+          <th>Last-Modified</th>
+          <td><code>{{ feed.last_modified }}</code></td>
+        </tr>
+        <tr>
+          <th>Digest</th>
+          <td><code>{{ feed.digest.hex }}</code></td>
+        </tr>
+        <tr>
+          <th>Content length</th>
+          <td>{{ feed.content_length|intcomma }}{% if feed.content_length %} bytes{% endif %}</td>
+        </tr>
+        <tr>
+          <th>Feed title</th>
+          <td>{{ feed.feed_title }}</td>
+        </tr>
+        <tr>
+          <th>URL</th>
+          <td>{{ feed.url|urlize }}</td>
+        </tr>
+        <tr>
+          <th>Site URL</th>
+          <td>{{ feed.site_url|urlize }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+
   </div>
+
 
 </div>
 {% endblock %}

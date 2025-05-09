@@ -1,4 +1,4 @@
-# Copyright © 2016, 2017, 2018, 2019, 2020 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017, 2018, 2019, 2020, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -136,6 +136,7 @@ class MaybeUpdated(object):
     etag = attr.ib()
     last_modified = attr.ib()
     digest = attr.ib()
+    content_length: int | None = attr.ib()
     check_time = attr.ib(default=attr.Factory(timezone.now))
 
     def persist(self, feed):
@@ -146,6 +147,7 @@ class MaybeUpdated(object):
         feed.etag = self.etag
         feed.last_modified = self.last_modified
         feed.digest = self.digest
+        feed.content_length = self.content_length
         log.debug(
             "Upserting {upsert_count} articles to {feed}",
             upsert_count=len(self.articles),
@@ -634,6 +636,7 @@ def poll_feed(feed, clock, treq=treq):
             etag=extract_etag(response.headers),
             last_modified=extract_last_modified(response.headers),
             digest=digest,
+            content_length=len(raw_bytes),
             articles=articles,
         )
 

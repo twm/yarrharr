@@ -379,6 +379,7 @@ class FeedForm(ModelForm):
         assert self.instance.user, "instance argument must be a Feed instance with a user"
         self.fields["label_set"].queryset = self.instance.user.label_set.all()
         self.fields["label_set"].widget.attrs["size"] = self.instance.user.label_set.count()
+        self.fields["user_title"].widget.attrs["placeholder"] = self.instance.feed_title or ""
         self.initial["label_set"] = self.instance.label_set.all()
         self.initial["active"] = self.instance.next_check is not None
 
