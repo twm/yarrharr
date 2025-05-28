@@ -58,20 +58,20 @@ itertests +args='./yarrharr':
         .tox/test/bin/pytest -vvv "$@"
 
 devserver: _static
-    tox -e run -- django-admin migrate
-    tox -e run -- django-admin updatehtml
-    YARRHARR_CONF='yarrharr/tests/*.ini' tox -e run -- django-admin runserver 127.0.0.1:8888
+    tox run -e run -- django-admin migrate
+    tox run -e run -- django-admin updatehtml
+    YARRHARR_CONF='yarrharr/tests/*.ini' tox run -e run -- django-admin runserver 127.0.0.1:8888
 
 realserver: _static
-    tox -e run -- django-admin migrate
-    tox -e run -- django-admin collectstatic --noinput
-    tox -e run -- yarrharr
+    tox run -e run -- django-admin migrate
+    tox run -e run -- django-admin collectstatic --noinput
+    tox run -e run -- yarrharr
 
 poll-feeds:
-    tox -e run -- django-admin pollfeeds
+    tox run -e run -- django-admin pollfeeds
 
 force-poll:
-    tox -e run -- django-admin forcepoll
+    tox run -e run -- django-admin forcepoll
 
 clean:
     -rm -rf yarrharr/static
