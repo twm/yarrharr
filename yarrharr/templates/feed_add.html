@@ -38,5 +38,17 @@ h1 {
   </div>
 
 </div>
+
+<script type="module" nonce="{{ csp_nonce }}">
+
+document.getElementById("id_url").addEventListener("input", (e) => {
+  if (e.isComposing) return;
+  if (e.target.value.startsWith("view-source:")) {
+    e.target.value = e.target.value.slice("view-source:".length);
+  }
+});
+
+</script>
+
 {% endblock %}
 
