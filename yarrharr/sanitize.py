@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2020, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020, 2022, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -500,3 +500,53 @@ def _wp_smileys(source):
                 yield token
         else:
             yield token
+
+
+# Matches image candidate strings within a srcset attribute value as
+# described in https://html.spec.whatwg.org/multipage/images.html#srcset-attributes
+_srcset_candidate = re.compile(
+    r"""
+    # ASCII whitespace: https://infra.spec.whatwg.org/#ascii-whitespace
+    [\t\n\f\r ]*
+    (
+        # URL that doesn't start or end with a comma
+        (?!,)
+        [^\t\n\f\r ]+
+        (?<!,)
+    )
+    (
+        # Width descriptor like "1234w"
+        # https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#non-negative-integers
+        [\t\n\f\r ]+
+        \d+w
+        |
+        # Pixel density descriptor like "2.0x"
+        # https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#valid-floating-point-number
+        [\t\n\f\r ]+
+        \d+(?:\.\d+)?(?:[eE][-+]?\d+)?x
+        |
+    )
+    [\t\n\f\r ]*
+    (?:,|\Z)
+    """,
+    re.VERBOSE | re.ASCII,
+)
+
+
+def srcset_candidates(value: str) -> list[tuple[str, str]]:
+    """
+    Split a ``srcset`` attribute value into candidates:
+
+    >>> srcset_candidates("/foo.jpg, /foo.2x.jpg 2x")
+    [("/foo.jpg", ""), ("/foo.2x.jpg", "2x")]
+
+    This doesn't validate the URLs, nor check for duplicate or conflicting
+    descriptors. It returns an empty list when parsing fails.
+    """
+    pos = 0
+    candidates = []
+    while m := _srcset_candidate.match(value, pos):
+        desc = m[2].strip("\t\n\f\r ")
+        candidates.append((m[1], desc))
+        pos = m.end(0)
+    return candidates
