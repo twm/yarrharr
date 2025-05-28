@@ -148,7 +148,7 @@ class ConfTests(unittest.TestCase):
         The development config decodes as expected.
         """
         settings = {}
-        with resources.path("yarrharr.tests", "dev.ini") as path:
+        with resources.as_file(resources.files("yarrharr.tests") / "dev.ini") as path:
             read_yarrharr_conf([str(path)], settings)
 
         self.assertEqual(
