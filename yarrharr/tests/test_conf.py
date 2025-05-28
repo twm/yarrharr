@@ -128,6 +128,7 @@ class ConfTests(unittest.TestCase):
                 "SESSION_COOKIE_SECURE": False,
                 "CSRF_COOKIE_SECURE": False,
                 "CSRF_TRUSTED_ORIGINS": ["http://127.0.0.1:8888"],
+                "FORMS_URLFIELD_ASSUME_HTTPS": True,
                 "WSGI_APPLICATION": "yarrharr.wsgi.application",
                 "INSTALLED_APPS": (
                     "django.contrib.auth",
@@ -209,6 +210,7 @@ class ConfTests(unittest.TestCase):
                 "SESSION_COOKIE_SECURE": False,
                 "CSRF_COOKIE_SECURE": False,
                 "CSRF_TRUSTED_ORIGINS": ["http://127.0.0.1:8888"],
+                "FORMS_URLFIELD_ASSUME_HTTPS": True,
                 "WSGI_APPLICATION": "yarrharr.wsgi.application",
                 "INSTALLED_APPS": (
                     "django.contrib.auth",
