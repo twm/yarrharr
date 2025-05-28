@@ -18,7 +18,7 @@ from pprint import pprint
 
 import html5lib
 
-from ..sanitize import html_to_text, sanitize_html
+from ..sanitize import html_to_text, sanitize_html, srcset_candidates
 
 VIDEO_ICON = "<svg width=1em height=1em class=icon><use href=#icon-video></use></svg>"
 
@@ -301,6 +301,22 @@ class SanitizeHtmlTests(unittest.TestCase):
         html = '<img title="blah blah">'
         self.assertEqual('<img title="blah blah"><aside class=title-text>blah blah</aside>', sanitize_html(html))
 
+    def test_img_srcset_pixel_density(self):
+        """
+        A ``srcset`` containing pixel density descriptors passes through.
+        """
+        html = '<img srcset="/foo.jpg, /foo.2x.jpg 2x">'
+        self.assertEqual(html, sanitize_html(html))
+
+    def test_img_srcset_width(self):
+        """
+        Presence of a ``srcset`` width descriptor causes the attribute to be dropped
+        because width descriptors require a matching ``sizes`` attribute which is CSS
+        (so complicated to sanitize) and may be coupled to the source page's layout.
+        """
+        html = '<img srcset="/foo.100.jpg 100w, /foo.200.jpg 200w" sizes="auto" src="/foo.jpg">'
+        self.assertEqual('<img src="/foo.jpg">', sanitize_html(html))
+
     def test_a_attrs(self):
         """
         ``<a>`` tags are given ``rel`` and ``target`` attributes.
@@ -357,6 +373,68 @@ class SanitizeHtmlTests(unittest.TestCase):
             sanitize_html("<details><summary>.</summary>..."),
             "<details><summary>.</summary>...</details>",
         )
+
+
+class SrcsetCandidatesTests(unittest.TestCase):
+    maxDiff = None
+
+    def test_empty(self):
+        self.assertEqual([], srcset_candidates(""))
+        self.assertEqual([], srcset_candidates("    \n"))
+
+    def test_default(self):
+        self.assertEqual(
+            [("/1x.jpg", "")],
+            srcset_candidates("/1x.jpg"),
+        )
+
+    def test_x_one(self):
+        self.assertEqual(
+            [("/1x.jpg", "1x")],
+            srcset_candidates("/1x.jpg 1x"),
+        )
+
+    def test_x_two(self):
+        self.assertEqual(
+            [("/1x.jpg", "1x"), ("/2x.jpg", "2.0x")],
+            srcset_candidates("/1x.jpg 1x,/2x.jpg\t2.0x"),
+        )
+
+    def test_x_three(self):
+        self.assertEqual(
+            [("/1x.jpg", ""), ("/2x.jpg", "2x"), ("/3x.jpg", "3x")],
+            srcset_candidates("/1x.jpg, /2x.jpg  2x  , /3x.jpg 3x  "),
+        )
+
+    def test_x_floats(self):
+        """
+        A pixel density descriptor allows all the valid float formats.
+        """
+        for pd in ["1x", "1.0x", "9.5x", "36x", "39.95x", "100x", "1e1x", "2E2x"]:
+            self.assertEqual([("/foo.jpg", pd)], srcset_candidates("/foo.jpg " + pd))
+
+    def test_url_comma(self):
+        """A URL containing a comma is not broken."""
+        self.assertEqual(
+            [("/,.jpg", "6x"), ("/,,,,.webp", "1e100x")],
+            srcset_candidates(" /,.jpg 6x,\n /,,,,.webp \t1e100x"),
+        )
+
+    def test_one_w(self):
+        self.assertEqual(
+            [("/a.png", "600w")],
+            srcset_candidates("/a.png 600w"),
+        )
+
+    def test_two_w(self):
+        self.assertEqual(
+            [("a.jpg", "123w"), ("b.jpg", "1234w")],
+            srcset_candidates("a.jpg 123w, b.jpg 1234w"),
+        )
+
+    def test_invalid(self):
+        for pd in ["1.5w", "9000X", "-23w", "-60x"]:
+            self.assertEqual([], srcset_candidates("/x.gif " + pd))
 
 
 def print_tokens(html):

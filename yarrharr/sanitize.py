@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2020, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020, 2022, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 8
+REVISION = 9
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -150,6 +150,7 @@ def sanitize_html(html: str) -> str:
     source = _elide(source)
     source = _ReplaceYoutubeEmbedFilter(source)
     source = _extract_title_text(source)
+    source = _adjust_srcset(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
     source = _wp_smileys(source)
@@ -166,6 +167,12 @@ def sanitize_html(html: str) -> str:
                     namespaces["html"],
                     "wbr",
                 ),  # https://github.com/html5lib/html5lib-python/pull/395
+            ]
+        ),
+        allowed_attributes=sanitizer.allowed_attributes
+        | frozenset(
+            [
+                (None, "srcset"),
             ]
         ),
     )
@@ -446,6 +453,22 @@ def _extract_title_text(source):
                 }
 
 
+def _adjust_srcset(source):
+    """
+    Reject a ``srcset`` attribute contaning a width descriptor like
+    ``<img srcset="/foo.png 100w">``.
+    """
+    html_ns = namespaces["html"]
+    srcset_attr = (None, "srcset")
+    for token in source:
+        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and token["data"].get(srcset_attr) is not None:
+            for url, desc in srcset_candidates(token["data"][srcset_attr]):
+                if desc.endswith("w"):
+                    del token["data"][srcset_attr]
+                    break
+        yield token
+
+
 def _adjust_links(source):
     html_ns = namespaces["html"]
     href_attr = (None, "href")
@@ -500,3 +523,53 @@ def _wp_smileys(source):
                 yield token
         else:
             yield token
+
+
+# Matches image candidate strings within a srcset attribute value as
+# described in https://html.spec.whatwg.org/multipage/images.html#srcset-attributes
+_srcset_candidate = re.compile(
+    r"""
+    # ASCII whitespace: https://infra.spec.whatwg.org/#ascii-whitespace
+    [\t\n\f\r ]*
+    (
+        # URL that doesn't start or end with a comma
+        (?!,)
+        [^\t\n\f\r ]+
+        (?<!,)
+    )
+    (
+        # Width descriptor like "1234w"
+        # https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#non-negative-integers
+        [\t\n\f\r ]+
+        \d+w
+        |
+        # Pixel density descriptor like "2.0x"
+        # https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#valid-floating-point-number
+        [\t\n\f\r ]+
+        \d+(?:\.\d+)?(?:[eE][-+]?\d+)?x
+        |
+    )
+    [\t\n\f\r ]*
+    (?:,|\Z)
+    """,
+    re.VERBOSE | re.ASCII,
+)
+
+
+def srcset_candidates(value: str) -> list[tuple[str, str]]:
+    """
+    Split a ``srcset`` attribute value into candidates:
+
+    >>> srcset_candidates("/foo.jpg, /foo.2x.jpg 2x")
+    [("/foo.jpg", ""), ("/foo.2x.jpg", "2x")]
+
+    This doesn't validate the URLs, nor check for duplicate or conflicting
+    descriptors. It returns an empty list when parsing fails.
+    """
+    pos = 0
+    candidates = []
+    while m := _srcset_candidate.match(value, pos):
+        desc = m[2].strip("\t\n\f\r ")
+        candidates.append((m[1], desc))
+        pos = m.end(0)
+    return candidates
