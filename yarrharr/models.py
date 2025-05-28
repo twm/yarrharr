@@ -178,9 +178,9 @@ class Feed(_ViewOptions):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(check=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
-            models.CheckConstraint(check=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
-            models.CheckConstraint(check=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
+            models.CheckConstraint(condition=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
+            models.CheckConstraint(condition=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
+            models.CheckConstraint(condition=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
         ]
 
 

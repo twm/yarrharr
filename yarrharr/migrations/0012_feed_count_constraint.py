@@ -11,14 +11,14 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddConstraint(
             model_name="feed",
-            constraint=models.CheckConstraint(check=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
+            constraint=models.CheckConstraint(condition=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
         ),
         migrations.AddConstraint(
             model_name="feed",
-            constraint=models.CheckConstraint(check=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
+            constraint=models.CheckConstraint(condition=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
         ),
         migrations.AddConstraint(
             model_name="feed",
-            constraint=models.CheckConstraint(check=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
+            constraint=models.CheckConstraint(condition=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
         ),
     ]

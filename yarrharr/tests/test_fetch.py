@@ -37,8 +37,13 @@ from zope.interface import implementer
 from ..fetch import ArticleUpsert, BadStatus, BozoError, EmptyBody, Gone, MaybeUpdated, NetworkError, Unchanged, poll_feed
 from ..models import Feed
 
-EMPTY_RSS = resources.read_binary("yarrharr.examples", "empty.rss")
-SOME_HTML = resources.read_binary("yarrharr.examples", "nofeed.html")
+
+def example(filename) -> bytes:
+    return (resources.files("yarrharr.examples") / filename).read_bytes()
+
+
+EMPTY_RSS = example("empty.rss")
+SOME_HTML = example("nofeed.html")
 
 
 @attr.s
@@ -305,7 +310,7 @@ class FetchTests(SynchronousTestCase):
         custom sanitization.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "html-script.rss")
+        xml = example("html-script.rss")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -317,7 +322,7 @@ class FetchTests(SynchronousTestCase):
         HTML in the feed title is sanitized.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "html-title.atom")
+        xml = example("html-title.atom")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -331,7 +336,7 @@ class FetchTests(SynchronousTestCase):
         field.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "html-title.atom")
+        xml = example("html-title.atom")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -350,7 +355,7 @@ class FetchTests(SynchronousTestCase):
         escape the text so that it is valid HTML in the `raw_title` field.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "htmlish-title.rss")
+        xml = example("htmlish-title.rss")
         client = StubTreq(StaticResource(xml, b"text/xml;charset=utf-8"))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -364,7 +369,7 @@ class FetchTests(SynchronousTestCase):
         An Atom feed that lacks a title gets a title based on its URL.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "no-feed-title.atom")
+        xml = example("no-feed-title.atom")
         client = StubTreq(StaticResource(xml, b"text/xml;charset=utf-8"))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -377,7 +382,7 @@ class FetchTests(SynchronousTestCase):
         An RSS feed that lacks a title gets a title based on its URL.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "no-feed-title.rss")
+        xml = example("no-feed-title.rss")
         client = StubTreq(StaticResource(xml, b"text/xml;charset=utf-8"))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -391,7 +396,7 @@ class FetchTests(SynchronousTestCase):
         string for the raw_title.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "no-item-title.rss")
+        xml = example("no-item-title.rss")
         client = StubTreq(StaticResource(xml, b"text/xml; charset=utf-8"))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))
@@ -405,7 +410,7 @@ class FetchTests(SynchronousTestCase):
         raising an exception.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "empty.rss")
+        xml = example("empty.rss")
         client = StubTreq(StaticResource(xml, content_type=None))
 
         self.successResultOf(poll_feed(feed, self.clock, client))
@@ -636,7 +641,7 @@ class FetchTests(SynchronousTestCase):
         ``<updated>`` tags.
         """
         feed = FetchFeed()
-        xml = resources.read_binary("yarrharr.examples", "updated-only.atom")
+        xml = example("updated-only.atom")
         client = StubTreq(StaticResource(xml))
 
         outcome = self.successResultOf(poll_feed(feed, self.clock, client))

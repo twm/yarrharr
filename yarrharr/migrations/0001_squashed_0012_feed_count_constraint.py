@@ -144,15 +144,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="feed",
-            constraint=models.CheckConstraint(check=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
+            constraint=models.CheckConstraint(condition=models.Q(all_count__gte=0), name="feed_all_count_nonneg"),
         ),
         migrations.AddConstraint(
             model_name="feed",
-            constraint=models.CheckConstraint(check=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
+            constraint=models.CheckConstraint(condition=models.Q(unread_count__gte=0), name="feed_unread_count_nonneg"),
         ),
         migrations.AddConstraint(
             model_name="feed",
-            constraint=models.CheckConstraint(check=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
+            constraint=models.CheckConstraint(condition=models.Q(fave_count__gte=0), name="feed_fave_count_nonneg"),
         ),
         # This must be manually added at the end whenever squashing migrations,
         # lest the triggers cause migrations of the Feed or Article models to

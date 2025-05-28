@@ -196,6 +196,9 @@ def read_yarrharr_conf(files, namespace):
     namespace["CSRF_COOKIE_SECURE"] = external_url.scheme == "https"
     namespace["CSRF_TRUSTED_ORIGINS"] = [urlunparse(external_url[0:2] + ("", "", "", ""))]
 
+    # Transitional setting as of Django 5.1; remove when updating to Django 6.0.
+    namespace["FORMS_URLFIELD_ASSUME_HTTPS"] = True
+
     namespace["WSGI_APPLICATION"] = "yarrharr.wsgi.application"
 
     namespace["INSTALLED_APPS"] = (

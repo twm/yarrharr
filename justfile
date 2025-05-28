@@ -1,6 +1,7 @@
-# Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2022, 2023, 2024 Tom Most <twm@freecog.net>; GPLv3+
+# Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2022, 2023, 2024, 2025 Tom Most <twm@freecog.net>; GPLv3+
 
 set shell := ["bash", "-euc"]
+set positional-arguments
 
 default:
     just --list
@@ -42,7 +43,7 @@ iterstatic:
         -- \
         .tox/static/bin/python bin/compile-static.py --no-compress
 
-itertests +args='yarrharr':
+itertests +args='./yarrharr':
     #!/bin/bash
     tox -e test --develop --notest
     export YARRHARR_CONF=./yarrharr/tests/dev.ini
@@ -54,7 +55,7 @@ itertests +args='yarrharr':
         --on-busy-update=queue \
         --shell=none \
         -- \
-        .tox/test/bin/pytest -vvv ./yarrharr "$@"
+        .tox/test/bin/pytest -vvv "$@"
 
 devserver: _static
     tox -e run -- django-admin migrate
