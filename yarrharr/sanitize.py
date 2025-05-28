@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 8
+REVISION = 9
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -150,6 +150,7 @@ def sanitize_html(html: str) -> str:
     source = _elide(source)
     source = _ReplaceYoutubeEmbedFilter(source)
     source = _extract_title_text(source)
+    source = _adjust_srcset(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
     source = _wp_smileys(source)
@@ -166,6 +167,12 @@ def sanitize_html(html: str) -> str:
                     namespaces["html"],
                     "wbr",
                 ),  # https://github.com/html5lib/html5lib-python/pull/395
+            ]
+        ),
+        allowed_attributes=sanitizer.allowed_attributes
+        | frozenset(
+            [
+                (None, "srcset"),
             ]
         ),
     )
@@ -444,6 +451,22 @@ def _extract_title_text(source):
                     "namespace": html_ns,
                     "name": "aside",
                 }
+
+
+def _adjust_srcset(source):
+    """
+    Reject a ``srcset`` attribute contaning a width descriptor like
+    ``<img srcset="/foo.png 100w">``.
+    """
+    html_ns = namespaces["html"]
+    srcset_attr = (None, "srcset")
+    for token in source:
+        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and token["data"].get(srcset_attr) is not None:
+            for url, desc in srcset_candidates(token["data"][srcset_attr]):
+                if desc.endswith("w"):
+                    del token["data"][srcset_attr]
+                    break
+        yield token
 
 
 def _adjust_links(source):

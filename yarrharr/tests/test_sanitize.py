@@ -301,6 +301,22 @@ class SanitizeHtmlTests(unittest.TestCase):
         html = '<img title="blah blah">'
         self.assertEqual('<img title="blah blah"><aside class=title-text>blah blah</aside>', sanitize_html(html))
 
+    def test_img_srcset_pixel_density(self):
+        """
+        A ``srcset`` containing pixel density descriptors passes through.
+        """
+        html = '<img srcset="/foo.jpg, /foo.2x.jpg 2x">'
+        self.assertEqual(html, sanitize_html(html))
+
+    def test_img_srcset_width(self):
+        """
+        Presence of a ``srcset`` width descriptor causes the attribute to be dropped
+        because width descriptors require a matching ``sizes`` attribute which is CSS
+        (so complicated to sanitize) and may be coupled to the source page's layout.
+        """
+        html = '<img srcset="/foo.100.jpg 100w, /foo.200.jpg 200w" sizes="auto" src="/foo.jpg">'
+        self.assertEqual('<img src="/foo.jpg">', sanitize_html(html))
+
     def test_a_attrs(self):
         """
         ``<a>`` tags are given ``rel`` and ``target`` attributes.
