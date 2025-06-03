@@ -103,9 +103,13 @@
 {% for article in articles %}
 <div class="list-article">
   <span class="meta1">
-    <span class="feed-title">{{ article.feed.title }}</span>
-    <span class="date">{{ article.date }}</span>
-    <span class="author">{{ article.author }}</span>
+    {% if not hide_feed_title %}
+      <span class="feed-title">{{ article.feed.title }}</span>
+    {% endif %}
+    <time class="date" datetime="{{ article.date.isoformat }}">{{ article.date }}</time>
+    {% if not hide_author %}
+      <span class="author">{{ article.author }}</span>
+    {% endif %}
   </span>
   <a class="meta2 no-underline" href="{{ article.url }}" target="_blank" title="View on source site">
     <span class="title">{{ article.title }}</span>
