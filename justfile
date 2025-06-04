@@ -23,9 +23,23 @@ release:
         echo "ERROR: Dirty working copy"
         exit 1
     fi
+    for p in $(seq 0 42)
+    do
+        version="$(TZ=America/Los_Angeles date +%Y.%-m).$p"
+        tag="v${version}"
+        if ! git rev-parse "$tag" &>/dev/null
+        then
+            break
+        fi
+    done
+    incremental update yarrharr --newversion "$version"
+    git commit -am "Anoint $version"
     tox -e release --notest --recreate
-    version=$(.tox/release/bin/hatch version)
-    tag="v${version}"
+    if [[ $(.tox/release/bin/hatch version) != $version ]]
+    then
+        printf "ERROR: Version %q didn't take\n" "$version"
+        exit 1
+    fi
     git tag "$tag"
     git push origin "$tag"
     git push origin trunk

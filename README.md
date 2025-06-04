@@ -68,9 +68,7 @@ Yarrharr is running at [http://127.0.0.1:8888/](http://127.0.0.1:8888/).
 
 ## Releasing Yarrharr
 
- 1. Set the version: ``incremental update yarrharr --newversion YYYY.MM.P``
- 2. Commit, per tradition: ``git commit -am "Anoint YYYY.MM.P"``
- 3. Tag the release: ``just release``
+    $ just release
 
 ## License
 
