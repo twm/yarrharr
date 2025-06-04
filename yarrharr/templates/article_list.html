@@ -1,69 +1,123 @@
 <style nonce="{{ csp_nonce }}">
 
 .list-article {
-  display: flex; {# Flexbox rather than grid so we can omit columns without altering the styles. #}
-  flex-flow: row nowrap;
-  align-items: center;
-
-  margin: 0.75rem 0;
-
-  white-space: nowrap;
 
   --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
-  .meta1 {
-    display: contents;
+  {# Tabular display on wide pages #}
+  @media (min-width: 50rem) {
+    margin: 0.75rem 0;
+    display: flex; {# Flexbox rather than grid so we can omit columns without altering the styles. #}
+    flex-flow: row nowrap;
+    align-items: center;
+    white-space: nowrap;
 
-    .feed-title, .date, .author {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-right: 1rem;
-    }
-    .feed-title {
-      flex: 1 1 10rem;
-      min-width: 10rem;
-    }
-    .date {
-      flex: 0 1 12rem;
-      min-width: 12rem;
-    }
-    .author {
-      flex: 0 1 8rem;
-      min-width: 5rem;
-    }
-    .author:empty {
-      color: var(--quiet-text-color);
-      &::before {
-        content: "〜";
+    .meta1 {
+      display: contents;
+
+      .feed-title, .date, .author {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 1rem;
+        min-width: 0;
       }
+      .feed-title {
+        flex: 1 1 10rem;
+        min-width: 10rem;
+      }
+      .date {
+        flex: 0 1 12rem;
+        min-width: 12rem;
+      }
+      .author {
+        flex: 1 1 8rem;
+        min-width: 5rem;
+      }
+      .author:empty {
+        color: var(--quiet-text-color);
+        &::before {
+          content: "〜";
+        }
+      }
+    }
+
+    .meta2 {
+      flex: 1 1 50%;
+      min-width: 0;
     }
   }
 
+  {# Two-row display on narrower pages #}
+  @media (not (min-width: 50rem)) {
+    margin: 1rem 0;
+    display: grid;
+    grid-template-columns: 1fr min-content min-content;
+    grid-template-areas:
+      "meta1 meta1"
+      "meta2 read-toggle"
+      "meta2 view-link";
+    gap: 0.25rem;
+
+    .meta1 {
+      grid-area: meta1;
+      font-size: smaller;
+      color: var(--quiet-text-color);
+      display: grid;
+      grid-template-areas: "feed-title author date";
+      grid-template-columns:
+        minmax(0, min-content) 1fr 1fr;
+
+      .feed-title, .author, .date {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .feed-title {
+        grid-area: feed-title;
+        margin-right: 0.5rem;
+      }
+      .author {
+        grid-area: author;
+        font-style: italic;
+        text-overflow: ellipsis;
+      }
+      .date {
+        grid-area: date;
+        text-align: right;
+      }
+    }
+    .meta2 {
+      line-height: 1.7;
+      grid-area: meta2;
+      line-clamp: 3;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+  }
+
+
   .meta2 {
-    flex: 1 1 50%;
-    min-width: 0;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-end;
     gap: 1.5rem;
-    margin-right: 1rem;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     .title, .snippet {
-      overflow: hidden;
-      text-overflow: ellipsis;
+      display: inline;
     }
 
     .title {
         flex: 0 1 max-content;
         color: var(--text-color);
+        padding-right: 1.5rem;
     }
     &:hover .title {
       text-decoration-line: underline;
       text-decoration-color: var(--underline-color);
     }
     .snippet {
-        flex: 1 1 0%;
-        color: var(--quiet-text-color);
+      color: var(--quiet-text-color);
     }
   }
 
@@ -72,12 +126,14 @@
       flex: 0 0 var(--bar-height);
   }
   read-toggle {
-      button {
-          width: 100%;
-          height: 100%;
-      }
+    grid-area: read-toggle;
+    button {
+      width: 100%;
+      height: 100%;
+    }
   }
   .view-link {
+    grid-area: view-link;
   }
 
   .outbound-icon,
