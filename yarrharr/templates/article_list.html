@@ -1,6 +1,7 @@
 <style nonce="{{ csp_nonce }}">
 
 .list-article {
+  contain: layout; {# Establish positioning context #}
 
   --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
@@ -45,9 +46,14 @@
       flex: 1 1 50%;
       min-width: 0;
     }
+
+    .fave {
+      bottom: 0.1rem;
+      right: calc(var(--icon-size) + 1.5rem);
+    }
   }
 
-  {# Two-row display on narrower pages #}
+  {# Multi-line display on narrower pages #}
   @media (not (min-width: 50rem)) {
     margin: 1rem 0;
     display: grid;
@@ -94,6 +100,11 @@
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
     }
+
+    .fave {
+      bottom: calc(var(--icon-size) + 0.25rem + 0.5rem);
+      right: 0.25rem;
+    }
   }
 
 
@@ -136,6 +147,15 @@
     grid-area: view-link;
   }
 
+  {# Position a little heart badge next to the read toggle. #}
+  .fave {
+    color: var(--heart-color);
+    font-size: smaller;
+    position: absolute;
+    transform: rotate(10deg);
+    pointer-events: none; /* Don't interfere with the read toggle. */
+  }
+
   .outbound-icon,
   read-toggle button,
   .view-link {
@@ -174,6 +194,12 @@
     <span class="snippet">{{ article.content_snippet }}</span>
   </a>
   <read-toggle article-id="{{ article.id }}" {{ article.read|yesno:"checked," }}></read-toggle>
+  {% if article.fave %}
+    <svg role="img" class="fave" width="1em" height="1em" class="icon" aria-hidden="false">
+      <title>Favorite</title>
+      <use xlink:href="#icon-heart" />
+    </svg>
+  {% endif %}
   <a class="square view-link" href="{% url 'article-show' article.id %}">
     <svg width="1em" height="1em" title="View article" class="icon" aria-hidden="false"><use xlink:href="#icon-follow"></use></svg>
   </a>
