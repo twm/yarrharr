@@ -348,6 +348,9 @@ def feed_show(request, feed_id: int, filter: ArticleFilter):
             "next_page_after": next_page_after,
             "filter": filter,
             "tabs_selected": {f"feed-{filter.name}"},
+            # Only show the author if there is more than one author.
+            "hide_author": len({a.author for a in articles}) <= 1,
+            "hide_feed_title": True,
         },
     )
 
