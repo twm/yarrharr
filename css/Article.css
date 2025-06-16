@@ -67,6 +67,13 @@ article {
             height: auto;
         }
 
+        figure {
+            margin: 0.75rem 0;
+            @media (min-width: 32rem) {
+                margin: 1.5rem;
+            }
+        }
+
         hr {
             margin: 1rem 0;
             border: 0 solid var(--quiet-text-color);
