@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 9
+REVISION = 10
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -44,7 +44,7 @@ def html_tag(tag: str) -> str:
 
 
 _IMG_TAG = html_tag("img")
-
+_ASIDE_TAG = html_tag("aside")
 _DROP_TAGS = frozenset(
     [
         html_tag("datalist"),
@@ -121,6 +121,8 @@ def html_to_text(html: str) -> str:
         needs_ws = el.tag not in _NO_WHITESPACE_TAGS
         if el.tag == _IMG_TAG:
             buf.write(el.get("alt", "🖼️"))
+        elif el.tag == _ASIDE_TAG and el.get("class", "") == "title-text":
+            pass
         elif el.tag not in _DROP_TAGS:
             if el.text is not None:
                 if needs_ws:
@@ -128,6 +130,7 @@ def html_to_text(html: str) -> str:
                 buf.write(el.text)
             for child in el:
                 visit(child)
+
         if el.tail is not None:
             if needs_ws:
                 buf.write(" ")
@@ -426,7 +429,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
 
 def _extract_title_text(source):
     """
-    ``<img title="...">`` becomes ``<img><aside>...</aside>``
+    ``<img title="...">`` becomes ``<img><aside class="title-text">...</aside>``
     """
 
     html_ns = namespaces["html"]
