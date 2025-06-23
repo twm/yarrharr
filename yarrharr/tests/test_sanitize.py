@@ -80,6 +80,21 @@ class HtmlToTextTests(unittest.TestCase):
         self.assertEqual(":)", html_to_text('<img alt=":)">'))
         self.assertEqual("🖼️", html_to_text("<img>"))
 
+    def test_title_text_aside_dropped(self):
+        """
+        The content of an ``<aside class="title-text">`` tag is omitted from the
+        result so that the tag injected by `_extract_title_text` isn't included in
+        the article snippet.
+        """
+        html = '<img alt="boop beep" title="blah blah"><aside class=title-text>blah blah</aside>'
+        self.assertEqual("boop beep", html_to_text(html))
+
+    def test_normal_aside_retained(self):
+        """
+        An ``<aside>`` that isn't title text is handled as any other inline tag.
+        """
+        self.assertEqual("boop", html_to_text("<aside>boop</aside>"))
+
     def test_strip_whitespace(self):
         """
         Any leading or trailing whitespace is removed.
