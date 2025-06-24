@@ -17,14 +17,15 @@
 Yarrharr configuration defaults and parsing
 """
 
-import glob
 import os
 import sys
 from configparser import RawConfigParser
+from datetime import datetime
 from io import StringIO
 from urllib.parse import urlparse, urlunparse
 
-USER_CONF_GLOB = "/etc/yarrharr/*.ini"
+import attrs
+from cattrs.preconf.json import make_converter
 
 DEFAULT_CONF = """\
 [yarrharr]
@@ -52,7 +53,7 @@ host =
 port =
 
 [secrets]
-; The secret_key key must be present and non-empty.
+secret_key_store = /var/lib/yarrharr/secret_keys.json
 """
 
 
@@ -75,24 +76,21 @@ class UnreadableConfError(Exception):
         Exception.__init__(self, msg)
 
 
-def find_conf_files():
+def find_conf_file():
     """
-    Get a list of configuration files to be read.  The location to look in may
-    be overridden by setting :env:`YARRHARR_CONF` to a glob pattern.
+    Get the path of the configuration file to be read. The path may
+    be controlled by setting :env:`YARRHARR_CONF`.
 
-    :returns: a list of filenames
-    :raises NoConfError: when no files match the pattern
+    :returns: a filename
+    :raises NoConfError: when no configuration file exists
     """
-    pattern = os.environ.get("YARRHARR_CONF", USER_CONF_GLOB)
-    files = glob.glob(pattern)
-    if not files:
-        msg = "No files were found matching {}\n".format(pattern)
-        msg += "Set YARRHARR_CONF to change this search location"
-        raise NoConfError(msg)
-    return files
+    path = os.environ.get("YARRHARR_CONF", "/etc/yarrharr/yarrharr.ini")
+    if not os.path.isfile(path):
+        raise NoConfError(f"No configuration file was found at {path}.Set YARRHARR_CONF to change this location.")
+    return path
 
 
-def read_yarrharr_conf(files, namespace):
+def read_yarrharr_conf(file, namespace):
     """
     Read the given configuration files, mutating the given dictionary to
     contain Django settings.
@@ -102,8 +100,8 @@ def read_yarrharr_conf(files, namespace):
     """
     conf = RawConfigParser()
     conf.read_file(StringIO(DEFAULT_CONF), "<defaults>")
-    files_read = conf.read(files)
-    files_unread = set(files) - set(files_read)
+    files_read = conf.read([file])
+    files_unread = set([file]) - set(files_read)
     if files_unread:
         raise UnreadableConfError(files_unread)
 
@@ -179,7 +177,8 @@ def read_yarrharr_conf(files, namespace):
         }
     ]
 
-    namespace["SECRET_KEY"] = conf.get("secrets", "secret_key")
+    secret_key_store = os.path.join(os.path.dirname(file), conf.get("secrets", "secret_key_store"))
+    namespace["SECRET_KEY"], *namespace["SECRET_KEY_FALLBACKS"] = read_secret_keys(secret_key_store)
     namespace["X_FRAME_OPTIONS"] = "DENY"
 
     namespace["MIDDLEWARE"] = (
@@ -222,4 +221,28 @@ def read_yarrharr_conf(files, namespace):
         namespace["SECURE_CROSS_ORIGIN_OPENER_POLICY"] = "same-origin"
         namespace["YARRHARR_SCRIPT_NONCE"] = False
 
-    return conf
+
+@attrs.define
+class _SecretKey:
+    """A secret key and the date of its creation"""
+
+    secret_key: str = attrs.field(repr=False)
+    created_at: datetime
+
+
+def load_secret_keys(path: str) -> list[_SecretKey]:
+    converter = make_converter()
+    with open(path, "r") as f:
+        keys = converter.loads(f.read(), list[_SecretKey])
+    keys.sort(key=lambda sk: sk.created_at, reverse=True)
+    return keys
+
+
+def read_secret_keys(path: str) -> list[str]:
+    """
+    Load a secret key store
+
+    :param path: Path to the secret key file
+    :returns: a list of secret keys, the most recent first
+    """
+    return [sk.secret_key for sk in load_secret_keys(path)]

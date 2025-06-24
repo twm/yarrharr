@@ -8,12 +8,15 @@ asgiref==3.8.1
     # via django
 attrs==25.3.0
     # via
+    #   cattrs
     #   service-identity
     #   treq
     #   twisted
     #   yarrharr (pyproject.toml)
 automat==25.4.16
     # via twisted
+cattrs==25.1.1
+    # via yarrharr (pyproject.toml)
 certifi==2025.4.26
     # via requests
 cffi==1.17.1
@@ -73,6 +76,7 @@ twisted==24.11.0
     #   yarrharr (pyproject.toml)
 typing-extensions==4.13.2
     # via
+    #   cattrs
     #   pyopenssl
     #   treq
     #   twisted
