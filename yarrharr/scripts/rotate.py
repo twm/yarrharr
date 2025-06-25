@@ -26,11 +26,13 @@ def main(argv=sys.argv[1:]):
     args
 
     now = datetime.now(UTC)
-    doa = now - timedelta(days=60)
+    doa_at = now - timedelta(days=60)
+    fresh_at = now - timedelta(days=30)
 
     conf = Conf.from_file(find_conf_file())
-    keys = [sk for sk in load_secret_keys(conf.secret_key_store) if sk.created_at >= doa]
+    keys = [sk for sk in load_secret_keys(conf.secret_key_store) if sk.created_at >= doa_at]
 
-    keys.append(SecretKey.cut())
+    if not any(sk.created_at >= fresh_at for sk in keys):
+        keys.append(SecretKey.cut())
 
     dump_secret_keys(conf.secret_key_store, keys)
