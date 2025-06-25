@@ -17,11 +17,13 @@
 Yarrharr configuration defaults and parsing
 """
 
+import base64
 import os
 import sys
 from configparser import RawConfigParser
-from datetime import datetime
+from datetime import UTC, datetime
 from io import StringIO
+from typing import Self
 from urllib.parse import urlparse, urlunparse
 
 import attrs
@@ -86,163 +88,206 @@ def find_conf_file():
     """
     path = os.environ.get("YARRHARR_CONF", "/etc/yarrharr/yarrharr.ini")
     if not os.path.isfile(path):
-        raise NoConfError(f"No configuration file was found at {path}.Set YARRHARR_CONF to change this location.")
+        raise NoConfError(f"No configuration file was found at {path}. Set YARRHARR_CONF to change this location.")
     return path
 
 
 def read_yarrharr_conf(file, namespace):
     """
-    Read the given configuration files, mutating the given dictionary to
+    Read the given configuration file, mutating the given dictionary to
     contain Django settings.
 
     :raises UnreadableConfError:
         if any of the given files are not read
     """
-    conf = RawConfigParser()
-    conf.read_file(StringIO(DEFAULT_CONF), "<defaults>")
-    files_read = conf.read([file])
-    files_unread = set([file]) - set(files_read)
-    if files_unread:
-        raise UnreadableConfError(files_unread)
-
-    namespace["DEBUG"] = conf.getboolean("yarrharr", "debug")
-
-    namespace["DATABASES"] = {
-        "default": {
-            "ENGINE": conf.get("db", "engine"),
-            "NAME": conf.get("db", "name"),
-            "USER": conf.get("db", "user"),
-            "PASSWORD": conf.get("db", "password"),
-            "HOST": conf.get("db", "host"),
-            "PORT": conf.get("db", "port"),
-        },
-    }
-    namespace["ATOMIC_REQUESTS"] = True
-    namespace["DEFAULT_AUTO_FIELD"] = "django.db.models.AutoField"
-
-    external_url = urlparse(conf.get("yarrharr", "external_url"))
-    if external_url.path != "":
-        # Ensure that the URL doesn't contain a path, as some day we will
-        # probably want to add the ability to add a prefix to the path.
-        msg = "external_url must not include path: remove {!r}".format(external_url.path)
-        raise ValueError(msg)
-    namespace["ALLOWED_HOSTS"] = [external_url.hostname]
-
-    # The proxied config is an enumeration to ensure it can be extended to
-    # support the Forwarded header (RFC 7239) in the future. We require expicit
-    # configuration rather than auto-detecting these headers because the
-    # frontend proxy *must* be configured to strip whatever header is in use,
-    # lest clients be able to forge it.
-    proxied = conf.get("yarrharr", "proxied")
-    if proxied not in {"no", "x-forwarded"}:
-        msg = "proxied must be 'no' or 'x-forwarded', not {!r}".format(proxied)
-        raise ValueError(msg)
-    namespace["USE_X_FORWARDED_HOST"] = proxied == "x-forwarded"
-
-    # Config for the Twisted production server.
-    namespace["SERVER_ENDPOINT"] = conf.get("yarrharr", "server_endpoint")
-
-    namespace["ROOT_URLCONF"] = "yarrharr.urls"
-    namespace["LOGIN_URL"] = "login"
-    namespace["LOGIN_REDIRECT_URL"] = "home"
-    namespace["LOGOUT_URL"] = "logout"
-
-    namespace["LANGUAGE_CODE"] = "en-us"
-    namespace["USE_I18N"] = True
-    namespace["USE_TZ"] = True
-    namespace["TIME_ZONE"] = "UTC"
-
-    namespace["STATIC_ROOT"] = conf.get("yarrharr", "static_root")
-    namespace["STATIC_URL"] = conf.get("yarrharr", "static_url")
-    namespace["STATICFILES_FINDERS"] = ("django.contrib.staticfiles.finders.AppDirectoriesFinder",)
-
-    # Template context processors. This list is missing most of the processors
-    # in the default list as Yarrharr's templates don't use them.
-    context_processors = [
-        "django.contrib.auth.context_processors.auth",
-        "yarrharr.context_processors.csp",
-    ]
-    if namespace["DEBUG"]:
-        # When in debug mode, display SQL queries for requests coming from the
-        # loopback interface.
-        context_processors.append("django.template.context_processors.debug")
-        namespace["INTERNAL_IPS"] = ["127.0.0.1"]
-
-    namespace["TEMPLATES"] = [
-        {
-            "BACKEND": "django.template.backends.django.DjangoTemplates",
-            "DIRS": [],
-            "APP_DIRS": True,
-            "OPTIONS": {"context_processors": context_processors},
-        }
-    ]
-
-    secret_key_store = os.path.join(os.path.dirname(file), conf.get("secrets", "secret_key_store"))
-    namespace["SECRET_KEY"], *namespace["SECRET_KEY_FALLBACKS"] = read_secret_keys(secret_key_store)
-    namespace["X_FRAME_OPTIONS"] = "DENY"
-
-    namespace["MIDDLEWARE"] = (
-        "django.middleware.common.CommonMiddleware",
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    )
-
-    namespace["SESSION_ENGINE"] = "django.contrib.sessions.backends.signed_cookies"
-    namespace["SESSION_COOKIE_HTTPONLY"] = True
-    namespace["SESSION_COOKIE_SECURE"] = external_url.scheme == "https"
-    namespace["CSRF_COOKIE_SECURE"] = external_url.scheme == "https"
-    namespace["CSRF_TRUSTED_ORIGINS"] = [urlunparse(external_url[0:2] + ("", "", "", ""))]
-
-    # Transitional setting as of Django 5.1; remove when updating to Django 6.0.
-    namespace["FORMS_URLFIELD_ASSUME_HTTPS"] = True
-
-    namespace["WSGI_APPLICATION"] = "yarrharr.wsgi.application"
-
-    namespace["INSTALLED_APPS"] = (
-        "django.contrib.auth",
-        "django.contrib.contenttypes",
-        "django.contrib.sessions",
-        "django.contrib.staticfiles",
-        "django.contrib.humanize",
-        "yarrharr",
-    )
-
-    if "runserver" not in sys.argv:
-        # Disable Django's logging configuration stuff (except when running under
-        # the dev server).
-        namespace["LOGGING_CONFIG"] = None
-        namespace["YARRHARR_SCRIPT_NONCE"] = True
-    else:
-        # Under the dev server send the same headers as the real Twisted server.
-        # See yarrharr.application.Root.
-        namespace["SECURE_REFERRER_POLICY"] = "same-origin"
-        namespace["SECURE_CROSS_ORIGIN_OPENER_POLICY"] = "same-origin"
-        namespace["YARRHARR_SCRIPT_NONCE"] = False
+    Conf.from_file(file).to_django_settings(namespace)
 
 
 @attrs.define
-class _SecretKey:
+class Conf:
+    path: str
+    conf: RawConfigParser
+
+    @classmethod
+    def from_file(cls, file):
+        conf = RawConfigParser()
+        conf.read_file(StringIO(DEFAULT_CONF), "<defaults>")
+        files_read = conf.read([file])
+        files_unread = set([file]) - set(files_read)
+        if files_unread:
+            raise UnreadableConfError(files_unread)
+        return cls(path=file, conf=conf)
+
+    @property
+    def secret_key_store(self) -> str:
+        """
+        Get the path of the secret key store, which is resolved as relative to
+        the configuration file.
+        """
+        return os.path.join(
+            os.path.dirname(self.path),
+            self.conf.get("secrets", "secret_key_store"),
+        )
+
+    def to_django_settings(self, namespace):
+        """
+        Mutate *namespace* to contain the Django settings that correspond to
+        this configuration.
+        """
+        namespace["DEBUG"] = self.conf.getboolean("yarrharr", "debug")
+
+        namespace["DATABASES"] = {
+            "default": {
+                "ENGINE": self.conf.get("db", "engine"),
+                "NAME": self.conf.get("db", "name"),
+                "USER": self.conf.get("db", "user"),
+                "PASSWORD": self.conf.get("db", "password"),
+                "HOST": self.conf.get("db", "host"),
+                "PORT": self.conf.get("db", "port"),
+            },
+        }
+        namespace["ATOMIC_REQUESTS"] = True
+        namespace["DEFAULT_AUTO_FIELD"] = "django.db.models.AutoField"
+
+        external_url = urlparse(self.conf.get("yarrharr", "external_url"))
+        if external_url.path != "":
+            # Ensure that the URL doesn't contain a path, as some day we will
+            # probably want to add the ability to add a prefix to the path.
+            msg = "external_url must not include path: remove {!r}".format(external_url.path)
+            raise ValueError(msg)
+        namespace["ALLOWED_HOSTS"] = [external_url.hostname]
+
+        # The proxied config is an enumeration to ensure it can be extended to
+        # support the Forwarded header (RFC 7239) in the future. We require expicit
+        # configuration rather than auto-detecting these headers because the
+        # frontend proxy *must* be configured to strip whatever header is in use,
+        # lest clients be able to forge it.
+        proxied = self.conf.get("yarrharr", "proxied")
+        if proxied not in {"no", "x-forwarded"}:
+            msg = "proxied must be 'no' or 'x-forwarded', not {!r}".format(proxied)
+            raise ValueError(msg)
+        namespace["USE_X_FORWARDED_HOST"] = proxied == "x-forwarded"
+
+        # Config for the Twisted production server.
+        namespace["SERVER_ENDPOINT"] = self.conf.get("yarrharr", "server_endpoint")
+
+        namespace["ROOT_URLCONF"] = "yarrharr.urls"
+        namespace["LOGIN_URL"] = "login"
+        namespace["LOGIN_REDIRECT_URL"] = "home"
+        namespace["LOGOUT_URL"] = "logout"
+
+        namespace["LANGUAGE_CODE"] = "en-us"
+        namespace["USE_I18N"] = True
+        namespace["USE_TZ"] = True
+        namespace["TIME_ZONE"] = "UTC"
+
+        namespace["STATIC_ROOT"] = self.conf.get("yarrharr", "static_root")
+        namespace["STATIC_URL"] = self.conf.get("yarrharr", "static_url")
+        namespace["STATICFILES_FINDERS"] = ("django.contrib.staticfiles.finders.AppDirectoriesFinder",)
+
+        # Template context processors. This list is missing most of the processors
+        # in the default list as Yarrharr's templates don't use them.
+        context_processors = [
+            "django.contrib.auth.context_processors.auth",
+            "yarrharr.context_processors.csp",
+        ]
+        if namespace["DEBUG"]:
+            # When in debug mode, display SQL queries for requests coming from the
+            # loopback interface.
+            context_processors.append("django.template.context_processors.debug")
+            namespace["INTERNAL_IPS"] = ["127.0.0.1"]
+
+        namespace["TEMPLATES"] = [
+            {
+                "BACKEND": "django.template.backends.django.DjangoTemplates",
+                "DIRS": [],
+                "APP_DIRS": True,
+                "OPTIONS": {"context_processors": context_processors},
+            }
+        ]
+
+        namespace["SECRET_KEY"], *namespace["SECRET_KEY_FALLBACKS"] = [sk.secret_key for sk in load_secret_keys(self.secret_key_store)]
+        namespace["X_FRAME_OPTIONS"] = "DENY"
+
+        namespace["MIDDLEWARE"] = (
+            "django.middleware.common.CommonMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        )
+
+        namespace["SESSION_ENGINE"] = "django.contrib.sessions.backends.signed_cookies"
+        namespace["SESSION_COOKIE_HTTPONLY"] = True
+        namespace["SESSION_COOKIE_SECURE"] = external_url.scheme == "https"
+        namespace["CSRF_COOKIE_SECURE"] = external_url.scheme == "https"
+        namespace["CSRF_TRUSTED_ORIGINS"] = [urlunparse(external_url[0:2] + ("", "", "", ""))]
+
+        # Transitional setting as of Django 5.1; remove when updating to Django 6.0.
+        namespace["FORMS_URLFIELD_ASSUME_HTTPS"] = True
+
+        namespace["WSGI_APPLICATION"] = "yarrharr.wsgi.application"
+
+        namespace["INSTALLED_APPS"] = (
+            "django.contrib.auth",
+            "django.contrib.contenttypes",
+            "django.contrib.sessions",
+            "django.contrib.staticfiles",
+            "django.contrib.humanize",
+            "yarrharr",
+        )
+
+        if "runserver" not in sys.argv:
+            # Disable Django's logging configuration stuff (except when running under
+            # the dev server).
+            namespace["LOGGING_CONFIG"] = None
+            namespace["YARRHARR_SCRIPT_NONCE"] = True
+        else:
+            # Under the dev server send the same headers as the real Twisted server.
+            # See yarrharr.application.Root.
+            namespace["SECURE_REFERRER_POLICY"] = "same-origin"
+            namespace["SECURE_CROSS_ORIGIN_OPENER_POLICY"] = "same-origin"
+            namespace["YARRHARR_SCRIPT_NONCE"] = False
+
+
+@attrs.define
+class SecretKey:
     """A secret key and the date of its creation"""
 
     secret_key: str = attrs.field(repr=False)
     created_at: datetime
 
+    @classmethod
+    def cut(cls) -> Self:
+        """Create a new secret key. Metaphor hard."""
+        return cls(
+            secret_key=base64.b64encode(os.urandom(45)).decode("ascii"),
+            created_at=datetime.now(UTC),
+        )
 
-def load_secret_keys(path: str) -> list[_SecretKey]:
-    converter = make_converter()
-    with open(path, "r") as f:
-        keys = converter.loads(f.read(), list[_SecretKey])
-    keys.sort(key=lambda sk: sk.created_at, reverse=True)
-    return keys
 
-
-def read_secret_keys(path: str) -> list[str]:
+def load_secret_keys(path: str) -> list[SecretKey]:
     """
-    Load a secret key store
+    Read a secret key store
 
     :param path: Path to the secret key file
     :returns: a list of secret keys, the most recent first
     """
-    return [sk.secret_key for sk in load_secret_keys(path)]
+    converter = make_converter()
+    with open(path, "r") as f:
+        keys = converter.loads(f.read(), list[SecretKey])
+    keys.sort(key=lambda sk: sk.created_at, reverse=True)
+    return keys
+
+
+def dump_secret_keys(path: str, keys: list[SecretKey]) -> None:
+    """
+    Write a secret key store
+
+    :param path: Path to the secret key file
+    :param keys: The keys to dump
+    """
+    converter = make_converter()
+    s = converter.dumps(keys, list[SecretKey])
+    with open(path, "w") as f:
+        f.write(s)

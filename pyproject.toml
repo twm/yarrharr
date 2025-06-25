@@ -39,6 +39,7 @@ homepage = "https://github.com/twm/yarrharr"
 [project.scripts]
 yarrharr = "yarrharr.scripts.yarrharr:main"
 yarrharr-fetch = "yarrharr.scripts.fetch:main"
+yarrharr-rotate = "yarrharr.scripts.rotate:main"
 
 [tool.hatch.build.targets.sdist]
 packages = ["yarrharr"]
