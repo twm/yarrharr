@@ -237,7 +237,10 @@ class ConfTests(unittest.TestCase):
         )
 
     def test_read_secret_key_fallbacks(self):
-        """ """
+        """
+        The most recently created secret key is the current one used for
+        signing. The rest are fallbacks.
+        """
         with NamedTemporaryFile() as store, NamedTemporaryFile() as f:
             store.write(
                 json.dumps(
