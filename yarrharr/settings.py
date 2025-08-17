@@ -23,7 +23,7 @@ testability.  The files to read are defined by the :env:`YARRHARR_CONF`
 environment variable, a shell-style glob pattern.
 """
 
-from yarrharr.conf import find_conf_files, read_yarrharr_conf
+from yarrharr.conf import find_conf_file, read_yarrharr_conf
 
-files = find_conf_files()
-conf = read_yarrharr_conf(files, locals())
+files = find_conf_file()
+conf = read_yarrharr_conf(find_conf_file(), locals())

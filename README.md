@@ -46,7 +46,7 @@ The Django dev server is running at [http://127.0.0.1:8888/](http://127.0.0.1:88
 
 If you make changes to the Django models you can generate migrations by running `django-admin` under Tox::
 
-    $ tox -e run -- django-admin makemigrations
+    $ tox run -e run -- django-admin makemigrations
     $ git add yarrharr/migrations/*.py
 
 If you wish to check feeds for updates:

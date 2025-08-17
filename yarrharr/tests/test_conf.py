@@ -1,4 +1,4 @@
-# Copyright © 2014–2019, 2021, 2022 Tom Most <twm@freecog.net>
+# Copyright © 2014–2019, 2021, 2022, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,14 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+import os
 import re
 import unittest
-from configparser import NoOptionError
 from importlib import resources
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
-from yarrharr.conf import NoConfError, UnreadableConfError, find_conf_files, read_yarrharr_conf
+from yarrharr.conf import NoConfError, UnreadableConfError, find_conf_file, read_yarrharr_conf
 
 
 class ConfTests(unittest.TestCase):
@@ -31,8 +32,8 @@ class ConfTests(unittest.TestCase):
         A :env:`YARRHARR_CONF` pattern which doesn't match anything results in
         an exception.
         """
-        with mock.patch("os.environ", {"YARRHARR_CONF": "/does-not-exist/*.ini"}):
-            self.assertRaises(NoConfError, find_conf_files)
+        with mock.patch("os.environ", {"YARRHARR_CONF": "/does-not-exist/yarrharr.ini"}):
+            self.assertRaises(NoConfError, find_conf_file)
 
     def test_file_exists(self):
         """
@@ -40,36 +41,42 @@ class ConfTests(unittest.TestCase):
         """
         with NamedTemporaryFile() as f:
             with mock.patch("os.environ", {"YARRHARR_CONF": f.name}):
-                self.assertEqual([f.name], find_conf_files())
+                self.assertEqual(f.name, find_conf_file())
 
     def test_unreadable(self):
         """
         If a conf file doesn't exist an exception results.
         """
         fn = "/foo/bar/does-not-exist"
-        self.assertRaisesRegex(UnreadableConfError, re.escape(fn), read_yarrharr_conf, [fn], {})
+        self.assertRaisesRegex(UnreadableConfError, re.escape(fn), read_yarrharr_conf, fn, {})
 
     def test_read_defaults(self):
         """
-        The defaults are not sufficient.  At least ``secret_key`` must be
-        defined.
+        The defaults are not sufficient. The secret key store
+        must be initialized.
+
+        This assumes that there is no ``/var/lib/yarrharr/secret_keys.json``
+        file available.
         """
         # Since at least one file is required, use an empty temp file.
         with NamedTemporaryFile() as f:
-            self.assertRaisesRegex(NoOptionError, r"secret_key", read_yarrharr_conf, [f.name], {})
+            self.assertRaisesRegex(FileNotFoundError, "secret_keys.json", read_yarrharr_conf, f.name, {})
 
     def test_read_minimal(self):
         """
-        Once ``secret_key`` is defined, the read succeeds and gives settings
+        Once ``secret_key_file`` is defined, the read succeeds and gives settings
         appropriate for the app installed globally on a Debian system.
         """
         # This will fail in Windows.  I'm okay with that for now.
-        with NamedTemporaryFile() as f:
-            f.write(b"[secrets]\nsecret_key = sarlona\n")
+        with NamedTemporaryFile() as store, NamedTemporaryFile() as f:
+            store.write(b'[{"secret_key": "sarlona", "created_at": "2020-01-01T01:01:01"}]')
+            store.flush()
+
+            f.write(f"[secrets]\nsecret_key_store = {os.path.abspath(store.name)}\n".encode())
             f.seek(0)
 
             settings = {}
-            read_yarrharr_conf([f.name], settings)
+            read_yarrharr_conf(f.name, settings)
 
         self.assertEqual(
             settings,
@@ -115,6 +122,7 @@ class ConfTests(unittest.TestCase):
                     }
                 ],
                 "SECRET_KEY": "sarlona",
+                "SECRET_KEY_FALLBACKS": [],
                 "X_FRAME_OPTIONS": "DENY",
                 "MIDDLEWARE": (
                     "django.middleware.common.CommonMiddleware",
@@ -146,10 +154,12 @@ class ConfTests(unittest.TestCase):
     def test_read_dev_config(self):
         """
         The development config decodes as expected.
+
+        The ``secret_key_store`` path is interpreted as relative to the config file.
         """
         settings = {}
         with resources.as_file(resources.files("yarrharr.tests") / "dev.ini") as path:
-            read_yarrharr_conf([str(path)], settings)
+            read_yarrharr_conf(str(path), settings)
 
         self.assertEqual(
             settings,
@@ -197,6 +207,7 @@ class ConfTests(unittest.TestCase):
                     }
                 ],
                 "SECRET_KEY": "supersekrit",
+                "SECRET_KEY_FALLBACKS": [],
                 "X_FRAME_OPTIONS": "DENY",
                 "MIDDLEWARE": (
                     "django.middleware.common.CommonMiddleware",
@@ -225,6 +236,32 @@ class ConfTests(unittest.TestCase):
             },
         )
 
+    def test_read_secret_key_fallbacks(self):
+        """
+        The most recently created secret key is the current one used for
+        signing. The rest are fallbacks.
+        """
+        with NamedTemporaryFile() as store, NamedTemporaryFile() as f:
+            store.write(
+                json.dumps(
+                    [
+                        {"secret_key": "open sesame", "created_at": "2020-01-01T01:01:01"},
+                        {"secret_key": "sarlona", "created_at": "2021-01-01T01:01:01"},
+                        {"secret_key": "supersekrit", "created_at": "2022-01-01T01:01:01"},
+                    ]
+                ).encode()
+            )
+            store.flush()
+
+            f.write(f"[secrets]\nsecret_key_store = {store.name}\n".encode())
+            f.seek(0)
+
+            settings = {}
+            read_yarrharr_conf(f.name, settings)
+
+        self.assertEqual("supersekrit", settings["SECRET_KEY"])
+        self.assertEqual(["sarlona", "open sesame"], settings["SECRET_KEY_FALLBACKS"])
+
     def test_read_prod_proxy_config(self):
         """
         A configuration suitable for deployment behind a reverse proxy sets:
@@ -233,19 +270,16 @@ class ConfTests(unittest.TestCase):
           * ``proxied = x-forwarded`` to accept forwarded headers from the
             proxy.
         """
-        with NamedTemporaryFile() as f:
-            f.write(
-                b"[yarrharr]\n"
-                b"external_url = https://f.q.d.n\n"
-                b"server_endpoint = tcp:8182:interface=127.0.0.1\n"
-                b"proxied = x-forwarded\n"
-                b"[secrets]\n"
-                b"secret_key = sarlona\n",
-            )
+        with NamedTemporaryFile() as store, NamedTemporaryFile() as f:
+            store.write(b'[{"secret_key": "sarlona", "created_at": "2020-01-01T01:01:01"}]')
+            store.flush()
+
+            f.write(b"[yarrharr]\nexternal_url = https://f.q.d.n\nserver_endpoint = tcp:8182:interface=127.0.0.1\nproxied = x-forwarded\n")
+            f.write(f"[secrets]\nsecret_key_store = {store.name}\n".encode())
             f.flush()
 
             settings = {}
-            read_yarrharr_conf([f.name], settings)
+            read_yarrharr_conf(f.name, settings)
 
         self.assertEqual(["f.q.d.n"], settings["ALLOWED_HOSTS"])
         self.assertEqual("tcp:8182:interface=127.0.0.1", settings["SERVER_ENDPOINT"])
@@ -271,6 +305,6 @@ class ConfTests(unittest.TestCase):
             settings = {}
 
             with self.assertRaises(ValueError) as c:
-                read_yarrharr_conf([f.name], settings)
+                read_yarrharr_conf(f.name, settings)
 
         self.assertEqual(str(c.exception), "external_url must not include path: remove '/foo/bar'")
