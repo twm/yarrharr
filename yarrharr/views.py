@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, Q, Sum
 from django.forms import BooleanField, CharField, ModelForm, ModelMultipleChoiceField, URLField, URLInput, ValidationError
-from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -305,23 +305,44 @@ def all_show(request, filter: ArticleFilter):
 
 
 @login_required
-def feed_list(request):
+def feed_list(request, view="updated"):
     """
     Display a list of known feeds
     """
+    q = request.user.feed_set.all()
+
+    error_count = q.exclude(error="").count()
+
+    if view == "updated":
+        q = q.exclude(next_check__isnull=True).order_by("-last_updated")
+
+    elif view == "az":
+        q = sorted(
+            q.exclude(next_check__isnull=True),
+            # XXX It would be nice to do this sorting in the database, but sqlite3 does
+            # not ship with appropriate collations. Custom collations can be installed,
+            # but there isn't much advantage to doing so right now given we always
+            # query all feeds anyway.
+            key=lambda feed: (human_sort_key(feed.title), feed.pk),
+        )
+
+    elif view == "errors":
+        q = q.exclude(next_check__isnull=True).exclude(error="").order_by("-last_checked")
+
+    elif view == "archived":
+        q = q.filter(next_check__isnull=True).order_by("-last_checked")
+
+    else:
+        raise Http404()
+
     return render(
         request,
         "feed_list.html",
         {
-            "feeds": sorted(
-                request.user.feed_set.all(),
-                # XXX It would be nice to do this sorting in the database, but sqlite3 does
-                # not ship with appropriate collations. Custom collations can be installed,
-                # but there isn't much advantage to doing so right now given we always
-                # query all feeds anyway.
-                key=lambda feed: (human_sort_key(feed.title), feed.pk),
-            ),
-            "tabs_selected": {},
+            "view": view,
+            "feeds": q,
+            "error_count": error_count,
+            "tabs_selected": {f"view-{view}"},
         },
     )
 

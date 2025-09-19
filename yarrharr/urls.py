@@ -1,4 +1,4 @@
-# Copyright © 2013–2021 Tom Most <twm@freecog.net>
+# Copyright © 2013–2021, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ urlpatterns = (
     path("label/<int:label_id>/delete/", yarrharr.views.label_delete, name="label-delete"),
     path("feeds/", yarrharr.views.feed_list, name="feed-list"),
     path("feeds/add/", yarrharr.views.feed_add, name="feed-add"),
+    path("feeds/<slug:view>/", yarrharr.views.feed_list, name="feed-list-of"),
     path("feed/<int:feed_id>/", yarrharr.views.feed_edit, name="feed-edit"),
     path(
         "feed/<int:feed_id>/<filter:filter>/",

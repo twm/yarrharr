@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load ytabs %}
 {% load humanize %}
 
 {% block title %}Feeds{% endblock %}
@@ -13,12 +14,36 @@
     <a class="text-button text-button-primary no-underline" href="{% url 'feed-add' %}">Add Feed</a>
   </div>
 
+  <div class="tabs">
+    <div class="tabs-tabs">
+      <a {% tabattrs "view-updated" %} class="no-underline" href="{% url 'feed-list' %}">
+        Latest
+      </a>
+      <a {% tabattrs "view-az" %} class="no-underline" href="{% url 'feed-list-of' 'az' %}">
+        A→Z
+      </a>
+      <a {% tabattrs "view-errors" %} class="no-underline" href="{% url 'feed-list-of' 'errors' %}">
+        Errors{% if error_count %} <span class="count">{{ error_count|intcomma }}</span>{% endif %}
+      </a>
+      <a {% tabattrs "view-archived" %} class="no-underline" href="{% url 'feed-list-of' 'archived' %}">
+        Archived
+      </a>
+    </div>
+  </div>
+
   <table class="feed-list">
-    <thead><tr class="feed-list-item feed-list-item-header"><th class="col-feed">Feed</th><th class="col-unread">Unread</th><th class="col-fave">Favorite</th><th class="col-site-url">Site URL</th><th class="col-changed">Last Changed</th><th class="col-edit"></th></tr></thead>
+    <thead><tr class="feed-list-item feed-list-item-header"><th class="col-feed">Feed</th><th class="col-unread">Unread</th><th class="col-fave">Favorite</th><th class="col-site-url">Site URL</th><th class="col-updated">Last Updated</th><th class="col-edit"></th></tr></thead>
     <tbody>
       {% for feed in feeds %}
         <tr class="feed-list-item">
-          <td class="col-feed"><a class="lazy-underline" href="{% url "feed-show" feed.id "all" %}">{{ feed.title }}</a></td>
+          <td class="col-feed">
+            <a class="lazy-underline" href="{% url "feed-show" feed.id "all" %}">
+              {{ feed.title }}
+            </a>
+            {% if view == "errors" %}
+              <span class="feed-error">{{ feed.error|truncatechars:300 }}</div>
+            {% endif %}
+          </td>
           <td class="col-unread">
             <a class="lazy-underline" href="{% url 'feed-show' feed.id 'unread' %}">{{ feed.unread_count|intcomma }}</a>
           </td>
@@ -26,7 +51,10 @@
             <a class="lazy-underline" href="{% url 'feed-show' feed.id 'fave' %}">{{ feed.fave_count|intcomma }}</a>
           </td>
           <td class="col-site-url"><a class="lazy-underline" target="_blank" rel="noreferrer noopener" href="{{ feed.site_url }}">{{ feed.site_url }}</a></td>
-          <td class="col-changed">{{ feed.last_changed|naturaltime|default:"never" }}</td>
+          <td class="col-updated">
+            {{ feed.last_updated|naturaltime|default:"never" }}
+            {% if feed.error %} ⚠️{% endif %}
+          </td>
           <td class="col-edit"><a title="Edit Feed" href="{% url "feed-edit" feed.id %}"><svg width="1em" height="1em" aria-label="Edit Feed" class="icon" aria-hidden="false"><use xlink:href="#icon-edit"></use></svg></a></td>
         </tr>
       {% endfor %}
