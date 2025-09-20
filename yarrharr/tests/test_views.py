@@ -255,7 +255,7 @@ class FeedListTests(TestCase):
     def test_view_errors(self):
         """
         The "errors" view only shows feeds that have errors. It excludes
-        feeds that are no longer polled.
+        archived feeds.
         """
         self._add_feed("C", error="429", last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
         self._add_feed("B", error="")  # No error, not shown
@@ -265,6 +265,21 @@ class FeedListTests(TestCase):
         self.assertEqual(
             ["A 404", "C 429"],
             self._feed_list_titles("errors"),
+        )
+
+    def test_view_http(self):
+        """
+        The "http" view only shows feeds that have HTTP URLs in descending order of
+        update. It excludes archived feeds.
+        """
+        self._add_feed("C", url="HTTP://C.COM", last_updated=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
+        self._add_feed("B", url="https://foo.com")  # HTTPS, so not shown
+        self._add_feed("A", url="http://a.com/feed.xml", last_updated=datetime.fromisoformat("2020-01-01 00:00:00+00:00"))
+        self._add_feed("Z", next_check=None)  # Archived, so not shown
+
+        self.assertEqual(
+            ["A http://a.com/feed.xml", "C HTTP://C.COM"],
+            self._feed_list_titles("http"),
         )
 
     def test_view_archived(self):

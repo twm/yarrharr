@@ -319,8 +319,9 @@ def feed_list(request, view):
     Display a list of known feeds
     """
     q = request.user.feed_set.all()
-
-    error_count = q.exclude(error="").count()
+    unarchived_q = q.exclude(next_check__isnull=True)
+    error_q = unarchived_q.exclude(error="")
+    http_q = unarchived_q.filter(url__istartswith="http://")
 
     if view == "updated":
         q = q.exclude(next_check__isnull=True).order_by("-last_updated")
@@ -336,7 +337,10 @@ def feed_list(request, view):
         )
 
     elif view == "errors":
-        q = q.exclude(next_check__isnull=True).exclude(error="").order_by("-last_checked")
+        q = error_q.order_by("-last_checked")
+
+    elif view == "http":
+        q = http_q.order_by("-last_updated")
 
     elif view == "archived":
         q = q.filter(next_check__isnull=True).order_by("-last_checked")
@@ -350,7 +354,8 @@ def feed_list(request, view):
         {
             "view": view,
             "feeds": q,
-            "error_count": error_count,
+            "error_count": error_q.count(),
+            "http_count": http_q.count(),
             "tabs_selected": {f"view-{view}"},
         },
     )
