@@ -214,6 +214,10 @@ class FeedListTests(TestCase):
             The text of the ``.col-feed`` cell, normalized to a single space.
         """
         page = expect_html(self.client.get(reverse("feed-list", args=[view])))
+
+        [tab] = page.cssselect(f"#view-{view}")
+        self.assertEqual("true", tab.attrib["aria-selected"])
+
         [table] = page.cssselect(".feed-list")
         return [" ".join(td.text_content().strip().split()) for td in table.cssselect("td.col-feed")]
 
