@@ -13,14 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest import mock
 from unittest.mock import patch
 
 import lxml.html
 from django.contrib.auth.models import User
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -182,35 +182,133 @@ class FeedListTests(TestCase):
 
     maxDiff = None
 
-    def test_get_sort(self):
+    def _add_feed(
+        self,
+        feed_title: str,
+        url: str = "http://example.com/feed.xml",
+        site_url: str = "http://example.com/",
+        added: datetime | None = None,
+        **kw: object,
+    ) -> Feed:
         """
-        Feeds are listed in order of name, case-insensitively
+        Add a feed to the logged-in user's set.
         """
+        if "next_check" not in kw:
+            kw["next_check"] = timezone.now()
         self.user.feed_set.create(
-            url="http://example.com/feedC.xml",
-            feed_title="Feed C",
-            site_url="http://example.com/",
-            added=timezone.now(),
-        )
-        self.user.feed_set.create(
-            url="http://example.com/feedB.xml",
-            feed_title="feed b",  # Case is ignored.
-            site_url="http://example.com/",
-            added=timezone.now(),
-        )
-        self.user.feed_set.create(
-            url="http://example.com/feedA.xml",
-            feed_title="<-Feed a",  # Non-alphanumeric characters are disregarded.
-            site_url="http://example.com/",
-            added=timezone.now(),
+            url=url,
+            feed_title=feed_title,
+            site_url=site_url,
+            added=added or timezone.now(),
+            **kw,
         )
 
-        page = expect_html(self.client.get(reverse("feed-list")))
+    def _feed_list_titles(self, view: str) -> list[str]:
+        """
+        Get the feed titles displayed by the feed list page.
+
+        :param view:
+            See the *view* parameter of :func:`yarrharr.views.feed_list`
+
+        :returns:
+            The text of the ``.col-feed`` cell, normalized to a single space.
+        """
+        page = expect_html(self.client.get(reverse("feed-list", args=[view])))
+
+        [tab] = page.cssselect(f"#view-{view}")
+        self.assertEqual("true", tab.attrib["aria-selected"])
+
         [table] = page.cssselect(".feed-list")
+        return [" ".join(td.text_content().strip().split()) for td in table.cssselect("td.col-feed")]
+
+    def test_list_updated(self):
+        """
+        The "updated" view list the feeds in descending order of their
+        most recent article.
+        """
+        self._add_feed("B", last_updated=datetime.fromisoformat("2002-01-01 00:00:00+00:00"))
+        self._add_feed("A", last_updated=datetime.fromisoformat("2001-01-01 00:00:00+00:00"))
+        self._add_feed("D", last_updated=datetime.fromisoformat("2004-01-01 00:00:00+00:00"))
+        self._add_feed("C", last_updated=datetime.fromisoformat("2003-01-01 00:00:00+00:00"))
+        self._add_feed("E", last_updated=None)  # No articles
+        self._add_feed("Z", next_check=None)  # Archived, so not shown
+
+        self.assertEqual(
+            ["D", "C", "B", "A", "E"],
+            self._feed_list_titles("updated"),
+        )
+
+    def test_list_az(self):
+        """
+        The "az" view lists feeds in order of name, case-insensitively.
+        """
+        self._add_feed("Feed C")
+        self._add_feed("feed b")  # Case is ignored.
+        self._add_feed("<-Feed a")  # Non-alphanumeric characters are disregarded.
+        self._add_feed("Feed AAA", next_check=None)  # Archived, so not shown
+
         self.assertEqual(
             ["<-Feed a", "feed b", "Feed C"],
-            [td.text_content() for td in table.cssselect("tbody > tr > td:nth-of-type(1)")],
+            self._feed_list_titles("az"),
         )
+
+    def test_view_errors(self):
+        """
+        The "errors" view only shows feeds that have errors. It excludes
+        archived feeds.
+        """
+        self._add_feed("C", error="429", last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
+        self._add_feed("B", error="")  # No error, not shown
+        self._add_feed("A", error="404", last_checked=datetime.fromisoformat("2020-01-01 00:00:00+00:00"))
+        self._add_feed("Z", next_check=None)  # Archived, so not shown
+
+        self.assertEqual(
+            ["A 404", "C 429"],
+            self._feed_list_titles("errors"),
+        )
+
+    def test_view_http(self):
+        """
+        The "http" view only shows feeds that have HTTP URLs in descending order of
+        update. It excludes archived feeds.
+        """
+        self._add_feed("C", url="HTTP://C.COM", last_updated=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
+        self._add_feed("B", url="https://foo.com")  # HTTPS, so not shown
+        self._add_feed("A", url="http://a.com/feed.xml", last_updated=datetime.fromisoformat("2020-01-01 00:00:00+00:00"))
+        self._add_feed("Z", next_check=None)  # Archived, so not shown
+
+        self.assertEqual(
+            ["A http://a.com/feed.xml", "C HTTP://C.COM"],
+            self._feed_list_titles("http"),
+        )
+
+    def test_view_archived(self):
+        """
+        The "archived" view only shows feeds that are no longer polled.
+        """
+        self._add_feed("A", next_check=None, last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
+        self._add_feed("B", next_check=None, last_checked=datetime.fromisoformat("2011-01-01 00:00:00+00:00"))
+        self._add_feed("Z")  # Not archived, so not shown
+
+        self.assertEqual(
+            ["B", "A"],
+            self._feed_list_titles("archived"),
+        )
+
+    def test_view_other_404(self):
+        """
+        Any other view is a 404.
+        """
+        response = self.client.get(reverse("feed-list", args=["does-not-exist"]))
+        self.assertIsInstance(response, HttpResponseNotFound)
+
+    def test_list_redirect(self):
+        """
+        The old location of the feed list is a redirect to the updated view.
+        """
+        response = self.client.get("/feeds/")
+        self.assertIsInstance(response, HttpResponseRedirect)
+        self.assertEqual(response.url, reverse("feed-list", args=["updated"]))
 
     def test_create(self):
         url = "http://example.com/feed.xml"
@@ -262,7 +360,7 @@ class FeedListTests(TestCase):
         """
         A feed's user title and feed URL are set by the update-feed action.
         """
-        added = timezone.now() - datetime.timedelta(days=1)
+        added = timezone.now() - timedelta(days=1)
         feed = self.user.feed_set.create(
             url="http://example.com/feedX.xml",
             feed_title="Feed X",
@@ -322,7 +420,7 @@ class FeedListTests(TestCase):
         feed = self.user.feed_set.create(
             url="http://example.com/feed2.xml",
             feed_title="Feed 2",
-            added=timezone.now() - datetime.timedelta(days=1),
+            added=timezone.now() - timedelta(days=1),
         )
 
         response = self.client.post(
@@ -354,7 +452,7 @@ class FeedListTests(TestCase):
         feed_a = self.user.feed_set.create(
             url="http://example.com/feed-a.xml",
             feed_title="Feed A",
-            added=timezone.now() - datetime.timedelta(days=1),
+            added=timezone.now() - timedelta(days=1),
         )
         label_a = feed_a.label_set.create(text="A", user=self.user)
 

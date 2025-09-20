@@ -81,6 +81,9 @@ class Feed(_ViewOptions):
         When did a check find a feed change? The feed is considered changed if
         its bytes changed.  ``None`` if the feed has never been successfully
         checked.
+    :ivar last_updated:
+        When did the publisher last update this feed? Date of the most recent
+        article. ``None`` if the feed is empty or unchecked.
     :ivar error: String error message from the last check.
     :ivar bytes etag:
         HTTP ETag from the last check. Empty when the feed does set the header.
@@ -117,6 +120,7 @@ class Feed(_ViewOptions):
     next_check = models.DateTimeField(null=True)
     last_checked = models.DateTimeField(null=True, default=None)
     last_changed = models.DateTimeField(null=True, default=None)
+    last_updated = models.DateTimeField(null=True, default=None)
     error = models.TextField(blank=True, default="")
     etag = models.BinaryField(default=b"", max_length=1024)
     last_modified = models.BinaryField(default=b"", max_length=45)

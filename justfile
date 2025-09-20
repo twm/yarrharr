@@ -74,7 +74,7 @@ itertests +args='./yarrharr':
 devserver: _static
     tox run -e run -- django-admin migrate
     tox run -e run -- django-admin updatehtml
-    YARRHARR_CONF='yarrharr/tests/*.ini' tox run -e run -- django-admin runserver 127.0.0.1:8888
+    YARRHARR_CONF='yarrharr/tests/dev.ini' tox run -e run -- django-admin runserver 127.0.0.1:8888
 
 realserver: _static
     tox run -e run -- django-admin migrate

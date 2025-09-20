@@ -15,6 +15,7 @@
 .label-list {
     white-space: nowrap;
     border-block: 2px solid var(--border-color);
+    margin: 0.5rem 0;
 
     thead, tbody, tfoot {
         display: contents;
@@ -30,7 +31,16 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    & > .col-feed {}
+    & > .col-feed {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: start;
+
+        .feed-error {
+            font-size: small;
+            white-space: collapse;
+        }
+    }
     & > .col-unread {}
     & > .col-fave {}
     & > .col-site-url {}

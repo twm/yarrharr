@@ -708,6 +708,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         self.assertEqual("After", self.feed.feed_title)
         self.assertEqual(mu.check_time, self.feed.last_checked)
         self.assertEqual(mu.check_time, self.feed.last_changed)
+        self.assertIsNone(self.feed.last_updated)
         self.assertEqual("https://example.com/", self.feed.site_url)
         self.assertEqual(b'"etag"', self.feed.etag)
         self.assertEqual(b"Tue, 15 Nov 1994 12:45:26 GMT", self.feed.last_modified)
@@ -722,6 +723,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         An article which does not match any in the database is inserted. This
         marks the feed as changed.
         """
+        article_date = timezone.now()
         mu = MaybeUpdated(
             feed_title="Example",
             site_url="https://example.com/",
@@ -730,7 +732,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://example.com/blah-blah",
-                    date=timezone.now(),
+                    date=article_date,
                     guid="doesnotexist",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -744,6 +746,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         mu.persist(self.feed)
 
         self.assertEqual(mu.check_time, self.feed.last_changed)
+        self.assertEqual(article_date, self.feed.last_updated)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
@@ -786,6 +789,7 @@ class MaybeUpdatedTests(DjangoTestCase):
 
         [article] = self.feed.articles.all()
         self.assertEqual(mu.check_time, article.date)
+        self.assertEqual(mu.check_time, self.feed.last_updated)
 
     def test_persist_article_guid_match(self):
         """
@@ -803,6 +807,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             raw_content="",
             content="",
         )
+        updated_date = timezone.now()
         mu = MaybeUpdated(
             feed_title="After",
             site_url="https://example.com/",
@@ -811,7 +816,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://example.com/blah-blah",
-                    date=timezone.now(),
+                    date=updated_date,
                     guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -825,6 +830,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         mu.persist(self.feed)
 
         self.assertEqual(mu.check_time, self.feed.last_changed)
+        self.assertEqual(updated_date, self.feed.last_updated)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
@@ -833,6 +839,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             author="Joe Bloggs",
             title="Blah Blah",
             url="https://example.com/blah-blah",
+            date=updated_date,
             raw_content="<p>Hello, world!</p>",
             content="<p>Hello, world!",
         )
