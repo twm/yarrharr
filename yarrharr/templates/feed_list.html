@@ -16,16 +16,16 @@
 
   <div class="tabs">
     <div class="tabs-tabs">
-      <a {% tabattrs "view-updated" %} class="no-underline" href="{% url 'feed-list' %}">
+      <a {% tabattrs "view-updated" %} class="no-underline" href="{% url 'feed-list' 'updated' %}">
         Latest
       </a>
-      <a {% tabattrs "view-az" %} class="no-underline" href="{% url 'feed-list-of' 'az' %}">
+      <a {% tabattrs "view-az" %} class="no-underline" href="{% url 'feed-list' 'az' %}">
         A→Z
       </a>
-      <a {% tabattrs "view-errors" %} class="no-underline" href="{% url 'feed-list-of' 'errors' %}">
+      <a {% tabattrs "view-errors" %} class="no-underline" href="{% url 'feed-list' 'errors' %}">
         Errors{% if error_count %} <span class="count">{{ error_count|intcomma }}</span>{% endif %}
       </a>
-      <a {% tabattrs "view-archived" %} class="no-underline" href="{% url 'feed-list-of' 'archived' %}">
+      <a {% tabattrs "view-archived" %} class="no-underline" href="{% url 'feed-list' 'archived' %}">
         Archived
       </a>
     </div>

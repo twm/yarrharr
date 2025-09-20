@@ -21,6 +21,7 @@ from unittest.mock import patch
 
 import lxml.html
 from django.contrib.auth.models import User
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -182,35 +183,77 @@ class FeedListTests(TestCase):
 
     maxDiff = None
 
-    def test_get_sort(self):
+    def test_list_updated(self):
         """
-        Feeds are listed in order of name, case-insensitively
+        The "updated" view list the feeds in descending order of their
+        most recent article.
+        """
+
+    def test_list_az(self):
+        """
+        The "az" view lists feeds in order of name, case-insensitively.
         """
         self.user.feed_set.create(
             url="http://example.com/feedC.xml",
             feed_title="Feed C",
             site_url="http://example.com/",
             added=timezone.now(),
+            next_check=timezone.now(),
         )
         self.user.feed_set.create(
             url="http://example.com/feedB.xml",
             feed_title="feed b",  # Case is ignored.
             site_url="http://example.com/",
             added=timezone.now(),
+            next_check=timezone.now(),
         )
         self.user.feed_set.create(
             url="http://example.com/feedA.xml",
             feed_title="<-Feed a",  # Non-alphanumeric characters are disregarded.
             site_url="http://example.com/",
             added=timezone.now(),
+            next_check=timezone.now(),
+        )
+        self.user.feed_set.create(
+            url="http://example.com/feedA.xml",
+            feed_title="Feed AAA",
+            site_url="http://example.com/",
+            added=timezone.now(),
+            next_check=None,  # Archived, so not shown
         )
 
-        page = expect_html(self.client.get(reverse("feed-list")))
+        page = expect_html(self.client.get(reverse("feed-list", args=["az"])))
         [table] = page.cssselect(".feed-list")
         self.assertEqual(
             ["<-Feed a", "feed b", "Feed C"],
-            [td.text_content() for td in table.cssselect("tbody > tr > td:nth-of-type(1)")],
+            [td.text_content().strip() for td in table.cssselect("td.col-feed")],
         )
+
+    def test_view_errors(self):
+        """
+        The "errors" view only shows feeds that have errors. It excludes
+        feeds that are no longer polled.
+        """
+
+    def test_view_archived(self):
+        """
+        The "archived" view only shows feeds that are no longer polled.
+        """
+
+    def test_view_other_404(self):
+        """
+        Any other view is a 404.
+        """
+        response = self.client.get(reverse("feed-list", args=["does-not-exist"]))
+        self.assertIsInstance(response, HttpResponseNotFound)
+
+    def test_list_redirect(self):
+        """
+        The old location of the feed list is a redirect to the updated view.
+        """
+        response = self.client.get("/feeds/")
+        self.assertIsInstance(response, HttpResponseRedirect)
+        self.assertEqual(response.url, reverse("feed-list", args=["updated"]))
 
     def test_create(self):
         url = "http://example.com/feed.xml"

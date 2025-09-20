@@ -305,7 +305,16 @@ def all_show(request, filter: ArticleFilter):
 
 
 @login_required
-def feed_list(request, view="updated"):
+def redirect_to_feed_list(request):
+    """
+    Redirect the URL of the feed list prior to the introduction of views
+    to the new location.
+    """
+    return HttpResponseRedirect(reverse("feed-list", args=["updated"]))
+
+
+@login_required
+def feed_list(request, view):
     """
     Display a list of known feeds
     """
