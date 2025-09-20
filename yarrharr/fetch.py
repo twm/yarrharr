@@ -156,7 +156,9 @@ class MaybeUpdated(object):
 
         changed = False
         for upsert in self.articles:
-            if self._upsert_article(feed, upsert):
+            if (date := self._upsert_article(feed, upsert)) is not None:
+                if feed.last_updated is None or feed.last_updated < date:
+                    feed.last_updated = date
                 changed = True
 
         if changed or feed.last_changed is None:
@@ -170,6 +172,7 @@ class MaybeUpdated(object):
             update_fields=[
                 "last_changed",
                 "last_checked",
+                "last_updated",
                 "error",
                 "feed_title",
                 "site_url",
@@ -234,7 +237,7 @@ class MaybeUpdated(object):
 
         return None, None
 
-    def _upsert_article(self, feed, upsert) -> bool:
+    def _upsert_article(self, feed, upsert) -> datetime | None:
         match, match_type = self._match_article(feed, upsert)
 
         if not match:
@@ -257,7 +260,7 @@ class MaybeUpdated(object):
                 guid=upsert.guid,
                 url=upsert.url,
             )
-            return True
+            return created.date
 
         # Check if we need to update.
         if (
@@ -282,8 +285,7 @@ class MaybeUpdated(object):
                 updated=match,
                 match_type=match_type,
             )
-            return True
-        return False
+            return match.date
 
 
 @attr.s(slots=True, frozen=True)
