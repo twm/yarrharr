@@ -403,12 +403,12 @@ class FeedForm(ModelForm):
         fields = [
             "user_title",
             "url",
-            "active",
+            "archived",
             "label_set",
         ]
 
     user_title = CharField(required=False, max_length=200, label="Title override")
-    active = BooleanField(required=False, label="Check for updates")
+    archived = BooleanField(required=False, label="Archive")
     label_set = ModelMultipleChoiceField(queryset=None, required=False, label="Labels")
 
     def __init__(self, *args, **kwargs):
@@ -419,12 +419,14 @@ class FeedForm(ModelForm):
         self.fields["label_set"].widget.attrs["size"] = self.instance.user.label_set.count()
         self.fields["user_title"].widget.attrs["placeholder"] = self.instance.feed_title or ""
         self.initial["label_set"] = self.instance.label_set.all()
-        self.initial["active"] = self.instance.next_check is not None
+        self.initial["archived"] = self.instance.next_check is None
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data["active"]:
-            cleaned_data["next_check"] = None
+        if cleaned_data["archived"]:
+            self.instance.next_check = None
+        elif {"url", "archived"}.intersection(self.changed_data):
+            self.instance.next_check = timezone.now()
         self.instance.label_set.set(cleaned_data["label_set"])
         return cleaned_data
 
@@ -436,10 +438,12 @@ def feed_edit(request, feed_id: int):
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
     if request.method == "POST":
+        next_check = feed.next_check
         form = FeedForm(request.POST, instance=feed)
         if form.is_valid():
             form.save()
-            schedule_changed.send(None)
+            if feed.next_check != next_check:
+                schedule_changed.send(None)
             return HttpResponseRedirect(
                 reverse("feed-edit", kwargs={"feed_id": feed.pk}),
             )
