@@ -310,6 +310,23 @@ class FeedListTests(TestCase):
         self.assertIsInstance(response, HttpResponseRedirect)
         self.assertEqual(response.url, reverse("feed-list", args=["updated"]))
 
+
+class InventoryApiTests(TestCase):
+    """
+    Test the dead-code ``/inventory/api`` view.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="john",
+            email="john@mail.example",
+            password="sesame",
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    maxDiff = None
+
     def test_create(self):
         url = "http://example.com/feed.xml"
 
