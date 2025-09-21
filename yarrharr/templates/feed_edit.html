@@ -35,15 +35,33 @@
       <tbody>
         <tr>
           <th>Next check</th>
-          <td>{{ feed.next_check }}</td>
+          <td>
+            {% if feed.next_check %}
+              {{ feed.next_check }} (in {{ feed.next_check|timeuntil }})
+            {% else %}
+              never
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <th>Last checked</th>
-          <td>{{ feed.last_checked }}</td>
+          <td>
+            {% if feed.last_checked %}
+              {{ feed.last_checked }} ({{ feed.last_checked|timesince }} ago)
+            {% else %}
+              never
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <th>Last changed</th>
-          <td>{{ feed.last_changed }}</td>
+          <td>
+            {% if feed.last_changed %}
+              {{ feed.last_changed }} ({{ feed.last_changed|timesince }} ago)
+            {% else %}
+              never
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <th>ETag</th>

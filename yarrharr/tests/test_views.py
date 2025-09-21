@@ -17,6 +17,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta
 from unittest import mock
 from unittest.mock import patch
+from urllib.parse import urlencode
 
 import lxml.html
 from django.contrib.auth.models import User
@@ -86,6 +87,17 @@ def expect_html(response, status_code=200):
     assert response.status_code == 200
     assert response["Content-Type"] == "text/html; charset=utf-8"
     return lxml.html.document_fromstring(response.content)
+
+
+def submit_form(client, form):
+    response = client.post(
+        form.action,
+        urlencode(form.form_values()),
+        "application/x-www-form-urlencoded",
+        follow=True,
+    )
+    assert response.status_code == 200
+    return expect_html(response)
 
 
 class LoginRedirectTests(TestCase):
@@ -310,6 +322,139 @@ class FeedListTests(TestCase):
         self.assertIsInstance(response, HttpResponseRedirect)
         self.assertEqual(response.url, reverse("feed-list", args=["updated"]))
 
+
+class FeedAddTests(TestCase):
+    """Test the feed-add form."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="ed", email="ed@mail.example", password="ok")
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    # TODO
+
+
+class FeedEditTests(TestCase):
+    """Test the feed-edit view form."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="dave", email="dave@mail.example", password="...")
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def test_update_feed_title(self):
+        added = timezone.now() - timedelta(days=1)
+        feed = self.user.feed_set.create(
+            url="http://example.com/feedX.xml",
+            feed_title="Feed X",
+            site_url="http://example.com/",
+            added=added,
+        )
+
+        form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
+        [form] = form_page.forms
+        form.inputs["user_title"].value = "Feed Y"
+
+        with signal_inbox(schedule_changed) as schedule_changed_signals:
+            submit_form(self.client, form)
+
+        [feed] = self.user.feed_set.all()
+        self.assertEqual("Feed Y", feed.user_title)
+        self.assertEqual("Feed Y", feed.title)
+
+        self.assertEqual([], schedule_changed_signals)
+
+    def test_update_url(self):
+        """
+        Changing a feed's URL schedules it for immediate checking.
+        """
+        new_url = "https://example.com/feedY.xml"
+        feed = self.user.feed_set.create(
+            url="http://example.com/feedX.xml",
+            feed_title="Feed X",
+            site_url="http://example.com/",
+            added=timezone.now(),
+            next_check=timezone.now() + timedelta(days=7),
+        )
+
+        form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
+        [form] = form_page.forms
+        form.inputs["url"].value = new_url
+
+        with signal_inbox(schedule_changed) as schedule_changed_signals:
+            submit_form(self.client, form)
+
+        [feed] = self.user.feed_set.all()
+        self.assertEqual(new_url, feed.url)
+        self.assertLessEqual(feed.next_check, timezone.now())
+        self.assertEqual(1, len(schedule_changed_signals))
+
+    def test_archive(self):
+        """
+        A feed is no longer scheduled to be checked when it is
+        archived.
+        """
+        feed = self.user.feed_set.create(
+            url="http://example.com/feed1.xml",
+            feed_title="Feed 1",
+            added=timezone.now(),
+            next_check=timezone.now(),
+        )
+
+        form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
+        [form] = form_page.forms
+
+        form.inputs["archived"].value = True
+
+        with signal_inbox(schedule_changed) as schedule_changed_signals:
+            submit_form(self.client, form)
+
+        [feed] = self.user.feed_set.all()
+        self.assertIsNone(feed.next_check)
+        self.assertEqual(1, len(schedule_changed_signals))
+
+    def test_unarchive(self):
+        """
+        A feed is no longer scheduled to be checked when it is
+        archived.
+        """
+        feed = self.user.feed_set.create(
+            url="http://example.com/feed1.xml",
+            feed_title="Feed 1",
+            added=timezone.now(),
+            next_check=None,
+        )
+
+        form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
+        [form] = form_page.forms
+        self.assertEqual("on", form.fields["archived"])
+
+        form.inputs["archived"].value = False
+
+        with signal_inbox(schedule_changed) as schedule_changed_signals:
+            submit_form(self.client, form)
+
+        [feed] = self.user.feed_set.all()
+        self.assertLessEqual(feed.next_check, timezone.now())
+        self.assertEqual(1, len(schedule_changed_signals))
+
+
+class InventoryApiTests(TestCase):
+    """
+    Test the dead-code ``/inventory/api`` view.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="john",
+            email="john@mail.example",
+            password="sesame",
+        )
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    maxDiff = None
+
     def test_create(self):
         url = "http://example.com/feed.xml"
 
@@ -356,63 +501,6 @@ class FeedListTests(TestCase):
         )
         self.assertEqual(1, len(schedule_changed_signals))
 
-    def test_update_feed_title_and_url(self):
-        """
-        A feed's user title and feed URL are set by the update-feed action.
-        """
-        added = timezone.now() - timedelta(days=1)
-        feed = self.user.feed_set.create(
-            url="http://example.com/feedX.xml",
-            feed_title="Feed X",
-            site_url="http://example.com/",
-            added=added,
-        )
-        url = "http://example.com/feedZ.xml"
-        user_title = "Feed Z"
-
-        with signal_inbox(schedule_changed) as schedule_changed_signals:
-            response = self.client.post(
-                "/api/inventory/",
-                {
-                    "action": "update-feed",
-                    "feed": feed.id,
-                    "url": url,
-                    "active": "on",
-                    "title": user_title,
-                },
-            )
-
-        self.assertEqual(200, response.status_code)
-        [feed] = self.user.feed_set.all()
-        self.assertEqual(url, feed.url)
-        self.assertEqual(user_title, feed.user_title)
-        self.assertEqual(
-            {
-                "feedsById": {
-                    str(feed.id): {
-                        "id": feed.id,
-                        "title": "Feed X",
-                        "text": user_title,
-                        "siteUrl": "http://example.com/",
-                        "labels": [],
-                        "unreadCount": 0,
-                        "faveCount": 0,
-                        "checked": None,
-                        "changed": None,
-                        "added": added.timestamp() * 1000,
-                        "error": "",
-                        "active": True,
-                        "url": url,
-                    },
-                },
-                "feedOrder": [feed.id],
-                "labelsById": {},
-                "labelOrder": [],
-            },
-            response.json(),
-        )
-        self.assertEqual(1, len(schedule_changed_signals))
-
     def test_remove_feed(self):
         """
         The remove action can delete a single feed.
@@ -443,141 +531,6 @@ class FeedListTests(TestCase):
             response.json(),
         )
         self.assertRaises(Feed.DoesNotExist, Feed.objects.get, pk=feed.id)
-
-    def test_remove_labels(self):
-        """
-        The remove action can delete a single label, leaving the associated
-        feeds unaffected.
-        """
-        feed_a = self.user.feed_set.create(
-            url="http://example.com/feed-a.xml",
-            feed_title="Feed A",
-            added=timezone.now() - timedelta(days=1),
-        )
-        label_a = feed_a.label_set.create(text="A", user=self.user)
-
-        response = self.client.post(
-            "/api/inventory/",
-            {
-                "action": "remove",
-                "label": str(label_a.id),
-            },
-        )
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1, self.user.feed_set.count())
-        self.assertEqual(
-            {
-                "feedsById": {
-                    str(feed_a.id): {
-                        "id": feed_a.id,
-                        "title": "Feed A",
-                        "text": "",
-                        "siteUrl": "",
-                        "labels": [],
-                        "unreadCount": 0,
-                        "faveCount": 0,
-                        "checked": None,
-                        "changed": None,
-                        "added": mock.ANY,
-                        "error": "",
-                        "active": mock.ANY,
-                        "url": "http://example.com/feed-a.xml",
-                    },
-                },
-                "feedOrder": [feed_a.id],
-                "labelsById": {},
-                "labelOrder": [],
-            },
-            response.json(),
-        )
-        self.assertRaises(Label.DoesNotExist, Label.objects.get, pk=label_a.id)
-
-    def test_update_feed_activate(self):
-        """
-        A feed is scheduled to be checked following an update-feed action with
-        active=on.
-        """
-        feed = self.user.feed_set.create(
-            url="http://example.com/feed1.xml",
-            feed_title="Feed 1",
-            added=timezone.now(),
-            next_check=None,
-        )
-
-        response = self.client.post(
-            "/api/inventory/",
-            {
-                "action": "update-feed",
-                "feed": feed.id,
-                "active": "on",
-                "title": "",
-                "url": "http://example.com/feed1.xml",
-            },
-        )
-
-        self.assertEqual(200, response.status_code)
-        [feed] = self.user.feed_set.all()
-        self.assertIsNotNone(feed.next_check)
-        self.assertEqual(
-            {
-                "feedsById": {
-                    str(feed.id): dictwith(
-                        {
-                            "id": feed.id,
-                            "active": True,
-                        }
-                    ),
-                },
-                "feedOrder": [feed.id],
-                "labelsById": {},
-                "labelOrder": [],
-            },
-            response.json(),
-        )
-
-    def test_update_feed_deactivate(self):
-        """
-        A feed is no longer scheduled to be checked following an update-feed
-        action with active=off.
-        """
-        feed = self.user.feed_set.create(
-            url="http://example.com/feed1.xml",
-            feed_title="Feed 1",
-            added=timezone.now(),
-            next_check=None,
-        )
-
-        response = self.client.post(
-            "/api/inventory/",
-            {
-                "action": "update-feed",
-                "feed": feed.id,
-                "active": "off",
-                "title": "",
-                "url": "http://example.com/feed1.xml",
-            },
-        )
-
-        self.assertEqual(200, response.status_code)
-        [feed] = self.user.feed_set.all()
-        self.assertIsNone(feed.next_check)
-        self.assertEqual(
-            {
-                "feedsById": {
-                    str(feed.id): dictwith(
-                        {
-                            "id": feed.id,
-                            "active": False,
-                        }
-                    ),
-                },
-                "feedOrder": [feed.id],
-                "labelsById": {},
-                "labelOrder": [],
-            },
-            response.json(),
-        )
 
     def test_update_label(self):
         """
