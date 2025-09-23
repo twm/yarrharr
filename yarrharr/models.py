@@ -101,6 +101,10 @@ class Feed(_ViewOptions):
     :ivar content_length:
         Size of the feed response body (after any chunking, transfer- or
         content-encoding) when last checked.
+    :ivar content_location:
+        URL of the feed response body when last checked. This is the resource
+        to which the ETag and Last-Modified headers pertain. If this isn't the
+        same as *url*, there were probably some redirects.
 
     The feed title is taken from the feed itself by default, but may be
     overridden by the user:
@@ -126,6 +130,7 @@ class Feed(_ViewOptions):
     last_modified = models.BinaryField(default=b"", max_length=45)
     digest = models.BinaryField(default=b"", max_length=32)
     content_length = models.IntegerField(null=True, default=None)
+    content_location = models.URLField(null=True, default=None, verbose_name="Resolved feed URL")
 
     feed_title = models.TextField()
     user_title = models.TextField(default="", blank=True)

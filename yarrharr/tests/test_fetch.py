@@ -552,6 +552,7 @@ class FetchTests(SynchronousTestCase):
                 last_modified=b"",
                 digest=mock.ANY,
                 content_length=len(EMPTY_RSS),
+                content_location=feed.url,
                 articles=[],
                 check_time=mock.ANY,
             ),
@@ -599,6 +600,7 @@ class FetchTests(SynchronousTestCase):
                 last_modified=b"Tue, 7 Feb 2017 10:25:00 GMT",
                 digest=mock.ANY,
                 content_length=len(EMPTY_RSS),
+                content_location=feed.url,
                 articles=[],
                 check_time=mock.ANY,
             ),
@@ -699,6 +701,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=1234,
+            content_location="https://example.com/feed",
             check_time=timezone.now(),
         )
 
@@ -710,10 +713,12 @@ class MaybeUpdatedTests(DjangoTestCase):
         self.assertEqual(mu.check_time, self.feed.last_changed)
         self.assertIsNone(self.feed.last_updated)
         self.assertEqual("https://example.com/", self.feed.site_url)
+
         self.assertEqual(b'"etag"', self.feed.etag)
         self.assertEqual(b"Tue, 15 Nov 1994 12:45:26 GMT", self.feed.last_modified)
         self.assertEqual(b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", self.feed.digest)
         self.assertEqual(1234, self.feed.content_length)
+        self.assertEqual("https://example.com/feed", self.feed.content_location)
         # Right now scheduling is naïve, but this will need to be changed
         # when that does.
         self.assertGreater(self.feed.next_check, timezone.now() + timedelta(hours=12))
@@ -741,6 +746,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
@@ -783,6 +789,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
@@ -825,6 +832,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
@@ -877,6 +885,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
@@ -927,6 +936,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
@@ -978,6 +988,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
@@ -1014,6 +1025,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
             digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             content_length=42,
+            content_location=self.feed.url,
         )
 
         mu.persist(self.feed)
