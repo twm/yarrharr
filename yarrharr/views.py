@@ -19,7 +19,7 @@ import django
 import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, F, Q, Sum
 from django.forms import BooleanField, CharField, ModelForm, ModelMultipleChoiceField, URLField, URLInput, ValidationError
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -321,6 +321,7 @@ def feed_list(request, view):
     q = request.user.feed_set.all()
     unarchived_q = q.exclude(next_check__isnull=True)
     error_q = unarchived_q.exclude(error="")
+    redirect_q = unarchived_q.exclude(content_location__isnull=True).exclude(url=F("content_location"))
     http_q = unarchived_q.filter(url__istartswith="http://")
 
     if view == "updated":
@@ -336,8 +337,11 @@ def feed_list(request, view):
             key=lambda feed: (human_sort_key(feed.title), feed.pk),
         )
 
-    elif view == "errors":
+    elif view == "error":
         q = error_q.order_by("-last_checked")
+
+    elif view == "redirect":
+        q = redirect_q.order_by("-last_updated")
 
     elif view == "http":
         q = http_q.order_by("-last_updated")
@@ -355,6 +359,7 @@ def feed_list(request, view):
             "view": view,
             "feeds": q,
             "error_count": error_q.count(),
+            "redirect_count": redirect_q.count(),
             "http_count": http_q.count(),
             "tabs_selected": {f"view-{view}"},
         },

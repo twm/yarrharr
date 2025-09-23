@@ -80,6 +80,10 @@
           <td>{{ feed.content_length|intcomma }}{% if feed.content_length %} bytes{% endif %}</td>
         </tr>
         <tr>
+          <th>Content location</th>
+          <td>{{ feed.content_location|urlize }}</td>
+        </tr>
+        <tr>
           <th>Feed title</th>
           <td>{{ feed.feed_title }}</td>
         </tr>

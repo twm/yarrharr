@@ -137,6 +137,7 @@ class MaybeUpdated(object):
     last_modified = attr.ib()
     digest = attr.ib()
     content_length: int | None = attr.ib()
+    content_location: str = attr.ib()
     check_time = attr.ib(default=attr.Factory(timezone.now))
 
     def persist(self, feed):
@@ -148,6 +149,7 @@ class MaybeUpdated(object):
         feed.last_modified = self.last_modified
         feed.digest = self.digest
         feed.content_length = self.content_length
+        feed.content_location = self.content_location
         log.debug(
             "Upserting {upsert_count} articles to {feed}",
             upsert_count=len(self.articles),
@@ -170,16 +172,7 @@ class MaybeUpdated(object):
         # we clobber the values set by the triggers.
         feed.save(
             update_fields=[
-                "last_changed",
-                "last_checked",
-                "last_updated",
-                "error",
-                "feed_title",
-                "site_url",
-                "etag",
-                "last_modified",
-                "digest",
-                "next_check",
+                f.name for f in Feed._meta.get_fields() if not f.name.endswith("_count") and not f.is_relation and f not in Feed._meta.pk_fields
             ],
         )
 
@@ -590,7 +583,8 @@ def poll_feed(feed, clock, treq=treq):
         return Unchanged("digest")
 
     # Convert headers to the format expected by feedparser.
-    h = {"content-location": response.request.absoluteURI.decode("ascii")}
+    content_location = response.request.absoluteURI.decode("ascii")
+    h = {"content-location": content_location}
     h.update({k.lower().decode("latin1"): b", ".join(v).decode("latin1") for (k, v) in response.headers.getAllRawHeaders()})
 
     # NOTE: feedparser.parse() will try to interpret a plain string as a URL,
@@ -639,6 +633,7 @@ def poll_feed(feed, clock, treq=treq):
             last_modified=extract_last_modified(response.headers),
             digest=digest,
             content_length=len(raw_bytes),
+            content_location=content_location,
             articles=articles,
         )
 
