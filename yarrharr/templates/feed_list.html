@@ -22,8 +22,11 @@
       <a {% tabattrs "view-az" %} class="no-underline" href="{% url 'feed-list' 'az' %}">
         A→Z
       </a>
-      <a {% tabattrs "view-errors" %} class="no-underline" href="{% url 'feed-list' 'errors' %}">
+      <a {% tabattrs "view-error" %} class="no-underline" href="{% url 'feed-list' 'error' %}">
         Errors{% if error_count %} <span class="count">{{ error_count|intcomma }}</span>{% endif %}
+      </a>
+      <a {% tabattrs "view-redirect" %} class="no-underline" href="{% url 'feed-list' 'redirect' %}">
+        Redirects{% if redirect_count %} <span class="count">{{ redirect_count|intcomma }}</span>{% endif %}
       </a>
       <a {% tabattrs "view-http" %} class="no-underline" href="{% url 'feed-list' 'http' %}">
         HTTP{% if http_count %} <span class="count">{{ http_count|intcomma }}</span>{% endif %}
@@ -43,8 +46,13 @@
             <a class="lazy-underline" href="{% url "feed-show" feed.id "all" %}">
               {{ feed.title }}
             </a>
-            {% if view == "errors" %}
+            {% if view == "error" %}
               <div class="feed-error">{{ feed.error|truncatechars:300 }}</div>
+            {% elif view == "redirect" %}
+              <div class="feed-error">
+                {{ feed.url|truncatechars:300 }} &rarr;<br>
+                {{ feed.content_location|truncatechars:300 }}
+              </div>
             {% elif view == "http" %}
               <div class="feed-error">{{ feed.url|truncatechars:300 }}</div>
             {% endif %}

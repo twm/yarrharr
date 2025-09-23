@@ -264,9 +264,9 @@ class FeedListTests(TestCase):
             self._feed_list_titles("az"),
         )
 
-    def test_view_errors(self):
+    def test_view_error(self):
         """
-        The "errors" view only shows feeds that have errors. It excludes
+        The "error" view only shows feeds that have errors. It excludes
         archived feeds.
         """
         self._add_feed("C", error="429", last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
@@ -276,7 +276,32 @@ class FeedListTests(TestCase):
 
         self.assertEqual(
             ["A 404", "C 429"],
-            self._feed_list_titles("errors"),
+            self._feed_list_titles("error"),
+        )
+
+    def test_view_redirect(self):
+        """
+        The "redirect" view shows feeds where the feed URL doesn't match the ultimate
+        content location, in descending order of update. It excludes feeds that aren't
+        being or haven't been checked.
+        """
+        self._add_feed(
+            "A",
+            url="http://a.com/feed.xml",
+            last_updated=datetime.fromisoformat("2020-01-01 00:00:00+00:00"),
+            content_location="https://a.com/feed.xml",
+        )
+        self._add_feed(
+            "X",
+            url="http://foo.com",
+            content_location="http://foo.com",  # Same URL, so not shown
+        )
+        self._add_feed("Y", url="http://foo.com", content_location=None)  # Not fetched, so not shown
+        self._add_feed("Z", next_check=None)  # Archived, so not shown
+
+        self.assertEqual(
+            ["A http://a.com/feed.xml → https://a.com/feed.xml"],
+            self._feed_list_titles("redirect"),
         )
 
     def test_view_http(self):
