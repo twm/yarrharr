@@ -7,5 +7,5 @@ Provides yarrharr version information.
 
 from incremental import Version
 
-__version__ = Version("yarrharr", 2025, 9, 2)
+__version__ = Version("yarrharr", 2025, 10, 0)
 __all__ = ["__version__"]
