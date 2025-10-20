@@ -31,7 +31,7 @@ cryptography==44.0.3
     #   service-identity
 django==5.2.6
     # via yarrharr (pyproject.toml)
-feedparser==6.0.11
+feedparser==6.0.12
     # via yarrharr (pyproject.toml)
 html5lib==1.1
     # via yarrharr (pyproject.toml)
@@ -73,6 +73,7 @@ treq==24.9.1
 twisted==24.11.0
     # via
     #   treq
+    #   twisted
     #   yarrharr (pyproject.toml)
 typing-extensions==4.13.2
     # via
