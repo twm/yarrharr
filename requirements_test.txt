@@ -12,7 +12,7 @@ greenlet==3.2.1
     # via pytest-twisted
 iniconfig==2.1.0
     # via pytest
-lxml==6.0.0
+lxml==6.0.2
     # via -r requirements_test.in
 packaging==25.0
     # via pytest
