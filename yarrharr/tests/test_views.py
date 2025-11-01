@@ -97,7 +97,18 @@ def submit_form(client, form):
         follow=True,
     )
     assert response.status_code == 200
-    return expect_html(response)
+    html = expect_html(response)
+    # Assume there's only one form (true for now!)
+    [response_form] = html.forms
+    validation_errors = []
+    for errorlist in response_form.cssselect(".errorlist"):
+        [input_] = response_form.cssselect(f"[aria-describedby='{errorlist.attrib['id']}']")
+        input_html = lxml.html.tostring(input_).decode().strip()
+        err_html = lxml.html.tostring(errorlist).decode().strip()
+        validation_errors.append(f"{input_html} failed validation: {err_html}")
+    if validation_errors:
+        raise AssertionError(f"Form submission produced {len(validation_errors)} validation errors:\n\n" + "\n\n".join(validation_errors))
+    return html
 
 
 class LoginRedirectTests(TestCase):
