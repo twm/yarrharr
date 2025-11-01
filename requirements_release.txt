@@ -31,7 +31,7 @@ filelock==3.18.0
     # via virtualenv
 h11==0.14.0
     # via httpcore
-hatch==1.14.0
+hatch==1.15.1
     # via -r requirements_release.in
 hatchling==1.27.0
     # via hatch
