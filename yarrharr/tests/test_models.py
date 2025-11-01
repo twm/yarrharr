@@ -125,12 +125,13 @@ class FeedScheduleTests(TestCase):
             ("\nNext check should be {} from\nnow, but found it is {} from now.").format(expected, actual),
         )
 
-    def test_disabled(self):
+    def test_archived(self):
         """
-        `schedule()` has no effect when checking has been disabled by setting
-        `next_check` to None.
+        `schedule()` sets `next_check = None` when the feed has been disabled
+        by setting `archived = True`.
         """
-        self.feed.next_check = None
+        self.feed.archived = True
+        self.feed.next_check = self.now
         self.feed.save()
 
         self.feed.schedule()

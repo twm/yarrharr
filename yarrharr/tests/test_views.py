@@ -398,7 +398,7 @@ class FeedEditTests(TestCase):
         self.assertEqual("Feed Y", feed.user_title)
         self.assertEqual("Feed Y", feed.title)
 
-        self.assertEqual([], schedule_changed_signals)
+        self.assertEqual(1, len(schedule_changed_signals))
 
     def test_update_url(self):
         """
@@ -425,6 +425,103 @@ class FeedEditTests(TestCase):
         self.assertLessEqual(feed.next_check, timezone.now())
         self.assertEqual(1, len(schedule_changed_signals))
 
+    def test_min_check_interval(self):
+        """
+        When the minimum check interval changes, the feed is rescheduled such
+        that the next check comes after that interval.
+        """
+        now = timezone.now()
+        feed = self.user.feed_set.create(
+            url="http://example.com/atom.xml",
+            feed_title="Feed",
+            site_url="http://example.com/",
+            added=now,
+            last_checked=now - timedelta(hours=1),
+            next_check=now - timedelta(seconds=1),
+            min_check_interval=None,
+            max_check_interval=timedelta(days=7, seconds=4),
+        )
+        for i in range(1, 3):
+            feed.articles.create(
+                read=False,
+                fave=False,
+                author=f"Author {i}",
+                title=f"Article {i}",
+                url=f"http://example.com/{i}",
+                date=now - timedelta(seconds=i),
+                guid=str(i),
+                raw_content="...",
+                content="...",
+                content_snippet="...",
+            )
+
+        form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
+        [form] = form_page.forms
+        form.inputs["min_check_interval"].value = "3 09:00:00"  # longer than the default max
+
+        with (
+            signal_inbox(schedule_changed) as schedule_changed_signals,
+            mock.patch.object(Feed, "_now", staticmethod(lambda: now)),
+        ):
+            submit_form(self.client, form)
+
+        [feed] = self.user.feed_set.all()
+        self.assertEqual(timedelta(days=3, hours=9), feed.min_check_interval)
+        self.assertIsNone(feed.next_check)
+        self.assertEqual(1, len(schedule_changed_signals))
+
+        feed.schedule()
+
+        self.assertGreaterEqual(feed.next_check, now + timedelta(days=3))
+
+    def test_max_check_interval(self):
+        """
+        When the maximum check interval changes, the feed is rescheduled such
+        that the next check is sooner than that interval.
+        """
+        now = timezone.now()
+        feed = self.user.feed_set.create(
+            url="http://example.com/atom.xml",
+            feed_title="Feed",
+            site_url="http://example.com/",
+            added=now,
+            last_checked=now - timedelta(hours=1),
+            next_check=now + timedelta(hours=1),
+            min_check_interval=timedelta(minutes=23),
+            max_check_interval=None,
+        )
+        # 2 articles 5 days apart.
+        for i, date in enumerate([now - timedelta(days=1), now - timedelta(days=6)]):
+            feed.articles.create(
+                read=False,
+                fave=False,
+                author=f"Author {i}",
+                title=f"Article {i}",
+                url=f"http://example.com/{i}",
+                date=date,
+                guid=str(i),
+                raw_content="...",
+                content="...",
+                content_snippet="...",
+            )
+
+        form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
+        [form] = form_page.forms
+        form.inputs["max_check_interval"].value = "3 0:00:00"  # 3 days, more than the default maximum
+
+        with mock.patch.object(Feed, "_now", staticmethod(lambda: now)):
+            with signal_inbox(schedule_changed) as schedule_changed_signals:
+                submit_form(self.client, form)
+
+            [feed] = self.user.feed_set.all()
+            self.assertEqual(timedelta(days=3), feed.max_check_interval)
+            self.assertIsNone(feed.next_check)
+            self.assertEqual(1, len(schedule_changed_signals))
+
+            feed.schedule()
+
+        self.assertEqual(feed.next_check, now + timedelta(days=3))
+
     def test_archive(self):
         """
         A feed is no longer scheduled to be checked when it is
@@ -446,13 +543,16 @@ class FeedEditTests(TestCase):
             submit_form(self.client, form)
 
         [feed] = self.user.feed_set.all()
-        self.assertIsNone(feed.next_check)
+        self.assertTrue(feed.archived)
+
         self.assertEqual(1, len(schedule_changed_signals))
+        feed.schedule()
+        self.assertIsNone(feed.next_check)
 
     def test_unarchive(self):
         """
-        A feed is no longer scheduled to be checked when it is
-        archived.
+        A feed is scheduled to be checked immediately when it is no
+        longer archived.
         """
         feed = self.user.feed_set.create(
             url="http://example.com/feed1.xml",
@@ -463,7 +563,6 @@ class FeedEditTests(TestCase):
 
         form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
         [form] = form_page.forms
-        self.assertEqual("on", form.fields["archived"])
 
         form.inputs["archived"].value = False
 
@@ -471,8 +570,11 @@ class FeedEditTests(TestCase):
             submit_form(self.client, form)
 
         [feed] = self.user.feed_set.all()
-        self.assertLessEqual(feed.next_check, timezone.now())
+        self.assertFalse(feed.archived)
         self.assertEqual(1, len(schedule_changed_signals))
+
+        feed.schedule()
+        self.assertIsNotNone(feed.next_check)
 
 
 class InventoryApiTests(TestCase):
