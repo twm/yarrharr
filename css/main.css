@@ -70,8 +70,13 @@ html {
     padding: 0;
     overflow-y: scroll;
     color: var(--text-color);
-    background: var(--background-color);
+    /* When scrolling out of bounds (as with a touchpad in Firefox)
+     * align the overscroll area with the header and footer. */
+    background: var(--footer-background-color);
     touch-action: manipulation;
+}
+body {
+    background: var(--background-color);
 }
 
 code, kbd, samp, pre {
