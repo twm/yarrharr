@@ -8,7 +8,7 @@ brotli==1.2.0
     # via -r requirements_static.in
 pyoxipng==9.1.1
     # via -r requirements_static.in
-tinycss2==1.4.0
+tinycss2==1.5.0
     # via -r requirements_static.in
 webencodings==0.5.1
     # via tinycss2
