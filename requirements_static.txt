@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements_static.txt --strip-extras requirements_static.in
 #
-brotli==1.1.0
+brotli==1.2.0
     # via -r requirements_static.in
 pyoxipng==9.1.1
     # via -r requirements_static.in
