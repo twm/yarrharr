@@ -19,6 +19,10 @@
     --check-color: #39cc5c;
     --selected-color: hsl(24.1, 100%, 49.2%);
 
+    --font-family-chrome: "Sora", sans-serif;
+    --font-family-content: "Newsreader", serif;
+    --font-family-mono: "Inconsolata VF", monospace;
+    --font-family: var(--font-family-chrome);
     --font-wdth-mono: 100;
     --font-weight-mono: 400;
 
@@ -65,7 +69,7 @@
 }
 
 html {
-    font: normal 18px / 1.4 "Newsreader", serif;
+    font: normal 18px / 1.4 var(--font-family);
     margin: 0;
     padding: 0;
     overflow-y: scroll;
@@ -80,7 +84,7 @@ body {
 }
 
 code, kbd, samp, pre {
-    font-family: "Inconsolata VF";
+    font-family: var(--font-family-mono);
     font-variation-settings: "wdth" var(--font-wdth-mono);
 }
 
@@ -115,7 +119,7 @@ a:visited[aria-disabled=true] {
 }
 
 h1 {
-    font: 350 2.0rem / 1.4 "Newsreader", serif;
+    font: 350 2.0rem / 1.4 var(--font-family);
     font-variation-settings: "opsz" 72;
     hyphens: auto;
 }

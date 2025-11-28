@@ -363,6 +363,11 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
     montez_name = hashname("montez", "ttf", montez)
     w.add_file_bytes(montez_name, montez)
 
+    sora_base = root_dir / "vendor" / "sora"
+    sora = (sora_base / "Sora[wght].woff2").read_bytes()
+    sora_name = hashname("sora", "woff2", sora)
+    w.add_file_bytes(sora_name, sora)
+
     css = (
         f"""\
 @font-face {{
@@ -395,6 +400,14 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
   font-style: normal;
   font-stretch: normal;
   src: url('{montez_name}');
+}}
+
+@font-face {{
+  font-family: 'Sora';
+  font-weight: 200 900;
+  font-style: normal;
+  font-stretch: normal;
+  src: url('{sora_name}');
 }}
 """
     ).encode()
