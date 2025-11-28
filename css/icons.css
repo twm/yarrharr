@@ -16,3 +16,17 @@
 .icon-check {
     --icon-color: var(--check-color);
 }
+
+.clocktime {
+    transform: translateY(0.075em); /* Align with text baseline */
+    padding-inline: 0.25rem;
+
+    .face {
+        fill: color-mix(in hsl, var(--background-color) 85%, var(--text-color));
+        stroke: var(--text-color);
+    }
+    .pie {
+        fill: none;
+        stroke: var(--text-color);
+    }
+}
