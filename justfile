@@ -81,6 +81,13 @@ realserver: _static
     tox run -e run -- django-admin collectstatic --noinput
     tox run -e run -- yarrharr
 
+makemigrations:
+    tox run -e run -- django-admin makemigrations
+    tox -e lint --notest
+    .tox/lint/bin/ruff check --fix yarrharr/migrations
+    .tox/lint/bin/ruff format yarrharr/migrations
+    git add yarrharr/migrations/*.py
+
 poll-feeds:
     tox run -e run -- django-admin pollfeeds
 
