@@ -68,13 +68,14 @@ class Feed(_ViewOptions):
     :ivar deleted:
         When was this feed deleted? None otherwise. Once set this is permanent.
         The feed will eventually be removed from the database once any
-        associated data is cleaned up.
+        associated data is cleaned up. (Hypothetically. Someday. Maybe.)
 
     Many fields track information on when to check the feed and it status:
 
+    :ivar archived:
+        Should this feed be checked?
     :ivar next_check:
-        Next time we should try checking the feed. To stop checking the feed,
-        set this to None.
+        When should we next try to check the feed? ``None`` if not scheduled.
     :ivar last_checked:
         When did we last try to check the feed? ``None`` if never checked.
     :ivar last_changed:
@@ -121,7 +122,8 @@ class Feed(_ViewOptions):
     added = models.DateTimeField()
     deleted = models.DateTimeField(null=True, default=None)
 
-    next_check = models.DateTimeField(null=True)
+    archived = models.BooleanField(default=False)
+    next_check = models.DateTimeField(null=True, default=None)
     last_checked = models.DateTimeField(null=True, default=None)
     last_changed = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(null=True, default=None)
@@ -131,6 +133,8 @@ class Feed(_ViewOptions):
     digest = models.BinaryField(default=b"", max_length=32)
     content_length = models.IntegerField(null=True, default=None)
     content_location = models.URLField(null=True, default=None, verbose_name="Resolved feed URL")
+    min_check_interval = models.DurationField(null=True, blank=True, default=None, verbose_name="Minimum check interval")
+    max_check_interval = models.DurationField(null=True, blank=True, default=None, verbose_name="Maximum check interval")
 
     feed_title = models.TextField()
     user_title = models.TextField(default="", blank=True)
@@ -151,20 +155,17 @@ class Feed(_ViewOptions):
         """
         Update the `next_check` timestamp.
 
-        This has no effect when checking of the feed is disabled. Otherwise, it
+        This has no effect when checking if the feed is disabled. Otherwise, it
         attempts to guess how frequently the feed updates based on the dates of
         articles from the last two weeks. This guess is the minimum time between
-        articles, clamped to between 15 minutes and 1 day.
+        articles, clamped to between `Feed.min_check_interval` (default 15
+        minutes) and `Feed.max_check_interval` (1 day).
 
         Only inspecting recent articles allows a feed which goes dead to "age
-        out" to the default of 1 day. When no articles are known the default
-        interval is 1 day.
+        out" to the default. This also applies when no articles are known.
         """
-        if self.next_check is None:
-            # The feed was disabled while we were checking it. Do not schedule
-            # another check.
-            #
-            # XXX: We could still clobber the field due to read-modify-write.
+        if self.archived:
+            self.next_check = None
             return
 
         now = self._now()
@@ -177,12 +178,14 @@ class Feed(_ViewOptions):
         else:
             delta = timedelta(days=2)
 
-        min_delta = timedelta(minutes=15)
+        min_delta = self.min_check_interval or timedelta(minutes=15)
         if delta < min_delta:
             delta = min_delta
-        max_delta = timedelta(days=1)
+        max_delta = self.max_check_interval or timedelta(days=1)
         if delta > max_delta:
+            print(f"{delta=} > {max_delta=}")
             delta = max_delta
+        print(f"now={now!s} {delta=}")
         self.next_check = now + delta
 
     class Meta:

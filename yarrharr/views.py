@@ -20,7 +20,7 @@ import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection, transaction
 from django.db.models import Count, F, Q, Sum
-from django.forms import BooleanField, CharField, ModelForm, ModelMultipleChoiceField, URLField, URLInput, ValidationError
+from django.forms import CharField, ModelForm, ModelMultipleChoiceField, URLField, URLInput, ValidationError
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -38,6 +38,9 @@ log = Logger()
 
 
 PAGE_SIZE = 500
+
+#: An example of the format accepted by Django's DurationField.
+DURATION_PLACEHOLDER = "DD HH:MM:SS"
 
 
 def human_sort_key(s):
@@ -410,10 +413,11 @@ class FeedForm(ModelForm):
             "url",
             "archived",
             "label_set",
+            "min_check_interval",
+            "max_check_interval",
         ]
 
     user_title = CharField(required=False, max_length=200, label="Title override")
-    archived = BooleanField(required=False, label="Archive")
     label_set = ModelMultipleChoiceField(queryset=None, required=False, label="Labels")
 
     def __init__(self, *args, **kwargs):
@@ -423,15 +427,18 @@ class FeedForm(ModelForm):
         self.fields["label_set"].queryset = self.instance.user.label_set.all()
         self.fields["label_set"].widget.attrs["size"] = self.instance.user.label_set.count()
         self.fields["user_title"].widget.attrs["placeholder"] = self.instance.feed_title or ""
+        self.fields["min_check_interval"].widget.attrs["placeholder"] = DURATION_PLACEHOLDER
+        self.fields["max_check_interval"].widget.attrs["placeholder"] = DURATION_PLACEHOLDER
         self.initial["label_set"] = self.instance.label_set.all()
-        self.initial["archived"] = self.instance.next_check is None
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data["archived"]:
-            self.instance.next_check = None
-        elif {"url", "archived"}.intersection(self.changed_data):
+        if {"url", "archived"}.intersection(self.changed_data):
+            # Immediately re-check.
             self.instance.next_check = timezone.now()
+        elif {"min_check_interval", "max_check_interval"}.intersection(self.changed_data):
+            # The feed will be re-scheduled on the next poll.
+            self.instance.next_check = None
         self.instance.label_set.set(cleaned_data["label_set"])
         return cleaned_data
 
@@ -443,12 +450,10 @@ def feed_edit(request, feed_id: int):
     """
     feed = get_object_or_404(request.user.feed_set, pk=feed_id)
     if request.method == "POST":
-        next_check = feed.next_check
         form = FeedForm(request.POST, instance=feed)
         if form.is_valid():
             form.save()
-            if feed.next_check != next_check:
-                schedule_changed.send(None)
+            schedule_changed.send(None)
             return HttpResponseRedirect(
                 reverse("feed-edit", kwargs={"feed_id": feed.pk}),
             )
