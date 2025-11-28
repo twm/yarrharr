@@ -87,7 +87,7 @@
     }
 
     .feed-list-item-header {
-        font-variant: small-caps;
+        --font-family: var(--font-family-chrome);
         font-size: smaller;
     }
 
@@ -212,7 +212,7 @@
     }
 
     .label-list-item-header {
-        font-variant: small-caps;
+        --font-family: var(--font-family-chrome);
         font-size: smaller;
     }
 

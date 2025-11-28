@@ -3,7 +3,7 @@
     grid-template-columns: 1fr min-content;
 
     .meta {
-        text-transform: uppercase;
+        --font-family: var(--font-family-chrome);
         font-size: smaller;
         color: var(--quiet-text-color);
         p {
@@ -41,7 +41,8 @@ article {
     }
 
     .content {
-        font: normal 1.2rem / 1.7 "Newsreader";
+        --font-family: var(--font-family-content);
+        font: normal 1.2rem / 1.7 var(--font-family);
 
         h1, h2, h3, h4, h5, h6, p, blockquote {
             margin: 0;
