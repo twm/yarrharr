@@ -80,6 +80,15 @@ class HtmlToTextTests(unittest.TestCase):
         self.assertEqual(":)", html_to_text('<img alt=":)">'))
         self.assertEqual("🖼️", html_to_text("<img>"))
 
+    def test_video(self):
+        """
+        A ``<video>`` tag is replaced with the 🎥 emoji surrounded by spaces.
+        Any fallback text is dropped because it's not likely to be useful.
+        """
+        self.assertEqual("🎥", html_to_text("<video></video>"))
+        self.assertEqual("🎥", html_to_text("<video>foo</video>"))
+        self.assertEqual("x 🎥 z", html_to_text("x<video src=y></video>z"))
+
     def test_title_text_aside_dropped(self):
         """
         The content of an ``<aside class="title-text">`` tag is omitted from the
