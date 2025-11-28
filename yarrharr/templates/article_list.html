@@ -1,3 +1,5 @@
+{% load clocktime %}
+
 <style nonce="{{ csp_nonce }}">
 
 .list-article {
@@ -27,12 +29,14 @@
         min-width: 10rem;
       }
       .date {
-        flex: 0 1 12rem;
-        min-width: 12rem;
+        flex: 0 1 8rem;
+        min-width: 8rem;
+        text-align: right;
       }
       .author {
         flex: 1 1 8rem;
         min-width: 5rem;
+        max-width: 15rem;
       }
       .author:empty {
         color: var(--quiet-text-color);
@@ -183,7 +187,7 @@
     {% if not hide_feed_title %}
       <span class="feed-title">{{ article.feed.title }}</span>
     {% endif %}
-    <time class="date" datetime="{{ article.date.isoformat }}">{{ article.date }}</time>
+    <time class="date" datetime="{{ article.date.isoformat }}">{{ article.date|date:"j M y" }}{{ article.date|clocktime }}</time>
     {% if not hide_author %}
       <span class="author">{{ article.author }}</span>
     {% endif %}
