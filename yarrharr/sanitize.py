@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 10
+REVISION = 11
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -44,6 +44,7 @@ def html_tag(tag: str) -> str:
 
 
 _IMG_TAG = html_tag("img")
+_VIDEO_TAG = html_tag("video")
 _ASIDE_TAG = html_tag("aside")
 _DROP_TAGS = frozenset(
     [
@@ -121,6 +122,8 @@ def html_to_text(html: str) -> str:
         needs_ws = el.tag not in _NO_WHITESPACE_TAGS
         if el.tag == _IMG_TAG:
             buf.write(el.get("alt", "🖼️"))
+        elif el.tag == _VIDEO_TAG:
+            buf.write(" 🎥 ")
         elif el.tag == _ASIDE_TAG and el.get("class", "") == "title-text":
             pass
         elif el.tag not in _DROP_TAGS:
