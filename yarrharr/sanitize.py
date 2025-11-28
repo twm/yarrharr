@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 10
+REVISION = 11
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
