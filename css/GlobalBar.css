@@ -72,9 +72,6 @@
     gap: 0.5rem;
     padding: 0.5rem 0.25rem;
 
-    font-variant: small-caps;
-    font-variation-settings: "opsz" 25;
-
     .icon {
         --icon-color: var(--selected-color);
     }
