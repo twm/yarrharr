@@ -376,7 +376,7 @@ def poll(reactor, max_fetch):
         q = Feed.objects.filter(next_check__isnull=False).order_by("next_check").filter(next_check__lte=timezone.now())
         return list(q[:max_fetch])
 
-    feeds_to_check = yield deferToThread(_feeds_to_check, max_fetch)
+    feeds_to_check = yield deferToThread(_feeds_to_check)
 
     if feeds_to_check:
         outcomes = []
