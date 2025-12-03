@@ -183,9 +183,7 @@ class Feed(_ViewOptions):
             delta = min_delta
         max_delta = self.max_check_interval or timedelta(days=1)
         if delta > max_delta:
-            print(f"{delta=} > {max_delta=}")
             delta = max_delta
-        print(f"now={now!s} {delta=}")
         self.next_check = now + delta
 
     class Meta:
