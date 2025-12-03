@@ -72,7 +72,7 @@ class Feed(_ViewOptions):
 
     Many fields track information on when to check the feed and it status:
 
-    :ivar archived:
+    :ivar checked:
         Should this feed be checked?
     :ivar next_check:
         When should we next try to check the feed? ``None`` if not scheduled.
@@ -122,7 +122,7 @@ class Feed(_ViewOptions):
     added = models.DateTimeField()
     deleted = models.DateTimeField(null=True, default=None)
 
-    archived = models.BooleanField(default=False)
+    checked = models.BooleanField(default=True)
     next_check = models.DateTimeField(null=True, default=None)
     last_checked = models.DateTimeField(null=True, default=None)
     last_changed = models.DateTimeField(null=True, default=None)
@@ -164,7 +164,7 @@ class Feed(_ViewOptions):
         Only inspecting recent articles allows a feed which goes dead to "age
         out" to the default. This also applies when no articles are known.
         """
-        if self.archived:
+        if not self.checked:
             self.next_check = None
             return
 

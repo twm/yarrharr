@@ -322,17 +322,17 @@ def feed_list(request, view):
     Display a list of known feeds
     """
     q = request.user.feed_set.all()
-    unarchived_q = q.exclude(next_check__isnull=True)
-    error_q = unarchived_q.exclude(error="")
-    redirect_q = unarchived_q.exclude(content_location__isnull=True).exclude(url=F("content_location"))
-    http_q = unarchived_q.filter(url__istartswith="http://")
+    checked_q = q.filter(checked=True)
+    error_q = checked_q.exclude(error="")
+    redirect_q = checked_q.exclude(content_location__isnull=True).exclude(url=F("content_location"))
+    http_q = checked_q.filter(url__istartswith="http://")
 
     if view == "updated":
-        q = q.exclude(next_check__isnull=True).order_by("-last_updated")
+        q = checked_q.order_by("-last_updated")
 
     elif view == "az":
         q = sorted(
-            q.exclude(next_check__isnull=True),
+            checked_q,
             # XXX It would be nice to do this sorting in the database, but sqlite3 does
             # not ship with appropriate collations. Custom collations can be installed,
             # but there isn't much advantage to doing so right now given we always
@@ -350,7 +350,7 @@ def feed_list(request, view):
         q = http_q.order_by("-last_updated")
 
     elif view == "archived":
-        q = q.filter(next_check__isnull=True).order_by("-last_checked")
+        q = q.filter(checked=False).order_by("-last_checked")
 
     else:
         raise Http404()
@@ -411,7 +411,7 @@ class FeedForm(ModelForm):
         fields = [
             "user_title",
             "url",
-            "archived",
+            "checked",
             "label_set",
             "min_check_interval",
             "max_check_interval",
@@ -433,7 +433,7 @@ class FeedForm(ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if {"url", "archived"}.intersection(self.changed_data):
+        if {"url", "checked"}.intersection(self.changed_data):
             # Immediately re-check.
             self.instance.next_check = timezone.now()
         elif {"min_check_interval", "max_check_interval"}.intersection(self.changed_data):
