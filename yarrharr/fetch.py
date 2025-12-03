@@ -370,7 +370,7 @@ def poll(reactor, max_fetch):
     start = reactor.seconds()
 
     def _feeds_to_check() -> list[Feed]:
-        for feed in Feed.objects.filter(active=True, next_check__isnull=True) | Feed.objects.filter(active=False, next_check__isnull=False):
+        for feed in Feed.objects.filter(checked=True, next_check__isnull=True) | Feed.objects.filter(checked=False, next_check__isnull=False):
             feed.schedule()
             feed.save()
         q = Feed.objects.filter(next_check__isnull=False).order_by("next_check").filter(next_check__lte=timezone.now())

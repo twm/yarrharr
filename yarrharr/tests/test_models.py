@@ -128,9 +128,9 @@ class FeedScheduleTests(TestCase):
     def test_archived(self):
         """
         `schedule()` sets `next_check = None` when the feed has been disabled
-        by setting `archived = True`.
+        by setting `checked = False`.
         """
-        self.feed.archived = True
+        self.feed.checked = False
         self.feed.next_check = self.now
         self.feed.save()
 

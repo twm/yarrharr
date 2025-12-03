@@ -254,7 +254,7 @@ class FeedListTests(TestCase):
         self._add_feed("D", last_updated=datetime.fromisoformat("2004-01-01 00:00:00+00:00"))
         self._add_feed("C", last_updated=datetime.fromisoformat("2003-01-01 00:00:00+00:00"))
         self._add_feed("E", last_updated=None)  # No articles
-        self._add_feed("Z", next_check=None)  # Archived, so not shown
+        self._add_feed("Z", checked=False)  # Archived, so not shown
 
         self.assertEqual(
             ["D", "C", "B", "A", "E"],
@@ -268,7 +268,7 @@ class FeedListTests(TestCase):
         self._add_feed("Feed C")
         self._add_feed("feed b")  # Case is ignored.
         self._add_feed("<-Feed a")  # Non-alphanumeric characters are disregarded.
-        self._add_feed("Feed AAA", next_check=None)  # Archived, so not shown
+        self._add_feed("Feed AAA", checked=False)  # Archived, so not shown
 
         self.assertEqual(
             ["<-Feed a", "feed b", "Feed C"],
@@ -283,7 +283,7 @@ class FeedListTests(TestCase):
         self._add_feed("C", error="429", last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
         self._add_feed("B", error="")  # No error, not shown
         self._add_feed("A", error="404", last_checked=datetime.fromisoformat("2020-01-01 00:00:00+00:00"))
-        self._add_feed("Z", next_check=None)  # Archived, so not shown
+        self._add_feed("Z", checked=False)  # Archived, so not shown
 
         self.assertEqual(
             ["A 404", "C 429"],
@@ -323,7 +323,7 @@ class FeedListTests(TestCase):
         self._add_feed("C", url="HTTP://C.COM", last_updated=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
         self._add_feed("B", url="https://foo.com")  # HTTPS, so not shown
         self._add_feed("A", url="http://a.com/feed.xml", last_updated=datetime.fromisoformat("2020-01-01 00:00:00+00:00"))
-        self._add_feed("Z", next_check=None)  # Archived, so not shown
+        self._add_feed("Z", checked=False)  # Archived, so not shown
 
         self.assertEqual(
             ["A http://a.com/feed.xml", "C HTTP://C.COM"],
@@ -334,8 +334,18 @@ class FeedListTests(TestCase):
         """
         The "archived" view only shows feeds that are no longer polled.
         """
-        self._add_feed("A", next_check=None, last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
-        self._add_feed("B", next_check=None, last_checked=datetime.fromisoformat("2011-01-01 00:00:00+00:00"))
+        self._add_feed(
+            "A",
+            checked=False,
+            next_check=None,
+            last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"),
+        )
+        self._add_feed(
+            "B",
+            checked=False,
+            next_check=datetime.fromisoformat("2011-01-01 00:00:00+00:00"),  # Ignored.
+            last_checked=datetime.fromisoformat("2011-01-01 00:00:00+00:00"),
+        )
         self._add_feed("Z")  # Not archived, so not shown
 
         self.assertEqual(
@@ -537,13 +547,13 @@ class FeedEditTests(TestCase):
         form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
         [form] = form_page.forms
 
-        form.inputs["archived"].value = True
+        form.inputs["checked"].value = False
 
         with signal_inbox(schedule_changed) as schedule_changed_signals:
             submit_form(self.client, form)
 
         [feed] = self.user.feed_set.all()
-        self.assertTrue(feed.archived)
+        self.assertFalse(feed.checked)
 
         self.assertEqual(1, len(schedule_changed_signals))
         feed.schedule()
@@ -558,19 +568,20 @@ class FeedEditTests(TestCase):
             url="http://example.com/feed1.xml",
             feed_title="Feed 1",
             added=timezone.now(),
+            checked=False,
             next_check=None,
         )
 
         form_page = expect_html(self.client.get(reverse("feed-edit", kwargs={"feed_id": feed.pk})))
         [form] = form_page.forms
 
-        form.inputs["archived"].value = False
+        form.inputs["checked"].value = True
 
         with signal_inbox(schedule_changed) as schedule_changed_signals:
             submit_form(self.client, form)
 
         [feed] = self.user.feed_set.all()
-        self.assertFalse(feed.archived)
+        self.assertTrue(feed.checked)
         self.assertEqual(1, len(schedule_changed_signals))
 
         feed.schedule()
