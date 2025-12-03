@@ -363,10 +363,13 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
     montez_name = hashname("montez", "ttf", montez)
     w.add_file_bytes(montez_name, montez)
 
-    sora_base = root_dir / "vendor" / "sora"
-    sora = (sora_base / "Sora[wght].woff2").read_bytes()
-    sora_name = hashname("sora", "woff2", sora)
-    w.add_file_bytes(sora_name, sora)
+    inter_base = root_dir / "vendor" / "inter"
+    inter_normal = (inter_base / "InterVariable.woff2").read_bytes()
+    inter_normal_name = hashname("inter", "woff2", inter_normal)
+    w.add_file_bytes(inter_normal_name, inter_normal)
+    inter_italic = (inter_base / "InterVariable-Italic.woff2").read_bytes()
+    inter_italic_name = hashname("interitalic", "woff2", inter_italic)
+    w.add_file_bytes(inter_italic_name, inter_italic)
 
     css = (
         f"""\
@@ -403,11 +406,19 @@ async def process_fonts(root_dir: Path, w: Writer) -> None:
 }}
 
 @font-face {{
-  font-family: 'Sora';
-  font-weight: 200 900;
+  font-family: 'InterVariable';
+  font-weight: 100 900;
   font-style: normal;
   font-stretch: normal;
-  src: url('{sora_name}');
+  src: url('{inter_normal_name}') format('woff2');
+}}
+
+@font-face {{
+  font-family: 'InterVariable';
+  font-weight: 100 900;
+  font-style: italic;
+  font-stretch: normal;
+  src: url('{inter_italic_name}') format('woff2');
 }}
 """
     ).encode()

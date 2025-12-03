@@ -19,7 +19,7 @@
     --check-color: #39cc5c;
     --selected-color: hsl(24.1, 100%, 49.2%);
 
-    --font-family-chrome: "Sora", sans-serif;
+    --font-family-chrome: "InterVariable", sans-serif;
     --font-family-content: "Newsreader", serif;
     --font-family-mono: "Inconsolata VF", monospace;
     --font-family: var(--font-family-chrome);
