@@ -6,6 +6,7 @@ __pycache__/
 
 /build
 /dist
+/.venv
 /.tox
 /yarrharr.egg-info
 /yarrharr/static
