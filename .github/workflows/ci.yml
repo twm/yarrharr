@@ -27,10 +27,6 @@ jobs:
       with:
         persist-credentials: false
 
-    - uses: actions/setup-python@v6.0.0
-      with:
-        python-version-file: '.python-version'
-
     - uses: ./.github/actions/setup-just
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -68,10 +64,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install --no-install-suggests --no-install-recommends inkscape scour
-
-    - uses: actions/setup-python@v6.0.0
-      with:
-        python-version-file: '.python-version'
 
     - run: just _release
 

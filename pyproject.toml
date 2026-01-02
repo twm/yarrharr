@@ -86,6 +86,7 @@ filterwarnings = [
 
 [tool.uv]
 environments = ["sys_platform == 'linux'"]  # Only Linux
+python-preference = "only-system"
 
 [dependency-groups]
 dev = [
