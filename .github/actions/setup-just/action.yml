@@ -16,12 +16,12 @@ runs:
       id: bin-dir
       shell: bash
       run: |
-        bin_dir="$ACTION_PATH/bin"
+        bin_dir="$RUNNER_TEMP/just-bin"
         mkdir -v "$bin_dir"
         echo "bin-dir=$bin_dir" >>"$GITHUB_OUTPUT"
         echo "$bin_dir" >>"$GITHUB_PATH"
       env:
-        ACTION_PATH: ${{ github.action_path }}
+        RUNNER_TEMP: ${{ runner.temp }}
 
     - name: Restore cache
       uses: actions/cache@v5
@@ -44,5 +44,5 @@ runs:
       env:
         JUST_TAG: ${{ inputs.just-tag }}
         GH_TOKEN: ${{ inputs.github-token }}
-        DOWNLOAD_FILE: ${{ github.action_path }}/just.tar.gz
+        DOWNLOAD_FILE: ${{ github.action_path }}/just-${JUST_TAG}.tar.gz
         BIN_DIR: ${{ steps.bin-dir.outputs.bin-dir }}
