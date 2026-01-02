@@ -44,6 +44,15 @@ release:
     git push origin "$tag"
     git push origin trunk
 
+# Run by the GitHub workflow to actually build the release artifact.
+_release: _static
+    #!/usr/bin/env bash
+    set -exu -o pipefail
+    git diff --quiet HEAD || exit 1
+    version=$(uv run --only-group release -- hatch version)
+    uv run --only-group release -m build
+    uv run --only-group release twine check "dist/yarrharr-${version}.tar.gz" "dist/yarrharr-${version}-py3-none-any.whl"
+
 iterstatic:
     #!/bin/bash
     tox -e static --notest

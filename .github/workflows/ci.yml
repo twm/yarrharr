@@ -71,11 +71,7 @@ jobs:
       with:
         python-version-file: '.python-version'
 
-    - run: "python -m pip install tox"
-
-    - run: just _static
-
-    - run: "bin/release.sh"
+    - run: just _release
 
     - uses: actions/upload-artifact@v6
       with:
