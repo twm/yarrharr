@@ -56,6 +56,10 @@ jobs:
       with:
         persist-credentials: false
 
+    - uses: ./.github/actions/setup-just
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: apt install
       run: |
         sudo apt-get update
@@ -72,7 +76,7 @@ jobs:
 
     - run: "python -m tox -e static --notest"
 
-    - run: "tox -e static"
+    - run: just _static
 
     - run: "bin/release.sh"
 

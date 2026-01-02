@@ -1,0 +1,48 @@
+name: Setup just
+inputs:
+  just-tag:
+    description: "Git tag of the Just release"
+    required: false
+    default: '1.46.0'
+  github-token:
+    description: "Token use to access the GitHub API"
+    required: true
+
+runs:
+  using: composite
+  steps:
+
+    - name: Create bin/
+      id: bin-dir
+      shell: bash
+      run: |
+        bin_dir="$ACTION_PATH/bin"
+        mkdir -v "$bin_dir"
+        echo "bin-dir=$bin_dir" >>"$GITHUB_OUTPUT"
+        echo "$bin_dir" >>"$GITHUB_PATH"
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+
+    - name: Restore cache
+      uses: actions/cache@v5
+      id: cache
+      with:
+        key: just-${{ inputs.just-tag }}
+        path: ${{ steps.bin-dir.outputs.bin-dir }}
+
+    - name: Download
+      if: steps.cache.cache-hit != 'true'
+      shell: bash
+      run: |
+        set -exu -o pipefail
+
+        gh release -R casey/just download "$JUST_TAG" \
+          -O "$DOWNLOAD_FILE" \
+          --pattern "just-${JUST_TAG}-x86_64-unknown-linux-musl.tar.gz"
+
+        tar -xvf "$DOWNLOAD_FILE" -C "$BIN_DIR" -- just
+      env:
+        JUST_TAG: ${{ inputs.just-tag }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        DOWNLOAD_FILE: ${{ github.action_path }}/just.tar.gz
+        BIN_DIR: ${{ steps.bin-dir.outputs.bin-dir }}
