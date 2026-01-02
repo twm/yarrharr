@@ -69,6 +69,21 @@ ignore = [
 "yarrharr/wsgi.py" = ["E402"]
 "yarrharr/migrations/*.py" = ["I", "F401"]
 
+[tool.pytest]
+addopts = ["-vvv", "--tb=native"]
+filterwarnings = [
+    "all",
+    "ignore::ImportWarning",
+    # This is a Twisted bug, see https://twistedmatrix.com/trac/ticket/8227 and https://twistedmatrix.com/trac/ticket/8929
+    "ignore:Using readBody with a transport that does not have an abortConnection method:DeprecationWarning",
+    # Tracked in https://github.com/twm/yarrharr/issues/659
+    "ignore:html5lib's sanitizer:DeprecationWarning",
+    # Tracked in https://github.com/twisted/twisted/issues/12172
+    "ignore:twisted.web.resource._Unsafe:DeprecationWarning:",
+    # This setting will be removed upon upgrade to Django 6.0
+    "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.:",
+]
+
 [tool.uv]
 environments = ["sys_platform == 'linux'"]  # Only Linux
 
