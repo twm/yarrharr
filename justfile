@@ -6,8 +6,8 @@ set positional-arguments
 default:
     just --list
 
-_static:
-    tox -e static
+_static +args="--compress":
+    uv run --script bin/compile-static.py "$@"
 
 # Tag a release and trigger the GHA release workflow
 release:
