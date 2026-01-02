@@ -26,8 +26,7 @@ Grab the build dependencies with:
 
     $ sudo apt install brotli inkscape git scour python3-dev build-essential
 
-[Install pip](https://pip.pypa.io/en/latest/installing/#get-pip), then install [Tox](http://tox.readthedocs.org/en/latest/).
-(I actually recommend installing this in your home directory, but that's outside the scope of this document.)
+[Install uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 [Install Just](https://just.systems/man/en/), probaby via Cargo.
 

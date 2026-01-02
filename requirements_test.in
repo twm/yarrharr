@@ -1,6 +1,0 @@
--c requirements.txt
-pytest
-pytest-twisted
-pytest-django
-lxml
-cssselect
