@@ -2,18 +2,27 @@ version: 2
 updates:
 
   - package-ecosystem: github-actions
-    directory: "/"
+    directories:
+      - "/"
+      - "/.github/actions/*/"
     schedule:
       interval: "weekly"
       day: "friday"
+    cooldown:
+      default-days: 7
 
-  - package-ecosystem: pip
-    directory: "/"
+  - package-ecosystem: uv
+    directories:
+      - "/"
+      - "/bin/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "friday"
     ignore:
     - dependency-name: ruff
       update-types:
         # Ruff releases very frequently which results in
         # an annoying number of Dependabot PRs.
         - "version-update:semver-patch"
+    cooldown:
+      default-days: 7

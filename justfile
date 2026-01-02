@@ -3,11 +3,18 @@
 set shell := ["bash", "-euc"]
 set positional-arguments
 
+export YARRHARR_CONF := env("YARRHARR_CONF", justfile_dir() / "yarrharr/tests/dev.ini")
+export YARRHARR_TESTING := "yes"
+export DJANGO_SETTINGS_MODULE := "yarrharr.settings"
+export PYTHONDONTWRITEBYTECODE := "yes"
+# This must remain disabled due to https://github.com/twisted/treq/issues/226
+# export POISON_REACTOR := "yes"
+
 default:
     just --list
 
-_static:
-    tox -e static
+_static +args="--compress":
+    uv run --script bin/compile-static.py "$@"
 
 # Tag a release and trigger the GHA release workflow
 release:
@@ -34,8 +41,7 @@ release:
     done
     incremental update yarrharr --newversion "$version"
     git commit -am "Anoint $version"
-    tox -e release --notest --recreate
-    if [[ $(.tox/release/bin/hatch version) != $version ]]
+    if [[ $(uv run --only-group release hatch version) != $version ]]
     then
         printf "ERROR: Version %q didn't take\n" "$version"
         exit 1
@@ -44,9 +50,17 @@ release:
     git push origin "$tag"
     git push origin trunk
 
+# Run by the GitHub workflow to actually build the release artifact.
+_release: _static
+    #!/usr/bin/env bash
+    set -exu -o pipefail
+    git diff --quiet HEAD || exit 1
+    version=$(uv run --only-group release -- hatch version)
+    uv run --only-group release -m build
+    uv run --only-group release twine check "dist/yarrharr-${version}.tar.gz" "dist/yarrharr-${version}-py3-none-any.whl"
+
 iterstatic:
     #!/bin/bash
-    tox -e static --notest
     exec watchexec \
         --watch css \
         --watch img \
@@ -55,46 +69,61 @@ iterstatic:
         --on-busy-update=queue \
         --shell=none \
         -- \
-        .tox/static/bin/python bin/compile-static.py --no-compress
+        just _static --no-compress
 
-itertests +args='./yarrharr':
+# Lint the codebase
+lint:
+    uv run --only-group lint ruff check ./yarrharr
+    uv run --only-group lint ruff format --check ./yarrharr
+
+test:
+    just pytest
+    just django-admin makemigrations --dry-run --check
+    just django-admin check
+
+pytest *args:
     #!/bin/bash
-    tox -e test --develop --notest
-    export YARRHARR_CONF=./yarrharr/tests/dev.ini
-    export YARRHARR_TESTING=yes
-    export DJANGO_SETTINGS_MODULE=yarrharr.settings
-    export PYTHONDONTWRITEBYTECODE=yes
-    exec watchexec \
-        --watch yarrharr \
+    set -eux -o pipefail
+    # FIXME: SynchronousTestCase.mktemp() creates a directory named for the test in the
+    # working directory, so put that somewhere temporary:
+    tmpdir=$(mktemp -d)
+    uv --project {{ justfile_dir() }} --directory "$tmpdir" run pytest {{ justfile_dir() }}/yarrharr "$@"
+    rm -rf "$tmpdir"
+
+itertests *args:
+    watchexec \
+        --watch {{ justfile_dir() }}/yarrharr \
         --on-busy-update=queue \
         --shell=none \
         -- \
-        .tox/test/bin/pytest -vvv "$@"
+        just pytest -vvv "$@"
 
 devserver: _static
-    tox run -e run -- django-admin migrate
-    tox run -e run -- django-admin updatehtml
-    YARRHARR_CONF='yarrharr/tests/dev.ini' tox run -e run -- django-admin runserver 127.0.0.1:8888
+    @just django-admin migrate
+    @just django-admin updatehtml
+    @just django-admin runserver 127.0.0.1:8888
 
 realserver: _static
-    tox run -e run -- django-admin migrate
-    tox run -e run -- django-admin collectstatic --noinput
-    tox run -e run -- yarrharr
+    @just django-admin migrate
+    @just django-admin collectstatic --noinput
+    uv run -- yarrharr
+
+django-admin *args:
+    uv run django-admin "$@"
 
 makemigrations:
-    tox run -e run -- django-admin makemigrations
-    tox -e lint --notest
-    .tox/lint/bin/ruff check --fix yarrharr/migrations
-    .tox/lint/bin/ruff format yarrharr/migrations
+    @just django-admin makemigrations
+    @just lint
+    uv run --only-group lint ruff check --fix yarrharr/migrations
+    uv run --only-group lint ruff format yarrharr/migrations
     git add yarrharr/migrations/*.py
 
 poll-feeds:
-    tox run -e run -- django-admin pollfeeds
+    @just django-admin pollfeeds
 
 force-poll:
-    tox run -e run -- django-admin forcepoll
+    @just django-admin forcepoll
 
 clean:
     -rm -rf yarrharr/static
-    -rm -rf .tox
     -find -name '*.pyc' -delete

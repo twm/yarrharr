@@ -1,4 +1,14 @@
 #!/usr/bin/python3
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "brotli>=1.2.0",
+#     "pyoxipng>=9.1.1",
+#     "tinycss2>=1.5.1",
+#     "zopfli>=0.4.0",
+# ]
+# ///
+
 # Copyright © 2018, 2019, 2020, 2022, 2024, 2025 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
