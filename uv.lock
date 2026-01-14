@@ -237,24 +237,25 @@ wheels = [
 ]
 
 [[package]]
-name = "feedparser"
-version = "6.0.12"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "sgmllib3k", marker = "sys_platform == 'linux'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/79/db7edb5e77d6dfbc54d7d9df72828be4318275b2e580549ff45a962f6461/feedparser-6.0.12.tar.gz", hash = "sha256:64f76ce90ae3e8ef5d1ede0f8d3b50ce26bcce71dd8ae5e82b1cd2d4a5f94228", size = 286579, upload-time = "2025-09-10T13:33:59.486Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/eb/c96d64137e29ae17d83ad2552470bafe3a7a915e85434d9942077d7fd011/feedparser-6.0.12-py3-none-any.whl", hash = "sha256:6bbff10f5a52662c00a2e3f86a38928c37c48f77b3c511aedcd51de933549324", size = 81480, upload-time = "2025-09-10T13:33:58.022Z" },
-]
-
-[[package]]
 name = "filelock"
 version = "3.20.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a7/23/ce7a1126827cedeb958fc043d61745754464eb56c5937c35bbf2b8e26f34/filelock-3.20.1.tar.gz", hash = "sha256:b8360948b351b80f420878d8516519a2204b07aefcdcfd24912a5d33127f188c", size = 19476, upload-time = "2025-12-15T23:54:28.027Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/7f/a1a97644e39e7316d850784c642093c99df1290a460df4ede27659056834/filelock-3.20.1-py3-none-any.whl", hash = "sha256:15d9e9a67306188a44baa72f569d2bfd803076269365fdea0934385da4dc361a", size = 16666, upload-time = "2025-12-15T23:54:26.874Z" },
+]
+
+[[package]]
+name = "forkparser"
+version = "2026.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests", marker = "sys_platform == 'linux'" },
+    { name = "sgmllib3k", marker = "sys_platform == 'linux'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/49/64/2b65930d15d281c238cb36eb2d66543acc28c996f380baa7994aab24c873/forkparser-2026.1.0.tar.gz", hash = "sha256:b6a4d975252e6a9038c9054d605e0435af154615cb7e954fe5233232d9b30899", size = 51785, upload-time = "2026-01-14T06:32:43.127Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/1b/3d94ae460f21c54052894a3b39d61d84aff94b5f0a666e0939b3309a9ef7/forkparser-2026.1.0-py3-none-any.whl", hash = "sha256:f018c67b3d81634ba7e5e99383ded7d6fb34d8fea92cb9d18f87006192fa4ad6", size = 85262, upload-time = "2026-01-14T06:32:41.672Z" },
 ]
 
 [[package]]
@@ -1029,7 +1030,7 @@ dependencies = [
     { name = "attrs", marker = "sys_platform == 'linux'" },
     { name = "cattrs", marker = "sys_platform == 'linux'" },
     { name = "django", marker = "sys_platform == 'linux'" },
-    { name = "feedparser", marker = "sys_platform == 'linux'" },
+    { name = "forkparser", marker = "sys_platform == 'linux'" },
     { name = "html5lib", marker = "sys_platform == 'linux'" },
     { name = "treq", marker = "sys_platform == 'linux'" },
     { name = "twisted", extra = ["tls"], marker = "sys_platform == 'linux'" },
@@ -1057,7 +1058,7 @@ requires-dist = [
     { name = "attrs", specifier = ">=21.3.0" },
     { name = "cattrs", specifier = ">=25.1.1" },
     { name = "django", specifier = ">=4.2.1,<5.3" },
-    { name = "feedparser", specifier = ">=6.0.8" },
+    { name = "forkparser", specifier = ">=2026.1.0" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "treq", specifier = ">=22.2.0" },
     { name = "twisted", extras = ["tls"], specifier = ">=22.10.0" },
