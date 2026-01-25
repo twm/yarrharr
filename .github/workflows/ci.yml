@@ -45,6 +45,7 @@ jobs:
     - run: just "$RECIPE"
       env:
         RECIPE: ${{ matrix.recipe }}
+        UV_FROZEN: 1
 
   build:
     runs-on: ubuntu-24.04
@@ -66,6 +67,8 @@ jobs:
         sudo apt-get install --no-install-suggests --no-install-recommends inkscape scour
 
     - run: just _release
+      env:
+        UV_FROZEN: 1
 
     - uses: actions/upload-artifact@v6
       with:
