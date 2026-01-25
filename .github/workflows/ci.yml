@@ -70,7 +70,7 @@ jobs:
     - uses: actions/upload-artifact@v6
       with:
         name: dist
-        path: dist/*.*
+        path: dist/yarrharr-*.*
         if-no-files-found: error
 
   release:
@@ -98,6 +98,7 @@ jobs:
             --verify-tag \
             --title "Yarrharr $version" \
             --generate-notes \
+            "dist/yarrharr-${version}-requirements.txt" \
             "dist/yarrharr-${version}.tar.gz" \
             "dist/yarrharr-${version}"*.whl
       env:
