@@ -4,21 +4,27 @@
 
 .list-article {
   contain: layout; {# Establish positioning context #}
+  position: relative;
 
   --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
+  &:hover,
+  &:focus-within {
+    background-color: var(--focus-background-color);
+  }
+
   {# Tabular display on wide pages #}
   @media (min-width: 50rem) {
-    margin: 0.75rem 0;
     display: flex; {# Flexbox rather than grid so we can omit columns without altering the styles. #}
     flex-flow: row nowrap;
-    align-items: center;
+    align-items: stretch;
     white-space: nowrap;
 
     .meta1 {
       display: contents;
 
       .feed-title, .date, .author {
+        padding: 0.75rem 0;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-right: 1rem;
@@ -47,6 +53,7 @@
     }
 
     .meta2 {
+      padding: 0.75rem 0;
       flex: 1 1 50%;
       min-width: 0;
     }
@@ -59,7 +66,7 @@
 
   {# Multi-line display on narrower pages #}
   @media (not (min-width: 50rem)) {
-    margin: 1rem 0;
+    padding: 0.5rem var(--focus-outline-width);
     display: grid;
     grid-template-columns: 1fr min-content min-content;
     grid-template-areas:
@@ -117,6 +124,23 @@
 
     overflow: hidden;
     text-overflow: ellipsis;
+
+    {# Expand the clickable region to the entire row.
+       https://piccalil.li/blog/create-a-semantic-break-out-button-to-make-an-entire-element-clickable/ #}
+    &::before {
+       content: '';
+       display: block;
+       position: absolute;
+       inset: 0;
+    }
+    {# Move focus to the ::before #}
+    &:focus-visible {
+      outline: none;
+    }
+    &:focus-visible::before {
+      outline: var(--focus-outline-width) solid var(--focus-color);
+      outline-offset: var(--focus-offset);
+    }
 
     .title, .snippet {
       display: inline;
