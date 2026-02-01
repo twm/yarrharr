@@ -235,6 +235,76 @@
 </div>
 {% endfor %}
 
+<script nonce="{{ csp_nonce }}">
+
+document.body.onkeypress = (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+  if (e.key === 'j') {
+    focusNext();
+  } else if (e.key === 'k') {
+    focusPrev();
+  } else if (e.key === 'm') {
+    markArticle();
+  } else if (e.key === 'o') {
+    openArticle();
+  }
+}
+
+function currentArticle() {
+  let el = document.activeElement;
+  while (el && !isArticle(el)) el = el.parentElement;
+  if (el && isArticle(el)) return el;
+  return null;
+}
+
+function isArticle(el) {
+  return el.classList.contains("list-article");
+}
+
+function focusArticle(el) {
+    let link = el.querySelector("a");
+    link.focus({focusVisible: false});
+}
+
+function focusNext() {
+  const current = currentArticle();
+  let next = null;
+  if (current == null) {
+    next = document.querySelector(".list-article")
+  } else if (isArticle(current.nextElementSibling)) {
+    next = current.nextElementSibling;
+  }
+  if (next) focusArticle(next);
+}
+
+function focusPrev() {
+  const current = currentArticle();
+  let next = null;
+  if (current == null) {
+    next = document.querySelectorAll(".list-article")[-1];
+  } else if (isArticle(current.previousElementSibling)) {
+    next = current.previousElementSibling;
+  }
+  if (next) focusArticle(next);
+}
+
+function markArticle() {
+  const article = currentArticle();
+  if (article) {
+    article.querySelector("read-toggle button").click();
+  }
+}
+
+function openArticle() {
+  const article = currentArticle()
+  if (article) {
+    article.querySelector(".view-link").click();
+  }
+}
+
+</script>
+
 {% if next_page_after %}
 <div class="pagination"><a class="lazy-underline" href="?after={{ next_page_after }}">More →</a></div>
 {% endif %}
