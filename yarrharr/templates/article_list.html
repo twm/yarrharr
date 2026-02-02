@@ -4,21 +4,27 @@
 
 .list-article {
   contain: layout; {# Establish positioning context #}
+  position: relative;
 
   --focus-offset: var(--focus-offset-in); /* Don't clip focus ring. */
 
+  &:hover,
+  &:focus-within {
+    background-color: var(--focus-background-color);
+  }
+
   {# Tabular display on wide pages #}
   @media (min-width: 50rem) {
-    margin: 0.75rem 0;
     display: flex; {# Flexbox rather than grid so we can omit columns without altering the styles. #}
     flex-flow: row nowrap;
-    align-items: center;
+    align-items: stretch;
     white-space: nowrap;
 
     .meta1 {
       display: contents;
 
       .feed-title, .date, .author {
+        padding: 0.75rem 0;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-right: 1rem;
@@ -47,6 +53,7 @@
     }
 
     .meta2 {
+      padding: 0.75rem 0;
       flex: 1 1 50%;
       min-width: 0;
     }
@@ -59,7 +66,7 @@
 
   {# Multi-line display on narrower pages #}
   @media (not (min-width: 50rem)) {
-    margin: 1rem 0;
+    padding: 0.5rem var(--focus-outline-width);
     display: grid;
     grid-template-columns: 1fr min-content min-content;
     grid-template-areas:
@@ -117,6 +124,23 @@
 
     overflow: hidden;
     text-overflow: ellipsis;
+
+    {# Expand the clickable region to the entire row.
+       https://piccalil.li/blog/create-a-semantic-break-out-button-to-make-an-entire-element-clickable/ #}
+    &::before {
+       content: '';
+       display: block;
+       position: absolute;
+       inset: 0;
+    }
+    {# Move focus to the ::before #}
+    &:focus-visible {
+      outline: none;
+    }
+    &:focus-visible::before {
+      outline: var(--focus-outline-width) solid var(--focus-color);
+      outline-offset: var(--focus-offset);
+    }
 
     .title, .snippet {
       display: inline;
@@ -210,6 +234,76 @@
   </a>
 </div>
 {% endfor %}
+
+<script nonce="{{ csp_nonce }}">
+
+document.body.onkeypress = (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+  if (e.key === 'j') {
+    focusNext();
+  } else if (e.key === 'k') {
+    focusPrev();
+  } else if (e.key === 'm') {
+    markArticle();
+  } else if (e.key === 'o') {
+    openArticle();
+  }
+}
+
+function currentArticle() {
+  let el = document.activeElement;
+  while (el && !isArticle(el)) el = el.parentElement;
+  if (el && isArticle(el)) return el;
+  return null;
+}
+
+function isArticle(el) {
+  return el.classList.contains("list-article");
+}
+
+function focusArticle(el) {
+    let link = el.querySelector("a");
+    link.focus({focusVisible: false});
+}
+
+function focusNext() {
+  const current = currentArticle();
+  let next = null;
+  if (current == null) {
+    next = document.querySelector(".list-article")
+  } else if (isArticle(current.nextElementSibling)) {
+    next = current.nextElementSibling;
+  }
+  if (next) focusArticle(next);
+}
+
+function focusPrev() {
+  const current = currentArticle();
+  let next = null;
+  if (current == null) {
+    next = document.querySelectorAll(".list-article")[-1];
+  } else if (isArticle(current.previousElementSibling)) {
+    next = current.previousElementSibling;
+  }
+  if (next) focusArticle(next);
+}
+
+function markArticle() {
+  const article = currentArticle();
+  if (article) {
+    article.querySelector("read-toggle button").click();
+  }
+}
+
+function openArticle() {
+  const article = currentArticle()
+  if (article) {
+    article.querySelector(".view-link").click();
+  }
+}
+
+</script>
 
 {% if next_page_after %}
 <div class="pagination"><a class="lazy-underline" href="?after={{ next_page_after }}">More →</a></div>

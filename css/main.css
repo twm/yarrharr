@@ -9,7 +9,7 @@
     --text-color: black;
     --quiet-text-color: #2f2f2f;
     --footer-background-color: #fafafa;
-    --foter-text-color: #141414;
+    --footer-text-color: #141414;
 
     --border-color: #ddd;
     --icon-color: #666;
@@ -29,6 +29,8 @@
     /* By default, the focus ring is offset so it doesn't bump against text ("out").
      In packed UI contexts, it is inset relative to layout ("in"). */
     --focus-color: #0098ff;
+    --focus-background-color: var(--footer-background-color);
+    --focus-outline-width: 2px;
     --focus-offset-out: 2px;
     --focus-offset-in: -2px;
     --focus-offset: var(--focus-offset-out);
