@@ -32,8 +32,10 @@
     --focus-background-color: var(--footer-background-color);
     --focus-outline-width: 2px;
     --focus-offset-out: 2px;
-    --focus-offset-in: -2px;
+    --focus-offset-in: calc(-1 * var(--focus-outline-width));
     --focus-offset: var(--focus-offset-out);
+    /* How much margin the focus ring needs. */
+    --focus-bleed: calc(var(--focus-offset) + var(--focus-outline-width));
 
     /* There is always this much padding between text and the edge of stuff. */
     --text-padding: 0.25rem;
@@ -128,7 +130,7 @@ h1 {
 
 /* Default focus styles.  */
 :focus-visible {
-    outline: 2px solid var(--focus-color);
+    outline: var(--focus-outline-width) solid var(--focus-color);
     outline-offset: var(--focus-offset);
 }
 /* Same as above, but with higher precedence to address a specificity conflict with normalize.css. */
@@ -136,7 +138,7 @@ button:-moz-focusring,
 [type="button"]:-moz-focusring,
 [type="reset"]:-moz-focusring,
 [type="submit"]:-moz-focusring {
-  outline: 2px solid var(--focus-color);
+  outline: var(--focus-outline-width) solid var(--focus-color);
   outline-offset: var(--focus-offset);
 }
 
@@ -233,7 +235,7 @@ textarea[readonly] {
     }
     &:focus-visible {
         box-shadow: inset 0 0 0 1.5px currentColor;
-        outline: 2px solid transparent;
+        outline: var(--focus-outline-width) solid transparent;
     }
     &:active:focus-visible {
         box-shadow: inset 0 0 0 1.5px currentColor,
