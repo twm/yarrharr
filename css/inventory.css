@@ -14,7 +14,7 @@
 .feed-list,
 .label-list {
     white-space: nowrap;
-    border-block: 2px solid var(--border-color);
+    border-block: 1px solid var(--border-color);
     margin: 0.5rem 0;
 
     thead, tbody, tfoot {
@@ -95,7 +95,7 @@
     .feed-list-item-header > th {
         font: inherit;
         background: var(--footer-background-color);
-        border-bottom: 2px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
     }
     .feed-list-item:nth-child(even) > td {
         background: var(--footer-background-color);
