@@ -132,6 +132,7 @@
        display: block;
        position: absolute;
        inset: 0;
+       z-index: 1;
     }
     {# Move focus to the ::before #}
     &:focus-visible {
@@ -164,6 +165,7 @@
   read-toggle,
   .view-link {
       flex: 0 0 var(--bar-height);
+      z-index: 2; {# Above the clickable ::before #}
   }
   read-toggle {
     grid-area: read-toggle;
