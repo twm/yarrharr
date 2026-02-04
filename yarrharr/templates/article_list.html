@@ -247,7 +247,7 @@ document.body.onkeypress = (e) => {
   } else if (e.key === 'k') {
     focusPrev();
   } else if (e.key === 'm') {
-    markArticle();
+    toggleRead();
   } else if (e.key === 'o') {
     openArticle();
   }
@@ -291,7 +291,7 @@ function focusPrev() {
   if (next) focusArticle(next);
 }
 
-function markArticle() {
+function toggleRead() {
   const article = currentArticle();
   if (article) {
     article.querySelector("read-toggle button").click();
