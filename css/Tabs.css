@@ -8,6 +8,7 @@
  */
 .tabs {
     background: var(--background-color);
+    padding: 0 var(--focus-bleed);
 }
 .tabs-tabs {
     max-width: 100%;

@@ -3,7 +3,7 @@
     justify-content: space-between;
     background: var(--footer-background-color);
     min-height: var(--bar-height); /* So .square is square */
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 
     --focus-offset: calc(2 * var(--focus-offset-in)); /* Don't clip focus ring. */
 

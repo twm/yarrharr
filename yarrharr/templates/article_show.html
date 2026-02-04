@@ -49,4 +49,26 @@
 
 </div>
 
+<script nonce="{{ csp_nonce }}">
+
+document.body.onkeypress = (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+  if (e.key === 'm') {
+    toggleRead();
+  } else if (e.key === 'f') {
+    toggleFave();
+  }
+}
+
+function toggleRead() {
+  document.querySelector("read-toggle button").click();
+}
+
+function toggleFave() {
+  document.querySelector("fave-toggle button").click();
+}
+
+</script>
+
 {% endblock %}
