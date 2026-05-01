@@ -100,7 +100,7 @@ lint = [
     "ruff>=0.1.8",
 ]
 release = [
-    "build>=1.3.0",
+    "build>=1.4.4",
     "hatch>=1.16.2",
     "twine>=6.2.0",
 ]
