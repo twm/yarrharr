@@ -31,7 +31,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: astral-sh/setup-uv@v7
+    - uses: astral-sh/setup-uv@v8.1.0
 
       # Temporary hack: create files normally created by bin/compile-static.py
       # that are expected to exist by the manifest.json view test.
@@ -59,7 +59,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: astral-sh/setup-uv@v7
+    - uses: astral-sh/setup-uv@v8.1.0
 
     - name: apt install
       run: |
