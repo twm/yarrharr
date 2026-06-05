@@ -23,7 +23,7 @@ jobs:
       RUFF_OUTPUT_FORMAT: "github"
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.0.2
       with:
         persist-credentials: false
 
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.0.2
       with:
         persist-credentials: false
 
