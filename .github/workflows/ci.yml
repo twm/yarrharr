@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       RUFF_OUTPUT_FORMAT: "github"
+      # Disable caching in release workflows
+      ENABLE_CACHE: ${{ !startsWith(github.ref, 'refs/tags/v' )}}
 
     steps:
     - uses: actions/checkout@v6
@@ -32,6 +34,8 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: ${{ env.ENABLE_CACHE }}
 
       # Temporary hack: create files normally created by bin/compile-static.py
       # that are expected to exist by the manifest.json view test.
@@ -60,6 +64,8 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: ${{ env.ENABLE_CACHE }}
 
     - name: apt install
       run: |
