@@ -74,11 +74,43 @@ class HtmlToTextTests(unittest.TestCase):
     def test_img_alt(self):
         """
         An ``<img>`` tag is replaced with its alt text, falling back to the
-        🖼️ emoji when no alt text is present.
+        🖼️ emoji when no alt text is present. As ``<img>`` is flow content,
+        no whitespace is implied.
         """
         self.assertEqual("", html_to_text('<img alt="">'))
         self.assertEqual(":)", html_to_text('<img alt=":)">'))
+        self.assertEqual(r"-\o/-", html_to_text(r'-<img alt="\o/">-'))
         self.assertEqual("🖼️", html_to_text("<img>"))
+
+    def test_picture(self):
+        """
+        A ``<picture>`` tag is ignored. It is represented by the
+        nested ``<img>`` element.
+        """
+        self.assertEqual("", html_to_text('<picture><img alt=""></picture>'))
+        self.assertEqual("_:-o_", html_to_text('_<picture><img alt=":-o"></picture>_'))
+        self.assertEqual(
+            r"-\o/-",
+            html_to_text(r'-<picture><source srcset="foo.avif" type="image/avif"><img alt="\o/"></picture>-'),
+        )
+        self.assertEqual("🖼️", html_to_text("<picture><source srcset='foo.avif' type='image/avif'><img></picture>"))
+
+    def test_figure(self):
+        """
+        A ``<figure>`` tag is turned into a 🖼️ emoji, eliding any caption or alt text.
+        """
+        html = (
+            "<figure>"
+            "<picture>"
+            '<source type="image/webp" srcset="foo.webp">'
+            '<img src="foo.jpg" alt="dropped">'
+            "</picture>"
+            "<figcaption>"
+            "<em>Foo!</em>"
+            "</figcaption>"
+            "</figure>"
+        )
+        self.assertEqual("🖼️", html_to_text(html))
 
     def test_video(self):
         """
@@ -219,6 +251,15 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<img>`` tags are safe and pass right through.
         """
         html = '<img alt="" src="https://example.com/baz.png">'
+        self.assertEqual(sanitize_html(html), html)
+
+    def test_picture_passes_through(self):
+        """
+        ``<picture>`` and its child ``<source>`` tags pass through.
+        """
+        html = (
+            '<picture><source type="image/avif" srcset=foo.avif><source media="(orientation: portrait)" srcset=foo-v.jpg><img src=foo.gif></picture>'
+        )
         self.assertEqual(sanitize_html(html), html)
 
     def test_youtube_embed_replaced(self):

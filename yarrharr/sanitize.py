@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2020, 2022, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020, 2022, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 11
+REVISION = 12
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -45,6 +45,7 @@ def html_tag(tag: str) -> str:
 
 _IMG_TAG = html_tag("img")
 _VIDEO_TAG = html_tag("video")
+_FIGURE_TAG = html_tag("figure")
 _ASIDE_TAG = html_tag("aside")
 _DROP_TAGS = frozenset(
     [
@@ -79,6 +80,7 @@ _NO_WHITESPACE_TAGS = (
             html_tag("meta"),
             html_tag("meter"),
             html_tag("noscript"),
+            html_tag("picture"),
             html_tag("q"),
             html_tag("ruby"),
             html_tag("samp"),
@@ -122,6 +124,8 @@ def html_to_text(html: str) -> str:
         needs_ws = el.tag not in _NO_WHITESPACE_TAGS
         if el.tag == _IMG_TAG:
             buf.write(el.get("alt", "🖼️"))
+        elif el.tag == _FIGURE_TAG:
+            buf.write(" 🖼️ ")
         elif el.tag == _VIDEO_TAG:
             buf.write(" 🎥 ")
         elif el.tag == _ASIDE_TAG and el.get("class", "") == "title-text":
@@ -165,6 +169,8 @@ def sanitize_html(html: str) -> str:
         allowed_elements=sanitizer.allowed_elements
         | frozenset(
             [
+                (namespaces["html"], "picture"),
+                (namespaces["html"], "source"),
                 (
                     namespaces["html"],
                     "summary",
@@ -179,6 +185,7 @@ def sanitize_html(html: str) -> str:
         | frozenset(
             [
                 (None, "srcset"),
+                (None, "media"),  # <source media>
             ]
         ),
     )
