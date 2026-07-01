@@ -95,6 +95,23 @@ class HtmlToTextTests(unittest.TestCase):
         )
         self.assertEqual("🖼️", html_to_text("<picture><source srcset='foo.avif' type='image/avif'><img></picture>"))
 
+    def test_figure(self):
+        """
+        A ``<figure>`` tag is turned into a 🖼️ emoji, eliding any caption or alt text.
+        """
+        html = (
+            "<figure>"
+            "<picture>"
+            '<source type="image/webp" srcset="foo.webp">'
+            '<img src="foo.jpg" alt="dropped">'
+            "</picture>"
+            "<figcaption>"
+            "<em>Foo!</em>"
+            "</figcaption>"
+            "</figure>"
+        )
+        self.assertEqual("🖼️", html_to_text(html))
+
     def test_video(self):
         """
         A ``<video>`` tag is replaced with the 🎥 emoji surrounded by spaces.
@@ -241,11 +258,7 @@ class SanitizeHtmlTests(unittest.TestCase):
         ``<picture>`` and its child ``<source>`` tags pass through.
         """
         html = (
-            '<picture>'
-            '<source type="image/avif" srcset=foo.avif>'
-            '<source media="(orientation: portrait)" srcset=foo-v.jpg>'
-            '<img src=foo.gif>'
-            '</picture>'
+            '<picture><source type="image/avif" srcset=foo.avif><source media="(orientation: portrait)" srcset=foo-v.jpg><img src=foo.gif></picture>'
         )
         self.assertEqual(sanitize_html(html), html)
 
