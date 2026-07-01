@@ -236,6 +236,19 @@ class SanitizeHtmlTests(unittest.TestCase):
         html = '<img alt="" src="https://example.com/baz.png">'
         self.assertEqual(sanitize_html(html), html)
 
+    def test_picture_passes_through(self):
+        """
+        ``<picture>`` and its child ``<source>`` tags pass through.
+        """
+        html = (
+            '<picture>'
+            '<source type="image/avif" srcset=foo.avif>'
+            '<source media="(orientation: portrait)" srcset=foo-v.jpg>'
+            '<img src=foo.gif>'
+            '</picture>'
+        )
+        self.assertEqual(sanitize_html(html), html)
+
     def test_youtube_embed_replaced(self):
         """
         An ``<iframe>`` style embedded YouTube video is replaced by a thumbnail
