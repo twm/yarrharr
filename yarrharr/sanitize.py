@@ -79,6 +79,7 @@ _NO_WHITESPACE_TAGS = (
             html_tag("meta"),
             html_tag("meter"),
             html_tag("noscript"),
+            html_tag("picture"),
             html_tag("q"),
             html_tag("ruby"),
             html_tag("samp"),
@@ -165,6 +166,8 @@ def sanitize_html(html: str) -> str:
         allowed_elements=sanitizer.allowed_elements
         | frozenset(
             [
+                (namespaces["html"], "picture"),
+                (namespaces["html"], "source"),
                 (
                     namespaces["html"],
                     "summary",
@@ -179,6 +182,7 @@ def sanitize_html(html: str) -> str:
         | frozenset(
             [
                 (None, "srcset"),
+                (None, "media"),  # <source media>
             ]
         ),
     )
