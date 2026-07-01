@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2020, 2022, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2020, 2022, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 11
+REVISION = 12
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
