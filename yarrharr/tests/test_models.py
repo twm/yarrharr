@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
+from .. import sanitize
 from ..models import Article, Feed, Label
 
 
@@ -282,7 +283,7 @@ class ArticleSetContentTests(TestCase):
           * `content_snippet` — textual prefix of the HTML
           * `content_rev` — revision number of the sanitization scheme
         """
-        self.article.set_content(
+        fields = self.article.set_content(
             "Title",
             (
                 "<p>"
@@ -324,6 +325,10 @@ class ArticleSetContentTests(TestCase):
             ),
             self.article.content_snippet,
         )
+        self.assertEqual(
+            {"raw_title", "raw_content", "title", "content", "content_snippet", "content_rev"},
+            fields,
+        )
 
     def test_title_prefix(self):
         """
@@ -335,6 +340,31 @@ class ArticleSetContentTests(TestCase):
 
         self.assertEqual("TITLE", self.article.title)
         self.assertEqual("content content content", self.article.content_snippet)
+
+    def test_fields_subset(self):
+        """
+        `set_content()` only returns the fields that actually changed.
+        """
+        self.article.raw_title = "<i>Title</i>"  # unchanged
+        self.article.title = "Title"  # unchanged
+        self.article.content = self.article.raw_content = "<p>content content content</p>"
+        self.article.content_snippet = "content content content"  # unchanged
+        self.article.content_rev = sanitize.REVISION - 1
+
+        fields = self.article.set_content("<i>Title</i>", "<p>content <b>content</b> content")
+
+        self.assertEqual(fields, {"raw_content", "content", "content_rev"})
+
+    def test_fields_unchanged(self):
+        """
+        `set_content()` returns an empty list of updated fields when nothing has changed.
+        """
+        self.article.set_content("<i>Title</i>", "<p>content content content")
+
+        self.assertEqual(
+            set(),
+            self.article.set_content(self.article.raw_title, self.article.raw_content),
+        )
 
 
 class FeedArticleCountTriggerTests(TestCase):
