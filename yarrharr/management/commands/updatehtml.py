@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from itertools import batched
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -20,25 +22,31 @@ from yarrharr.models import Article
 from yarrharr.sanitize import REVISION
 
 
-def need_update():
-    return Article.objects.exclude(content_rev=REVISION).only("raw_content")
-
-
 class Command(BaseCommand):
     help = "Update article HTML for sanitizer changes"
 
     def handle(self, *args, **options):
-        count = 0
-        estimate = need_update().count()
-        self.stdout.write(self.style.SUCCESS(f"{estimate:,d} articles need update"))
-        while True:
+        change_count = 0
+        unchanged_count = 0
+        ids = list(Article.objects.exclude(content_rev=REVISION).values_list("id", flat=True))
+        self.stdout.write(self.style.SUCCESS(f"{len(ids):,d} articles need update"))
+        for batch_ids in batched(ids, 100):
             with transaction.atomic():
-                batch = list(need_update()[:100])
-                if not batch:
-                    break
+                batch = list(Article.objects.filter(id__in=batch_ids))
                 for article in batch:
-                    article.set_content(article.raw_title, article.raw_content)
-                    article.save()
-                count += len(batch)
-            self.stdout.write(f"{count * 100.0 / estimate:6.02f}% Updated {count:,d} articles ")
+                    update_fields = article.set_content(article.raw_title, article.raw_content)
+                    if update_fields > {"content_rev"}:
+                        change_count += 1
+                    else:
+                        unchanged_count += 1
+                    article.save(update_fields=update_fields)
+
+            pct = (change_count + unchanged_count) * 100.0 / len(ids)
+            self.stdout.write(f"{pct:6.02f}% {change_count:,d} articles updated; {unchanged_count:,d} unchanged")
+        count = change_count + unchanged_count
         self.stdout.write(self.style.SUCCESS("Updated {count:,d} articles to revision {REVISION}"))
+        if count:
+            changed_pct = change_count * 100.0 / count
+            unchanged_pct = unchanged_count * 100 / count
+            self.stdout.write(f"{changed_pct:.02f}% of articles changed ({change_count:,d})")
+            self.stdout.write(f"{unchanged_pct:.02f}% of articles were unchanged ({unchanged_count:,d})")
