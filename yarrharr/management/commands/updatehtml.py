@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = 0
         estimate = need_update().count()
-        self.stdout.write(self.style.SUCCESS("{} articles need update".format(estimate)))
+        self.stdout.write(self.style.SUCCESS(f"{estimate:,d} articles need update"))
         while True:
             with transaction.atomic():
                 batch = list(need_update()[:100])
@@ -40,5 +40,5 @@ class Command(BaseCommand):
                     article.set_content(article.raw_title, article.raw_content)
                     article.save()
                 count += len(batch)
-            self.stdout.write(self.style.SUCCESS("Updated {} articles".format(count)))
-        self.stdout.write(self.style.SUCCESS("Finished: updated {} articles".format(count)))
+            self.stdout.write(f"{count * 100.0 / estimate:6.02f}% Updated {count:,d} articles ")
+        self.stdout.write(self.style.SUCCESS("Updated {count:,d} articles to revision {REVISION}"))
