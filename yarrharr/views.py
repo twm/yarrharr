@@ -14,8 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+from importlib.metadata import PackageNotFoundError, metadata
 
-import django
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.db.models import Count, F, Q, Sum
@@ -28,7 +28,6 @@ from twisted.logger import Logger
 
 import yarrharr
 
-from . import _feedparser
 from .enums import ArticleFilter
 from .models import AllViewOptions, Article, Feed, Label, Sort
 from .signals import schedule_changed
@@ -698,13 +697,36 @@ def about(request):
     About page, which lists the version of everything involved to assist
     with debugging.
     """
+    deps = []
+    for distribution in (
+        "cryptography",
+        "django",
+        "feedparser",
+        "forkparser",
+        "html5lib",
+        "pyopenssl",
+        "treq",
+        "twisted",
+    ):
+        try:
+            m = metadata(distribution)
+        except PackageNotFoundError:
+            continue
+        else:
+            deps.append(
+                {
+                    "url": f"https://pypi.org/project/{distribution}/",
+                    "name": m["Name"],
+                    "version": m["Version"],
+                }
+            )
+
     return render(
         request,
         "about.html",
         {
             "yarrharr_version": yarrharr.__version__,
-            "django_version": django.get_version(),
-            "feedparser_version": _feedparser.__version__,
+            "dependencies": deps,
         },
     )
 

@@ -28,13 +28,12 @@ try:
     # This works because we don't use feedparser's HTTP APIs.
     sys.modules["requests"] = types.ModuleType("requests")
 
-    from feedparser import __version__, parse
+    from feedparser import parse
     from feedparser.http import ACCEPT_HEADER
 finally:
     del sys.modules["requests"]
 
 __all__ = (
     "ACCEPT_HEADER",
-    "__version__",
     "parse",
 )
