@@ -262,15 +262,14 @@ wheels = [
 
 [[package]]
 name = "forkparser"
-version = "2026.1.0"
+version = "2026.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "requests", marker = "sys_platform == 'linux'" },
     { name = "sgmllib3k", marker = "sys_platform == 'linux'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/49/64/2b65930d15d281c238cb36eb2d66543acc28c996f380baa7994aab24c873/forkparser-2026.1.0.tar.gz", hash = "sha256:b6a4d975252e6a9038c9054d605e0435af154615cb7e954fe5233232d9b30899", size = 51785, upload-time = "2026-01-14T06:32:43.127Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f7/67/ae20342fd19d98d2ae3192bfe73348eeaafb16c4b79cb36918092e525b7f/forkparser-2026.7.1.tar.gz", hash = "sha256:0b946061cdd22bbb1f0207fbe8a3f929cf40dbf8d8db7d38d6f9451986755b42", size = 51082, upload-time = "2026-07-02T01:21:56.291Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/1b/3d94ae460f21c54052894a3b39d61d84aff94b5f0a666e0939b3309a9ef7/forkparser-2026.1.0-py3-none-any.whl", hash = "sha256:f018c67b3d81634ba7e5e99383ded7d6fb34d8fea92cb9d18f87006192fa4ad6", size = 85262, upload-time = "2026-01-14T06:32:41.672Z" },
+    { url = "https://files.pythonhosted.org/packages/13/27/b3c70ddd250850539ac430133b9362b6b2bc4242f766204853fa64edc9e3/forkparser-2026.7.1-py3-none-any.whl", hash = "sha256:de3484b9d56f0f453bd04666a12fcf276ff36917306e1e56f63f457e488224a4", size = 84465, upload-time = "2026-07-02T01:21:54.846Z" },
 ]
 
 [[package]]

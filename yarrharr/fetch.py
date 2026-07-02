@@ -1,4 +1,4 @@
-# Copyright © 2016, 2017, 2018, 2019, 2020, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017, 2018, 2019, 2020, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ Feed fetcher based on Twisted Web
 
 import hashlib
 import html
+import sys
+import types
 from datetime import datetime
 from datetime import timezone as tz
 from io import BytesIO
@@ -28,7 +30,6 @@ import feedparser
 import treq
 from django.db import OperationalError, transaction
 from django.utils import timezone
-from feedparser.http import ACCEPT_HEADER
 from twisted.internet import defer, error
 from twisted.internet.threads import deferToThread
 from twisted.logger import Logger
@@ -38,6 +39,14 @@ from twisted.web import client
 from . import __version__
 from .models import Feed
 from .sanitize import html_to_text
+
+# feedparser.http imports requests, so temporarily patch it in
+# order to pull a constant from that module.
+try:
+    sys.modules["requests"] = types.ModuleType("requests")
+    from feedparser.http import ACCEPT_HEADER
+finally:
+    del sys.modules["requests"]
 
 try:
     # Seriously STFU this is not helpful.
