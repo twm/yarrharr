@@ -19,14 +19,11 @@ Feed fetcher based on Twisted Web
 
 import hashlib
 import html
-import sys
-import types
 from datetime import datetime
 from datetime import timezone as tz
 from io import BytesIO
 
 import attr
-import feedparser
 import treq
 from django.db import OperationalError, transaction
 from django.utils import timezone
@@ -36,17 +33,9 @@ from twisted.logger import Logger
 from twisted.python.failure import Failure
 from twisted.web import client
 
-from . import __version__
+from . import __version__, _feedparser
 from .models import Feed
 from .sanitize import html_to_text
-
-# feedparser.http imports requests, so temporarily patch it in
-# order to pull a constant from that module.
-try:
-    sys.modules["requests"] = types.ModuleType("requests")
-    from feedparser.http import ACCEPT_HEADER
-finally:
-    del sys.modules["requests"]
 
 try:
     # Seriously STFU this is not helpful.
@@ -530,7 +519,7 @@ def poll_feed(feed, clock, treq=treq):
     """
     headers = {
         b"user-agent": [USER_AGENT_HEADER],
-        b"accept": [ACCEPT_HEADER],
+        b"accept": [_feedparser.ACCEPT_HEADER],
     }
     if feed.etag:
         headers[b"if-none-match"] = [bytes(feed.etag)]
@@ -605,7 +594,7 @@ def poll_feed(feed, clock, treq=treq):
     # so we wrap it in a BytesIO() to force it to parse the response.
     # Otherwise the HTTP response body could be just a URL and trigger
     # blocking I/O!
-    parsed = feedparser.parse(
+    parsed = _feedparser.parse(
         BytesIO(raw_bytes),
         response_headers=h,
         sanitize_html=False,

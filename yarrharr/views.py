@@ -16,7 +16,6 @@
 import json
 
 import django
-import feedparser
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.db.models import Count, F, Q, Sum
@@ -29,6 +28,7 @@ from twisted.logger import Logger
 
 import yarrharr
 
+from . import _feedparser
 from .enums import ArticleFilter
 from .models import AllViewOptions, Article, Feed, Label, Sort
 from .signals import schedule_changed
@@ -704,7 +704,7 @@ def about(request):
         {
             "yarrharr_version": yarrharr.__version__,
             "django_version": django.get_version(),
-            "feedparser_version": feedparser.__version__,
+            "feedparser_version": _feedparser.__version__,
         },
     )
 
