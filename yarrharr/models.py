@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections.abc import Set
 from datetime import timedelta
 
 from django.db import models
@@ -245,7 +246,7 @@ class Article(models.Model):
     def __str__(self):
         return "{} <{}>".format(self.title, self.url)
 
-    def set_content(self, raw_title, raw_content):
+    def set_content(self, raw_title: str, raw_content: str) -> Set[str]:
         """
         Set article title and content.
 
@@ -256,16 +257,28 @@ class Article(models.Model):
           * `content` — sanitized HTML
           * `content_snippet` — a short plain text prefix of the HTML
           * `content_rev` — revision number of the sanitization scheme
+
+        :returns:
+            Names of the fields that changed.
         """
-        self.raw_title = raw_title
-        self.raw_content = raw_content
-        self.title = title = sanitize.html_to_text(raw_title)
-        self.content = content = sanitize.sanitize_html(raw_content)
+        title = sanitize.html_to_text(raw_title)
+        content = sanitize.sanitize_html(raw_content)
         text = sanitize.html_to_text(content)
         if text.startswith(title):
             text = text[len(title) :].lstrip()
-        self.content_snippet = text[:500]
-        self.content_rev = sanitize.REVISION
+        changed = set()
+        for attr, value in (
+            ("raw_title", raw_title),
+            ("raw_content", raw_content),
+            ("title", title),
+            ("content", content),
+            ("content_snippet", text[:500]),
+            ("content_rev", sanitize.REVISION),
+        ):
+            if getattr(self, attr) != value:
+                setattr(self, attr, value)
+                changed.add(attr)
+        return changed
 
 
 class Label(_ViewOptions):
