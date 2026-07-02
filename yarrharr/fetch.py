@@ -1,4 +1,4 @@
-# Copyright © 2016, 2017, 2018, 2019, 2020, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2016, 2017, 2018, 2019, 2020, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,18 +24,16 @@ from datetime import timezone as tz
 from io import BytesIO
 
 import attr
-import feedparser
 import treq
 from django.db import OperationalError, transaction
 from django.utils import timezone
-from feedparser.http import ACCEPT_HEADER
 from twisted.internet import defer, error
 from twisted.internet.threads import deferToThread
 from twisted.logger import Logger
 from twisted.python.failure import Failure
 from twisted.web import client
 
-from . import __version__
+from . import __version__, _feedparser
 from .models import Feed
 from .sanitize import html_to_text
 
@@ -521,7 +519,7 @@ def poll_feed(feed, clock, treq=treq):
     """
     headers = {
         b"user-agent": [USER_AGENT_HEADER],
-        b"accept": [ACCEPT_HEADER],
+        b"accept": [_feedparser.ACCEPT_HEADER],
     }
     if feed.etag:
         headers[b"if-none-match"] = [bytes(feed.etag)]
@@ -596,7 +594,7 @@ def poll_feed(feed, clock, treq=treq):
     # so we wrap it in a BytesIO() to force it to parse the response.
     # Otherwise the HTTP response body could be just a URL and trigger
     # blocking I/O!
-    parsed = feedparser.parse(
+    parsed = _feedparser.parse(
         BytesIO(raw_bytes),
         response_headers=h,
         sanitize_html=False,
