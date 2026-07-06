@@ -3,7 +3,7 @@ inputs:
   just-tag:
     description: "Git tag of the Just release"
     required: false
-    default: '1.46.0'
+    default: '1.55.1'
   github-token:
     description: "Token use to access the GitHub API"
     required: true
