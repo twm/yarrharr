@@ -88,7 +88,7 @@ pytest *args:
     # FIXME: SynchronousTestCase.mktemp() creates a directory named for the test in the
     # working directory, so put that somewhere temporary:
     tmpdir=$(mktemp -d)
-    uv --project {{ justfile_dir() }} --directory "$tmpdir" run pytest {{ justfile_dir() }}/yarrharr "$@"
+    uv --project {{ justfile_dir() }} --directory "$tmpdir" run pytest -n auto --dist=worksteal {{ justfile_dir() }}/yarrharr "$@"
     rm -rf "$tmpdir"
 
 itertests *args:
