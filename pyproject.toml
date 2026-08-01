@@ -102,6 +102,6 @@ lint = [
 ]
 release = [
     "build>=1.5.0",
-    "hatch>=1.17.0",
+    "hatch>=1.17.1",
     "twine>=6.2.0",
 ]
