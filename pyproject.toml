@@ -98,7 +98,7 @@ dev = [
     "pytest-xdist>=3.8.0",
 ]
 lint = [
-    "ruff>=0.1.8",
+    "ruff>=0.16.0",
 ]
 release = [
     "build>=1.5.0",
