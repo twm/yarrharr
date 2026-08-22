@@ -93,7 +93,7 @@ dev = [
     "cssselect>=1.5.0",
     "lxml>=6.1.1",
     "pytest>=9.1.1",
-    "pytest-django>=4.13.0",
+    "pytest-django>=4.14.0",
     "pytest-twisted>=1.14.3",
     "pytest-xdist>=3.8.0",
 ]
