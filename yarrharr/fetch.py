@@ -34,7 +34,7 @@ from twisted.python.failure import Failure
 from twisted.web import client
 
 from . import __version__, _feedparser
-from .models import Feed
+from .models import Article, Feed
 from .sanitize import html_to_text
 
 try:
@@ -262,14 +262,7 @@ class MaybeUpdated:
             return created.date
 
         # Check if we need to update.
-        if (
-            match.author != upsert.author
-            or match.raw_title != upsert.raw_title
-            or match.url != match.url
-            or match.guid != match.guid
-            or (upsert.date and match.date != upsert.date)
-            or match.raw_content != upsert.raw_content
-        ):
+        if fields_changed := list(upsert.diff(match)):
             match.author = upsert.author
             match.url = upsert.url
             match.guid = upsert.guid
@@ -280,9 +273,10 @@ class MaybeUpdated:
             match.set_content(upsert.raw_title, upsert.raw_content)
             match.save()
             log.debug(
-                "  updated {updated!a} based on {match_on}",
+                "  updated {updated!a} based on {match_on} and differing {fields_changed}",
                 updated=match,
                 match_on=match_on,
+                fields_changed=fields_changed,
             )
             return match.date
 
@@ -295,6 +289,20 @@ class ArticleUpsert(object):
     date = attr.ib()
     guid = attr.ib()
     raw_content = attr.ib()
+
+    def diff(self, match: "Article"):
+        if match.author != self.author:
+            yield "author"
+        if match.raw_title != self.raw_title:
+            yield "raw_title"
+        if match.url != self.url:
+            yield "url"
+        if match.guid != self.guid:
+            yield "guid"
+        if self.date and match.date != self.date:
+            yield "date"
+        if match.raw_content != self.raw_content:
+            yield "raw_content"
 
 
 @attr.s(slots=True, frozen=True)
