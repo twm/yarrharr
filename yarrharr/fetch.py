@@ -34,7 +34,7 @@ from twisted.python.failure import Failure
 from twisted.web import client
 
 from . import __version__, _feedparser
-from .models import Feed
+from .models import Article, Feed
 from .sanitize import html_to_text
 
 try:
@@ -122,7 +122,7 @@ class EmptyBody:
 
 
 @attr.s(slots=True, frozen=True)
-class MaybeUpdated(object):
+class MaybeUpdated:
     """
     The contents of the feed have been retrieved and may have changed. The
     database should be updated to reflect the new content.
@@ -130,7 +130,7 @@ class MaybeUpdated(object):
 
     feed_title = attr.ib()
     site_url = attr.ib()
-    articles = attr.ib(repr=False)
+    articles: list["ArticleUpsert"] = attr.ib(repr=False)
     etag = attr.ib()
     last_modified = attr.ib()
     digest = attr.ib()
@@ -158,6 +158,7 @@ class MaybeUpdated(object):
         for upsert in self.articles:
             if (date := self._upsert_article(feed, upsert)) is not None:
                 if feed.last_updated is None or feed.last_updated < date:
+                    log.debug("  updating last_updated {last_updated} → {date}", last_updated=feed.last_updated, date=date)
                     feed.last_updated = date
                 changed = True
 
@@ -192,15 +193,16 @@ class MaybeUpdated(object):
             except IndexError:
                 pass
             else:
-                return match, "guid"
+                return match, f"guid={upsert.guid!r}"
 
             if upsert.guid.startswith("https://"):
+                http_guid = "http" + upsert.guid[5:]
                 try:
-                    match = feed.articles.filter(guid="http" + upsert.guid[5:])[0]
+                    match = feed.articles.filter(guid=http_guid)[0]
                 except IndexError:
                     pass
                 else:
-                    return match, "guid"
+                    return match, f"guid={http_guid!r} (coerced to HTTP)"
 
         # Fall back to the item link if no GUID is provided.
         # Note that we permit a match by link to match an article with a GUID.
@@ -212,35 +214,41 @@ class MaybeUpdated(object):
             except IndexError:
                 pass
             else:
-                return match, "url"
+                return match, f"url={upsert.url!r}"
 
             # When the new URL is HTTPS, check if we have the same thing in
             # HTTP.  This heuristic helps cope with sites that are migrated
             # from HTTP to HTTPS but don't use a more stable identifier like
             # tag URIs.
             if upsert.url.startswith("https://"):
+                http_url = "http" + upsert.url[5:]
                 try:
-                    match = feed.articles.filter(url="http" + upsert.url[5:])[0]
+                    match = feed.articles.filter(url=http_url)[0]
                 except IndexError:
                     pass
                 else:
-                    return match, "url"
+                    return match, f"url={http_url!r} (coerced to HTTP)"
 
         return None, None
 
     def _upsert_article(self, feed, upsert) -> datetime | None:
-        match, match_type = self._match_article(feed, upsert)
+        match, match_on = self._match_article(feed, upsert)
 
         if not match:
+            # Sometimes feeds lack dates on entries (e.g.
+            # <http://antirez.com/rss>); in this case default to the
+            # current date so that they get the date the feed was fetched.
+            date = upsert.date
+            if not upsert.date:
+                log.debug("  using check_time={check_time!s} as article date", check_time=self.check_time)
+                date = self.check_time
+
             created = feed.articles.create(
                 read=False,
                 fave=False,
                 author=upsert.author,
                 url=upsert.url,
-                # Sometimes feeds lack dates on entries (e.g.
-                # <http://antirez.com/rss>); in this case default to the
-                # current date so that they get the date the feed was fetched.
-                date=upsert.date or self.check_time,
+                date=date,
                 guid=upsert.guid,
             )
             created.set_content(upsert.raw_title, upsert.raw_content)
@@ -254,14 +262,7 @@ class MaybeUpdated(object):
             return created.date
 
         # Check if we need to update.
-        if (
-            match.author != upsert.author
-            or match.raw_title != upsert.raw_title
-            or match.url != match.url
-            or match.guid != match.guid
-            or (upsert.date and match.date != upsert.date)
-            or match.raw_content != upsert.raw_content
-        ):
+        if fields_changed := list(upsert.diff(match)):
             match.author = upsert.author
             match.url = upsert.url
             match.guid = upsert.guid
@@ -272,9 +273,10 @@ class MaybeUpdated(object):
             match.set_content(upsert.raw_title, upsert.raw_content)
             match.save()
             log.debug(
-                "  updated {updated!a} based on {match_type}",
+                "  updated {updated!a} based on {match_on} and differing {fields_changed}",
                 updated=match,
-                match_type=match_type,
+                match_on=match_on,
+                fields_changed=fields_changed,
             )
             return match.date
 
@@ -287,6 +289,20 @@ class ArticleUpsert(object):
     date = attr.ib()
     guid = attr.ib()
     raw_content = attr.ib()
+
+    def diff(self, match: "Article"):
+        if match.author != self.author:
+            yield "author"
+        if match.raw_title != self.raw_title:
+            yield "raw_title"
+        if match.url != self.url:
+            yield "url"
+        if match.guid != self.guid:
+            yield "guid"
+        if self.date and match.date != self.date:
+            yield "date"
+        if match.raw_content != self.raw_content:
+            yield "raw_content"
 
 
 @attr.s(slots=True, frozen=True)

@@ -44,7 +44,7 @@ class Command(BaseCommand):
             pct = (change_count + unchanged_count) * 100.0 / len(ids)
             self.stdout.write(f"{pct:6.02f}% {change_count:,d} articles updated; {unchanged_count:,d} unchanged")
         count = change_count + unchanged_count
-        self.stdout.write(self.style.SUCCESS("Updated {count:,d} articles to revision {REVISION}"))
+        self.stdout.write(self.style.SUCCESS(f"Updated {count:,d} articles to revision {REVISION}"))
         if count:
             changed_pct = change_count * 100.0 / count
             unchanged_pct = unchanged_count * 100 / count

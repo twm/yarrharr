@@ -85,7 +85,8 @@ class Feed(_ViewOptions):
         checked.
     :ivar last_updated:
         When did the publisher last update this feed? Date of the most recent
-        article. ``None`` if the feed is empty or unchecked.
+        article (this should really be called ``last_published``).
+        ``None`` if the feed is empty or unchecked.
     :ivar error: String error message from the last check.
     :ivar bytes etag:
         HTTP ETag from the last check. Empty when the feed does set the header.
