@@ -9,7 +9,7 @@ license = {text = "GPLv3+"}
 readme = "README.md"
 dependencies = [
     "attrs >= 21.3.0",
-    "cattrs >= 25.1.1",
+    "cattrs>=26.2.0",
     "Django >=4.2.1,<5.3",
     "twisted[tls]>=26.4.0",
     "treq>=26.7.0",
