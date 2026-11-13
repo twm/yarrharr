@@ -1129,7 +1129,7 @@ requires-dist = [
     { name = "forkparser", specifier = ">=2026.1.0" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "treq", specifier = ">=26.7.0" },
-    { name = "twisted", extras = ["tls"], specifier = ">=26.4.0" },
+    { name = "twisted", extras = ["tls"], specifier = ">=26.10.0" },
 ]
 
 [package.metadata.requires-dev]
