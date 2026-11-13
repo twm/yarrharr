@@ -11,7 +11,7 @@ dependencies = [
     "attrs >= 21.3.0",
     "cattrs>=26.2.0",
     "Django >=4.2.1,<5.3",
-    "twisted[tls]>=26.4.0",
+    "twisted[tls]>=26.10.0",
     "treq>=26.7.0",
     "forkparser >= 2026.1.0",
     "html5lib == 1.1",
