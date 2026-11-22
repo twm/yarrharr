@@ -47,7 +47,9 @@
               {{ feed.title }}
             </a>
             {% if view == "error" %}
-              <div class="feed-error">{{ feed.error|truncatechars:300 }}</div>
+              <div class="feed-error">
+                {{ feed.error_type }} since {{ feed.error_at|naturaltime|default:"unknown" }}: {{ feed.error|truncatechars:300 }}
+              </div>
             {% elif view == "redirect" %}
               <div class="feed-error">
                 {{ feed.url|truncatechars:300 }} &rarr;<br>

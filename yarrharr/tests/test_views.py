@@ -280,13 +280,27 @@ class FeedListTests(TestCase):
         The "error" view only shows feeds that have errors. It excludes
         archived feeds.
         """
-        self._add_feed("C", error="429", last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"))
-        self._add_feed("B", error="")  # No error, not shown
-        self._add_feed("A", error="404", last_checked=datetime.fromisoformat("2020-01-01 00:00:00+00:00"))
+        self._add_feed(
+            "C",
+            error_type="BadStatus",
+            error="429",
+            error_at=timezone.now(),
+            last_checked=datetime.fromisoformat("2010-01-01 00:00:00+00:00"),
+        )
+        self._add_feed("B", error_type="", error="")  # No error, not shown
+        self._add_feed(
+            "A",
+            error_type="BadStatus",
+            error="404",
+            last_checked=datetime.fromisoformat("2020-01-01 00:00:00+00:00"),
+        )
         self._add_feed("Z", checked=False)  # Archived, so not shown
 
         self.assertEqual(
-            ["A 404", "C 429"],
+            [
+                "A BadStatus since unknown: 404",
+                "C BadStatus since now: 429",
+            ],
             self._feed_list_titles("error"),
         )
 

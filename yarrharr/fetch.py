@@ -64,7 +64,7 @@ class BadStatus(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = "Fetch failed: HTTP status {}".format(self.code)
+        feed.set_error("Bad status", "HTTP status {}".format(self.code))
         feed.schedule()
         feed.save()
 
@@ -81,7 +81,7 @@ class Unchanged(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = ""
+        feed.set_error(None)
         feed.schedule()
         feed.save()
 
@@ -94,7 +94,7 @@ class Gone(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = "Feed is no longer available: automatically deactivated"
+        feed.set_error("Gone", "Feed is no longer available: automatically deactivated")
         feed.next_check = None
         feed.save()
 
@@ -116,7 +116,7 @@ class EmptyBody:
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = "Feed HTTP response was empty"
+        feed.set_error("Empty", "Feed HTTP response was empty")
         feed.schedule()
         feed.save()
 
@@ -140,7 +140,7 @@ class MaybeUpdated:
 
     def persist(self, feed):
         feed.last_checked = self.check_time
-        feed.error = ""
+        feed.set_error(None)
         feed.feed_title = self.feed_title
         feed.site_url = self.site_url
         feed.etag = self.etag
@@ -337,7 +337,7 @@ class BozoError(object):
         feed.etag = b""
         feed.last_modified = b""
         feed.digest = b""
-        feed.error = "Fetch failed: processing HTTP {} {} response produced error: {}".format(self.code, self.content_type, self.error)
+        feed.set_error("Bozo", "Error parsing HTTP {} {} response: {}".format(self.code, self.content_type, self.error))
         feed.schedule()
         feed.save()
 
@@ -350,11 +350,11 @@ class NetworkError(object):
     case, see :class:`~.PollError`).
     """
 
-    error = attr.ib()
+    error: str = attr.ib()
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = self.error
+        feed.set_error("Network", self.error)
         feed.schedule()
         feed.save()
 
@@ -372,7 +372,7 @@ class PollError(object):
 
     def persist(self, feed):
         feed.last_checked = timezone.now()
-        feed.error = self.failure.getTraceback()
+        feed.set_error("Exception", self.failure.getTraceback())
         feed.schedule()
         feed.save()
 

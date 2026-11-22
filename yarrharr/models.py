@@ -87,7 +87,9 @@ class Feed(_ViewOptions):
         When did the publisher last update this feed? Date of the most recent
         article (this should really be called ``last_published``).
         ``None`` if the feed is empty or unchecked.
-    :ivar error: String error message from the last check.
+    :ivar error_type: String error message from the last check.
+    :ivar error: Free-form error message from the last check.
+    :ivar error_at: Time at which *error_type* became the current error.
     :ivar bytes etag:
         HTTP ETag from the last check. Empty when the feed does set the header.
 
@@ -129,7 +131,9 @@ class Feed(_ViewOptions):
     last_checked = models.DateTimeField(null=True, default=None)
     last_changed = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(null=True, default=None)
+    error_type = models.TextField(blank=True, default="")
     error = models.TextField(blank=True, default="")
+    error_at = models.DateTimeField(null=True, default=None)
     etag = models.BinaryField(default=b"", max_length=1024)
     last_modified = models.BinaryField(default=b"", max_length=45)
     digest = models.BinaryField(default=b"", max_length=32)
@@ -152,6 +156,20 @@ class Feed(_ViewOptions):
 
     def __str__(self):
         return "{} <{}>".format(self.title, self.url)
+
+    def set_error(self, error_type: str | None, message: str | None = None) -> None:
+        """
+        Update the `error_type`, `error`, and `error_at` fields.
+
+        :param error_type: A symbolic description of the error.
+        :param message: A free-form textual description of the error.
+        """
+        if error_type is None:
+            self.error_at = None
+        elif self.error_at is None or self.error_type != error_type:
+            self.error_at = self._now()
+        self.error_type = error_type or ""
+        self.error = message or ""
 
     def schedule(self):
         """

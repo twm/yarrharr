@@ -1192,6 +1192,6 @@ class BozoErrorTests(DjangoTestCase):
         self.assertEqual(feed.last_modified, b"")
         self.assertEqual(feed.digest, b"")
         self.assertEqual(
-            "Fetch failed: processing HTTP 201 text/plain response produced error: Not XML",
+            "Error parsing HTTP 201 text/plain response: Not XML",
             feed.error,
         )
