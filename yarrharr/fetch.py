@@ -156,11 +156,17 @@ class MaybeUpdated:
 
         changed = False
         for upsert in self.articles:
-            if (date := self._upsert_article(feed, upsert)) is not None:
-                if feed.last_updated is None or feed.last_updated < date:
-                    log.debug("  updating last_updated {last_updated} → {date}", last_updated=feed.last_updated, date=date)
-                    feed.last_updated = date
+            if (published_at := self._upsert_article(feed, upsert)) is not None:
                 changed = True
+                if published_at > self.check_time:
+                    continue  # Ignore future-dated articles
+                if feed.last_updated is None or feed.last_updated < published_at:
+                    log.debug(
+                        "  updating last_updated {last_updated} → {published_at}",
+                        last_updated=feed.last_updated,
+                        published_at=published_at,
+                    )
+                    feed.last_updated = published_at
 
         if changed or feed.last_changed is None:
             feed.last_changed = self.check_time
