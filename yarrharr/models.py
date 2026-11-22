@@ -1,4 +1,4 @@
-# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -172,7 +172,9 @@ class Feed(_ViewOptions):
 
         now = self._now()
         article_dates = list(
-            self.articles.filter(date__gt=now - timedelta(weeks=2), date__lt=now).order_by("-date").values_list("date", flat=True)[:100],
+            self.articles.filter(published_at__gt=now - timedelta(weeks=2), published_at__lt=now)
+            .order_by("-published_at")
+            .values_list("published_at", flat=True)[:100],
         )
 
         if len(article_dates) >= 2:
@@ -203,14 +205,21 @@ class Article(models.Model):
     :ivar feed: :class:`Feed` from which this article was taken.
     :ivar bool read: Has this article been marked read by the user?
     :ivar bool fave: Has this article been favorited by the user?
+    :ivar seen_at:
+        When the article was first seen in a feed (i.e., when this row was inserted
+        into the database). `None` for rows created before this column was added in
+        November 2026.
 
     The following attributes are taken directly from the feed content:
 
     :ivar author: Author of the article.
     :ivar url: Link back to the canonical version of the article.
-    :ivar date: Date of the article.
+    :ivar published_at:
+        When the article was published, according to feed metadata. The same
+        as *seen_at* if the feed doesn't include publication date.
+    :ivar updated_at: When the article was last updated, according to feed metadata.
     :ivar guid:
-        The GUID of the article from the feed which may be used to de-duplicate
+        The GUID of the article from the feed, which may be used to de-duplicate
         articles.
     :ivar raw_title: The raw HTML version of the title from the feed.
     :ivar raw_content: The raw, unsanitized HTML from the feed.
@@ -231,10 +240,12 @@ class Article(models.Model):
     feed = models.ForeignKey(Feed, related_name="articles", on_delete=models.CASCADE)
     read = models.BooleanField()
     fave = models.BooleanField()
+    seen_at = models.DateTimeField(blank=True, null=True)
 
     author = models.TextField(blank=True)
     url = models.TextField(blank=True)
-    date = models.DateTimeField()
+    published_at = models.DateTimeField()
+    updated_at = models.DateTimeField(blank=True, null=True)
     guid = models.TextField(blank=True, default="")
     raw_title = models.TextField(blank=True, default="")
     raw_content = models.TextField()

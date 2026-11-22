@@ -213,7 +213,7 @@
     {% if not hide_feed_title %}
       <span class="feed-title">{{ article.feed.title }}</span>
     {% endif %}
-    <time class="date" datetime="{{ article.date.isoformat }}">{{ article.date|date:"j M y" }}{{ article.date|clocktime }}</time>
+    <time class="date" datetime="{{ article.published_at.isoformat }}">{{ article.published_at|date:"j M y" }}{{ article.published_at|clocktime }}</time>
     {% if not hide_author %}
       <span class="author">{{ article.author }}</span>
     {% endif %}

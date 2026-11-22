@@ -108,7 +108,7 @@ class FeedScheduleTests(TestCase):
             author="",
             title="Article",
             url="https://feed.example/article",
-            date=self.now - since,
+            published_at=self.now - since,
             guid="",
             raw_content="...",
             content="...",
@@ -231,7 +231,7 @@ class ArticleTests(TestCase):
             author="",
             title="Some Article",
             url="https://feed.example/1",
-            date=timezone.now(),
+            published_at=timezone.now(),
             guid="1",
             raw_content="...",
             content="...",
@@ -262,7 +262,7 @@ class ArticleSetContentTests(TestCase):
             fave=False,
             author="",
             url="https://feed.example/1",
-            date=timezone.now(),
+            published_at=timezone.now(),
             guid="1",
         )
 
@@ -409,7 +409,7 @@ class FeedArticleCountTriggerTests(TestCase):
             feed=f1,
             author="",
             url="https://feed.example/1",
-            date=timezone.now(),
+            published_at=timezone.now(),
             guid="1",
         )
 
@@ -491,7 +491,7 @@ class FeedArticleCountTriggerTests(TestCase):
             feed_id=self.feed_id,
             author="",
             url="https://feed.example/2",
-            date=timezone.now(),
+            published_at=timezone.now(),
             guid="2",
         )
 
@@ -527,7 +527,7 @@ class FeedArticleCountTriggerTests(TestCase):
                     feed_id=self.feed_id,
                     author="",
                     url="https://feed.example/" + str(i),
-                    date=timezone.now(),
+                    published_at=timezone.now(),
                     guid=str(i),
                 )
                 for i in range(10)
@@ -594,7 +594,7 @@ class FeedCountConstraintTests(TestCase):
             author="",
             title="Article",
             url="https://feed.example/article",
-            date=timezone.now(),
+            published_at=timezone.now(),
             guid="",
             raw_content="...",
             content="...",

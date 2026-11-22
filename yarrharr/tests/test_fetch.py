@@ -1,4 +1,4 @@
-# Copyright © 2017–2021, 2023, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2017–2021, 2023, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -654,7 +654,7 @@ class FetchTests(SynchronousTestCase):
                 datetime(2017, 3, 17, tzinfo=tz.utc),
                 datetime(2013, 1, 1, tzinfo=tz.utc),
             ],
-            [article.date for article in outcome.articles],
+            [article.updated_at for article in outcome.articles],
         )
 
 
@@ -737,7 +737,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://example.com/blah-blah",
-                    date=article_date,
+                    published_at=article_date,
                     guid="doesnotexist",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -760,6 +760,55 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=False,
             author="Joe Bloggs",
             title="Blah Blah",
+            seen_at=mu.check_time,
+            published_at=article_date,
+            updated_at=None,
+            url="https://example.com/blah-blah",
+            raw_content="<p>Hello, world!</p>",
+            content="<p>Hello, world!",
+        )
+
+    def test_persist_article_only_update_date(self):
+        """
+        When the feed doesn't contain a publication date for an article,
+        use the update date as the publication date.
+        """
+        now = timezone.now()
+        mu = MaybeUpdated(
+            feed_title="Example",
+            site_url="https://example.com/",
+            articles=[
+                ArticleUpsert(
+                    author="Joe Bloggs",
+                    raw_title="Blah Blah",
+                    url="https://example.com/blah-blah",
+                    published_at=None,
+                    updated_at=now,
+                    guid="doesnotexist",
+                    raw_content="<p>Hello, world!</p>",
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
+            digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
+            content_location=self.feed.url,
+        )
+
+        mu.persist(self.feed)
+
+        self.assertEqual(mu.check_time, self.feed.last_changed)
+        self.assertEqual(now, self.feed.last_updated)
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=False,
+            fave=False,
+            author="Joe Bloggs",
+            title="Blah Blah",
+            seen_at=mu.check_time,
+            published_at=now,
+            updated_at=now,
             url="https://example.com/blah-blah",
             raw_content="<p>Hello, world!</p>",
             content="<p>Hello, world!",
@@ -767,10 +816,11 @@ class MaybeUpdatedTests(DjangoTestCase):
 
     def test_persist_article_lacking_date(self):
         """
-        The current date is assigned to articles which did not include one in
-        the feed. When checking for updates this gives a decent approximation
-        of when the article was actually posted, though it does mean that all
-        articles in the feed when it is first added have the same date.
+        The current date is assigned to articles which did not include a
+        publication or update date in the feed. When checking for updates this
+        gives a decent approximation of when the article was actually posted,
+        though it does mean that all articles in the feed when it is first
+        added have the same publication date.
         """
         mu = MaybeUpdated(
             feed_title="Example",
@@ -780,7 +830,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://example.com/blah-blah",
-                    date=None,
+                    published_at=None,
                     guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -795,7 +845,8 @@ class MaybeUpdatedTests(DjangoTestCase):
         mu.persist(self.feed)
 
         [article] = self.feed.articles.all()
-        self.assertEqual(mu.check_time, article.date)
+        self.assertEqual(mu.check_time, article.seen_at)
+        self.assertEqual(mu.check_time, article.published_at)
         self.assertEqual(mu.check_time, self.feed.last_updated)
 
     def test_persist_article_guid_match(self):
@@ -808,7 +859,8 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=False,
             author="???",
             title="???",
-            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc),
+            seen_at=None,  # As if created before Nov 2026.
+            published_at=datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="http://example.com/blah-blah",
             guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
             raw_content="",
@@ -823,7 +875,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://example.com/blah-blah",
-                    date=updated_date,
+                    published_at=updated_date,
                     guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -847,7 +899,8 @@ class MaybeUpdatedTests(DjangoTestCase):
             author="Joe Bloggs",
             title="Blah Blah",
             url="https://example.com/blah-blah",
-            date=updated_date,
+            seen_at=None,  # Not updated.
+            published_at=updated_date,
             raw_content="<p>Hello, world!</p>",
             content="<p>Hello, world!",
         )
@@ -862,7 +915,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=False,
             author="???",
             title="???",
-            date=datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc),
+            published_at=datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="http://www.example.com/blah-blah",
             guid="http://example.com/1",
             raw_content="",
@@ -876,7 +929,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://www2.example.com/blah-blah",
-                    date=timezone.now(),
+                    published_at=timezone.now(),
                     guid="https://example.com/1",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -913,7 +966,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             author="???",
             raw_title="???",
             title="???",
-            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=tz.utc),
+            published_at=datetime(1999, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="https://example.com/blah-blah",
             guid="",  # Must not have a GUID to match by URL
             raw_content="",
@@ -926,7 +979,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                 ArticleUpsert(
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
-                    date=new_date,
+                    published_at=new_date,
                     url="https://example.com/blah-blah",
                     guid="",
                     raw_content="<p>Hello, world!</p>",
@@ -948,7 +1001,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=False,
             author="Joe Bloggs",
             raw_title="Blah Blah",
-            date=new_date,
+            published_at=new_date,
             url="https://example.com/blah-blah",
             raw_content="<p>Hello, world!</p>",
         )
@@ -965,7 +1018,7 @@ class MaybeUpdatedTests(DjangoTestCase):
             author="???",
             raw_title="???",
             title="???",
-            date=datetime(1999, 1, 2, 3, 4, 5, tzinfo=tz.utc),
+            published_at=datetime(1999, 1, 2, 3, 4, 5, tzinfo=tz.utc),
             url="http://example.com/blah-blah",
             guid="",  # Must not have a GUID to match by URL
             raw_content="",
@@ -978,7 +1031,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                 ArticleUpsert(
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
-                    date=new_date,
+                    published_at=new_date,
                     url="https://example.com/blah-blah",
                     guid="",
                     raw_content="<p>Hello, world!</p>",
@@ -1000,8 +1053,70 @@ class MaybeUpdatedTests(DjangoTestCase):
             fave=True,
             author="Joe Bloggs",
             raw_title="Blah Blah",
-            date=new_date,
+            published_at=new_date,
             url="https://example.com/blah-blah",
+        )
+
+    def test_persist_article_updated_at(self):
+        """
+        When only an article's *updated_at* attribute changes it updates
+        the field on the article, but doesn't count as a feed update, since
+        the feed is considered "updated" only when a new article is
+        published.
+        """
+        then = datetime(2000, 1, 2, 3, 4, 5, tzinfo=tz.utc)
+        self.feed.articles.create(
+            read=True,
+            fave=False,
+            author="???",
+            title="???",
+            seen_at=then,
+            published_at=then,
+            updated_at=then,
+            url="http://example.com/blah-blah",
+            guid="aca5a082-4a1f-46b7-8f42-a77f603d36b8",
+            raw_content="",
+            content="",
+        )
+        now = timezone.now()
+        mu = MaybeUpdated(
+            feed_title="After",
+            site_url="https://example.com/",
+            articles=[
+                ArticleUpsert(
+                    author="Joe Bloggs",
+                    raw_title="Blah Blah",
+                    url="https://example.com/blah-blah",
+                    published_at=then,
+                    updated_at=now,
+                    guid="aca5a082-4a1f-46b7-8f42-a77f603d36b8",
+                    raw_content="<p>Hello, world!</p>",
+                ),
+            ],
+            etag=b'"etag"',
+            last_modified=b"Tue, 15 Nov 1994 12:45:26 GMT",
+            digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
+            content_location=self.feed.url,
+        )
+
+        mu.persist(self.feed)
+
+        self.assertEqual(mu.check_time, self.feed.last_changed)
+        self.assertEqual(then, self.feed.last_updated)
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=True,  # It does not become unread due to the update.
+            fave=False,
+            author="Joe Bloggs",
+            title="Blah Blah",
+            url="https://example.com/blah-blah",
+            seen_at=then,
+            published_at=then,
+            updated_at=now,
+            raw_content="<p>Hello, world!</p>",
+            content="<p>Hello, world!",
         )
 
     def test_persist_article_sanitize(self):
@@ -1016,7 +1131,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah &amp; Blah",
                     url="https://example.com/blah-blah",
-                    date=timezone.now(),
+                    published_at=timezone.now(),
                     guid="49e3c525-724c-44d8-ad0c-d78bd216d003",
                     raw_content='<p>Hello, <style>...</style>world<script type="text/javascript">alert("lololol")</script>!',
                 ),
