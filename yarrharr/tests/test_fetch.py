@@ -728,7 +728,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         An article which does not match any in the database is inserted. This
         marks the feed as changed.
         """
-        article_date = timezone.now()
+        published_at = timezone.now()
         mu = MaybeUpdated(
             feed_title="Example",
             site_url="https://example.com/",
@@ -737,7 +737,7 @@ class MaybeUpdatedTests(DjangoTestCase):
                     author="Joe Bloggs",
                     raw_title="Blah Blah",
                     url="https://example.com/blah-blah",
-                    published_at=article_date,
+                    published_at=published_at,
                     guid="doesnotexist",
                     raw_content="<p>Hello, world!</p>",
                 ),
@@ -752,7 +752,7 @@ class MaybeUpdatedTests(DjangoTestCase):
         mu.persist(self.feed)
 
         self.assertEqual(mu.check_time, self.feed.last_changed)
-        self.assertEqual(article_date, self.feed.last_updated)
+        self.assertEqual(published_at, self.feed.last_updated)
         [article] = self.feed.articles.all()
         self.assertFields(
             article,
@@ -761,11 +761,64 @@ class MaybeUpdatedTests(DjangoTestCase):
             author="Joe Bloggs",
             title="Blah Blah",
             seen_at=mu.check_time,
-            published_at=article_date,
+            published_at=published_at,
             updated_at=None,
             url="https://example.com/blah-blah",
             raw_content="<p>Hello, world!</p>",
             content="<p>Hello, world!",
+        )
+
+    def test_persist_bad_dates_ignored(self):
+        """
+        The feed's `last_updated` timestamp ignores articles with future timestamps
+        because they generally represent a but or misconfiguration.
+
+        For example, ``/article/380690/`` has a date of Dec 31, 9999, but appears to
+        have been published for real as ``/article/380710/`` on August 28, 2026.
+
+        ``/article/293909/`` appears to be a static page that accidentally made it
+        into the RSS feed. It has a date of Sept 1, 2030, but appeared in 2026.
+        """
+        now = timezone.now()
+        mu = MaybeUpdated(
+            feed_title="Example",
+            site_url="https://example.com/",
+            articles=[
+                ArticleUpsert(
+                    author="",
+                    raw_title="Near future",
+                    url="https://example.com/blah-blah",
+                    # Future date is ignored for last_updated purposes.
+                    published_at=now + timedelta(hours=1),
+                    guid="1234",
+                    raw_content="",
+                ),
+            ],
+            etag=b"",
+            last_modified=b"",
+            digest=b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            content_length=42,
+            content_location=self.feed.url,
+            check_time=now,
+        )
+
+        mu.persist(self.feed)
+
+        self.assertEqual(mu.check_time, self.feed.last_changed)
+        self.assertIsNone(self.feed.last_updated)
+        [article] = self.feed.articles.all()
+        self.assertFields(
+            article,
+            read=False,
+            fave=False,
+            author="",
+            title="Near future",
+            seen_at=mu.check_time,
+            published_at=now + timedelta(hours=1),
+            updated_at=None,
+            url="https://example.com/blah-blah",
+            raw_content="",
+            content="",
         )
 
     def test_persist_article_only_update_date(self):
