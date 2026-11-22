@@ -135,18 +135,18 @@ def sort_and_filter_articles(qs, viewoptions, filt: ArticleFilter, after=None):
         # well enough in the usual case that articles don't have duplicate
         # dates, but if a series of articles with identical dates fall at the
         # page boundry it can skip past some.
-        after_date = qs.get(pk=after).date
+        after_date = qs.get(pk=after).published_at
     else:
         after_date = None
 
     if viewoptions.sort == Sort.ASC:
         qs = qs.order_by("date", "id")
         if after_date is not None:
-            qs = qs.filter(date__gt=after_date)
+            qs = qs.filter(published_at__gt=after_date)
     elif viewoptions.sort == Sort.DESC:
-        qs = qs.order_by("-date", "-id")
+        qs = qs.order_by("-published_at", "-id")
         if after_date is not None:
-            qs = qs.filter(date__lt=after_date)
+            qs = qs.filter(published_at__lt=after_date)
     else:
         assert 0
 

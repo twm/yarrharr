@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2019, 2021, 2022, 2023, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2019, 2021, 2022, 2023, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -458,7 +458,7 @@ class FeedEditTests(TestCase):
                 author=f"Author {i}",
                 title=f"Article {i}",
                 url=f"http://example.com/{i}",
-                date=now - timedelta(seconds=i),
+                published_at=now - timedelta(seconds=i),
                 guid=str(i),
                 raw_content="...",
                 content="...",
@@ -508,7 +508,7 @@ class FeedEditTests(TestCase):
                 author=f"Author {i}",
                 title=f"Article {i}",
                 url=f"http://example.com/{i}",
-                date=date,
+                published_at=date,
                 guid=str(i),
                 raw_content="...",
                 content="...",
@@ -722,7 +722,7 @@ class FeedShowTests(TestCase):
                 author=f"Author {i}",
                 title=f"Article {i}",
                 url=f"http://example.com/{i}",
-                date=timezone.now() - timedelta(hours=i),
+                published_at=timezone.now() - timedelta(hours=i),
                 guid=str(i),
                 raw_content="...",
                 content="...",
@@ -776,7 +776,7 @@ class FlagsViewTests(TestCase):
                 author=f"Author {i}",
                 title=f"Article {i}",
                 url=f"http://example.com/{i}",
-                date=timezone.now() - timedelta(hours=i),
+                published_at=timezone.now() - timedelta(hours=i),
                 guid=str(i),
                 raw_content="...",
                 content="...",

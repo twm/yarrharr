@@ -235,20 +235,27 @@ class MaybeUpdated:
         match, match_on = self._match_article(feed, upsert)
 
         if not match:
+            published_at = upsert.published_at
+            # If a feed (e.g. <https://rachelbythebay.com/w/atom.xml>) doesn't have a
+            # publication date, but does have an updated date, use that.
+            if published_at is None and upsert.updated_at is not None:
+                log.debug("  using updated_at={updated_at!s} as article published_at", updated_at=upsert.updated_at)
+                published_at = upsert.updated_at
             # Sometimes feeds lack dates on entries (e.g.
             # <http://antirez.com/rss>); in this case default to the
-            # current date so that they get the date the feed was fetched.
-            date = upsert.date
-            if not upsert.date:
-                log.debug("  using check_time={check_time!s} as article date", check_time=self.check_time)
-                date = self.check_time
+            # time the feed was fetched.
+            if published_at is None:
+                log.debug("  using check_time={check_time!s} as article published_at", check_time=self.check_time)
+                published_at = self.check_time
 
             created = feed.articles.create(
                 read=False,
                 fave=False,
                 author=upsert.author,
                 url=upsert.url,
-                date=date,
+                seen_at=self.check_time,
+                published_at=published_at,
+                updated_at=upsert.updated_at,
                 guid=upsert.guid,
             )
             created.set_content(upsert.raw_title, upsert.raw_content)
@@ -259,17 +266,18 @@ class MaybeUpdated:
                 guid=upsert.guid,
                 url=upsert.url,
             )
-            return created.date
+            return created.published_at
 
         # Check if we need to update.
         if fields_changed := list(upsert.diff(match)):
             match.author = upsert.author
             match.url = upsert.url
             match.guid = upsert.guid
-            if upsert.date:
+            if upsert.published_at:
                 # The feed may not give a date. In that case leave the date
                 # that was assigned when the entry was first discovered.
-                match.date = upsert.date
+                match.published_at = upsert.published_at
+            match.updated_at = upsert.updated_at
             match.set_content(upsert.raw_title, upsert.raw_content)
             match.save()
             log.debug(
@@ -278,15 +286,16 @@ class MaybeUpdated:
                 match_on=match_on,
                 fields_changed=fields_changed,
             )
-            return match.date
+            return match.published_at
 
 
-@attr.s(slots=True, frozen=True)
+@attr.s(slots=True, frozen=True, kw_only=True)
 class ArticleUpsert(object):
     author = attr.ib()
     raw_title = attr.ib()
     url = attr.ib()
-    date = attr.ib()
+    published_at: datetime | None = attr.ib()
+    updated_at: datetime | None = attr.ib(default=None)
     guid = attr.ib()
     raw_content = attr.ib()
 
@@ -299,8 +308,10 @@ class ArticleUpsert(object):
             yield "url"
         if match.guid != self.guid:
             yield "guid"
-        if self.date and match.date != self.date:
-            yield "date"
+        if self.published_at and match.published_at != self.published_at:
+            yield "published_at"
+        if self.updated_at and match.updated_at != self.updated_at:
+            yield "updated_at"
         if match.raw_content != self.raw_content:
             yield "raw_content"
 
@@ -623,7 +634,8 @@ def poll_feed(feed, clock, treq=treq):
                 author=entry.get("author", ""),
                 raw_title=extract_title(entry.get("title_detail")),
                 url=entry.get("link", ""),
-                date=extract_date(entry),
+                published_at=extract_published_at(entry),
+                updated_at=extract_updated_at(entry),
                 guid=entry.get("id", ""),
                 raw_content=extract_content(entry),
             )
@@ -679,7 +691,7 @@ def persist_outcomes(outcomes):
             outcome.persist(feed)
 
 
-def as_datetime(t):
+def as_datetime(t) -> datetime:
     """
     Convert a UTC 9-tuple in the style of the Python :mod:`time` module to
     a timezone-aware :class:`datetime.datetime`.
@@ -728,16 +740,29 @@ def extract_title(title_detail):
         return title_detail["value"]
 
 
-def extract_date(entry):
+def extract_published_at(entry) -> datetime | None:
     """
-    Attempt to extract an article date from a feedparser entry. The `date of
-    update_` is preferred if set, else the date of publication is used.
+    Attempt to extract an article date from a feedparser entry.
+
+    :returns:
+        A timezone-aware :class:`datetime.datetime` instance, or `None` if the
+        entry lacks a publication date.
+
+    .. date of update: https://pythonhosted.org/feedparser/reference-entry-updated_parsed.html
+    """
+    pubdate = entry.get("published_parsed")
+    if pubdate:
+        return as_datetime(pubdate)
+    return None
+
+
+def extract_updated_at(entry) -> datetime | None:
+    """
+    Attempt to extract the `date of update`_ from a feedparser entry.
 
     :returns:
         A timezone-aware :class:`datetime.datetime` instance, or `None` if the
         entry lacks a date.
-
-    .. date of update: https://pythonhosted.org/feedparser/reference-entry-updated_parsed.html
     """
     # Avoid triggering a deprecation warning by checking for updated_parsed
     # before getting it.
@@ -745,10 +770,6 @@ def extract_date(entry):
         update = entry.get("updated_parsed")
         if update:
             return as_datetime(update)
-    pubdate = entry.get("published_parsed")
-    if pubdate:
-        return as_datetime(pubdate)
-    return None
 
 
 def extract_content(entry):
