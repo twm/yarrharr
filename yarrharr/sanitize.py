@@ -279,9 +279,9 @@ def sanitize_html(html: str) -> str:
     source = _ReplaceYoutubeEmbedFilter(source)
     source = to_walk_tokens(source)
     source = _extract_title_text(source)
-    source = to_dicts(source)
     source = _adjust_srcset(source)
     source = _adjust_links(source)
+    source = to_dicts(source)
     source = _video_attrs(source)
     source = _wp_smileys(source)
     source = sanitizer.Filter(
@@ -591,11 +591,13 @@ def _adjust_srcset(source):
     html_ns = namespaces["html"]
     srcset_attr = (None, "srcset")
     for token in source:
-        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and token["data"].get(srcset_attr) is not None:
-            for url, desc in srcset_candidates(token["data"][srcset_attr]):
-                if desc.endswith("w"):
-                    del token["data"][srcset_attr]
-                    break
+        match token:
+            case EmptyTag(namespace, name="img") if namespace == html_ns:
+                if srcset := token.attrs.get(srcset_attr):
+                    for url, desc in srcset_candidates(srcset):
+                        if desc.endswith("w"):
+                            del token.attrs[srcset_attr]
+                            break
         yield token
 
 
@@ -605,9 +607,11 @@ def _adjust_links(source):
     rel_attr = (None, "rel")
     target_attr = (None, "target")
     for token in source:
-        if token["type"] == "StartTag" and token["name"] == "a" and token["namespace"] == html_ns and "data" in token and href_attr in token["data"]:
-            token["data"][rel_attr] = "noopener noreferrer"
-            token["data"][target_attr] = "_blank"
+        match token:
+            case StartTag(namespace, name="a") if namespace == html_ns:
+                if href_attr in token.attrs:
+                    token.attrs[rel_attr] = "noopener noreferrer"
+                    token.attrs[target_attr] = "_blank"
         yield token
 
 
