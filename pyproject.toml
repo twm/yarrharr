@@ -55,7 +55,7 @@ source = "incremental"
 
 [tool.ruff]
 line-length = 150
-target-version = "py39"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [

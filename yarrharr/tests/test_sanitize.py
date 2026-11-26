@@ -1,4 +1,4 @@
-# Copyright © 2017, 2018, 2020, 2022, 2025 Tom Most <twm@freecog.net>
+# Copyright © 2017, 2018, 2020, 2022, 2025, 2026 Tom Most <twm@freecog.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -365,6 +365,13 @@ class SanitizeHtmlTests(unittest.TestCase):
         """
         html = '<img title="blah blah">'
         self.assertEqual('<img title="blah blah"><aside class=title-text>blah blah</aside>', sanitize_html(html))
+
+    def test_img_title_to_aside_ignores_empty_title(self):
+        """
+        An empty ``<img title>`` attribute doesn't generate an ``<aside>``.
+        """
+        html = '<img title="">'
+        self.assertEqual('<img title="">', sanitize_html(html))
 
     def test_img_srcset_pixel_density(self):
         """

@@ -16,14 +16,15 @@
 import re
 import warnings
 from io import StringIO
+from typing import Any, Iterator, assert_never
 
+import attrs
 import html5lib
 from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
-from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 12
+REVISION = 13
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -147,6 +148,120 @@ def html_to_text(html: str) -> str:
     return _WHITESPACE_RE.sub(" ", buf.getvalue()).strip()
 
 
+@attrs.define(slots=True)
+class Doctype:
+    """``<!DOCTYPE>`` declaration"""
+
+    name: str | None
+    public_id: str | None
+    system_id: str | None
+
+
+@attrs.define(slots=True)
+class StartTag:
+    """
+    Start of a non-empty element
+
+    :ivar data: Attributes
+    """
+
+    namespace: str | None
+    name: str
+    attrs: dict[(str | None, str), str]
+
+
+@attrs.define(slots=True)
+class EndTag:
+    """Marks the end of a non-empty element"""
+
+    namespace: str | None
+    name: str
+
+
+@attrs.define(slots=True)
+class EmptyTag:
+    """
+    An empty element like ``<img />``
+
+    :ivar data: Attributes
+    """
+
+    namespace: str | None
+    name: str
+    attrs: dict[(str | None, str), str]
+
+
+@attrs.define(slots=True)
+class Characters:
+    """Non-whitespace character data"""
+
+    cdata: str
+
+
+@attrs.define(slots=True)
+class SpaceCharacters:
+    """Whitespace character data"""
+
+    cdata: str
+
+
+@attrs.define(slots=True)
+class Comment:
+    text: str
+
+
+type WalkToken = Doctype | StartTag | EndTag | EmptyTag | Characters | SpaceCharacters | Comment
+
+
+def to_walk_tokens(source: Iterator[dict[Any, Any]]) -> Iterator[WalkToken]:
+    """
+    Convert d dict-style html5lib TreeWalker token stream to
+    one of `WalkToken` types.
+    """
+    for token in source:
+        match token:
+            case {"type": "StartTag", "namespace": namespace, "name": name, "data": attrs}:
+                yield StartTag(namespace, name, attrs)
+            case {"type": "EndTag", "namespace": namespace, "name": name}:
+                yield EndTag(namespace, name)
+            case {"type": "EmptyTag", "namespace": namespace, "name": name, "data": attrs}:
+                yield EmptyTag(namespace, name, attrs)
+            case {"type": "Characters", "data": cdata}:
+                yield Characters(cdata)
+            case {"type": "SpaceCharacters", "data": cdata}:
+                yield SpaceCharacters(cdata)
+            case {"type": "Comment", "data": text}:
+                yield Comment(text)
+            case {"type": "Doctype", "name": name, "publicId": public_id, "systemId": system_id}:
+                yield Doctype(name, public_id, system_id)
+            case _:
+                raise NotImplementedError(f"Unhandled token: {token!r}")
+
+
+def to_dicts(source: Iterator[WalkToken]) -> Iterator[dict[object, object]]:
+    """
+    Convert a `WalkToken` stream into dict-style TreeWalker tokens.
+    """
+    for token in source:
+        match token:
+            case StartTag(namespace, name, attrs):
+                yield {"type": "StartTag", "namespace": namespace, "name": name, "data": attrs}
+            case EndTag(namespace, name):
+                yield {"type": "EndTag", "namespace": namespace, "name": name}
+            case EmptyTag(ns, name, attrs):
+                yield {"type": "EmptyTag", "namespace": ns, "name": name, "data": attrs}
+            case Characters(cdata):
+                yield {"type": "Characters", "data": cdata}
+            case SpaceCharacters(cdata):
+                yield {"type": "SpaceCharacters", "data": cdata}
+            case Comment(text):
+                yield {"type": "Comment", "data": text}
+            case Doctype(name, public_id, system_id):
+                yield {"type": "Doctype", "name": name, "publicId": public_id, "systemId": system_id}
+            case _:
+                assert_never()
+
+
 def sanitize_html(html: str) -> str:
     """
     Make the given HTML string safe to display in a Yarrharr page.
@@ -154,16 +269,18 @@ def sanitize_html(html: str) -> str:
     tree = html5lib.parseFragment(html)
     serializer = html5lib.serializer.HTMLSerializer()
     source = html5lib.getTreeWalker("etree")(tree)
+    source = to_walk_tokens(source)
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
     source = _replace_objects(source)
     source = _elide(source)
-    source = _ReplaceYoutubeEmbedFilter(source)
+    source = _replace_youtube_embed(source)
     source = _extract_title_text(source)
     source = _adjust_srcset(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
     source = _wp_smileys(source)
+    source = to_dicts(source)
     source = sanitizer.Filter(
         source,
         allowed_elements=sanitizer.allowed_elements
@@ -197,11 +314,13 @@ def _strip_attrs(source):
     Strip id, style, and class attributes as they may break the layout.
     """
     for token in source:
-        if token["type"] == "StartTag":
-            attrs = token["data"]
-            attrs.pop((None, "id"), None)
-            attrs.pop((None, "class"), None)
-            attrs.pop((None, "style"), None)
+        match token:
+            # FIXME #1463: This should also handle EmptyTag
+            case StartTag():
+                attrs = token.attrs
+                attrs.pop((None, "id"), None)
+                attrs.pop((None, "class"), None)
+                attrs.pop((None, "style"), None)
         yield token
 
 
@@ -220,8 +339,10 @@ def _drop_empty_tags(source):
     )
 
     for token in source:
-        if token["type"] == "EmptyTag" and (token["namespace"], token["name"]) in tags:
-            continue
+        match token:
+            case EmptyTag(namespace, name):
+                if (namespace, name) in tags:
+                    continue
         yield token
 
 
@@ -246,20 +367,21 @@ def _elide(source):
     elide_ns = None
     elide_name = None
     for token in source:
-        token_type = token["type"]
         if elide:
-            if token_type == "EndTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
-                elide -= 1
-            if token_type == "StartTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
-                elide += 1
+            match token:
+                case EndTag(namespace, name) if name == elide_name and namespace == elide_ns:
+                    elide -= 1
+                case StartTag(namespace, name) if name == elide_name and namespace == elide_ns:
+                    elide += 1
             continue  # Drop the token
         else:
-            if token_type == "StartTag":
-                if (token["namespace"], token["name"]) in _elide_tags:
-                    elide += 1
-                    elide_name = token["name"]
-                    elide_ns = token["namespace"]
-                    continue  # Drop this token.
+            match token:
+                case StartTag(namespace, name):
+                    if (namespace, name) in _elide_tags:
+                        elide += 1
+                        elide_name = name
+                        elide_ns = namespace
+                        continue  # Drop this token.
             yield token
 
 
@@ -271,30 +393,30 @@ def _replace_objects(source):
     html_ns = namespaces["html"]
     nest = 0
     for token in source:
-        token_type = token["type"]
         # Drop <param> when inside <object>. We don't handle nesting
         # properly, but they're not valid anywhere else so that's not
         # a problem.
-        if nest >= 1 and token_type == "EmptyTag" and token["name"] == "param" and token["namespace"] == html_ns:
-            continue
+        match token:
+            case EmptyTag(namespace, name="param") if nest >= 1 and namespace == html_ns:
+                continue
 
-        if token_type == "EndTag" and token["name"] == "object" and token["namespace"] == html_ns:
-            nest -= 1
-            continue
+            case EndTag(namespace, name="object") if namespace == html_ns:
+                nest -= 1
+                continue
 
-        if token_type == "StartTag" and token["name"] == "object" and token["namespace"] == html_ns:
-            nest += 1
-            continue
+            case StartTag(namespace, name="object") if namespace == html_ns:
+                nest += 1
+                continue
 
         yield token
 
 
-class _ReplaceYoutubeEmbedFilter(BaseFilter):
+def _replace_youtube_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
     """
     YouTube embeds are replaced with a thumbnail which links to the original video.
     """
 
-    def _watch_url(self, embed_url) -> DecodedURL:
+    def _watch_url(embed_url) -> DecodedURL:
         """
         Generate the URL of the YouTube page at which the embedded video can be
         viewed.
@@ -311,7 +433,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
             return watch_url  # Ignore an invalid second offset.
         return watch_url.replace(fragment=f"t={start}s")
 
-    def _thumbnail_url(self, embed_url) -> DecodedURL:
+    def _thumbnail_url(embed_url) -> DecodedURL:
         """
         Generate the URL of the thumbnail for a YouTube video embed.
 
@@ -343,101 +465,73 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
             ),
         )
 
-    def __iter__(
-        self,
-        _SRC_ATTR=(None, "src"),
-        _youtube_hosts=(
-            "youtube.com",
-            "www.youtube.com",
-            "youtube-nocookie.com",
-            "www.youtube-nocookie.com",
-        ),
-    ):
-        html_ns = namespaces["html"]
-        svg_ns = namespaces["svg"]
-        xlink_ns = namespaces["xlink"]
-        elide = False
-        for token in BaseFilter.__iter__(self):
-            token_type = token["type"]
-            if elide:
+    _SRC_ATTR = (None, "src")
+    _youtube_hosts = (
+        "youtube.com",
+        "www.youtube.com",
+        "youtube-nocookie.com",
+        "www.youtube-nocookie.com",
+    )
+
+    html_ns = namespaces["html"]
+    svg_ns = namespaces["svg"]
+    xlink_ns = namespaces["xlink"]
+    elide = False
+    for token in source:
+        if elide:
+            match token:
                 # NOTE html5lib doesn't permit nesting <iframe> tags,
                 # (presumably because HTML5 doesn't permit it). Therefore we
                 # don't need to deal with that case here, just wait for the
                 # first end tag.
-                if token_type == "EndTag" and token["name"] == "iframe":
+                case EndTag(name="iframe"):
                     elide = False
-            else:
-                if (
-                    token_type == "StartTag"
-                    and token["name"] == "iframe"
-                    and token["namespace"] == html_ns
-                    and "data" in token
-                    and _SRC_ATTR in token["data"]
-                ):
-                    url = DecodedURL.from_text(token["data"][_SRC_ATTR])
-                    if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == "embed":
-                        yield {
-                            "type": "StartTag",
-                            "namespace": html_ns,
-                            "name": "a",
-                            "data": {
-                                (None, "href"): self._watch_url(url).to_text(),
-                                (None, "class"): "youtube-thumb",
-                            },
-                        }
-                        yield {
-                            "type": "EmptyTag",
-                            "namespace": html_ns,
-                            "name": "img",
-                            "data": {
-                                (None, "alt"): "YouTube video",
-                                _SRC_ATTR: self._thumbnail_url(url).to_text(),
-                                (None, "width"): "320",
-                                (None, "height"): "180",
-                            },
-                        }
-                        # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
-                        yield {
-                            "type": "StartTag",
-                            "namespace": svg_ns,
-                            "name": "svg",
-                            "data": {
-                                (None, "width"): "1em",
-                                (None, "height"): "1em",
-                                (None, "class"): "icon",
-                                (None, "aria-hidden"): "true",
-                            },
-                        }
-                        # html5lib tokenizes a self-closing <use /> like this
-                        yield {
-                            "type": "StartTag",
-                            "namespace": svg_ns,
-                            "name": "use",
-                            "data": {(xlink_ns, "href"): "#icon-video"},
-                        }
-                        yield {
-                            "type": "EndTag",
-                            "namespace": svg_ns,
-                            "name": "use",
-                        }
-                        yield {
-                            "type": "EndTag",
-                            "namespace": svg_ns,
-                            "name": "svg",
-                        }
-                        yield {
-                            "type": "EndTag",
-                            "namespace": html_ns,
-                            "name": "a",
-                        }
-                        elide = True
-                    else:
-                        yield token
-                else:
-                    yield token
+        else:
+            match token:
+                case StartTag(namespace, name="iframe") if namespace == html_ns:
+                    if src := token.attrs.get(_SRC_ATTR):
+                        url = DecodedURL.from_text(src)
+                        if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == "embed":
+                            yield StartTag(
+                                html_ns,
+                                "a",
+                                {
+                                    (None, "href"): _watch_url(url).to_text(),
+                                    (None, "class"): "youtube-thumb",
+                                },
+                            )
+                            yield EmptyTag(
+                                html_ns,
+                                "img",
+                                {
+                                    (None, "alt"): "YouTube video",
+                                    _SRC_ATTR: _thumbnail_url(url).to_text(),
+                                    (None, "width"): "320",
+                                    (None, "height"): "180",
+                                },
+                            )
+                            # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
+                            yield StartTag(
+                                svg_ns,
+                                "svg",
+                                {
+                                    (None, "width"): "1em",
+                                    (None, "height"): "1em",
+                                    (None, "class"): "icon",
+                                    (None, "aria-hidden"): "true",
+                                },
+                            )
+                            # html5lib tokenizes a self-closing <use /> like this
+                            yield StartTag(svg_ns, "use", {(xlink_ns, "href"): "#icon-video"})
+                            yield EndTag(svg_ns, "use")
+                            yield EndTag(svg_ns, "svg")
+                            yield EndTag(html_ns, "a")
+                            elide = True
+                            continue
+            yield token
 
 
-def _extract_title_text(source):
+def _extract_title_text(source: Iterator[WalkToken]):
     """
     ``<img title="...">`` becomes ``<img><aside class="title-text">...</aside>``
     """
@@ -446,24 +540,16 @@ def _extract_title_text(source):
     _title_attr = (None, "title")
     for token in source:
         yield token
-        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and "data" in token:
-            attrs = token["data"]
-            if _title_attr in attrs:
-                yield {
-                    "type": "StartTag",
-                    "namespace": html_ns,
-                    "name": "aside",
-                    "data": {(None, "class"): "title-text"},
-                }
-                yield {
-                    "type": "Characters",
-                    "data": attrs[_title_attr],
-                }
-                yield {
-                    "type": "EndTag",
-                    "namespace": html_ns,
-                    "name": "aside",
-                }
+        match token:
+            case EmptyTag(namespace, name="img") if namespace == html_ns:
+                if title := token.attrs.get(_title_attr):
+                    yield StartTag(
+                        namespace=html_ns,
+                        name="aside",
+                        attrs={(None, "class"): "title-text"},
+                    )
+                    yield Characters(title)
+                    yield EndTag(html_ns, "aside")
 
 
 def _adjust_srcset(source):
@@ -474,11 +560,13 @@ def _adjust_srcset(source):
     html_ns = namespaces["html"]
     srcset_attr = (None, "srcset")
     for token in source:
-        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and token["data"].get(srcset_attr) is not None:
-            for url, desc in srcset_candidates(token["data"][srcset_attr]):
-                if desc.endswith("w"):
-                    del token["data"][srcset_attr]
-                    break
+        match token:
+            case EmptyTag(namespace, name="img") if namespace == html_ns:
+                if srcset := token.attrs.get(srcset_attr):
+                    for url, desc in srcset_candidates(srcset):
+                        if desc.endswith("w"):
+                            del token.attrs[srcset_attr]
+                            break
         yield token
 
 
@@ -488,9 +576,11 @@ def _adjust_links(source):
     rel_attr = (None, "rel")
     target_attr = (None, "target")
     for token in source:
-        if token["type"] == "StartTag" and token["name"] == "a" and token["namespace"] == html_ns and "data" in token and href_attr in token["data"]:
-            token["data"][rel_attr] = "noopener noreferrer"
-            token["data"][target_attr] = "_blank"
+        match token:
+            case StartTag(namespace, name="a") if namespace == html_ns:
+                if href_attr in token.attrs:
+                    token.attrs[rel_attr] = "noopener noreferrer"
+                    token.attrs[target_attr] = "_blank"
         yield token
 
 
@@ -500,14 +590,15 @@ def _video_attrs(source):
     autoplay_attr = (None, "autoplay")
     preload_attr = (None, "preload")
     for token in source:
-        if token["type"] == "StartTag" and token["name"] == "video" and token["namespace"] == html_ns:
-            token["data"][controls_attr] = "controls"
-            token["data"][preload_attr] = "metadata"
-            token["data"].pop(autoplay_attr, None)
+        match token:
+            case StartTag(namespace, name="video") if namespace == html_ns:
+                token.attrs[controls_attr] = "controls"
+                token.attrs[preload_attr] = "metadata"
+                token.attrs.pop(autoplay_attr, None)
         yield token
 
 
-def _wp_smileys(source):
+def _wp_smileys(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
     """
     Replace emoji which WordPress has turned into images into the textual
     equivalent.
@@ -518,24 +609,16 @@ def _wp_smileys(source):
     class_attr = (None, "class")
     alt_attr = (None, "alt")
     for token in source:
-        if (
-            token["type"] == "EmptyTag"
-            and token["name"] == "img"
-            and token["namespace"] == html_ns
-            and token["data"].get(class_attr) == "wp-smiley"
-            and alt_attr in token["data"]
-        ):
-            alt = token["data"][alt_attr]
-            try:
-                alt.encode("ascii")
-            except UnicodeEncodeError:
-                # Smells like Emoji.
-                yield {"type": "Characters", "data": alt}
-            else:
-                # Emoticon
-                yield token
-        else:
-            yield token
+        match token:
+            case EmptyTag(namespace, name="img") if namespace == html_ns:
+                if token.attrs.get(class_attr) == "wp-smiley" and (alt := token.attrs.get(alt_attr)):
+                    try:
+                        alt.encode("ascii")
+                    except UnicodeEncodeError:
+                        # Smells like Emoji. If it's ASCII it's probably an emoticon like ":)".
+                        yield Characters(alt)
+                        continue
+        yield token
 
 
 # Matches image candidate strings within a srcset attribute value as
