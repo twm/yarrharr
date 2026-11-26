@@ -282,8 +282,8 @@ def sanitize_html(html: str) -> str:
     source = _adjust_srcset(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
-    source = to_dicts(source)
     source = _wp_smileys(source)
+    source = to_dicts(source)
     source = sanitizer.Filter(
         source,
         allowed_elements=sanitizer.allowed_elements
@@ -629,7 +629,7 @@ def _video_attrs(source):
         yield token
 
 
-def _wp_smileys(source):
+def _wp_smileys(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
     """
     Replace emoji which WordPress has turned into images into the textual
     equivalent.
@@ -640,24 +640,16 @@ def _wp_smileys(source):
     class_attr = (None, "class")
     alt_attr = (None, "alt")
     for token in source:
-        if (
-            token["type"] == "EmptyTag"
-            and token["name"] == "img"
-            and token["namespace"] == html_ns
-            and token["data"].get(class_attr) == "wp-smiley"
-            and alt_attr in token["data"]
-        ):
-            alt = token["data"][alt_attr]
-            try:
-                alt.encode("ascii")
-            except UnicodeEncodeError:
-                # Smells like Emoji.
-                yield {"type": "Characters", "data": alt}
-            else:
-                # Emoticon
-                yield token
-        else:
-            yield token
+        match token:
+            case EmptyTag(namespace, name="img") if namespace == html_ns:
+                if token.attrs.get(class_attr) == "wp-smiley" and (alt := token.attrs.get(alt_attr)):
+                    try:
+                        alt.encode("ascii")
+                    except UnicodeEncodeError:
+                        # Smells like Emoji. If it's ASCII it's probably an emoticon like ":)".
+                        yield Characters(alt)
+                        continue
+        yield token
 
 
 # Matches image candidate strings within a srcset attribute value as
