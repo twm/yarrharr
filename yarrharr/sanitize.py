@@ -270,9 +270,10 @@ def sanitize_html(html: str) -> str:
     tree = html5lib.parseFragment(html)
     serializer = html5lib.serializer.HTMLSerializer()
     source = html5lib.getTreeWalker("etree")(tree)
-    source = to_dicts(to_walk_tokens(source))
+    source = to_walk_tokens(source)
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
+    source = to_dicts(source)
     source = _replace_objects(source)
     source = _elide(source)
     source = _ReplaceYoutubeEmbedFilter(source)
@@ -314,11 +315,13 @@ def _strip_attrs(source):
     Strip id, style, and class attributes as they may break the layout.
     """
     for token in source:
-        if token["type"] == "StartTag":
-            attrs = token["data"]
-            attrs.pop((None, "id"), None)
-            attrs.pop((None, "class"), None)
-            attrs.pop((None, "style"), None)
+        match token:
+            # FIXME #1463: This should also handle EmptyTag
+            case StartTag():
+                attrs = token.attrs
+                attrs.pop((None, "id"), None)
+                attrs.pop((None, "class"), None)
+                attrs.pop((None, "style"), None)
         yield token
 
 
@@ -337,8 +340,10 @@ def _drop_empty_tags(source):
     )
 
     for token in source:
-        if token["type"] == "EmptyTag" and (token["namespace"], token["name"]) in tags:
-            continue
+        match token:
+            case EmptyTag(namespace, name):
+                if (namespace, name) in tags:
+                    continue
         yield token
 
 
