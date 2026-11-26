@@ -16,7 +16,9 @@
 import re
 import warnings
 from io import StringIO
+from typing import Any, Iterator, assert_never
 
+import attrs
 import html5lib
 from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
@@ -147,6 +149,120 @@ def html_to_text(html: str) -> str:
     return _WHITESPACE_RE.sub(" ", buf.getvalue()).strip()
 
 
+@attrs.define(slots=True)
+class Doctype:
+    """``<!DOCTYPE>`` declaration"""
+
+    name: str | None
+    public_id: str | None
+    system_id: str | None
+
+
+@attrs.define(slots=True)
+class StartTag:
+    """
+    Start of a non-empty element
+
+    :ivar data: Attributes
+    """
+
+    namespace: str | None
+    name: str
+    attrs: dict[(str | None, str), str]
+
+
+@attrs.define(slots=True)
+class EndTag:
+    """Marks the end of a non-empty element"""
+
+    namespace: str | None
+    name: str
+
+
+@attrs.define(slots=True)
+class EmptyTag:
+    """
+    An empty element like ``<img />``
+
+    :ivar data: Attributes
+    """
+
+    namespace: str | None
+    name: str
+    attrs: dict[(str | None, str), str]
+
+
+@attrs.define(slots=True)
+class Characters:
+    """Non-whitespace character data"""
+
+    cdata: str
+
+
+@attrs.define(slots=True)
+class SpaceCharacters:
+    """Whitespace character data"""
+
+    cdata: str
+
+
+@attrs.define(slots=True)
+class Comment:
+    text: str
+
+
+type WalkToken = Doctype | StartTag | EndTag | EmptyTag | Characters | SpaceCharacters | Comment
+
+
+def to_walk_tokens(source: Iterator[dict[Any, Any]]) -> Iterator[WalkToken]:
+    """
+    Convert d dict-style html5lib TreeWalker token stream to
+    one of `WalkToken` types.
+    """
+    for token in source:
+        match token:
+            case {"type": "StartTag", "namespace": namespace, "name": name, "data": attrs}:
+                yield StartTag(namespace, name, attrs)
+            case {"type": "EndTag", "namespace": namespace, "name": name}:
+                yield EndTag(namespace, name)
+            case {"type": "EmptyTag", "namespace": namespace, "name": name, "data": attrs}:
+                yield EmptyTag(namespace, name, attrs)
+            case {"type": "Characters", "data": cdata}:
+                yield Characters(cdata)
+            case {"type": "SpaceCharacters", "data": cdata}:
+                yield SpaceCharacters(cdata)
+            case {"type": "Comment", "data": text}:
+                yield Comment(text)
+            case {"type": "Doctype", "name": name, "publicId": public_id, "systemId": system_id}:
+                yield Doctype(name, public_id, system_id)
+            case _:
+                raise NotImplementedError(f"Unhandled token: {token!r}")
+
+
+def to_dicts(source: Iterator[WalkToken]) -> Iterator[dict[object, object]]:
+    """
+    Convert a `WalkToken` stream into dict-style TreeWalker tokens.
+    """
+    for token in source:
+        match token:
+            case StartTag(namespace, name, attrs):
+                yield {"type": "StartTag", "namespace": namespace, "name": name, "data": attrs}
+            case EndTag(namespace, name):
+                yield {"type": "EndTag", "namespace": namespace, "name": name}
+            case EmptyTag(ns, name, attrs):
+                yield {"type": "EmptyTag", "namespace": ns, "name": name, "data": attrs}
+            case Characters(cdata):
+                yield {"type": "Characters", "data": cdata}
+            case SpaceCharacters(cdata):
+                yield {"type": "SpaceCharacters", "data": cdata}
+            case Comment(text):
+                yield {"type": "Comment", "data": text}
+            case Doctype(name, public_id, system_id):
+                yield {"type": "Doctype", "name": name, "publicId": public_id, "systemId": system_id}
+            case _:
+                assert_never()
+
+
 def sanitize_html(html: str) -> str:
     """
     Make the given HTML string safe to display in a Yarrharr page.
@@ -154,6 +270,7 @@ def sanitize_html(html: str) -> str:
     tree = html5lib.parseFragment(html)
     serializer = html5lib.serializer.HTMLSerializer()
     source = html5lib.getTreeWalker("etree")(tree)
+    source = to_dicts(to_walk_tokens(source))
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
     source = _replace_objects(source)
