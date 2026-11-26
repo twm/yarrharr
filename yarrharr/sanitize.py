@@ -273,9 +273,9 @@ def sanitize_html(html: str) -> str:
     source = to_walk_tokens(source)
     source = _strip_attrs(source)
     source = _drop_empty_tags(source)
-    source = to_dicts(source)
     source = _replace_objects(source)
     source = _elide(source)
+    source = to_dicts(source)
     source = _ReplaceYoutubeEmbedFilter(source)
     source = _extract_title_text(source)
     source = _adjust_srcset(source)
@@ -368,20 +368,21 @@ def _elide(source):
     elide_ns = None
     elide_name = None
     for token in source:
-        token_type = token["type"]
         if elide:
-            if token_type == "EndTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
-                elide -= 1
-            if token_type == "StartTag" and token["name"] == elide_name and token["namespace"] == elide_ns:
-                elide += 1
+            match token:
+                case EndTag(namespace, name) if name == elide_name and namespace == elide_ns:
+                    elide -= 1
+                case StartTag(namespace, name) if name == elide_name and namespace == elide_ns:
+                    elide += 1
             continue  # Drop the token
         else:
-            if token_type == "StartTag":
-                if (token["namespace"], token["name"]) in _elide_tags:
-                    elide += 1
-                    elide_name = token["name"]
-                    elide_ns = token["namespace"]
-                    continue  # Drop this token.
+            match token:
+                case StartTag(namespace, name):
+                    if (namespace, name) in _elide_tags:
+                        elide += 1
+                        elide_name = name
+                        elide_ns = namespace
+                        continue  # Drop this token.
             yield token
 
 
@@ -393,20 +394,20 @@ def _replace_objects(source):
     html_ns = namespaces["html"]
     nest = 0
     for token in source:
-        token_type = token["type"]
         # Drop <param> when inside <object>. We don't handle nesting
         # properly, but they're not valid anywhere else so that's not
         # a problem.
-        if nest >= 1 and token_type == "EmptyTag" and token["name"] == "param" and token["namespace"] == html_ns:
-            continue
+        match token:
+            case EmptyTag(namespace, name="param") if nest >= 1 and namespace == html_ns:
+                continue
 
-        if token_type == "EndTag" and token["name"] == "object" and token["namespace"] == html_ns:
-            nest -= 1
-            continue
+            case EndTag(namespace, name="object") if namespace == html_ns:
+                nest -= 1
+                continue
 
-        if token_type == "StartTag" and token["name"] == "object" and token["namespace"] == html_ns:
-            nest += 1
-            continue
+            case StartTag(namespace, name="object") if namespace == html_ns:
+                nest += 1
+                continue
 
         yield token
 
