@@ -22,7 +22,6 @@ import attrs
 import html5lib
 from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
-from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
 REVISION = 13
@@ -275,9 +274,7 @@ def sanitize_html(html: str) -> str:
     source = _drop_empty_tags(source)
     source = _replace_objects(source)
     source = _elide(source)
-    source = to_dicts(source)
-    source = _ReplaceYoutubeEmbedFilter(source)
-    source = to_walk_tokens(source)
+    source = _replace_youtube_embed(source)
     source = _extract_title_text(source)
     source = _adjust_srcset(source)
     source = _adjust_links(source)
@@ -414,12 +411,12 @@ def _replace_objects(source):
         yield token
 
 
-class _ReplaceYoutubeEmbedFilter(BaseFilter):
+def _replace_youtube_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
     """
     YouTube embeds are replaced with a thumbnail which links to the original video.
     """
 
-    def _watch_url(self, embed_url) -> DecodedURL:
+    def _watch_url(embed_url) -> DecodedURL:
         """
         Generate the URL of the YouTube page at which the embedded video can be
         viewed.
@@ -436,7 +433,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
             return watch_url  # Ignore an invalid second offset.
         return watch_url.replace(fragment=f"t={start}s")
 
-    def _thumbnail_url(self, embed_url) -> DecodedURL:
+    def _thumbnail_url(embed_url) -> DecodedURL:
         """
         Generate the URL of the thumbnail for a YouTube video embed.
 
@@ -468,98 +465,70 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
             ),
         )
 
-    def __iter__(
-        self,
-        _SRC_ATTR=(None, "src"),
-        _youtube_hosts=(
-            "youtube.com",
-            "www.youtube.com",
-            "youtube-nocookie.com",
-            "www.youtube-nocookie.com",
-        ),
-    ):
-        html_ns = namespaces["html"]
-        svg_ns = namespaces["svg"]
-        xlink_ns = namespaces["xlink"]
-        elide = False
-        for token in BaseFilter.__iter__(self):
-            token_type = token["type"]
-            if elide:
+    _SRC_ATTR = (None, "src")
+    _youtube_hosts = (
+        "youtube.com",
+        "www.youtube.com",
+        "youtube-nocookie.com",
+        "www.youtube-nocookie.com",
+    )
+
+    html_ns = namespaces["html"]
+    svg_ns = namespaces["svg"]
+    xlink_ns = namespaces["xlink"]
+    elide = False
+    for token in source:
+        if elide:
+            match token:
                 # NOTE html5lib doesn't permit nesting <iframe> tags,
                 # (presumably because HTML5 doesn't permit it). Therefore we
                 # don't need to deal with that case here, just wait for the
                 # first end tag.
-                if token_type == "EndTag" and token["name"] == "iframe":
+                case EndTag(name="iframe"):
                     elide = False
-            else:
-                if (
-                    token_type == "StartTag"
-                    and token["name"] == "iframe"
-                    and token["namespace"] == html_ns
-                    and "data" in token
-                    and _SRC_ATTR in token["data"]
-                ):
-                    url = DecodedURL.from_text(token["data"][_SRC_ATTR])
-                    if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == "embed":
-                        yield {
-                            "type": "StartTag",
-                            "namespace": html_ns,
-                            "name": "a",
-                            "data": {
-                                (None, "href"): self._watch_url(url).to_text(),
-                                (None, "class"): "youtube-thumb",
-                            },
-                        }
-                        yield {
-                            "type": "EmptyTag",
-                            "namespace": html_ns,
-                            "name": "img",
-                            "data": {
-                                (None, "alt"): "YouTube video",
-                                _SRC_ATTR: self._thumbnail_url(url).to_text(),
-                                (None, "width"): "320",
-                                (None, "height"): "180",
-                            },
-                        }
-                        # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
-                        yield {
-                            "type": "StartTag",
-                            "namespace": svg_ns,
-                            "name": "svg",
-                            "data": {
-                                (None, "width"): "1em",
-                                (None, "height"): "1em",
-                                (None, "class"): "icon",
-                                (None, "aria-hidden"): "true",
-                            },
-                        }
-                        # html5lib tokenizes a self-closing <use /> like this
-                        yield {
-                            "type": "StartTag",
-                            "namespace": svg_ns,
-                            "name": "use",
-                            "data": {(xlink_ns, "href"): "#icon-video"},
-                        }
-                        yield {
-                            "type": "EndTag",
-                            "namespace": svg_ns,
-                            "name": "use",
-                        }
-                        yield {
-                            "type": "EndTag",
-                            "namespace": svg_ns,
-                            "name": "svg",
-                        }
-                        yield {
-                            "type": "EndTag",
-                            "namespace": html_ns,
-                            "name": "a",
-                        }
-                        elide = True
-                    else:
-                        yield token
-                else:
-                    yield token
+        else:
+            match token:
+                case StartTag(namespace, name="iframe") if namespace == html_ns:
+                    if src := token.attrs.get(_SRC_ATTR):
+                        url = DecodedURL.from_text(src)
+                        if url.absolute and url.host in _youtube_hosts and len(url.path) == 2 and url.path[0] == "embed":
+                            yield StartTag(
+                                html_ns,
+                                "a",
+                                {
+                                    (None, "href"): _watch_url(url).to_text(),
+                                    (None, "class"): "youtube-thumb",
+                                },
+                            )
+                            yield EmptyTag(
+                                html_ns,
+                                "img",
+                                {
+                                    (None, "alt"): "YouTube video",
+                                    _SRC_ATTR: _thumbnail_url(url).to_text(),
+                                    (None, "width"): "320",
+                                    (None, "height"): "180",
+                                },
+                            )
+                            # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
+                            yield StartTag(
+                                svg_ns,
+                                "svg",
+                                {
+                                    (None, "width"): "1em",
+                                    (None, "height"): "1em",
+                                    (None, "class"): "icon",
+                                    (None, "aria-hidden"): "true",
+                                },
+                            )
+                            # html5lib tokenizes a self-closing <use /> like this
+                            yield StartTag(svg_ns, "use", {(xlink_ns, "href"): "#icon-video"})
+                            yield EndTag(svg_ns, "use")
+                            yield EndTag(svg_ns, "svg")
+                            yield EndTag(html_ns, "a")
+                            elide = True
+                            continue
+            yield token
 
 
 def _extract_title_text(source: Iterator[WalkToken]):
