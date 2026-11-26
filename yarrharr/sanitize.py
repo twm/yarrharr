@@ -25,7 +25,7 @@ from html5lib.filters import sanitizer
 from html5lib.filters.base import Filter as BaseFilter
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 12
+REVISION = 13
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -277,7 +277,9 @@ def sanitize_html(html: str) -> str:
     source = _elide(source)
     source = to_dicts(source)
     source = _ReplaceYoutubeEmbedFilter(source)
+    source = to_walk_tokens(source)
     source = _extract_title_text(source)
+    source = to_dicts(source)
     source = _adjust_srcset(source)
     source = _adjust_links(source)
     source = _video_attrs(source)
@@ -560,7 +562,7 @@ class _ReplaceYoutubeEmbedFilter(BaseFilter):
                     yield token
 
 
-def _extract_title_text(source):
+def _extract_title_text(source: Iterator[WalkToken]):
     """
     ``<img title="...">`` becomes ``<img><aside class="title-text">...</aside>``
     """
@@ -569,24 +571,16 @@ def _extract_title_text(source):
     _title_attr = (None, "title")
     for token in source:
         yield token
-        if token["type"] == "EmptyTag" and token["name"] == "img" and token["namespace"] == html_ns and "data" in token:
-            attrs = token["data"]
-            if _title_attr in attrs:
-                yield {
-                    "type": "StartTag",
-                    "namespace": html_ns,
-                    "name": "aside",
-                    "data": {(None, "class"): "title-text"},
-                }
-                yield {
-                    "type": "Characters",
-                    "data": attrs[_title_attr],
-                }
-                yield {
-                    "type": "EndTag",
-                    "namespace": html_ns,
-                    "name": "aside",
-                }
+        match token:
+            case EmptyTag(namespace, name="img") if namespace == html_ns:
+                if title := token.attrs.get(_title_attr):
+                    yield StartTag(
+                        namespace=html_ns,
+                        name="aside",
+                        attrs={(None, "class"): "title-text"},
+                    )
+                    yield Characters(title)
+                    yield EndTag(html_ns, "aside")
 
 
 def _adjust_srcset(source):
