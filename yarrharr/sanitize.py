@@ -281,8 +281,8 @@ def sanitize_html(html: str) -> str:
     source = _extract_title_text(source)
     source = _adjust_srcset(source)
     source = _adjust_links(source)
-    source = to_dicts(source)
     source = _video_attrs(source)
+    source = to_dicts(source)
     source = _wp_smileys(source)
     source = sanitizer.Filter(
         source,
@@ -621,10 +621,11 @@ def _video_attrs(source):
     autoplay_attr = (None, "autoplay")
     preload_attr = (None, "preload")
     for token in source:
-        if token["type"] == "StartTag" and token["name"] == "video" and token["namespace"] == html_ns:
-            token["data"][controls_attr] = "controls"
-            token["data"][preload_attr] = "metadata"
-            token["data"].pop(autoplay_attr, None)
+        match token:
+            case StartTag(namespace, name="video") if namespace == html_ns:
+                token.attrs[controls_attr] = "controls"
+                token.attrs[preload_attr] = "metadata"
+                token.attrs.pop(autoplay_attr, None)
         yield token
 
 
