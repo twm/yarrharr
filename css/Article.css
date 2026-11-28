@@ -116,6 +116,22 @@ article {
                 color: red;
             }
         }
+
+        /* <a href=... class=vimeo-embed>
+         *    <svg><!-- icon --></svg>
+         *    Vimeo video
+         * </a> */
+        a.vimeo-embed {
+            display: inline-flex;
+            border: 2px solid rgb(23, 213, 255);
+            padding: 0.5rem;
+
+            .icon {
+                margin: 0 .25rem 0 0;
+                font-size: 2rem;
+                color: rgb(23, 213, 255);
+            }
+        }
     }
 }
 
