@@ -24,7 +24,7 @@ from html5lib.constants import namespaces, voidElements
 from html5lib.filters import sanitizer
 from hyperlink import DecodedURL, EncodedURL
 
-REVISION = 13
+REVISION = 14
 
 # Local patch implementing https://github.com/html5lib/html5lib-python/pull/395
 # since html5lib-python is unmaintained. This pairs with allowing <wbr> in the
@@ -274,6 +274,7 @@ def sanitize_html(html: str) -> str:
     source = _drop_empty_tags(source)
     source = _replace_objects(source)
     source = _elide(source)
+    source = _replace_vimeo_embed(source)
     source = _replace_youtube_embed(source)
     source = _extract_title_text(source)
     source = _adjust_srcset(source)
@@ -411,6 +412,72 @@ def _replace_objects(source):
         yield token
 
 
+def _replace_vimeo_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
+    """
+    Vimeo embeds are replaced with a link to the original video.
+    """
+
+    def _watch_url(embed_url: DecodedURL) -> DecodedURL:
+        """
+        Generate the URL of the Vimeo page at which the video can be
+        viewed.
+        """
+        # Refer to https://help.vimeo.com/hc/en-us/articles/12426260232977-About-Player-Parameters
+        video_id = embed_url.path[1]
+        watch_url = (
+            DecodedURL(
+                EncodedURL(scheme="https", host="vimeo.com", path=(video_id,)),
+            )
+            .add("autoplay", "1")
+            .add("muted", "0")
+        )
+        if embed_url.fragment:
+            watch_url = watch_url.replace(fragment=embed_url.fragment)
+        return watch_url
+
+    html_ns = namespaces["html"]
+    svg_ns = namespaces["svg"]
+    elide = False
+    for token in source:
+        if elide:
+            match token:
+                # NOTE html5lib doesn't permit nesting <iframe> tags,
+                # (presumably because HTML5 doesn't permit it). Therefore we
+                # don't need to deal with that case here, just wait for the
+                # first end tag.
+                case EndTag(name="iframe"):
+                    elide = False
+        else:
+            match token:
+                case StartTag(namespace, name="iframe") if namespace == html_ns:
+                    if src := token.attrs.get((None, "src")):
+                        url = DecodedURL.from_text(src)
+                        if url.absolute and url.host == "player.vimeo.com" and len(url.path) == 2 and url.path[0] == "video":
+                            yield StartTag(html_ns, "p", {(None, "class"): "vimeo-embed"})
+                            yield StartTag(html_ns, "a", {(None, "href"): _watch_url(url).to_text()})
+                            # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
+                            yield StartTag(
+                                svg_ns,
+                                "svg",
+                                {
+                                    (None, "width"): "1em",
+                                    (None, "height"): "1em",
+                                    (None, "class"): "icon",
+                                    (None, "aria-hidden"): "true",
+                                },
+                            )
+                            # html5lib tokenizes a self-closing <use /> like this
+                            yield StartTag(svg_ns, "use", {(namespaces["xlink"], "href"): "#icon-video"})
+                            yield EndTag(svg_ns, "use")
+                            yield EndTag(svg_ns, "svg")
+                            yield Characters("Vimeo video")
+                            yield EndTag(html_ns, "a")
+                            yield EndTag(html_ns, "p")
+                            elide = True
+                            continue
+            yield token
+
+
 def _replace_youtube_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
     """
     YouTube embeds are replaced with a thumbnail which links to the original video.
@@ -475,7 +542,6 @@ def _replace_youtube_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
 
     html_ns = namespaces["html"]
     svg_ns = namespaces["svg"]
-    xlink_ns = namespaces["xlink"]
     elide = False
     for token in source:
         if elide:
@@ -522,7 +588,7 @@ def _replace_youtube_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
                                 },
                             )
                             # html5lib tokenizes a self-closing <use /> like this
-                            yield StartTag(svg_ns, "use", {(xlink_ns, "href"): "#icon-video"})
+                            yield StartTag(svg_ns, "use", {(namespaces["xlink"], "href"): "#icon-video"})
                             yield EndTag(svg_ns, "use")
                             yield EndTag(svg_ns, "svg")
                             yield EndTag(html_ns, "a")
