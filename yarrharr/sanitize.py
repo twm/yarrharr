@@ -453,7 +453,7 @@ def _replace_vimeo_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
                     if src := token.attrs.get((None, "src")):
                         url = DecodedURL.from_text(src)
                         if url.absolute and url.host == "player.vimeo.com" and len(url.path) == 2 and url.path[0] == "video":
-                            yield StartTag(html_ns, "a", {(None, "class"): "vimeo-embed", (None, "href"): _watch_url(url).to_text()})
+                            yield StartTag(html_ns, "span", {(None, "class"): "vimeo-embed"})
                             # <svg width="1em" height="1em" class="icon" aria-hidden="false"><use xlink:href="#icon-video" /></svg>
                             yield StartTag(
                                 svg_ns,
@@ -469,8 +469,14 @@ def _replace_vimeo_embed(source: Iterator[WalkToken]) -> Iterator[WalkToken]:
                             yield StartTag(svg_ns, "use", {(namespaces["xlink"], "href"): "#icon-video"})
                             yield EndTag(svg_ns, "use")
                             yield EndTag(svg_ns, "svg")
+                            yield StartTag(html_ns, "a", {(None, "href"): _watch_url(url).to_text()})
                             yield Characters("Vimeo video")
                             yield EndTag(html_ns, "a")
+                            yield SpaceCharacters(" ")
+                            yield StartTag(html_ns, "a", {(None, "href"): src})
+                            yield Characters("(original embed)")
+                            yield EndTag(html_ns, "a")
+                            yield EndTag(html_ns, "span")
                             elide = True
                             continue
             yield token
