@@ -262,6 +262,25 @@ class SanitizeHtmlTests(unittest.TestCase):
         )
         self.assertEqual(sanitize_html(html), html)
 
+    def test_vimeo_embed_replaced(self):
+        """
+        An ``<iframe>`` style embedded Vimeo video is replaced with a link
+        to the original video.
+        """
+        html = """<iframe
+            allow="autoplay; fullscreen" allowautoplay="true" allowfullscreen="true"
+            frameborder="0" gesture="media" loading="lazy"
+            src="https://player.vimeo.com/video/1234?autoplay=0&amp;h=8efff888ee">
+        </iframe>"""
+        self.assertEqual(
+            (
+                '<p class=vimeo-embed><a href="https://vimeo.com/1234?autoplay=1&amp;muted=0" rel="noopener noreferrer" target=_blank>'
+                + VIDEO_ICON
+                + "Vimeo video</a>"
+            ),
+            sanitize_html(html),
+        )
+
     def test_youtube_embed_replaced(self):
         """
         An ``<iframe>`` style embedded YouTube video is replaced by a thumbnail
